@@ -1,0 +1,108 @@
+import { createClient, SupabaseClient } from '@supabase/supabase-js'
+
+const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL!
+const SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY!
+const ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+
+if (!SUPABASE_URL || !SERVICE_ROLE_KEY || !ANON_KEY) {
+  throw new Error('Missing Supabase env vars for RLS tests. Set NEXT_PUBLIC_SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, NEXT_PUBLIC_SUPABASE_ANON_KEY.')
+}
+
+export function getServiceClient(): SupabaseClient {
+  return createClient(SUPABASE_URL, SERVICE_ROLE_KEY)
+}
+
+export function getAnonClient(): SupabaseClient {
+  return createClient(SUPABASE_URL, ANON_KEY)
+}
+
+export interface TestOrg {
+  orgId: string
+  userId: string
+  email: string
+  client: SupabaseClient
+}
+
+let testCounter = 0
+
+export async function createTestOrg(suffix?: string): Promise<TestOrg> {
+  testCounter++
+  const tag = suffix || `test${testCounter}`
+  const email = `rls-test-${tag}-${Date.now()}@test.consentshield.in`
+  const password = `TestPass!${Date.now()}`
+
+  const admin = getServiceClient()
+
+  // Create auth user
+  const { data: authData, error: authError } = await admin.auth.admin.createUser({
+    email,
+    password,
+    email_confirm: true,
+  })
+  if (authError) throw new Error(`createUser failed: ${authError.message}`)
+  const userId = authData.user.id
+
+  // Create org
+  const { data: org, error: orgError } = await admin
+    .from('organisations')
+    .insert({ name: `Test Org ${tag}` })
+    .select('id')
+    .single()
+  if (orgError) throw new Error(`createOrg failed: ${orgError.message}`)
+
+  // Link user as admin
+  const { error: memberError } = await admin
+    .from('organisation_members')
+    .insert({ org_id: org.id, user_id: userId, role: 'admin' })
+  if (memberError) throw new Error(`linkMember failed: ${memberError.message}`)
+
+  // Sign in as the user to get an authenticated client
+  const userClient = createClient(SUPABASE_URL, ANON_KEY)
+  const { error: signInError } = await userClient.auth.signInWithPassword({ email, password })
+  if (signInError) throw new Error(`signIn failed: ${signInError.message}`)
+
+  // Force token refresh so JWT picks up org_id claim from the hook
+  await userClient.auth.refreshSession()
+
+  return { orgId: org.id, userId, email, client: userClient }
+}
+
+export async function cleanupTestOrg(testOrg: TestOrg) {
+  const admin = getServiceClient()
+  // Cascade delete handles organisation_members and all org-scoped data
+  await admin.from('organisations').delete().eq('id', testOrg.orgId)
+  await admin.auth.admin.deleteUser(testOrg.userId)
+}
+
+// Tables grouped by type for test generation
+export const operationalTables = [
+  'web_properties',
+  'consent_banners',
+  'data_inventory',
+  'breach_notifications',
+  'export_configurations',
+  'tracker_overrides',
+  'integration_connectors',
+  'retention_rules',
+  'notification_channels',
+  'consent_artefact_index',
+  'consent_probes',
+  'api_keys',
+  'gdpr_configurations',
+  'dpo_engagements',
+  'cross_border_transfers',
+  'white_label_configs',
+] as const
+
+export const bufferTables = [
+  'consent_events',
+  'tracker_observations',
+  'audit_log',
+  'processing_log',
+  'rights_request_events',
+  'delivery_buffer',
+  'deletion_receipts',
+  'withdrawal_verifications',
+  'security_scans',
+  'consent_probe_runs',
+] as const

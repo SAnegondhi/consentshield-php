@@ -159,7 +159,7 @@ This unblocks ADR-0002 (consent banner builder + dashboard) and ADR-0003 (Worker
 - [ ] Every table has at least one isolation test
 - [ ] Every buffer table has append-only constraint test
 
-**Status:** `[ ] planned`
+**Status:** `[x] complete`
 
 ### Phase 3: Cloudflare Worker Skeleton
 
@@ -338,9 +338,36 @@ Note: Custom access token hook requires dashboard registration
 - Dashboard page: separated org query to avoid Supabase join type mismatch
 - Login page: wrapped useSearchParams in Suspense boundary (Next.js 16 requirement)
 
-### Sprint 2.2 — [Date]
+### Sprint 2.2 — 2026-04-13
 
-_Pending_
+```
+Test: Full RLS isolation test suite
+Method: bun run test (vitest)
+Result: 39 tests passed, 0 failed, 12.45s
+
+Test breakdown:
+  Cross-tenant isolation (7 tests) — PASS
+    User A cannot SELECT Org B's web_properties, data_inventory,
+    consent_events, audit_log, organisations
+    User A cannot INSERT into Org B's web_properties
+    User A cannot UPDATE Org B's organisations
+
+  Buffer tables append-only (20 tests) — PASS
+    Cannot UPDATE any of 10 buffer tables
+    Cannot DELETE from any of 10 buffer tables
+
+  Critical buffer INSERT restriction (5 tests) — PASS
+    Cannot INSERT into consent_events, tracker_observations,
+    audit_log, processing_log, delivery_buffer
+
+  User with no org membership (3 tests) — PASS
+    Sees 0 rows from organisations, web_properties, consent_events
+
+  Unauthenticated anon key (4 tests) — PASS
+    Sees 0 rows from organisations, consent_events
+    CAN insert into rights_requests (public insert policy)
+    Cannot SELECT rights_requests (no org claim)
+```
 
 ### Sprint 3.1 — [Date]
 
