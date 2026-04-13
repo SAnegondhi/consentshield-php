@@ -1,0 +1,1197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ConsentShield — Screen Designs & UX Flows</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --navy:#0F2D5B;--navy-dark:#091E3E;--navy-light:#1A3F73;
+  --teal:#0D7A6B;--teal-light:#E0F4F1;--teal-mid:#14A090;
+  --amber:#C97B00;--amber-light:#FEF3C7;--amber-mid:#F59E0B;
+  --red:#B91C1C;--red-light:#FEE2E2;
+  --green:#15803D;--green-light:#DCFCE7;
+  --slate:#475569;--slate-light:#94A3B8;
+  --bg:#F1F5F9;--surface:#FFFFFF;
+  --border:#E2E8F0;--border-mid:#CBD5E1;
+  --text:#0F172A;--text-2:#475569;--text-3:#94A3B8;
+  --font:'DM Sans',system-ui,sans-serif;
+  --mono:'DM Mono',monospace;
+  --r:8px;--r-lg:12px;
+  --shadow:0 1px 3px rgba(0,0,0,.08),0 1px 2px rgba(0,0,0,.05);
+  --shadow-md:0 4px 6px rgba(0,0,0,.07),0 2px 4px rgba(0,0,0,.05);
+}
+body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:14px;line-height:1.5;display:flex;height:100vh;overflow:hidden}
+
+/* ── SIDEBAR ── */
+.sidebar{width:220px;background:var(--navy);display:flex;flex-direction:column;flex-shrink:0;height:100vh}
+.sidebar-logo{padding:20px 18px 16px;border-bottom:1px solid rgba(255,255,255,.08)}
+.logo-mark{display:flex;align-items:center;gap:8px}
+.logo-icon{width:28px;height:28px;background:var(--teal);border-radius:6px;display:flex;align-items:center;justify-content:center}
+.logo-icon svg{width:16px;height:16px;fill:white}
+.logo-text{font-size:15px;font-weight:600;color:white;letter-spacing:-.01em}
+.logo-sub{font-size:10px;color:rgba(255,255,255,.4);margin-top:1px;letter-spacing:.04em;text-transform:uppercase}
+.score-chip{margin:12px 18px 0;background:rgba(255,255,255,.08);border-radius:6px;padding:8px 10px;display:flex;align-items:center;justify-content:space-between}
+.score-chip-label{font-size:10px;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:.05em}
+.score-chip-value{font-size:13px;font-weight:600;color:#F59E0B}
+.nav{flex:1;padding:12px 0;overflow-y:auto}
+.nav-section{padding:0 10px;margin-bottom:4px}
+.nav-item{display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:6px;cursor:pointer;color:rgba(255,255,255,.55);font-size:13px;font-weight:400;transition:all .15s;user-select:none}
+.nav-item:hover{background:rgba(255,255,255,.07);color:rgba(255,255,255,.9)}
+.nav-item.active{background:rgba(255,255,255,.12);color:white;font-weight:500}
+.nav-item svg{width:15px;height:15px;flex-shrink:0;opacity:.7}
+.nav-item.active svg{opacity:1}
+.nav-badge{margin-left:auto;background:var(--teal);color:white;font-size:10px;font-weight:600;padding:1px 6px;border-radius:10px}
+.nav-badge.red{background:#DC2626}
+.sidebar-footer{padding:14px 18px;border-top:1px solid rgba(255,255,255,.08)}
+.user-row{display:flex;align-items:center;gap:9px}
+.user-avatar{width:28px;height:28px;border-radius:50%;background:var(--teal);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:white;flex-shrink:0}
+.user-name{font-size:12px;color:rgba(255,255,255,.7);font-weight:500}
+.user-role{font-size:10px;color:rgba(255,255,255,.35)}
+
+/* ── MAIN ── */
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.topbar{height:52px;background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 24px;gap:16px;flex-shrink:0}
+.topbar-title{font-size:15px;font-weight:600;color:var(--text);flex:1}
+.topbar-actions{display:flex;align-items:center;gap:10px}
+.icon-btn{width:32px;height:32px;border-radius:6px;border:1px solid var(--border);background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--slate);transition:all .15s}
+.icon-btn:hover{background:var(--bg);border-color:var(--border-mid)}
+.icon-btn svg{width:15px;height:15px}
+.notif-dot{position:relative}
+.notif-dot::after{content:'3';position:absolute;top:-4px;right:-4px;width:14px;height:14px;background:#DC2626;border-radius:50%;font-size:8px;font-weight:700;color:white;display:flex;align-items:center;justify-content:center;line-height:14px;text-align:center}
+.btn{padding:6px 14px;border-radius:var(--r);font-family:var(--font);font-size:13px;font-weight:500;cursor:pointer;transition:all .15s;border:none}
+.btn-primary{background:var(--teal);color:white}
+.btn-primary:hover{background:var(--teal-mid)}
+.btn-secondary{background:var(--surface);color:var(--text);border:1px solid var(--border)}
+.btn-secondary:hover{background:var(--bg)}
+.btn-sm{padding:4px 10px;font-size:12px}
+.content-area{flex:1;overflow-y:auto;padding:24px}
+
+/* ── PANELS ── */
+.panel{display:none}
+.panel.active{display:block}
+
+/* ── CARDS ── */
+.card{background:var(--surface);border-radius:var(--r-lg);border:1px solid var(--border);box-shadow:var(--shadow)}
+.card-header{padding:16px 18px 12px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.card-title{font-size:13px;font-weight:600;color:var(--text)}
+.card-body{padding:18px}
+.card-sm-label{font-size:10px;font-weight:500;text-transform:uppercase;letter-spacing:.06em;color:var(--text-3)}
+
+/* ── GRID LAYOUTS ── */
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px}
+.grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.flex-row{display:flex;gap:16px}
+.flex-col{display:flex;flex-direction:column;gap:16px}
+
+/* ── STATUS PILLS ── */
+.pill{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:500}
+.pill-green{background:var(--green-light);color:var(--green)}
+.pill-amber{background:var(--amber-light);color:var(--amber)}
+.pill-red{background:var(--red-light);color:var(--red)}
+.pill-navy{background:#EFF6FF;color:var(--navy)}
+.pill-gray{background:var(--bg);color:var(--slate)}
+.dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.dot-green{background:var(--green)}
+.dot-amber{background:var(--amber-mid)}
+.dot-red{background:var(--red)}
+
+/* ── DASHBOARD ── */
+.dash-grid{display:grid;grid-template-columns:280px 1fr;gap:16px;margin-bottom:16px}
+.score-card{background:var(--surface);border-radius:var(--r-lg);border:1px solid var(--border);padding:24px;display:flex;flex-direction:column;align-items:center;gap:16px;box-shadow:var(--shadow)}
+.gauge-wrap{position:relative;width:160px;height:160px}
+.gauge-wrap svg{transform:rotate(-90deg)}
+.gauge-center{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center}
+.gauge-pct{font-size:32px;font-weight:600;color:var(--amber)}
+.gauge-label{font-size:11px;color:var(--text-3);margin-top:2px}
+.score-meta{font-size:11px;color:var(--text-3);text-align:center}
+.score-link{color:var(--teal);cursor:pointer;text-decoration:underline;font-size:11px}
+.status-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;background:var(--surface);border-radius:var(--r-lg);border:1px solid var(--border);padding:16px;box-shadow:var(--shadow)}
+.status-item{padding:12px;border-radius:var(--r);background:var(--bg);display:flex;flex-direction:column;gap:8px}
+.status-item-title{font-size:11px;font-weight:500;color:var(--text-2)}
+.status-item-val{font-size:13px;font-weight:600}
+.status-item-val.live{color:var(--green)}
+.status-item-val.warn{color:var(--amber)}
+.status-item-val.bad{color:var(--red)}
+.action-queue{background:var(--surface);border-radius:var(--r-lg);border:1px solid var(--border);box-shadow:var(--shadow)}
+.action-item{display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--border)}
+.action-item:last-child{border-bottom:none}
+.sev-badge{width:6px;height:32px;border-radius:3px;flex-shrink:0}
+.sev-high{background:var(--red)}
+.sev-med{background:var(--amber-mid)}
+.action-content{flex:1}
+.action-title{font-size:13px;font-weight:500;color:var(--text)}
+.action-meta{font-size:11px;color:var(--text-3);margin-top:2px}
+.activity-feed{background:var(--surface);border-radius:var(--r-lg);border:1px solid var(--border);box-shadow:var(--shadow)}
+.activity-item{display:flex;gap:12px;padding:12px 16px;border-bottom:1px solid var(--border);align-items:flex-start}
+.activity-item:last-child{border-bottom:none}
+.activity-dot{width:8px;height:8px;border-radius:50%;background:var(--teal);margin-top:5px;flex-shrink:0}
+.activity-text{font-size:13px;color:var(--text);flex:1}
+.activity-time{font-size:11px;color:var(--text-3)}
+.enforcement-clock{background:linear-gradient(135deg,var(--navy) 0%,var(--navy-light) 100%);border-radius:var(--r-lg);padding:16px 20px;display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.clock-label{font-size:11px;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px}
+.clock-days{font-size:28px;font-weight:600;color:#F59E0B}
+.clock-sub{font-size:11px;color:rgba(255,255,255,.4);margin-top:2px}
+.clock-icon{font-size:28px;opacity:.3}
+
+/* ── CONSENT MANAGER ── */
+.banner-workspace{display:grid;grid-template-columns:1fr 360px;gap:0;background:var(--surface);border-radius:var(--r-lg);border:1px solid var(--border);overflow:hidden;box-shadow:var(--shadow);min-height:480px}
+.banner-preview{background:#F8FAFC;border-right:1px solid var(--border);position:relative;padding:0}
+.preview-browser{background:white;border-bottom:1px solid var(--border);padding:8px 12px;display:flex;align-items:center;gap:8px}
+.browser-dots{display:flex;gap:4px}
+.browser-dot{width:8px;height:8px;border-radius:50%}
+.browser-url{flex:1;background:var(--bg);border-radius:4px;padding:3px 10px;font-size:11px;color:var(--text-3);font-family:var(--mono)}
+.preview-site{padding:20px;min-height:300px;position:relative}
+.site-nav-mock{height:36px;background:var(--navy);border-radius:6px;margin-bottom:12px;display:flex;align-items:center;padding:0 12px;gap:8px}
+.site-nav-logo{width:60px;height:12px;background:rgba(255,255,255,.3);border-radius:2px}
+.site-content-mock{display:flex;flex-direction:column;gap:8px}
+.mock-line{height:10px;background:var(--border);border-radius:2px}
+.mock-line.short{width:60%}
+.mock-line.med{width:80%}
+.consent-banner-preview{position:absolute;bottom:0;left:0;right:0;background:white;border-top:2px solid var(--teal);padding:14px 16px;box-shadow:0 -4px 20px rgba(0,0,0,.1)}
+.cbp-title{font-size:12px;font-weight:600;color:var(--text);margin-bottom:4px}
+.cbp-text{font-size:11px;color:var(--text-2);line-height:1.5;margin-bottom:10px}
+.cbp-purposes{display:flex;flex-direction:column;gap:5px;margin-bottom:10px}
+.cbp-purpose{display:flex;align-items:center;justify-content:space-between;padding:5px 8px;background:var(--bg);border-radius:4px}
+.cbp-purpose-name{font-size:11px;font-weight:500;color:var(--text)}
+.toggle{width:28px;height:16px;background:var(--teal);border-radius:8px;position:relative;cursor:pointer}
+.toggle::after{content:'';position:absolute;right:2px;top:2px;width:12px;height:12px;background:white;border-radius:50%}
+.toggle.off{background:var(--border-mid)}
+.toggle.off::after{right:auto;left:2px}
+.cbp-actions{display:flex;gap:6px}
+.cbp-btn{padding:5px 10px;border-radius:4px;font-size:11px;font-weight:500;cursor:pointer;border:none}
+.cbp-btn-primary{background:var(--teal);color:white}
+.cbp-btn-secondary{background:white;color:var(--text);border:1px solid var(--border)}
+.banner-config{padding:18px;display:flex;flex-direction:column;gap:16px;overflow-y:auto}
+.config-section{border-bottom:1px solid var(--border);padding-bottom:14px}
+.config-section:last-child{border-bottom:none;padding-bottom:0}
+.config-label{font-size:11px;font-weight:600;color:var(--text-2);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px}
+.config-input{width:100%;padding:7px 10px;border:1px solid var(--border);border-radius:var(--r);font-family:var(--font);font-size:13px;color:var(--text);background:white}
+.config-input:focus{outline:none;border-color:var(--teal)}
+.purpose-row{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border)}
+.purpose-row:last-child{border-bottom:none}
+.purpose-info{}
+.purpose-name{font-size:13px;font-weight:500;color:var(--text)}
+.purpose-desc{font-size:11px;color:var(--text-3)}
+.snippet-box{background:var(--navy);border-radius:var(--r);padding:12px;position:relative}
+.snippet-code{font-family:var(--mono);font-size:11px;color:#93C5FD;line-height:1.6;white-space:pre-wrap;word-break:break-all}
+.copy-btn{position:absolute;top:8px;right:8px;background:rgba(255,255,255,.1);color:rgba(255,255,255,.7);border:none;padding:4px 8px;border-radius:4px;font-size:10px;cursor:pointer;font-family:var(--font)}
+.copy-btn:hover{background:rgba(255,255,255,.2)}
+.tab-bar{display:flex;border-bottom:1px solid var(--border);margin-bottom:16px}
+.tab-item{padding:8px 14px;font-size:13px;font-weight:500;color:var(--text-3);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .15s}
+.tab-item.active{color:var(--teal);border-bottom-color:var(--teal)}
+.tab-panel{display:none}.tab-panel.active{display:block}
+
+/* ── DATA INVENTORY ── */
+.inv-table{width:100%;border-collapse:collapse}
+.inv-table th{padding:9px 12px;text-align:left;font-size:11px;font-weight:600;color:var(--text-3);text-transform:uppercase;letter-spacing:.05em;border-bottom:2px solid var(--border);background:var(--bg)}
+.inv-table td{padding:10px 12px;border-bottom:1px solid var(--border);font-size:13px;vertical-align:middle}
+.inv-table tr:hover td{background:#FAFBFF}
+.inv-table tr:last-child td{border-bottom:none}
+.purpose-tag{display:inline-block;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:500;margin:1px}
+.purpose-tag.mkt{background:#EDE9FE;color:#6D28D9}
+.purpose-tag.prod{background:#E0F4F1;color:#0D7A6B}
+.purpose-tag.ana{background:#FEF3C7;color:#B45309}
+
+/* ── RIGHTS CENTRE ── */
+.req-table{width:100%;border-collapse:collapse}
+.req-table th{padding:9px 12px;text-align:left;font-size:11px;font-weight:600;color:var(--text-3);text-transform:uppercase;letter-spacing:.05em;border-bottom:2px solid var(--border);background:var(--bg)}
+.req-table td{padding:10px 12px;border-bottom:1px solid var(--border);font-size:13px;vertical-align:middle}
+.req-table tr:hover td{background:#FAFBFF;cursor:pointer}
+.req-table tr.selected td{background:#F0FDF9}
+.sla-bar{height:4px;border-radius:2px;background:var(--border);margin-top:4px}
+.sla-fill{height:4px;border-radius:2px}
+.req-detail{background:var(--surface);border-radius:var(--r-lg);border:1px solid var(--border);padding:20px;box-shadow:var(--shadow)}
+.detail-section{margin-bottom:16px;padding-bottom:16px;border-bottom:1px solid var(--border)}
+.detail-section:last-child{border-bottom:none;margin-bottom:0;padding-bottom:0}
+.detail-label{font-size:11px;font-weight:600;color:var(--text-3);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px}
+.detail-value{font-size:13px;color:var(--text)}
+.step-list{display:flex;flex-direction:column;gap:6px}
+.step-item{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:var(--r);border:1px solid var(--border)}
+.step-item.done{background:var(--green-light);border-color:rgba(21,128,61,.2)}
+.step-item.current{background:#EFF6FF;border-color:#BFDBFE}
+.step-num{width:20px;height:20px;border-radius:50%;background:var(--border);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;color:var(--text-3);flex-shrink:0}
+.step-item.done .step-num{background:var(--green);color:white}
+.step-item.current .step-num{background:var(--navy);color:white}
+.step-text{font-size:12px;color:var(--text-2)}
+.step-item.done .step-text{color:var(--green)}
+
+/* ── AUDIT & REPORTS ── */
+.report-builder{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+.check-item{display:flex;align-items:center;gap:9px;padding:10px 12px;border-radius:var(--r);border:1px solid var(--border);cursor:pointer}
+.check-item input{accent-color:var(--teal);width:14px;height:14px}
+.check-label{font-size:13px;font-weight:500;color:var(--text)}
+.check-meta{font-size:11px;color:var(--text-3)}
+.audit-scores{display:flex;flex-direction:column;gap:8px}
+.audit-score-row{display:flex;align-items:center;gap:10px}
+.audit-score-label{font-size:12px;color:var(--text-2);width:220px;flex-shrink:0}
+.audit-score-bar{flex:1;height:6px;background:var(--border);border-radius:3px}
+.audit-score-fill{height:6px;border-radius:3px}
+.audit-score-val{font-size:11px;font-weight:600;width:40px;text-align:right;flex-shrink:0}
+.breach-row{display:flex;align-items:center;gap:12px;padding:12px;border-radius:var(--r);border:1px solid var(--border);background:var(--red-light)}
+.breach-icon{font-size:18px}
+.breach-info{flex:1}
+.breach-title{font-size:13px;font-weight:500;color:var(--red)}
+.breach-meta{font-size:11px;color:var(--text-3)}
+
+/* ── ONBOARDING ── */
+.onboard-container{max-width:580px;margin:0 auto}
+.onboard-progress{display:flex;align-items:center;gap:0;margin-bottom:28px}
+.ob-step{display:flex;align-items:center;flex:1}
+.ob-circle{width:28px;height:28px;border-radius:50%;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:var(--text-3);background:white;flex-shrink:0;z-index:1}
+.ob-circle.done{background:var(--teal);border-color:var(--teal);color:white}
+.ob-circle.active{background:var(--navy);border-color:var(--navy);color:white}
+.ob-line{flex:1;height:2px;background:var(--border)}
+.ob-line.done{background:var(--teal)}
+.ob-step:last-child .ob-line{display:none}
+.ob-card{background:var(--surface);border-radius:var(--r-lg);border:1px solid var(--border);padding:28px;box-shadow:var(--shadow-md)}
+.ob-step-label{font-size:11px;font-weight:500;color:var(--teal);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px}
+.ob-title{font-size:20px;font-weight:600;color:var(--text);margin-bottom:8px}
+.ob-desc{font-size:14px;color:var(--text-2);line-height:1.6;margin-bottom:20px}
+.ob-field{margin-bottom:14px}
+.ob-label{font-size:12px;font-weight:500;color:var(--text-2);margin-bottom:5px}
+.ob-input{width:100%;padding:9px 12px;border:1px solid var(--border);border-radius:var(--r);font-family:var(--font);font-size:13px;color:var(--text);background:white}
+.ob-input:focus{outline:none;border-color:var(--teal)}
+.ob-select{width:100%;padding:9px 12px;border:1px solid var(--border);border-radius:var(--r);font-family:var(--font);font-size:13px;color:var(--text);background:white;cursor:pointer}
+.ob-nav{display:flex;justify-content:space-between;align-items:center;margin-top:20px}
+.ob-counter{font-size:12px;color:var(--text-3)}
+.ob-template-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}
+.ob-template{border:2px solid var(--border);border-radius:var(--r);padding:12px;cursor:pointer;transition:all .15s}
+.ob-template:hover{border-color:var(--teal)}
+.ob-template.selected{border-color:var(--teal);background:var(--teal-light)}
+.ob-template-name{font-size:13px;font-weight:600;color:var(--text);margin-bottom:4px}
+.ob-template-desc{font-size:11px;color:var(--text-3)}
+.ob-success{text-align:center;padding:20px 0}
+.ob-success-icon{width:56px;height:56px;background:var(--green-light);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 14px;font-size:24px}
+.ob-success-title{font-size:18px;font-weight:600;color:var(--green);margin-bottom:6px}
+.ob-success-time{font-size:13px;color:var(--text-3)}
+.snippet-mini{background:var(--navy);border-radius:var(--r);padding:10px 12px;margin:10px 0}
+.snippet-mini code{font-family:var(--mono);font-size:11px;color:#93C5FD}
+.ob-yesno{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.ob-yn-btn{padding:10px;border:2px solid var(--border);border-radius:var(--r);font-size:13px;font-weight:500;cursor:pointer;background:white;text-align:center;transition:all .15s;font-family:var(--font)}
+.ob-yn-btn:hover{border-color:var(--teal);background:var(--teal-light)}
+.ob-yn-btn.selected{border-color:var(--teal);background:var(--teal-light);color:var(--teal)}
+.ob-checklist{display:flex;flex-direction:column;gap:6px}
+.ob-check-row{display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:6px;background:var(--bg)}
+.ob-check-row input{accent-color:var(--teal)}
+.ob-check-label{font-size:13px;color:var(--text)}
+
+/* ── SETTINGS NAV ── */
+.settings-grid{display:grid;grid-template-columns:200px 1fr;gap:20px}
+.settings-nav{display:flex;flex-direction:column;gap:2px}
+.settings-nav-item{padding:8px 12px;border-radius:var(--r);font-size:13px;cursor:pointer;color:var(--text-2)}
+.settings-nav-item:hover{background:var(--bg)}
+.settings-nav-item.active{background:var(--bg);font-weight:500;color:var(--text)}
+.settings-section{background:var(--surface);border-radius:var(--r-lg);border:1px solid var(--border);padding:20px;box-shadow:var(--shadow)}
+.settings-row{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--border)}
+.settings-row:last-child{border-bottom:none}
+.settings-row-label{font-size:13px;font-weight:500;color:var(--text)}
+.settings-row-desc{font-size:11px;color:var(--text-3);margin-top:2px}
+
+/* ── MISC ── */
+.section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.section-title{font-size:15px;font-weight:600;color:var(--text)}
+.see-all{font-size:12px;color:var(--teal);cursor:pointer}
+.stat-row{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px}
+.stat-card{background:var(--surface);border-radius:var(--r-lg);border:1px solid var(--border);padding:14px 16px;box-shadow:var(--shadow)}
+.stat-label{font-size:11px;color:var(--text-3);font-weight:500;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px}
+.stat-value{font-size:24px;font-weight:600;color:var(--text)}
+.stat-sub{font-size:11px;color:var(--text-3);margin-top:2px}
+.stat-sub.up{color:var(--green)}
+.empty-state{text-align:center;padding:40px;color:var(--text-3)}
+.empty-state-icon{font-size:32px;margin-bottom:10px}
+.empty-state-text{font-size:13px}
+.divider{height:1px;background:var(--border);margin:16px 0}
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-mark">
+      <div class="logo-icon">
+        <svg viewBox="0 0 24 24"><path d="M12 2L4 6v6c0 5.5 3.8 10.7 8 12 4.2-1.3 8-6.5 8-12V6l-8-4z"/></svg>
+      </div>
+      <div>
+        <div class="logo-text">ConsentShield</div>
+        <div class="logo-sub">DPDP Compliance OS</div>
+      </div>
+    </div>
+  </div>
+  <div class="score-chip">
+    <div class="score-chip-label">Compliance</div>
+    <div class="score-chip-value">74%</div>
+  </div>
+  <nav class="nav">
+    <div class="nav-section">
+      <div class="nav-item active" onclick="showPanel('dashboard')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+        Dashboard
+      </div>
+      <div class="nav-item" onclick="showPanel('consent')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 12l2 2 4-4"/></svg>
+        Consent Manager
+      </div>
+      <div class="nav-item" onclick="showPanel('inventory')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="16" y2="17"/></svg>
+        Data Inventory
+      </div>
+      <div class="nav-item" onclick="showPanel('rights')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+        Rights Centre
+        <span class="nav-badge red">3</span>
+      </div>
+      <div class="nav-item" onclick="showPanel('audit')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+        Audit & Reports
+      </div>
+      <div class="nav-item" onclick="showPanel('onboarding')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        Onboarding Flow
+      </div>
+      <div class="nav-item" onclick="showPanel('settings')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+        Settings
+      </div>
+    </div>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="user-row">
+      <div class="user-avatar">SK</div>
+      <div><div class="user-name">Sudhindra K.</div><div class="user-role">Admin · Growth plan</div></div>
+    </div>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<div class="main">
+
+  <!-- DASHBOARD -->
+  <div id="panel-dashboard" class="panel active">
+    <div class="topbar">
+      <div class="topbar-title">Compliance Dashboard</div>
+      <div class="topbar-actions">
+        <span style="font-size:11px;color:var(--text-3)">Last updated 2 hours ago</span>
+        <div class="icon-btn notif-dot">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+        </div>
+        <button class="btn btn-primary btn-sm">Export audit package</button>
+      </div>
+    </div>
+    <div class="content-area">
+      <div class="enforcement-clock">
+        <div>
+          <div class="clock-label">Days until full DPDP enforcement</div>
+          <div class="clock-days" id="days-count">397</div>
+          <div class="clock-sub">13 May 2027 · ₹250 crore per violation</div>
+        </div>
+        <div class="clock-icon">⏱</div>
+      </div>
+
+      <div class="dash-grid">
+        <div class="score-card">
+          <div class="card-sm-label">DPDP Compliance Score</div>
+          <div class="gauge-wrap">
+            <svg width="160" height="160" viewBox="0 0 160 160">
+              <circle cx="80" cy="80" r="64" fill="none" stroke="#E2E8F0" stroke-width="10"/>
+              <circle cx="80" cy="80" r="64" fill="none" stroke="#F59E0B" stroke-width="10"
+                stroke-dasharray="298 402" stroke-linecap="round"/>
+            </svg>
+            <div class="gauge-center">
+              <div class="gauge-pct">74%</div>
+              <div class="gauge-label">Amber zone</div>
+            </div>
+          </div>
+          <div class="score-meta">Last assessed 2 hours ago<br><span class="score-link">See full audit report →</span></div>
+        </div>
+
+        <div class="status-grid">
+          <div class="status-item">
+            <div class="status-item-title">Consent Banner</div>
+            <div class="status-item-val live">● Live</div>
+            <div style="font-size:11px;color:var(--text-3)">Deployed to myproduct.in<br>1,243 consents collected</div>
+          </div>
+          <div class="status-item">
+            <div class="status-item-title">Privacy Notice</div>
+            <div class="status-item-val live">● Published</div>
+            <div style="font-size:11px;color:var(--text-3)">privacy.myproduct.in<br>Last updated 3 days ago</div>
+          </div>
+          <div class="status-item">
+            <div class="status-item-title">Data Inventory</div>
+            <div class="status-item-val warn">● Incomplete</div>
+            <div style="font-size:11px;color:var(--text-3)">8 of 12 flows mapped<br>4 pending review</div>
+          </div>
+          <div class="status-item">
+            <div class="status-item-title">Rights Requests</div>
+            <div class="status-item-val bad">3 open</div>
+            <div style="font-size:11px;color:var(--text-3)">1 due in 5 days<br>SLA risk — act now</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex-row">
+        <div style="flex:1.2">
+          <div class="section-header">
+            <div class="section-title">Action queue</div>
+            <div class="see-all">See all gaps →</div>
+          </div>
+          <div class="action-queue card">
+            <div class="action-item">
+              <div class="sev-badge sev-high"></div>
+              <div class="action-content">
+                <div class="action-title">Erasure request #3 due in 5 days</div>
+                <div class="action-meta">HIGH · ~10 min to resolve · SLA breach risk</div>
+              </div>
+              <button class="btn btn-secondary btn-sm" onclick="showPanel('rights')">Respond now</button>
+            </div>
+            <div class="action-item">
+              <div class="sev-badge sev-high"></div>
+              <div class="action-content">
+                <div class="action-title">4 data inventory flows incomplete</div>
+                <div class="action-meta">HIGH · ~30 min to complete · Required for DPB audit</div>
+              </div>
+              <button class="btn btn-secondary btn-sm" onclick="showPanel('inventory')">Complete now</button>
+            </div>
+            <div class="action-item">
+              <div class="sev-badge sev-med"></div>
+              <div class="action-content">
+                <div class="action-title">Processing log not enabled</div>
+                <div class="action-meta">MEDIUM · ~5 min · Minimum 1-year retention required</div>
+              </div>
+              <button class="btn btn-secondary btn-sm">Enable</button>
+            </div>
+            <div class="action-item">
+              <div class="sev-badge sev-med"></div>
+              <div class="action-content">
+                <div class="action-title">No breach notification contacts set</div>
+                <div class="action-meta">MEDIUM · ~5 min · Required for 72-hour reporting</div>
+              </div>
+              <button class="btn btn-secondary btn-sm">Add contacts</button>
+            </div>
+            <div class="action-item">
+              <div class="sev-badge sev-med"></div>
+              <div class="action-content">
+                <div class="action-title">Consent banner missing Rejection flow</div>
+                <div class="action-meta">MEDIUM · ~15 min · DPDP Section 6(3) requirement</div>
+              </div>
+              <button class="btn btn-secondary btn-sm" onclick="showPanel('consent')">Fix banner</button>
+            </div>
+          </div>
+        </div>
+
+        <div style="flex:1">
+          <div class="section-header">
+            <div class="section-title">Recent activity</div>
+            <div class="see-all">View all →</div>
+          </div>
+          <div class="activity-feed card">
+            <div class="activity-item">
+              <div class="activity-dot"></div>
+              <div>
+                <div class="activity-text">Consent banner deployed to <strong>myproduct.in</strong></div>
+                <div class="activity-time">Today, 9:14 AM</div>
+              </div>
+            </div>
+            <div class="activity-item">
+              <div class="activity-dot" style="background:var(--red)"></div>
+              <div>
+                <div class="activity-text">Rights request received — <strong>erasure</strong> from priya@…</div>
+                <div class="activity-time">Yesterday, 6:31 PM</div>
+              </div>
+            </div>
+            <div class="activity-item">
+              <div class="activity-dot" style="background:var(--amber-mid)"></div>
+              <div>
+                <div class="activity-text">Privacy notice updated — retention section revised</div>
+                <div class="activity-time">3 days ago</div>
+              </div>
+            </div>
+            <div class="activity-item">
+              <div class="activity-dot"></div>
+              <div>
+                <div class="activity-text">Rights request #2 closed — access request responded</div>
+                <div class="activity-time">5 days ago</div>
+              </div>
+            </div>
+            <div class="activity-item">
+              <div class="activity-dot"></div>
+              <div>
+                <div class="activity-text">Audit readiness score generated — 74%</div>
+                <div class="activity-time">1 week ago</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CONSENT MANAGER -->
+  <div id="panel-consent" class="panel">
+    <div class="topbar">
+      <div class="topbar-title">Consent Manager</div>
+      <div class="topbar-actions">
+        <button class="btn btn-secondary btn-sm">Analytics</button>
+        <button class="btn btn-primary btn-sm">Save & publish</button>
+      </div>
+    </div>
+    <div class="content-area">
+      <div class="stat-row" style="grid-template-columns:repeat(4,1fr)">
+        <div class="stat-card">
+          <div class="stat-label">Consent rate</div>
+          <div class="stat-value">68%</div>
+          <div class="stat-sub up">↑ 4% this week</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Total consents</div>
+          <div class="stat-value">1,243</div>
+          <div class="stat-sub">Last 30 days</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Rejections</div>
+          <div class="stat-value">21%</div>
+          <div class="stat-sub">Reject All clicked</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Banner version</div>
+          <div class="stat-value">v4</div>
+          <div class="stat-sub">Last changed 3 days ago</div>
+        </div>
+      </div>
+
+      <div class="tab-bar">
+        <div class="tab-item active" onclick="switchTab(this,'banner-tab')">Banner builder</div>
+        <div class="tab-item" onclick="switchTab(this,'snippet-tab')">JS snippet</div>
+        <div class="tab-item" onclick="switchTab(this,'analytics-tab')">Analytics</div>
+      </div>
+
+      <div id="banner-tab" class="tab-panel active">
+        <div class="banner-workspace">
+          <div class="banner-preview">
+            <div class="preview-browser">
+              <div class="browser-dots">
+                <div class="browser-dot" style="background:#FC5151"></div>
+                <div class="browser-dot" style="background:#FDBC40"></div>
+                <div class="browser-dot" style="background:#34C749"></div>
+              </div>
+              <div class="browser-url">https://myproduct.in</div>
+            </div>
+            <div class="preview-site">
+              <div class="site-nav-mock">
+                <div class="site-nav-logo"></div>
+                <div style="height:8px;width:80px;background:rgba(255,255,255,.2);border-radius:2px;margin-left:auto"></div>
+              </div>
+              <div class="site-content-mock">
+                <div class="mock-line" style="width:50%;height:16px"></div>
+                <div class="mock-line"></div>
+                <div class="mock-line med"></div>
+                <div class="mock-line short"></div>
+              </div>
+              <div class="consent-banner-preview">
+                <div class="cbp-title">We use cookies & process your data</div>
+                <div class="cbp-text">This website uses cookies and processes your personal data to improve your experience. Under India's DPDP Act 2023, you have the right to control how your data is used.</div>
+                <div class="cbp-purposes">
+                  <div class="cbp-purpose">
+                    <div class="cbp-purpose-name">Essential (required)</div>
+                    <div class="toggle" style="opacity:.5;cursor:not-allowed"></div>
+                  </div>
+                  <div class="cbp-purpose">
+                    <div class="cbp-purpose-name">Analytics</div>
+                    <div class="toggle" onclick="this.classList.toggle('off')"></div>
+                  </div>
+                  <div class="cbp-purpose">
+                    <div class="cbp-purpose-name">Marketing</div>
+                    <div class="toggle off" onclick="this.classList.toggle('off')"></div>
+                  </div>
+                  <div class="cbp-purpose">
+                    <div class="cbp-purpose-name">Personalisation</div>
+                    <div class="toggle" onclick="this.classList.toggle('off')"></div>
+                  </div>
+                </div>
+                <div class="cbp-actions">
+                  <div class="cbp-btn cbp-btn-primary">Accept all</div>
+                  <div class="cbp-btn cbp-btn-secondary">Save preferences</div>
+                  <div class="cbp-btn cbp-btn-secondary">Reject all</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="banner-config">
+            <div class="config-section">
+              <div class="config-label">Banner text</div>
+              <textarea class="config-input" rows="2" style="resize:none">We use cookies & process your data</textarea>
+            </div>
+            <div class="config-section">
+              <div class="config-label">Body copy</div>
+              <textarea class="config-input" rows="3" style="resize:none">This website uses cookies and processes your personal data to improve your experience. Under India's DPDP Act 2023, you have the right to control how your data is used.</textarea>
+            </div>
+            <div class="config-section">
+              <div class="config-label">Consent purposes</div>
+              <div class="purpose-row">
+                <div class="purpose-info">
+                  <div class="purpose-name">Essential</div>
+                  <div class="purpose-desc">Required for the site to function</div>
+                </div>
+                <span class="pill pill-gray">Required</span>
+              </div>
+              <div class="purpose-row">
+                <div class="purpose-info">
+                  <div class="purpose-name">Analytics</div>
+                  <div class="purpose-desc">Usage statistics and page views</div>
+                </div>
+                <div class="toggle" onclick="this.classList.toggle('off')"></div>
+              </div>
+              <div class="purpose-row">
+                <div class="purpose-info">
+                  <div class="purpose-name">Marketing</div>
+                  <div class="purpose-desc">Retargeting and ad personalisation</div>
+                </div>
+                <div class="toggle off" onclick="this.classList.toggle('off')"></div>
+              </div>
+              <div class="purpose-row">
+                <div class="purpose-info">
+                  <div class="purpose-name">Personalisation</div>
+                  <div class="purpose-desc">Tailored content and recommendations</div>
+                </div>
+                <div class="toggle" onclick="this.classList.toggle('off')"></div>
+              </div>
+            </div>
+            <div class="config-section">
+              <div class="config-label">Position</div>
+              <select class="config-input" style="padding:7px 10px">
+                <option>Bottom bar (recommended)</option>
+                <option>Bottom left corner</option>
+                <option>Bottom right corner</option>
+                <option>Centre modal</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="snippet-tab" class="tab-panel">
+        <div class="card">
+          <div class="card-header"><div class="card-title">Your JS snippet — add to &lt;head&gt;</div></div>
+          <div class="card-body">
+            <div class="snippet-box">
+              <button class="copy-btn" onclick="this.textContent='Copied!';setTimeout(()=>this.textContent='Copy',2000)">Copy</button>
+              <div class="snippet-code">&lt;script src="https://cdn.consentshield.in/v1/banner.js"
+  data-org-id="org_sk_7f8a2b9c"
+  data-version="4"
+  async&gt;&lt;/script&gt;</div>
+            </div>
+            <div style="margin-top:14px">
+              <div class="config-label" style="margin-bottom:8px">Test integration</div>
+              <div style="display:flex;gap:8px">
+                <input class="config-input" placeholder="Paste your website URL to verify" style="flex:1">
+                <button class="btn btn-primary btn-sm">Test</button>
+              </div>
+              <div style="margin-top:8px;display:flex;align-items:center;gap:6px;font-size:12px;color:var(--green)">
+                <span>●</span> Snippet detected live on myproduct.in — last seen 4 minutes ago
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="analytics-tab" class="tab-panel">
+        <div class="grid-3">
+          <div class="card"><div class="card-body" style="text-align:center">
+            <div class="stat-label">Accept all</div>
+            <div style="font-size:28px;font-weight:600;color:var(--green)">68%</div>
+          </div></div>
+          <div class="card"><div class="card-body" style="text-align:center">
+            <div class="stat-label">Customised</div>
+            <div style="font-size:28px;font-weight:600;color:var(--amber)">11%</div>
+          </div></div>
+          <div class="card"><div class="card-body" style="text-align:center">
+            <div class="stat-label">Reject all</div>
+            <div style="font-size:28px;font-weight:600;color:var(--red)">21%</div>
+          </div></div>
+        </div>
+        <div style="margin-top:14px" class="card"><div class="card-body">
+          <div class="stat-label" style="margin-bottom:12px">Purpose acceptance breakdown (of consenting users)</div>
+          <div class="audit-scores">
+            <div class="audit-score-row"><div class="audit-score-label">Analytics</div><div class="audit-score-bar"><div class="audit-score-fill" style="width:84%;background:var(--green)"></div></div><div class="audit-score-val" style="color:var(--green)">84%</div></div>
+            <div class="audit-score-row"><div class="audit-score-label">Personalisation</div><div class="audit-score-bar"><div class="audit-score-fill" style="width:71%;background:var(--teal)"></div></div><div class="audit-score-val" style="color:var(--teal)">71%</div></div>
+            <div class="audit-score-row"><div class="audit-score-label">Marketing</div><div class="audit-score-bar"><div class="audit-score-fill" style="width:42%;background:var(--amber-mid)"></div></div><div class="audit-score-val" style="color:var(--amber)">42%</div></div>
+          </div>
+        </div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DATA INVENTORY -->
+  <div id="panel-inventory" class="panel">
+    <div class="topbar">
+      <div class="topbar-title">Data Inventory</div>
+      <div class="topbar-actions">
+        <button class="btn btn-secondary btn-sm">Export PDF</button>
+        <button class="btn btn-primary btn-sm">+ Add data flow</button>
+      </div>
+    </div>
+    <div class="content-area">
+      <div class="stat-row">
+        <div class="stat-card"><div class="stat-label">Flows mapped</div><div class="stat-value">8</div><div class="stat-sub">of 12 identified</div></div>
+        <div class="stat-card"><div class="stat-label">Third parties</div><div class="stat-value">5</div><div class="stat-sub">Razorpay, Mixpanel +3</div></div>
+        <div class="stat-card"><div class="stat-label">Pending review</div><div class="stat-value" style="color:var(--amber)">4</div><div class="stat-sub">Requires completion</div></div>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">Data flows</div>
+          <div style="display:flex;gap:8px">
+            <span class="pill pill-green"><span class="dot dot-green"></span>8 complete</span>
+            <span class="pill pill-amber"><span class="dot dot-amber"></span>4 pending</span>
+          </div>
+        </div>
+        <div style="overflow-x:auto">
+          <table class="inv-table">
+            <thead>
+              <tr>
+                <th>Data category</th>
+                <th>Collected via</th>
+                <th>Purpose(s)</th>
+                <th>Retention</th>
+                <th>Third parties</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td><strong>Email address</strong></td><td>Signup form, checkout</td><td><span class="purpose-tag prod">Product</span><span class="purpose-tag mkt">Marketing</span></td><td>Account lifetime</td><td>Mailchimp</td><td><span class="pill pill-green">Complete</span></td></tr>
+              <tr><td><strong>Phone number</strong></td><td>Profile settings</td><td><span class="purpose-tag prod">Product</span></td><td>Account lifetime</td><td>None</td><td><span class="pill pill-green">Complete</span></td></tr>
+              <tr><td><strong>Payment details</strong></td><td>Checkout</td><td><span class="purpose-tag prod">Product</span></td><td>7 years (statutory)</td><td>Razorpay</td><td><span class="pill pill-green">Complete</span></td></tr>
+              <tr><td><strong>Usage analytics</strong></td><td>Product events</td><td><span class="purpose-tag ana">Analytics</span></td><td>24 months</td><td>Mixpanel</td><td><span class="pill pill-green">Complete</span></td></tr>
+              <tr><td><strong>IP address</strong></td><td>Server logs</td><td><span class="purpose-tag prod">Product</span></td><td>90 days</td><td>Vercel</td><td><span class="pill pill-green">Complete</span></td></tr>
+              <tr><td><strong>Browser fingerprint</strong></td><td>Consent banner</td><td><span class="purpose-tag prod">Product</span></td><td>12 months</td><td>ConsentShield</td><td><span class="pill pill-green">Complete</span></td></tr>
+              <tr><td><strong>Name</strong></td><td>Signup form</td><td><span class="purpose-tag prod">Product</span></td><td>Account lifetime</td><td>None</td><td><span class="pill pill-green">Complete</span></td></tr>
+              <tr><td><strong>Company name</strong></td><td>Onboarding</td><td><span class="purpose-tag prod">Product</span></td><td>Account lifetime</td><td>None</td><td><span class="pill pill-green">Complete</span></td></tr>
+              <tr><td><strong>Device identifiers</strong></td><td>Mobile SDK</td><td><span class="purpose-tag ana">Analytics</span></td><td>—</td><td>—</td><td><span class="pill pill-amber">Pending</span></td></tr>
+              <tr><td><strong>Location data</strong></td><td>App permissions</td><td><span class="purpose-tag prod">Product</span></td><td>—</td><td>—</td><td><span class="pill pill-amber">Pending</span></td></tr>
+              <tr><td><strong>Support chat logs</strong></td><td>Intercom</td><td><span class="purpose-tag prod">Product</span></td><td>—</td><td>Intercom</td><td><span class="pill pill-amber">Pending</span></td></tr>
+              <tr><td><strong>Marketing click data</strong></td><td>Email campaigns</td><td><span class="purpose-tag mkt">Marketing</span></td><td>—</td><td>Mailchimp</td><td><span class="pill pill-amber">Pending</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHTS CENTRE -->
+  <div id="panel-rights" class="panel">
+    <div class="topbar">
+      <div class="topbar-title">Rights Centre</div>
+      <div class="topbar-actions">
+        <span style="font-size:12px;color:var(--red);font-weight:500">1 request due in 5 days</span>
+        <button class="btn btn-secondary btn-sm">Export log</button>
+      </div>
+    </div>
+    <div class="content-area">
+      <div class="stat-row">
+        <div class="stat-card"><div class="stat-label">Open requests</div><div class="stat-value" style="color:var(--amber)">3</div><div class="stat-sub">2 erasure, 1 access</div></div>
+        <div class="stat-card"><div class="stat-label">Closed this month</div><div class="stat-value">4</div><div class="stat-sub">Avg 8 days to close</div></div>
+        <div class="stat-card"><div class="stat-label">SLA breach risk</div><div class="stat-value" style="color:var(--red)">1</div><div class="stat-sub">Due in 5 days</div></div>
+      </div>
+
+      <div class="flex-row">
+        <div style="flex:1.4">
+          <div class="section-header"><div class="section-title">Request inbox</div></div>
+          <div class="card">
+            <table class="req-table" style="width:100%">
+              <thead>
+                <tr>
+                  <th>Requestor</th>
+                  <th>Type</th>
+                  <th>Received</th>
+                  <th>SLA remaining</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr class="selected" onclick="selectReq(this)">
+                  <td><strong>Priya Sharma</strong><br><span style="font-size:11px;color:var(--text-3)">priya@…</span></td>
+                  <td><span class="pill pill-red">Erasure</span></td>
+                  <td style="font-size:12px">Apr 6, 2026</td>
+                  <td>
+                    <div style="font-size:12px;color:var(--red);font-weight:600">5 days</div>
+                    <div class="sla-bar"><div class="sla-fill" style="width:17%;background:var(--red)"></div></div>
+                  </td>
+                  <td><span class="pill pill-amber">In progress</span></td>
+                </tr>
+                <tr onclick="selectReq(this)">
+                  <td><strong>Amit Joshi</strong><br><span style="font-size:11px;color:var(--text-3)">amitj@…</span></td>
+                  <td><span class="pill pill-navy">Access</span></td>
+                  <td style="font-size:12px">Apr 3, 2026</td>
+                  <td>
+                    <div style="font-size:12px;color:var(--amber);font-weight:600">12 days</div>
+                    <div class="sla-bar"><div class="sla-fill" style="width:40%;background:var(--amber-mid)"></div></div>
+                  </td>
+                  <td><span class="pill pill-gray">New</span></td>
+                </tr>
+                <tr onclick="selectReq(this)">
+                  <td><strong>Rekha Nair</strong><br><span style="font-size:11px;color:var(--text-3)">rekha@…</span></td>
+                  <td><span class="pill pill-red">Erasure</span></td>
+                  <td style="font-size:12px">Apr 1, 2026</td>
+                  <td>
+                    <div style="font-size:12px;color:var(--green);font-weight:600">22 days</div>
+                    <div class="sla-bar"><div class="sla-fill" style="width:73%;background:var(--green)"></div></div>
+                  </td>
+                  <td><span class="pill pill-gray">New</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div style="flex:1">
+          <div class="section-header"><div class="section-title">Request detail — Priya Sharma</div></div>
+          <div class="req-detail">
+            <div class="detail-section">
+              <div class="detail-label">Request summary</div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:6px">
+                <div><div style="font-size:11px;color:var(--text-3)">Type</div><div style="font-size:13px;font-weight:500;margin-top:2px"><span class="pill pill-red">Erasure</span></div></div>
+                <div><div style="font-size:11px;color:var(--text-3)">SLA deadline</div><div style="font-size:13px;font-weight:600;color:var(--red);margin-top:2px">Apr 16, 2026</div></div>
+                <div><div style="font-size:11px;color:var(--text-3)">Identity verified</div><div style="font-size:13px;font-weight:500;color:var(--green);margin-top:2px">✓ Verified via OTP</div></div>
+                <div><div style="font-size:11px;color:var(--text-3)">Assignee</div><div style="font-size:13px;margin-top:2px">Sudhindra K.</div></div>
+              </div>
+            </div>
+            <div class="detail-section">
+              <div class="detail-label">Data to be erased</div>
+              <div style="font-size:12px;color:var(--text-2);margin-top:6px;display:flex;flex-direction:column;gap:4px">
+                <div style="display:flex;justify-content:space-between;padding:5px 8px;background:var(--bg);border-radius:4px"><span>Email address</span><span class="pill pill-green">Can erase</span></div>
+                <div style="display:flex;justify-content:space-between;padding:5px 8px;background:var(--bg);border-radius:4px"><span>Usage analytics</span><span class="pill pill-green">Can erase</span></div>
+                <div style="display:flex;justify-content:space-between;padding:5px 8px;background:var(--amber-light);border-radius:4px"><span>Payment records</span><span class="pill pill-amber">Retention lock (7yr)</span></div>
+              </div>
+            </div>
+            <div class="detail-section">
+              <div class="detail-label">Response workflow</div>
+              <div class="step-list">
+                <div class="step-item done"><div class="step-num">✓</div><div class="step-text">Identity verified</div></div>
+                <div class="step-item done"><div class="step-num">✓</div><div class="step-text">Data categories confirmed</div></div>
+                <div class="step-item current"><div class="step-num">3</div><div class="step-text">Draft response</div></div>
+                <div class="step-item"><div class="step-num">4</div><div class="step-text">Execute erasure</div></div>
+                <div class="step-item"><div class="step-num">5</div><div class="step-text">Log and close</div></div>
+              </div>
+            </div>
+            <button class="btn btn-primary" style="width:100%">Continue → Draft response</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- AUDIT & REPORTS -->
+  <div id="panel-audit" class="panel">
+    <div class="topbar">
+      <div class="topbar-title">Audit & Reports</div>
+      <div class="topbar-actions">
+        <button class="btn btn-secondary btn-sm">Share link</button>
+        <button class="btn btn-primary btn-sm">Generate audit package</button>
+      </div>
+    </div>
+    <div class="content-area">
+      <div class="flex-row">
+        <div style="flex:1">
+          <div class="section-header"><div class="section-title">Report builder</div></div>
+          <div class="card"><div class="card-body">
+            <div style="font-size:12px;color:var(--text-3);margin-bottom:10px">Select what to include in the audit package</div>
+            <div style="display:flex;flex-direction:column;gap:8px">
+              <label class="check-item"><input type="checkbox" checked><div><div class="check-label">Consent logs</div><div class="check-meta">1,243 records · Apr 2026</div></div></label>
+              <label class="check-item"><input type="checkbox" checked><div><div class="check-label">Data inventory snapshot</div><div class="check-meta">8 of 12 flows complete</div></div></label>
+              <label class="check-item"><input type="checkbox" checked><div><div class="check-label">Rights request history</div><div class="check-meta">7 requests · 4 closed</div></div></label>
+              <label class="check-item"><input type="checkbox"><div><div class="check-label">Processing log</div><div class="check-meta">Not enabled yet</div></div></label>
+              <label class="check-item"><input type="checkbox" checked><div><div class="check-label">Audit readiness score</div><div class="check-meta">74% · April 2026</div></div></label>
+              <label class="check-item"><input type="checkbox"><div><div class="check-label">Breach notifications</div><div class="check-meta">No breaches recorded</div></div></label>
+            </div>
+            <button class="btn btn-primary" style="width:100%;margin-top:14px">Generate package</button>
+          </div></div>
+        </div>
+
+        <div style="flex:1.6">
+          <div class="section-header"><div class="section-title">Audit readiness score — 74%</div></div>
+          <div class="card"><div class="card-body">
+            <div class="audit-scores">
+              <div style="font-size:11px;font-weight:600;color:var(--text-3);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px">Consent & notice</div>
+              <div class="audit-score-row"><div class="audit-score-label">Consent banner deployed</div><div class="audit-score-bar"><div class="audit-score-fill" style="width:100%;background:var(--green)"></div></div><div class="audit-score-val" style="color:var(--green)">Pass</div></div>
+              <div class="audit-score-row"><div class="audit-score-label">Granular purpose consent</div><div class="audit-score-bar"><div class="audit-score-fill" style="width:100%;background:var(--green)"></div></div><div class="audit-score-val" style="color:var(--green)">Pass</div></div>
+              <div class="audit-score-row"><div class="audit-score-label">Rejection flow implemented</div><div class="audit-score-bar"><div class="audit-score-fill" style="width:0%;background:var(--red)"></div></div><div class="audit-score-val" style="color:var(--red)">Fail</div></div>
+              <div class="audit-score-row"><div class="audit-score-label">Privacy notice published</div><div class="audit-score-bar"><div class="audit-score-fill" style="width:100%;background:var(--green)"></div></div><div class="audit-score-val" style="color:var(--green)">Pass</div></div>
+              <div style="font-size:11px;font-weight:600;color:var(--text-3);text-transform:uppercase;letter-spacing:.05em;margin:12px 0 8px">Data management</div>
+              <div class="audit-score-row"><div class="audit-score-label">Data inventory complete</div><div class="audit-score-bar"><div class="audit-score-fill" style="width:67%;background:var(--amber-mid)"></div></div><div class="audit-score-val" style="color:var(--amber)">67%</div></div>
+              <div class="audit-score-row"><div class="audit-score-label">Retention periods defined</div><div class="audit-score-bar"><div class="audit-score-fill" style="width:67%;background:var(--amber-mid)"></div></div><div class="audit-score-val" style="color:var(--amber)">67%</div></div>
+              <div class="audit-score-row"><div class="audit-score-label">Processing log enabled</div><div class="audit-score-bar"><div class="audit-score-fill" style="width:0%;background:var(--red)"></div></div><div class="audit-score-val" style="color:var(--red)">Fail</div></div>
+              <div style="font-size:11px;font-weight:600;color:var(--text-3);text-transform:uppercase;letter-spacing:.05em;margin:12px 0 8px">Rights & breach</div>
+              <div class="audit-score-row"><div class="audit-score-label">Rights request workflow live</div><div class="audit-score-bar"><div class="audit-score-fill" style="width:100%;background:var(--green)"></div></div><div class="audit-score-val" style="color:var(--green)">Pass</div></div>
+              <div class="audit-score-row"><div class="audit-score-label">Breach contacts configured</div><div class="audit-score-bar"><div class="audit-score-fill" style="width:0%;background:var(--red)"></div></div><div class="audit-score-val" style="color:var(--red)">Fail</div></div>
+              <div class="audit-score-row"><div class="audit-score-label">72-hour template ready</div><div class="audit-score-bar"><div class="audit-score-fill" style="width:100%;background:var(--green)"></div></div><div class="audit-score-val" style="color:var(--green)">Pass</div></div>
+            </div>
+          </div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ONBOARDING FLOW -->
+  <div id="panel-onboarding" class="panel">
+    <div class="topbar">
+      <div class="topbar-title">UX Flow — New Customer Onboarding</div>
+      <div class="topbar-actions">
+        <span style="font-size:12px;color:var(--text-3)">0 → First consent collected</span>
+      </div>
+    </div>
+    <div class="content-area">
+      <div class="onboard-container">
+        <div class="onboard-progress" id="ob-progress"></div>
+        <div id="ob-card" class="ob-card"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SETTINGS -->
+  <div id="panel-settings" class="panel">
+    <div class="topbar">
+      <div class="topbar-title">Settings</div>
+      <div class="topbar-actions">
+        <button class="btn btn-primary btn-sm">Save changes</button>
+      </div>
+    </div>
+    <div class="content-area">
+      <div class="settings-grid">
+        <div class="settings-nav">
+          <div class="settings-nav-item active">Account</div>
+          <div class="settings-nav-item">Web properties</div>
+          <div class="settings-nav-item">Team members</div>
+          <div class="settings-nav-item">Integrations</div>
+          <div class="settings-nav-item">Billing</div>
+        </div>
+        <div>
+          <div class="settings-section">
+            <div style="font-size:14px;font-weight:600;margin-bottom:16px">Account details</div>
+            <div class="settings-row">
+              <div><div class="settings-row-label">Company name</div><div class="settings-row-desc">Shown on privacy notice and audit exports</div></div>
+              <input class="config-input" value="Acme Technologies Pvt Ltd" style="width:220px">
+            </div>
+            <div class="settings-row">
+              <div><div class="settings-row-label">Compliance contact email</div><div class="settings-row-desc">Receives all rights request notifications</div></div>
+              <input class="config-input" value="compliance@acme.in" style="width:220px">
+            </div>
+            <div class="settings-row">
+              <div><div class="settings-row-label">Industry</div><div class="settings-row-desc">Affects which DPDP templates are pre-applied</div></div>
+              <select class="config-input" style="width:220px;padding:7px 10px"><option>SaaS / Technology</option><option>Healthcare</option><option>Edtech</option><option>E-commerce</option></select>
+            </div>
+            <div class="settings-row">
+              <div><div class="settings-row-label">Current plan</div><div class="settings-row-desc">Growth · ₹5,999/month · Renews May 11</div></div>
+              <button class="btn btn-secondary btn-sm">Upgrade to Pro</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── NAV ──
+function showPanel(id) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('panel-' + id).classList.add('active');
+  event.currentTarget.classList.add('active');
+}
+
+// ── TABS ──
+function switchTab(el, tabId) {
+  const parent = el.closest('.content-area') || el.closest('.panel');
+  parent.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
+  parent.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById(tabId).classList.add('active');
+}
+
+// ── RIGHTS TABLE ROW SELECT ──
+function selectReq(row) {
+  document.querySelectorAll('.req-table tr').forEach(r => r.classList.remove('selected'));
+  row.classList.add('selected');
+}
+
+// ── ENFORCEMENT COUNTDOWN ──
+function updateClock() {
+  const target = new Date('2027-05-13');
+  const now = new Date();
+  const diff = Math.ceil((target - now) / (1000 * 60 * 60 * 24));
+  const el = document.getElementById('days-count');
+  if (el) el.textContent = diff;
+}
+updateClock();
+
+// ── ONBOARDING FLOW ──
+const obSteps = [
+  {
+    label: 'Step 1 of 7',
+    title: 'Create your account',
+    desc: 'Sign up with email or continue with Google. No credit card required for your 14-day free trial.',
+    render: () => `
+      <div class="ob-field"><div class="ob-label">Work email</div><input class="ob-input" type="email" placeholder="you@company.in" value="sudhindra@acme.in"></div>
+      <div class="ob-field"><div class="ob-label">Or</div><button class="btn btn-secondary" style="width:100%;display:flex;align-items:center;justify-content:center;gap:8px;padding:9px"><span>Continue with Google</span></button></div>
+    `
+  },
+  {
+    label: 'Step 2 of 7',
+    title: 'Tell us about your company',
+    desc: 'This determines which DPDP templates are pre-configured for you.',
+    render: () => `
+      <div class="ob-field"><div class="ob-label">Company name</div><input class="ob-input" placeholder="Acme Technologies Pvt Ltd"></div>
+      <div class="ob-field"><div class="ob-label">Industry</div>
+        <select class="ob-select">
+          <option>SaaS / Technology</option><option>Healthcare / Clinic</option><option>Edtech</option><option>E-commerce / D2C</option><option>HR Tech</option><option>Fintech</option>
+        </select>
+      </div>
+      <div class="ob-field"><div class="ob-label">Primary website URL</div><input class="ob-input" placeholder="https://myproduct.in"></div>
+      <div class="ob-field"><div class="ob-label">Approx. monthly unique visitors</div>
+        <select class="ob-select"><option>Under 1,000</option><option>1,000 – 10,000</option><option>10,000 – 1 lakh</option><option>1 lakh+</option></select>
+      </div>
+    `
+  },
+  {
+    label: 'Step 3 of 7',
+    title: 'Quick data inventory',
+    desc: 'Answer 3 questions to auto-generate your draft data inventory. You can complete it properly later.',
+    render: () => `
+      <div class="ob-field"><div class="ob-label">Do you collect email addresses?</div><div class="ob-yesno"><div class="ob-yn-btn selected" onclick="toggleYN(this)">Yes</div><div class="ob-yn-btn" onclick="toggleYN(this)">No</div></div></div>
+      <div class="ob-field"><div class="ob-label">Do you process payment information?</div><div class="ob-yesno"><div class="ob-yn-btn selected" onclick="toggleYN(this)">Yes</div><div class="ob-yn-btn" onclick="toggleYN(this)">No</div></div></div>
+      <div class="ob-field"><div class="ob-label">Do you use analytics tools (Mixpanel, GA4, etc.)?</div><div class="ob-yesno"><div class="ob-yn-btn selected" onclick="toggleYN(this)">Yes</div><div class="ob-yn-btn" onclick="toggleYN(this)">No</div></div></div>
+      <div style="background:var(--teal-light);border-radius:var(--r);padding:10px 12px;font-size:12px;color:var(--teal);margin-top:4px">✓ Draft inventory will be auto-generated with 6 data categories based on your answers.</div>
+    `
+  },
+  {
+    label: 'Step 4 of 7',
+    title: 'Choose your consent banner',
+    desc: 'Pick a starting template. You can customise every word, colour, and purpose in the banner builder.',
+    render: () => `
+      <div class="ob-template-grid">
+        <div class="ob-template selected" onclick="selectTemplate(this)">
+          <div class="ob-template-name">Minimal</div>
+          <div class="ob-template-desc">Single accept/reject. Clean and unobtrusive.</div>
+        </div>
+        <div class="ob-template" onclick="selectTemplate(this)">
+          <div class="ob-template-name">Standard</div>
+          <div class="ob-template-desc">Accept all / Manage preferences / Reject all.</div>
+        </div>
+        <div class="ob-template" onclick="selectTemplate(this)">
+          <div class="ob-template-name">Full</div>
+          <div class="ob-template-desc">Granular per-purpose toggles with descriptions.</div>
+        </div>
+      </div>
+      <div class="ob-field"><div class="ob-label">Banner headline (editable)</div><input class="ob-input" value="We respect your privacy under India's DPDP Act"></div>
+    `
+  },
+  {
+    label: 'Step 5 of 7',
+    title: 'Deploy the JS snippet',
+    desc: 'Copy this one-line script and paste it inside the &lt;head&gt; tag of your website.',
+    render: () => `
+      <div class="snippet-mini"><code>&lt;script src="https://cdn.consentshield.in/v1/banner.js" data-org-id="org_sk_7f8a2b9c" async&gt;&lt;/script&gt;</code></div>
+      <div class="ob-field"><div class="ob-label">Paste your URL to verify the snippet is live</div>
+        <div style="display:flex;gap:8px"><input class="ob-input" placeholder="https://myproduct.in" style="flex:1"><button class="btn btn-primary btn-sm">Verify</button></div>
+      </div>
+      <div style="background:var(--green-light);border-radius:var(--r);padding:10px 12px;font-size:12px;color:var(--green);margin-top:4px">✓ Snippet detected live on myproduct.in — confirmed 2 minutes ago.</div>
+    `
+  },
+  {
+    label: 'Step 6 of 7',
+    title: 'Compliance score calculated',
+    desc: 'Based on your setup so far, here is your initial DPDP compliance score.',
+    render: () => `
+      <div style="text-align:center;margin:10px 0 20px">
+        <div style="font-size:48px;font-weight:600;color:var(--amber)">52%</div>
+        <div style="font-size:13px;color:var(--text-3);margin-top:4px">Amber zone — 3 gaps to close</div>
+      </div>
+      <div style="font-size:12px;font-weight:600;color:var(--text-2);margin-bottom:8px">Next 3 actions to improve your score:</div>
+      <div class="ob-checklist">
+        <div class="ob-check-row"><input type="checkbox"><div class="ob-check-label">Complete data inventory (4 flows pending)</div></div>
+        <div class="ob-check-row"><input type="checkbox"><div class="ob-check-label">Enable processing log (1-year retention)</div></div>
+        <div class="ob-check-row"><input type="checkbox"><div class="ob-check-label">Add breach notification contacts</div></div>
+      </div>
+    `
+  },
+  {
+    label: 'Step 7 of 7',
+    title: '',
+    desc: '',
+    render: () => `
+      <div class="ob-success">
+        <div class="ob-success-icon">🎉</div>
+        <div class="ob-success-title">First consent collected!</div>
+        <div style="font-size:13px;color:var(--text-3);margin-bottom:16px">Your first DPDP-compliant consent was recorded at 14:32 today.</div>
+        <div style="background:var(--bg);border-radius:var(--r);padding:12px 16px;text-align:left;font-size:12px;color:var(--text-2)">
+          <div style="font-weight:600;margin-bottom:6px;color:var(--text)">What was set up:</div>
+          <div style="display:flex;flex-direction:column;gap:4px">
+            <div style="display:flex;justify-content:space-between"><span>Consent banner</span><span class="pill pill-green" style="font-size:10px">Live</span></div>
+            <div style="display:flex;justify-content:space-between"><span>Privacy notice</span><span class="pill pill-green" style="font-size:10px">Published</span></div>
+            <div style="display:flex;justify-content:space-between"><span>Data inventory</span><span class="pill pill-amber" style="font-size:10px">Draft</span></div>
+            <div style="display:flex;justify-content:space-between"><span>Audit log</span><span class="pill pill-green" style="font-size:10px">Running</span></div>
+          </div>
+        </div>
+        <button class="btn btn-primary" style="width:100%;margin-top:16px" onclick="showPanelById('dashboard')">Go to compliance dashboard →</button>
+      </div>
+    `
+  }
+];
+
+let currentStep = 0;
+
+function renderOnboarding() {
+  const progress = document.getElementById('ob-progress');
+  progress.innerHTML = obSteps.map((s, i) => `
+    <div class="ob-step">
+      <div class="ob-circle ${i < currentStep ? 'done' : i === currentStep ? 'active' : ''}">${i < currentStep ? '✓' : i + 1}</div>
+      ${i < obSteps.length - 1 ? `<div class="ob-line ${i < currentStep ? 'done' : ''}"></div>` : ''}
+    </div>
+  `).join('');
+
+  const step = obSteps[currentStep];
+  const card = document.getElementById('ob-card');
+  card.innerHTML = `
+    ${step.label ? `<div class="ob-step-label">${step.label}</div>` : ''}
+    ${step.title ? `<div class="ob-title">${step.title}</div>` : ''}
+    ${step.desc ? `<div class="ob-desc">${step.desc}</div>` : ''}
+    ${step.render()}
+    <div class="ob-nav">
+      ${currentStep > 0 && currentStep < obSteps.length - 1 ? `<button class="btn btn-secondary" onclick="obNav(-1)">← Back</button>` : '<div></div>'}
+      <div class="ob-counter">Step ${currentStep + 1} of ${obSteps.length}</div>
+      ${currentStep < obSteps.length - 1 ? `<button class="btn btn-primary" onclick="obNav(1)">Continue →</button>` : ''}
+    </div>
+  `;
+}
+
+function obNav(dir) {
+  currentStep = Math.max(0, Math.min(obSteps.length - 1, currentStep + dir));
+  renderOnboarding();
+}
+
+function toggleYN(el) {
+  const parent = el.parentElement;
+  parent.querySelectorAll('.ob-yn-btn').forEach(b => b.classList.remove('selected'));
+  el.classList.add('selected');
+}
+
+function selectTemplate(el) {
+  el.closest('.ob-template-grid').querySelectorAll('.ob-template').forEach(t => t.classList.remove('selected'));
+  el.classList.add('selected');
+}
+
+function showPanelById(id) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('panel-' + id).classList.add('active');
+  document.querySelector(`.nav-item[onclick*="${id}"]`)?.classList.add('active');
+}
+
+renderOnboarding();
+</script>
+</body>
+</html>

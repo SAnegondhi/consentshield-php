@@ -1,0 +1,117 @@
+{
+  "version": 1,
+  "bugs": [
+    {
+      "id": "bug-001",
+      "timestamp": "2026-04-13T11:33:04.126Z",
+      "error_message": "Significant refactor of ",
+      "file": "docs/design/consentshield-technical-architecture.md",
+      "root_cause": "5 lines replaced/restructured",
+      "fix": "Rewrote 6→6 lines (5 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-13T11:33:04.126Z"
+    },
+    {
+      "id": "bug-002",
+      "timestamp": "2026-04-13T11:33:34.950Z",
+      "error_message": "Significant refactor of ",
+      "file": "docs/design/consentshield-definitive-architecture.md",
+      "root_cause": "2 lines replaced/restructured",
+      "fix": "Rewrote 5→6 lines (2 removed) | Also: CAN SELECT: organisations, integration_connectors,; rights_requests, web_properties, consent_artefact_",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 2,
+      "last_seen": "2026-04-13T11:33:46.948Z"
+    },
+    {
+      "id": "bug-003",
+      "timestamp": "2026-04-13T11:33:58.633Z",
+      "error_message": "Significant refactor of ",
+      "file": "docs/design/consentshield-complete-schema-design.md",
+      "root_cause": "16 lines replaced/restructured",
+      "fix": "Rewrote 23→7 lines (16 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-13T11:33:58.633Z"
+    },
+    {
+      "id": "bug-004",
+      "timestamp": "2026-04-13T11:34:30.352Z",
+      "error_message": "Incorrect value in code",
+      "file": "docs/design/consentshield-complete-schema-design.md",
+      "root_cause": "Had \"Bearer <service_role_key>\"",
+      "fix": "Changed to \"Bearer <cs_orchestrator_key>\"",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-13T11:34:30.352Z"
+    },
+    {
+      "id": "bug-005",
+      "timestamp": "2026-04-13T11:34:52.886Z",
+      "error_message": "Incorrect value in code",
+      "file": "docs/design/consentshield-testing-strategy.md",
+      "root_cause": "Had '2026-04-01 10:00:00+05:30'",
+      "fix": "Changed to 'Test User'",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-13T11:34:52.886Z"
+    },
+    {
+      "id": "bug-006",
+      "timestamp": "2026-04-13T11:36:56.793Z",
+      "error_message": "Wrong reference: confirm_delivery_and_delete should be mark_delivered_and_delete",
+      "file": "docs/design/consentshield-complete-schema-design.md",
+      "root_cause": "Used \"confirm_delivery_and_delete\" instead of \"mark_delivered_and_delete\"",
+      "fix": "Changed confirm_delivery_and_delete → mark_delivered_and_delete",
+      "tags": [
+        "auto-detected",
+        "wrong-reference",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-13T11:36:56.793Z"
+    },
+    {
+      "id": "bug-007",
+      "timestamp": "2026-04-13T11:43:15.679Z",
+      "error_message": "Wrong reference: Anthropic should be LLM",
+      "file": "docs/design/consentshield-v2-complete-blueprint.md",
+      "root_cause": "Used \"Anthropic\" instead of \"LLM\"",
+      "fix": "Changed Anthropic → LLM",
+      "tags": [
+        "auto-detected",
+        "wrong-reference",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 4,
+      "last_seen": "2026-04-13T11:45:03.815Z"
+    }
+  ]
+}

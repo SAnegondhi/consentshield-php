@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ConsentShield — Landing Page Concepts</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Syne:wght@400;500;600;700;800&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+
+/* ── SWITCHER ── */
+.switcher{position:fixed;top:0;left:0;right:0;z-index:1000;background:rgba(10,10,20,.95);backdrop-filter:blur(12px);border-bottom:1px solid rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center;gap:6px;padding:8px 16px;font-family:'DM Sans',sans-serif}
+.sw-label{font-size:11px;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.1em;margin-right:6px}
+.sw-btn{padding:6px 16px;border-radius:20px;border:1px solid rgba(255,255,255,.15);background:transparent;color:rgba(255,255,255,.5);font-size:12px;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .2s}
+.sw-btn.active-a{background:#EF4444;border-color:#EF4444;color:white}
+.sw-btn.active-b{background:#0D7A6B;border-color:#0D7A6B;color:white}
+.sw-divider{width:1px;height:20px;background:rgba(255,255,255,.12);margin:0 4px}
+.sw-note{font-size:11px;color:rgba(255,255,255,.3);margin-left:10px}
+
+.version{display:none;padding-top:52px}
+.version.active{display:block}
+
+/* ══════════════════════════════════════════════════════════════════
+   VERSION A — FEAR / ENFORCEMENT
+══════════════════════════════════════════════════════════════════ */
+.va{
+  --bg:#060B18;--bg2:#0D1425;--bg3:#111827;
+  --red:#EF4444;--red-l:rgba(239,68,68,.12);
+  --amber:#F59E0B;--amber-l:rgba(245,158,11,.1);
+  --white:#FFFFFF;--muted:rgba(255,255,255,.45);--faint:rgba(255,255,255,.1);
+  --border:rgba(255,255,255,.08);
+  --display:'Playfair Display',Georgia,serif;
+  --sans:'DM Sans',system-ui,sans-serif;
+  --mono:'DM Mono',monospace;
+  background:var(--bg);color:var(--white);font-family:var(--sans);
+  min-height:100vh;
+}
+
+/* A — NAV */
+.va-nav{padding:0 40px;height:64px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border)}
+.va-logo{display:flex;align-items:center;gap:10px}
+.va-logo-icon{width:28px;height:28px;background:var(--red);border-radius:5px;display:flex;align-items:center;justify-content:center}
+.va-logo-icon svg{width:16px;height:16px;fill:white}
+.va-logo-text{font-family:var(--sans);font-size:16px;font-weight:600;letter-spacing:-.01em}
+.va-nav-cta{padding:8px 20px;border-radius:4px;background:var(--red);color:white;font-size:13px;font-weight:600;text-decoration:none;letter-spacing:.02em;transition:all .15s}
+.va-nav-cta:hover{background:#DC2626}
+
+/* A — HERO */
+.va-hero{padding:80px 40px 60px;max-width:1100px;margin:0 auto}
+.va-pre{display:flex;align-items:center;gap:10px;margin-bottom:28px}
+.va-pre-badge{background:var(--red-l);border:1px solid rgba(239,68,68,.3);color:var(--red);font-size:11px;font-weight:600;padding:4px 10px;border-radius:3px;letter-spacing:.08em;text-transform:uppercase}
+.va-pre-text{font-size:12px;color:var(--muted);letter-spacing:.05em;text-transform:uppercase}
+.va-headline{font-family:var(--display);font-size:clamp(52px,7vw,84px);font-weight:900;line-height:1.02;letter-spacing:-.02em;margin-bottom:24px}
+.va-headline em{color:var(--red);font-style:normal}
+.va-headline span{color:var(--amber)}
+.va-sub{font-size:18px;color:var(--muted);line-height:1.65;max-width:600px;margin-bottom:44px;font-weight:300}
+.va-sub strong{color:rgba(255,255,255,.85);font-weight:500}
+.va-form{display:flex;gap:10px;max-width:520px;margin-bottom:20px}
+.va-input{flex:1;padding:14px 18px;background:var(--bg2);border:1px solid var(--border);border-radius:4px;color:white;font-family:var(--sans);font-size:15px;outline:none;transition:border .15s}
+.va-input::placeholder{color:rgba(255,255,255,.25)}
+.va-input:focus{border-color:rgba(239,68,68,.5)}
+.va-submit{padding:14px 28px;background:var(--red);color:white;border:none;border-radius:4px;font-family:var(--sans);font-size:15px;font-weight:600;cursor:pointer;white-space:nowrap;transition:all .15s}
+.va-submit:hover{background:#DC2626;transform:translateY(-1px)}
+.va-form-note{font-size:12px;color:rgba(255,255,255,.25)}
+.va-thankyou{display:none;padding:16px 20px;background:rgba(21,128,61,.15);border:1px solid rgba(21,128,61,.3);border-radius:4px;color:#4ADE80;font-size:14px;font-weight:500;max-width:520px}
+
+/* A — COUNTDOWN */
+.va-countdown{background:var(--bg2);border:1px solid var(--border);border-top:2px solid var(--red);padding:28px 40px;margin:0 0 0}
+.va-countdown-inner{max-width:1100px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:20px}
+.va-clock-label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;margin-bottom:6px}
+.va-clock{display:flex;align-items:flex-end;gap:2px}
+.va-clock-unit{text-align:center;min-width:52px}
+.va-clock-num{font-family:var(--mono);font-size:36px;font-weight:500;color:var(--amber);line-height:1}
+.va-clock-sep{font-family:var(--mono);font-size:28px;color:rgba(245,158,11,.3);padding-bottom:2px}
+.va-clock-sub{font-size:9px;color:var(--muted);letter-spacing:.06em;text-transform:uppercase;margin-top:3px}
+.va-deadline{text-align:right}
+.va-deadline-date{font-family:var(--display);font-size:22px;font-weight:700;color:var(--white)}
+.va-deadline-label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-top:3px}
+
+/* A — PENALTY */
+.va-penalty{padding:60px 40px;max-width:1100px;margin:0 auto}
+.va-penalty-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1px;background:var(--border);border:1px solid var(--border);border-radius:6px;overflow:hidden}
+.va-penalty-card{background:var(--bg2);padding:28px 24px}
+.va-penalty-num{font-family:var(--display);font-size:38px;font-weight:900;margin-bottom:8px}
+.va-penalty-num.red{color:var(--red)}
+.va-penalty-num.amber{color:var(--amber)}
+.va-penalty-num.white{color:var(--white)}
+.va-penalty-label{font-size:14px;color:var(--muted);line-height:1.5}
+.va-penalty-sub{font-size:12px;color:rgba(255,255,255,.2);margin-top:6px}
+
+/* A — FEATURES */
+.va-features{padding:60px 40px;max-width:1100px;margin:0 auto}
+.va-features-title{font-family:var(--display);font-size:36px;font-weight:700;margin-bottom:8px}
+.va-features-sub{font-size:16px;color:var(--muted);margin-bottom:40px;max-width:520px}
+.va-feature-list{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.va-feature{background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:24px}
+.va-feature:hover{border-color:rgba(239,68,68,.25)}
+.va-feature-icon{width:36px;height:36px;background:var(--red-l);border-radius:5px;display:flex;align-items:center;justify-content:center;margin-bottom:14px;font-size:18px}
+.va-feature-title{font-size:15px;font-weight:600;margin-bottom:6px}
+.va-feature-desc{font-size:13px;color:var(--muted);line-height:1.6}
+
+/* A — STEPS */
+.va-steps{padding:60px 40px;background:var(--bg2);border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
+.va-steps-inner{max-width:1100px;margin:0 auto}
+.va-steps-title{font-family:var(--display);font-size:32px;font-weight:700;margin-bottom:6px;text-align:center}
+.va-steps-sub{font-size:15px;color:var(--muted);text-align:center;margin-bottom:44px}
+.va-step-row{display:grid;grid-template-columns:repeat(3,1fr);gap:32px;position:relative}
+.va-step-row::before{content:'';position:absolute;top:20px;left:calc(33.33% - 12px);width:calc(66.66% - 24px);height:1px;background:var(--border);z-index:0}
+.va-step{text-align:center;position:relative;z-index:1}
+.va-step-num{width:40px;height:40px;border-radius:50%;background:var(--red);color:white;font-size:15px;font-weight:700;display:flex;align-items:center;justify-content:center;margin:0 auto 14px}
+.va-step-title{font-size:15px;font-weight:600;margin-bottom:6px}
+.va-step-desc{font-size:13px;color:var(--muted);line-height:1.5}
+
+/* A — FINAL CTA */
+.va-cta{padding:80px 40px;text-align:center}
+.va-cta-inner{max-width:620px;margin:0 auto}
+.va-cta-pre{font-size:11px;color:var(--red);text-transform:uppercase;letter-spacing:.12em;font-weight:600;margin-bottom:14px}
+.va-cta-title{font-family:var(--display);font-size:clamp(36px,5vw,52px);font-weight:900;line-height:1.1;margin-bottom:16px}
+.va-cta-sub{font-size:16px;color:var(--muted);margin-bottom:36px;line-height:1.6}
+
+/* A — FOOTER */
+.va-footer{padding:24px 40px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.va-footer-copy{font-size:12px;color:rgba(255,255,255,.2)}
+.va-footer-links{display:flex;gap:20px}
+.va-footer-link{font-size:12px;color:rgba(255,255,255,.2);text-decoration:none}
+
+
+/* ══════════════════════════════════════════════════════════════════
+   VERSION B — RELIEF / SIMPLICITY
+══════════════════════════════════════════════════════════════════ */
+.vb{
+  --bg:#FAFAF8;--bg2:#F3F4EF;--bg3:#FFFFFF;
+  --teal:#0D7A6B;--teal-l:#E0F4F1;--teal-m:#0A5C50;
+  --navy:#0F2D5B;--navy-l:#EEF3FA;
+  --amber:#C97B00;--amber-l:#FEF3C7;
+  --text:#0F172A;--text2:#475569;--text3:#94A3B8;
+  --border:#E2E8F0;--border2:#CBD5E1;
+  --display:'Syne',system-ui,sans-serif;
+  --sans:'DM Sans',system-ui,sans-serif;
+  --mono:'DM Mono',monospace;
+  background:var(--bg);color:var(--text);font-family:var(--sans);
+  min-height:100vh;
+}
+
+/* B — NAV */
+.vb-nav{padding:0 48px;height:68px;display:flex;align-items:center;justify-content:space-between;background:var(--bg3);border-bottom:1px solid var(--border)}
+.vb-logo{display:flex;align-items:center;gap:10px}
+.vb-logo-icon{width:30px;height:30px;background:linear-gradient(135deg,var(--teal),#0A5C50);border-radius:7px;display:flex;align-items:center;justify-content:center}
+.vb-logo-icon svg{width:17px;height:17px;fill:white}
+.vb-logo-text{font-family:var(--display);font-size:17px;font-weight:700;letter-spacing:-.02em;color:var(--navy)}
+.vb-nav-links{display:flex;align-items:center;gap:28px}
+.vb-nav-link{font-size:14px;color:var(--text2);text-decoration:none;font-weight:500}
+.vb-nav-cta{padding:9px 22px;border-radius:7px;background:var(--teal);color:white;font-size:14px;font-weight:600;text-decoration:none;transition:all .15s}
+.vb-nav-cta:hover{background:var(--teal-m)}
+
+/* B — HERO */
+.vb-hero{padding:88px 48px 72px;max-width:1160px;margin:0 auto;display:grid;grid-template-columns:1fr 420px;gap:60px;align-items:center}
+.vb-hero-left{}
+.vb-pre{display:inline-flex;align-items:center;gap:8px;background:var(--teal-l);border:1px solid rgba(13,122,107,.2);border-radius:20px;padding:5px 12px;margin-bottom:24px}
+.vb-pre-dot{width:6px;height:6px;border-radius:50%;background:var(--teal)}
+.vb-pre-text{font-size:12px;color:var(--teal);font-weight:600;letter-spacing:.04em;text-transform:uppercase}
+.vb-headline{font-family:var(--display);font-size:clamp(44px,5.5vw,68px);font-weight:800;line-height:1.05;letter-spacing:-.03em;color:var(--navy);margin-bottom:20px}
+.vb-headline em{color:var(--teal);font-style:normal;display:block}
+.vb-sub{font-size:18px;color:var(--text2);line-height:1.65;max-width:520px;margin-bottom:36px;font-weight:300}
+.vb-sub strong{color:var(--text);font-weight:500}
+.vb-form-wrap{}
+.vb-form{display:flex;gap:8px;margin-bottom:12px}
+.vb-input{flex:1;padding:13px 16px;border:1.5px solid var(--border);border-radius:8px;font-family:var(--sans);font-size:15px;color:var(--text);background:white;outline:none;transition:border .15s}
+.vb-input::placeholder{color:var(--text3)}
+.vb-input:focus{border-color:var(--teal)}
+.vb-submit{padding:13px 24px;background:var(--teal);color:white;border:none;border-radius:8px;font-family:var(--display);font-size:15px;font-weight:700;cursor:pointer;white-space:nowrap;transition:all .15s;letter-spacing:-.01em}
+.vb-submit:hover{background:var(--teal-m);transform:translateY(-1px)}
+.vb-form-note{font-size:12px;color:var(--text3)}
+.vb-thankyou{display:none;padding:14px 18px;background:var(--teal-l);border:1px solid rgba(13,122,107,.25);border-radius:8px;color:var(--teal);font-size:14px;font-weight:500}
+
+/* B — HERO CARD */
+.vb-hero-card{background:white;border-radius:16px;border:1px solid var(--border);box-shadow:0 20px 60px rgba(15,45,91,.08);overflow:hidden}
+.vb-card-header{background:var(--navy);padding:16px 20px;display:flex;align-items:center;gap:10px}
+.vb-card-dots{display:flex;gap:5px}
+.vb-card-dot{width:10px;height:10px;border-radius:50%}
+.vb-card-title{font-size:13px;color:rgba(255,255,255,.5);font-weight:500;margin-left:4px}
+.vb-card-score{padding:20px;background:var(--bg);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:16px}
+.vb-score-ring{width:64px;height:64px;position:relative;flex-shrink:0}
+.vb-score-ring svg{transform:rotate(-90deg)}
+.vb-score-center{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center}
+.vb-score-pct{font-size:18px;font-weight:700;color:var(--teal);line-height:1}
+.vb-score-info{}
+.vb-score-title{font-size:14px;font-weight:600;color:var(--navy)}
+.vb-score-sub{font-size:12px;color:var(--text3);margin-top:2px}
+.vb-clock-mini{background:var(--amber-l);padding:6px 12px;border-radius:5px;font-size:11px;color:var(--amber);font-weight:600;margin-top:6px;display:inline-block}
+.vb-card-items{padding:0}
+.vb-card-item{padding:12px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;font-size:13px}
+.vb-card-item:last-child{border-bottom:none}
+.vb-ci-icon{width:22px;height:22px;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0}
+.vb-ci-text{flex:1;color:var(--text2)}
+.vb-ci-status{font-size:11px;font-weight:600;padding:2px 7px;border-radius:4px}
+.vb-ci-live{background:var(--teal-l);color:var(--teal)}
+.vb-ci-warn{background:var(--amber-l);color:var(--amber)}
+.vb-ci-go{background:var(--teal-l);color:var(--teal)}
+
+/* B — TRUST BAR */
+.vb-trust{background:white;border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:20px 48px}
+.vb-trust-inner{max-width:1160px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap}
+.vb-trust-item{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text2)}
+.vb-trust-icon{font-size:16px}
+.vb-trust-divider{width:1px;height:20px;background:var(--border)}
+
+/* B — HOW */
+.vb-how{padding:80px 48px;max-width:1160px;margin:0 auto}
+.vb-section-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--teal);margin-bottom:10px}
+.vb-section-title{font-family:var(--display);font-size:clamp(32px,4vw,44px);font-weight:800;letter-spacing:-.03em;color:var(--navy);margin-bottom:10px}
+.vb-section-sub{font-size:17px;color:var(--text2);max-width:520px;line-height:1.6;margin-bottom:48px}
+.vb-steps-row{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
+.vb-step{background:white;border:1px solid var(--border);border-radius:12px;padding:24px;position:relative}
+.vb-step::before{content:attr(data-num);position:absolute;top:-14px;left:20px;background:var(--teal);color:white;font-family:var(--mono);font-size:11px;font-weight:500;padding:3px 8px;border-radius:4px}
+.vb-step-title{font-family:var(--display);font-size:17px;font-weight:700;color:var(--navy);margin-bottom:8px;margin-top:6px}
+.vb-step-desc{font-size:14px;color:var(--text2);line-height:1.6}
+.vb-step-detail{margin-top:12px;padding:10px;background:var(--bg);border-radius:6px;font-size:12px;color:var(--text3);font-family:var(--mono)}
+
+/* B — FEATURES */
+.vb-features{padding:0 48px 80px;max-width:1160px;margin:0 auto}
+.vb-feature-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.vb-feature{background:white;border:1px solid var(--border);border-radius:12px;padding:24px;transition:all .2s}
+.vb-feature:hover{border-color:rgba(13,122,107,.3);box-shadow:0 8px 24px rgba(13,122,107,.06)}
+.vb-feature-tag{display:inline-block;background:var(--teal-l);color:var(--teal);font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:3px 8px;border-radius:4px;margin-bottom:12px}
+.vb-feature-title{font-family:var(--display);font-size:18px;font-weight:700;color:var(--navy);margin-bottom:8px}
+.vb-feature-desc{font-size:14px;color:var(--text2);line-height:1.6}
+.vb-feature-detail{margin-top:14px;font-size:12px;color:var(--text3);line-height:1.5;padding-top:12px;border-top:1px solid var(--border)}
+
+/* B — URGENCY */
+.vb-urgency{background:var(--navy);padding:60px 48px;margin:0}
+.vb-urgency-inner{max-width:1160px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center}
+.vb-urg-label{font-size:11px;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px}
+.vb-urg-title{font-family:var(--display);font-size:clamp(28px,3.5vw,40px);font-weight:800;color:white;line-height:1.1;letter-spacing:-.02em;margin-bottom:14px}
+.vb-urg-body{font-size:15px;color:rgba(255,255,255,.55);line-height:1.7}
+.vb-urg-clock{display:flex;gap:12px;align-items:flex-end}
+.vb-urg-unit{text-align:center;background:rgba(255,255,255,.07);border-radius:8px;padding:14px 12px}
+.vb-urg-num{font-family:var(--mono);font-size:32px;font-weight:500;color:var(--amber-l,#FEF3C7);color:#F59E0B;line-height:1}
+.vb-urg-sub{font-size:10px;color:rgba(255,255,255,.4);letter-spacing:.06em;text-transform:uppercase;margin-top:4px}
+.vb-urg-sep{font-family:var(--mono);font-size:24px;color:rgba(255,255,255,.2);padding-bottom:14px}
+
+/* B — FINAL CTA */
+.vb-cta{padding:80px 48px;text-align:center;background:var(--teal-l)}
+.vb-cta-inner{max-width:580px;margin:0 auto}
+.vb-cta-title{font-family:var(--display);font-size:clamp(32px,4vw,48px);font-weight:800;color:var(--navy);letter-spacing:-.03em;margin-bottom:12px;line-height:1.1}
+.vb-cta-sub{font-size:16px;color:var(--text2);margin-bottom:32px;line-height:1.65}
+
+/* B — FOOTER */
+.vb-footer{padding:24px 48px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;background:white}
+.vb-footer-copy{font-size:12px;color:var(--text3)}
+.vb-footer-links{display:flex;gap:20px}
+.vb-footer-link{font-size:12px;color:var(--text3);text-decoration:none}
+
+/* SHARED */
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+.fade-up{animation:fadeUp .5s ease both}
+.fade-up-2{animation:fadeUp .5s .1s ease both}
+.fade-up-3{animation:fadeUp .5s .2s ease both}
+</style>
+</head>
+<body>
+
+<!-- SWITCHER -->
+<div class="switcher">
+  <span class="sw-label">Concept</span>
+  <button class="sw-btn active-a" id="btn-a" onclick="setV('a')">A — Enforcement fear</button>
+  <div class="sw-divider"></div>
+  <button class="sw-btn" id="btn-b" onclick="setV('b')">B — Relief &amp; simplicity</button>
+  <span class="sw-note">Both share the same email capture — only framing differs</span>
+</div>
+
+
+<!-- ═══════════════════ VERSION A ═══════════════════ -->
+<div class="va version active" id="va">
+
+  <nav class="va-nav">
+    <div class="va-logo">
+      <div class="va-logo-icon"><svg viewBox="0 0 24 24"><path d="M12 2L4 6v6c0 5.5 3.8 10.7 8 12 4.2-1.3 8-6.5 8-12V6l-8-4z"/></svg></div>
+      <span class="va-logo-text">ConsentShield</span>
+    </div>
+    <a href="#" class="va-nav-cta">Get early access →</a>
+  </nav>
+
+  <!-- COUNTDOWN BAR -->
+  <div class="va-countdown">
+    <div class="va-countdown-inner">
+      <div>
+        <div class="va-clock-label">Time until full DPDP enforcement</div>
+        <div class="va-clock">
+          <div class="va-clock-unit">
+            <div class="va-clock-num" id="va-days">397</div>
+            <div class="va-clock-sub">days</div>
+          </div>
+          <div class="va-clock-sep">:</div>
+          <div class="va-clock-unit">
+            <div class="va-clock-num" id="va-hours">14</div>
+            <div class="va-clock-sub">hours</div>
+          </div>
+          <div class="va-clock-sep">:</div>
+          <div class="va-clock-unit">
+            <div class="va-clock-num" id="va-mins">33</div>
+            <div class="va-clock-sub">min</div>
+          </div>
+          <div class="va-clock-sep">:</div>
+          <div class="va-clock-unit">
+            <div class="va-clock-num" id="va-secs">08</div>
+            <div class="va-clock-sub">sec</div>
+          </div>
+        </div>
+      </div>
+      <div class="va-deadline">
+        <div class="va-deadline-date">13 May 2027</div>
+        <div class="va-deadline-label">Full penalty architecture enforceable</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- HERO -->
+  <section class="va-hero">
+    <div class="va-pre">
+      <span class="va-pre-badge">⚠ DPDP ACT 2023</span>
+      <span class="va-pre-text">Enforcement begins 13 May 2027 · Data Protection Board of India is operational</span>
+    </div>
+    <h1 class="va-headline fade-up">
+      ₹250 crore<br>per violation.<br><em>Are you ready?</em>
+    </h1>
+    <p class="va-sub fade-up-2">Every company processing Indian user data is now legally exposed. The Data Protection Board can act. Penalties are cumulative — a single breach incident can trigger <strong>₹650 crore</strong> in combined exposure. ConsentShield gets you compliant in 48 hours.</p>
+    <div class="va-form fade-up-3" id="va-form">
+      <input class="va-input" type="email" placeholder="founder@yourcompany.in" id="va-email">
+      <button class="va-submit" onclick="submitA()">Get protected →</button>
+    </div>
+    <div class="va-thankyou" id="va-thanks">✓ You're on the list. We'll reach out before we go live. Stay ahead of the DPB.</div>
+    <div class="va-form-note">No credit card. No lawyers needed. Compliant in 48 hours.</div>
+  </section>
+
+  <!-- PENALTY STATS -->
+  <section style="padding:0 40px 60px;max-width:1100px;margin:0 auto">
+    <div class="va-penalty-grid">
+      <div class="va-penalty-card">
+        <div class="va-penalty-num red">₹250 Cr</div>
+        <div class="va-penalty-label">Maximum fine per violation under DPDP Act 2023</div>
+        <div class="va-penalty-sub">Section 33 · Data Protection Board of India</div>
+      </div>
+      <div class="va-penalty-card">
+        <div class="va-penalty-num amber">₹650 Cr</div>
+        <div class="va-penalty-label">Maximum cumulative exposure from a single breach incident</div>
+        <div class="va-penalty-sub">Across multiple failure categories simultaneously</div>
+      </div>
+      <div class="va-penalty-card">
+        <div class="va-penalty-num white">72 hrs</div>
+        <div class="va-penalty-label">Maximum time to notify the DPB after a data breach</div>
+        <div class="va-penalty-sub">Missing this window is itself a separate violation</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FEATURES -->
+  <section class="va-features">
+    <h2 class="va-features-title">What ConsentShield covers</h2>
+    <p class="va-features-sub">Everything a DPB inspector will ask for — automated, always current, exportable in one click.</p>
+    <div class="va-feature-list">
+      <div class="va-feature">
+        <div class="va-feature-icon">🛡️</div>
+        <div class="va-feature-title">DPDP-compliant consent system</div>
+        <div class="va-feature-desc">Granular consent banners, purpose-specific tracking, consent withdrawal engine. Deploys with one script tag. Stores legally-required consent logs forever.</div>
+      </div>
+      <div class="va-feature">
+        <div class="va-feature-icon">📋</div>
+        <div class="va-feature-title">Data inventory and processing log</div>
+        <div class="va-feature-desc">Maps what data you collect, why, and for how long. 1-year processing log retention required by DPDP Rules — automated from day one.</div>
+      </div>
+      <div class="va-feature">
+        <div class="va-feature-icon">⚖️</div>
+        <div class="va-feature-title">Rights request management</div>
+        <div class="va-feature-desc">Erasure, access, correction, nomination. 30-day SLA tracker with automatic reminders. A missed deadline is a violation. We make sure you never miss one.</div>
+      </div>
+      <div class="va-feature">
+        <div class="va-feature-icon">🚨</div>
+        <div class="va-feature-title">72-hour breach notification</div>
+        <div class="va-feature-desc">One-tap breach trigger from mobile. Clock starts immediately. Generates the DPB notification package. Alerts your compliance contacts. Never scramble at 2 AM alone.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- STEPS -->
+  <section class="va-steps">
+    <div class="va-steps-inner">
+      <h2 class="va-steps-title">Compliant in 48 hours</h2>
+      <p class="va-steps-sub">Not a 3-month legal engagement. A self-serve product any technical founder can deploy before the next sprint ends.</p>
+      <div class="va-step-row">
+        <div class="va-step">
+          <div class="va-step-num">1</div>
+          <div class="va-step-title">Sign up and answer 10 questions</div>
+          <div class="va-step-desc">Data inventory auto-generated. Sector-specific DPDP templates pre-loaded. Your draft compliance posture in under 10 minutes.</div>
+        </div>
+        <div class="va-step">
+          <div class="va-step-num">2</div>
+          <div class="va-step-title">Deploy one script tag</div>
+          <div class="va-step-desc">Copy the ConsentShield snippet into your &lt;head&gt;. Consent banner live. First consent logged. First audit entry written.</div>
+        </div>
+        <div class="va-step">
+          <div class="va-step-num">3</div>
+          <div class="va-step-title">Compliance dashboard goes live</div>
+          <div class="va-step-desc">Score, gaps, action queue, enforcement countdown. When the DPB asks, you export the audit package in one click. Everything is there.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FINAL CTA -->
+  <section class="va-cta">
+    <div class="va-cta-inner">
+      <div class="va-cta-pre">Limited early access · Hyderabad-based companies first</div>
+      <h2 class="va-cta-title">Don't be the company that gets the first penalty notice.</h2>
+      <p class="va-cta-sub">The Data Protection Board is operational. The enforcement timeline is public. The only variable is whether your company is ready when they come looking.</p>
+      <div class="va-form" id="va-form-2" style="justify-content:center">
+        <input class="va-input" type="email" placeholder="founder@yourcompany.in" id="va-email-2" style="max-width:300px">
+        <button class="va-submit" onclick="submitA2()">Get early access →</button>
+      </div>
+      <div class="va-thankyou" id="va-thanks-2" style="max-width:460px;margin:0 auto;text-align:left">✓ You're on the list. We'll reach out before launch.</div>
+    </div>
+  </section>
+
+  <footer class="va-footer">
+    <span class="va-footer-copy">© 2026 ConsentShield · Hyderabad, India · Built for the DPDP Act 2023</span>
+    <div class="va-footer-links">
+      <a href="#" class="va-footer-link">Privacy</a>
+      <a href="#" class="va-footer-link">Terms</a>
+      <a href="#" class="va-footer-link">Contact</a>
+    </div>
+  </footer>
+</div>
+
+
+<!-- ═══════════════════ VERSION B ═══════════════════ -->
+<div class="vb version" id="vb">
+
+  <nav class="vb-nav">
+    <div class="vb-logo">
+      <div class="vb-logo-icon"><svg viewBox="0 0 24 24"><path d="M12 2L4 6v6c0 5.5 3.8 10.7 8 12 4.2-1.3 8-6.5 8-12V6l-8-4z"/></svg></div>
+      <span class="vb-logo-text">ConsentShield</span>
+    </div>
+    <div class="vb-nav-links">
+      <a href="#" class="vb-nav-link">How it works</a>
+      <a href="#" class="vb-nav-link">Pricing</a>
+      <a href="#" class="vb-nav-cta">Join waitlist →</a>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <section style="background:white;border-bottom:1px solid var(--border)">
+    <div class="vb-hero">
+      <div class="vb-hero-left">
+        <div class="vb-pre">
+          <div class="vb-pre-dot"></div>
+          <span class="vb-pre-text">DPDP Compliance for Indian SaaS Founders</span>
+        </div>
+        <h1 class="vb-headline fade-up">
+          Compliant in<br>48 hours.
+          <em>Back to building.</em>
+        </h1>
+        <p class="vb-sub fade-up-2">ConsentShield handles <strong>DPDP compliance</strong> so you don't have to. Consent banners, data inventory, rights requests, audit trails — all automated. One script tag. No lawyers.</p>
+        <div class="vb-form-wrap fade-up-3">
+          <div class="vb-form" id="vb-form">
+            <input class="vb-input" type="email" placeholder="you@company.in" id="vb-email">
+            <button class="vb-submit" onclick="submitB()">Join waitlist</button>
+          </div>
+          <div class="vb-thankyou" id="vb-thanks">✓ You're on the list. We'll be in touch shortly.</div>
+          <div class="vb-form-note">Free 14-day trial · No credit card · Launching before May 2026</div>
+        </div>
+      </div>
+
+      <!-- PRODUCT CARD -->
+      <div class="vb-hero-card fade-up-2">
+        <div class="vb-card-header">
+          <div class="vb-card-dots">
+            <div class="vb-card-dot" style="background:#FF5F57"></div>
+            <div class="vb-card-dot" style="background:#FEBC2E"></div>
+            <div class="vb-card-dot" style="background:#28C840"></div>
+          </div>
+          <div class="vb-card-title">ConsentShield Dashboard</div>
+        </div>
+        <div class="vb-card-score">
+          <div class="vb-score-ring">
+            <svg width="64" height="64" viewBox="0 0 64 64">
+              <circle cx="32" cy="32" r="26" fill="none" stroke="#E2E8F0" stroke-width="5"/>
+              <circle cx="32" cy="32" r="26" fill="none" stroke="#0D7A6B" stroke-width="5" stroke-dasharray="122 163" stroke-linecap="round"/>
+            </svg>
+            <div class="vb-score-center"><div class="vb-score-pct">74%</div></div>
+          </div>
+          <div class="vb-score-info">
+            <div class="vb-score-title">Compliance score</div>
+            <div class="vb-score-sub">3 gaps to close · Amber zone</div>
+            <div class="vb-clock-mini">⏱ 397 days to enforcement</div>
+          </div>
+        </div>
+        <div class="vb-card-items">
+          <div class="vb-card-item">
+            <div class="vb-ci-icon" style="background:#E0F4F1">✓</div>
+            <div class="vb-ci-text">Consent banner deployed</div>
+            <span class="vb-ci-status vb-ci-live">Live</span>
+          </div>
+          <div class="vb-card-item">
+            <div class="vb-ci-icon" style="background:#E0F4F1">✓</div>
+            <div class="vb-ci-text">Privacy notice published</div>
+            <span class="vb-ci-status vb-ci-live">Live</span>
+          </div>
+          <div class="vb-card-item">
+            <div class="vb-ci-icon" style="background:#FEF3C7">!</div>
+            <div class="vb-ci-text">Data inventory — 8 of 12 flows</div>
+            <span class="vb-ci-status vb-ci-warn">Incomplete</span>
+          </div>
+          <div class="vb-card-item">
+            <div class="vb-ci-icon" style="background:#EFF6FF">→</div>
+            <div class="vb-ci-text">Rights request inbox — 3 open</div>
+            <span class="vb-ci-status" style="background:#EFF6FF;color:#1E40AF">3 open</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TRUST BAR -->
+  <div class="vb-trust">
+    <div class="vb-trust-inner">
+      <div class="vb-trust-item"><span class="vb-trust-icon">⚡</span> Deploy in 48 hours</div>
+      <div class="vb-trust-divider"></div>
+      <div class="vb-trust-item"><span class="vb-trust-icon">🇮🇳</span> Built for India's DPDP Act 2023</div>
+      <div class="vb-trust-divider"></div>
+      <div class="vb-trust-item"><span class="vb-trust-icon">🔒</span> Automatic audit trail</div>
+      <div class="vb-trust-divider"></div>
+      <div class="vb-trust-item"><span class="vb-trust-icon">📋</span> No lawyers, no consultants</div>
+      <div class="vb-trust-divider"></div>
+      <div class="vb-trust-item"><span class="vb-trust-icon">✉️</span> Rights requests handled automatically</div>
+    </div>
+  </div>
+
+  <!-- HOW IT WORKS -->
+  <section class="vb-how">
+    <div class="vb-section-label">How it works</div>
+    <h2 class="vb-section-title">From zero to compliant in one afternoon</h2>
+    <p class="vb-section-sub">No compliance consultant. No three-month legal engagement. A self-serve product any technical founder can ship before their next sprint ends.</p>
+    <div class="vb-steps-row">
+      <div class="vb-step" data-num="Step 1">
+        <div class="vb-step-title">Answer 10 questions</div>
+        <div class="vb-step-desc">Tell ConsentShield what data you collect and why. Your data inventory is auto-generated. Sector-specific DPDP templates pre-loaded for SaaS, edtech, and fintech.</div>
+        <div class="vb-step-detail">Takes under 10 minutes · No legal knowledge required</div>
+      </div>
+      <div class="vb-step" data-num="Step 2">
+        <div class="vb-step-title">Paste one script tag</div>
+        <div class="vb-step-desc">Copy the ConsentShield snippet into your &lt;head&gt;. Your consent banner goes live. First consent collected. First audit log entry written. Done.</div>
+        <div class="vb-step-detail">&lt;script src="cdn.consentshield.in/v1/banner.js"&gt;</div>
+      </div>
+      <div class="vb-step" data-num="Step 3">
+        <div class="vb-step-title">Dashboard runs itself</div>
+        <div class="vb-step-desc">Compliance score updates automatically. Rights requests land in your inbox with SLA timers. Audit package exports in one click when you need it.</div>
+        <div class="vb-step-detail">Audit-ready evidence · Always current · Never a spreadsheet</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FEATURES -->
+  <section class="vb-features">
+    <div class="vb-section-label">What's included</div>
+    <h2 class="vb-section-title" style="margin-bottom:40px">Everything DPDP requires.<br>Nothing it doesn't.</h2>
+    <div class="vb-feature-grid">
+      <div class="vb-feature">
+        <div class="vb-feature-tag">Consent</div>
+        <div class="vb-feature-title">Granular consent banners</div>
+        <div class="vb-feature-desc">Purpose-specific consent, withdrawal engine, and automatic consent log retention. Deploys via CDN — no build step, no framework dependency.</div>
+        <div class="vb-feature-detail">Every consent event stored server-side with timestamp, banner version, and purpose breakdown. Exportable for DPB inspection.</div>
+      </div>
+      <div class="vb-feature">
+        <div class="vb-feature-tag">Data inventory</div>
+        <div class="vb-feature-title">Automated data mapping</div>
+        <div class="vb-feature-desc">Map what data you collect, for what purpose, how long you keep it, and which third parties receive it. The first document any regulator will ask for.</div>
+        <div class="vb-feature-detail">Pre-filled from your onboarding answers. Complete in 20 minutes. Updated whenever your data practices change.</div>
+      </div>
+      <div class="vb-feature">
+        <div class="vb-feature-tag">Rights management</div>
+        <div class="vb-feature-title">Rights request inbox</div>
+        <div class="vb-feature-desc">Erasure, access, correction, and nomination requests managed in one place. 30-day SLA countdown with automatic reminders so you never breach a deadline.</div>
+        <div class="vb-feature-detail">Guided 7-step response workflow. Full audit trail of every action taken — who verified identity, when response was sent, what data was erased.</div>
+      </div>
+      <div class="vb-feature">
+        <div class="vb-feature-tag">Audit & reports</div>
+        <div class="vb-feature-title">One-click audit package</div>
+        <div class="vb-feature-desc">When a VC asks about DPDP compliance in due diligence, or the DPB comes knocking, export everything — consent logs, rights request history, gap report — as a signed PDF.</div>
+        <div class="vb-feature-detail">No scrambling. No spreadsheets. Everything is there, always current, formatted for inspection.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- URGENCY SECTION -->
+  <section class="vb-urgency">
+    <div class="vb-urgency-inner">
+      <div>
+        <div class="vb-urg-label">Why act now</div>
+        <h2 class="vb-urg-title">DPDP enforcement begins 13 May 2027. 2026 is the build year.</h2>
+        <p class="vb-urg-body">The rules are notified. The Data Protection Board is operational. Companies in active planning mode right now will be the ones with working compliance systems when enforcement begins — not scrambling in 2027. ConsentShield is built for the window that's open today.</p>
+      </div>
+      <div>
+        <div class="vb-urg-label" style="color:rgba(255,255,255,.4)">Time remaining</div>
+        <div class="vb-urg-clock">
+          <div class="vb-urg-unit"><div class="vb-urg-num" id="vb-days">397</div><div class="vb-urg-sub">days</div></div>
+          <div class="vb-urg-sep">:</div>
+          <div class="vb-urg-unit"><div class="vb-urg-num" id="vb-hours">14</div><div class="vb-urg-sub">hrs</div></div>
+          <div class="vb-urg-sep">:</div>
+          <div class="vb-urg-unit"><div class="vb-urg-num" id="vb-mins">33</div><div class="vb-urg-sub">min</div></div>
+        </div>
+        <div style="margin-top:20px;font-size:13px;color:rgba(255,255,255,.35)">Until full DPDP penalty architecture is enforceable<br>₹250 crore per violation · Penalties are cumulative</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FINAL CTA -->
+  <section class="vb-cta">
+    <div class="vb-cta-inner">
+      <h2 class="vb-cta-title">Stop putting it off. Start this afternoon.</h2>
+      <p class="vb-cta-sub">Join the waitlist and be among the first Indian SaaS founders with a working DPDP compliance system. Free 14-day trial. No lawyers required.</p>
+      <div class="vb-form" id="vb-form-2" style="justify-content:center">
+        <input class="vb-input" type="email" placeholder="you@company.in" id="vb-email-2">
+        <button class="vb-submit" onclick="submitB2()">Join waitlist</button>
+      </div>
+      <div class="vb-thankyou" id="vb-thanks-2" style="max-width:400px;margin:0 auto">✓ You're on the list. We'll be in touch shortly.</div>
+      <div style="margin-top:12px;font-size:12px;color:var(--text3)">Free 14-day trial · No credit card · Cancel any time</div>
+    </div>
+  </section>
+
+  <footer class="vb-footer">
+    <span class="vb-footer-copy">© 2026 ConsentShield · Hyderabad, India</span>
+    <div class="vb-footer-links">
+      <a href="#" class="vb-footer-link">Privacy notice</a>
+      <a href="#" class="vb-footer-link">Terms</a>
+      <a href="#" class="vb-footer-link">Contact</a>
+    </div>
+  </footer>
+</div>
+
+<script>
+// ── VERSION SWITCHER ─────────────────────────────────
+function setV(v) {
+  document.getElementById('va').classList.toggle('active', v === 'a');
+  document.getElementById('vb').classList.toggle('active', v === 'b');
+  document.getElementById('btn-a').classList.toggle('active-a', v === 'a');
+  document.getElementById('btn-b').classList.toggle('active-b', v === 'b');
+  window.scrollTo(0, 0);
+}
+
+// ── FORM HANDLERS ────────────────────────────────────
+function submitA() {
+  const v = document.getElementById('va-email').value;
+  if (!v || !v.includes('@')) return;
+  document.getElementById('va-form').style.display = 'none';
+  document.getElementById('va-thanks').style.display = 'block';
+}
+function submitA2() {
+  const v = document.getElementById('va-email-2').value;
+  if (!v || !v.includes('@')) return;
+  document.getElementById('va-form-2').style.display = 'none';
+  document.getElementById('va-thanks-2').style.display = 'block';
+}
+function submitB() {
+  const v = document.getElementById('vb-email').value;
+  if (!v || !v.includes('@')) return;
+  document.getElementById('vb-form').style.display = 'none';
+  document.getElementById('vb-thanks').style.display = 'block';
+}
+function submitB2() {
+  const v = document.getElementById('vb-email-2').value;
+  if (!v || !v.includes('@')) return;
+  document.getElementById('vb-form-2').style.display = 'none';
+  document.getElementById('vb-thanks-2').style.display = 'block';
+}
+
+// ── COUNTDOWN ────────────────────────────────────────
+function updateCountdown() {
+  const target = new Date('2027-05-13T00:00:00+05:30');
+  const now = new Date();
+  const diff = Math.max(0, target - now);
+  const days  = Math.floor(diff / 86400000);
+  const hours = Math.floor((diff % 86400000) / 3600000);
+  const mins  = Math.floor((diff % 3600000)  / 60000);
+  const secs  = Math.floor((diff % 60000)    / 1000);
+  const pad   = n => String(n).padStart(2, '0');
+
+  ['va-days','vb-days'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = days;
+  });
+  ['va-hours','vb-hours'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = pad(hours);
+  });
+  ['va-mins','vb-mins'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = pad(mins);
+  });
+  const vs = document.getElementById('va-secs');
+  if (vs) vs.textContent = pad(secs);
+}
+updateCountdown();
+setInterval(updateCountdown, 1000);
+</script>
+</body>
+</html>

@@ -1,0 +1,860 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ConsentShield — Architecture Diagrams</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --navy:#0F2D5B;--navy-dark:#091E3E;--navy-light:#1A3F73;
+  --teal:#0D7A6B;--teal-light:#E0F4F1;--teal-mid:#14A090;
+  --amber:#F59E0B;--amber-light:#FEF3C7;
+  --red:#DC2626;--red-light:#FEE2E2;
+  --green:#15803D;--green-light:#DCFCE7;
+  --blue:#2563EB;--blue-light:#DBEAFE;
+  --purple:#7C3AED;--purple-light:#EDE9FE;
+  --orange:#EA580C;--orange-light:#FFF7ED;
+  --slate:#475569;--slate-light:#94A3B8;
+  --bg:#F8FAFC;--surface:#FFFFFF;
+  --border:#E2E8F0;--text:#0F172A;--text-2:#475569;--text-3:#94A3B8;
+  --font:'DM Sans',system-ui,sans-serif;--mono:'DM Mono',monospace;
+}
+body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh}
+.header{background:var(--navy);padding:20px 32px;display:flex;align-items:center;gap:12px}
+.header-icon{width:32px;height:32px;background:var(--teal);border-radius:8px;display:flex;align-items:center;justify-content:center}
+.header-icon svg{width:18px;height:18px;fill:white}
+.header-title{font-size:18px;font-weight:700;color:white}
+.header-sub{font-size:13px;color:rgba(255,255,255,.5);margin-left:8px}
+.tabs{display:flex;background:var(--surface);border-bottom:1px solid var(--border);padding:0 32px;gap:0;overflow-x:auto}
+.tab{padding:14px 20px;font-size:13px;font-weight:500;cursor:pointer;color:var(--text-3);border-bottom:2px solid transparent;white-space:nowrap;transition:all .15s}
+.tab:hover{color:var(--text-2)}
+.tab.active{color:var(--teal);border-bottom-color:var(--teal)}
+.content{padding:32px;max-width:1200px;margin:0 auto}
+.panel{display:none}.panel.active{display:block}
+.diagram-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:24px;margin-bottom:24px;box-shadow:0 1px 3px rgba(0,0,0,.06)}
+.diagram-title{font-size:16px;font-weight:700;color:var(--navy);margin-bottom:4px}
+.diagram-desc{font-size:13px;color:var(--text-2);margin-bottom:20px;line-height:1.6}
+.diagram-svg{width:100%;overflow-x:auto}
+.diagram-svg svg{display:block;margin:0 auto}
+.legend{display:flex;flex-wrap:wrap;gap:16px;margin-top:16px;padding-top:16px;border-top:1px solid var(--border)}
+.legend-item{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text-2)}
+.legend-dot{width:12px;height:12px;border-radius:3px}
+.note{font-size:12px;color:var(--text-3);margin-top:12px;font-style:italic}
+h2{font-size:20px;font-weight:700;color:var(--navy);margin-bottom:16px}
+h3{font-size:15px;font-weight:600;color:var(--navy);margin:20px 0 10px}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-icon"><svg viewBox="0 0 24 24"><path d="M12 2L4 6v6c0 5.5 3.8 10.7 8 12 4.2-1.3 8-6.5 8-12V6l-8-4z"/></svg></div>
+  <span class="header-title">ConsentShield</span>
+  <span class="header-sub">Architecture Diagrams</span>
+</div>
+
+<div class="tabs">
+  <div class="tab active" onclick="showPanel('sys')">System Architecture</div>
+  <div class="tab" onclick="showPanel('consent')">Consent Event Flow</div>
+  <div class="tab" onclick="showPanel('oracle')">Stateless Oracle Pipeline</div>
+  <div class="tab" onclick="showPanel('deletion')">Deletion Orchestration</div>
+  <div class="tab" onclick="showPanel('withdrawal')">Withdrawal Verification</div>
+  <div class="tab" onclick="showPanel('tracker')">Tracker Detection</div>
+  <div class="tab" onclick="showPanel('schema')">Database Schema</div>
+</div>
+
+<div class="content">
+
+<!-- ═══════════════ SYSTEM ARCHITECTURE ═══════════════ -->
+<div id="panel-sys" class="panel active">
+  <div class="diagram-card">
+    <div class="diagram-title">System Architecture</div>
+    <div class="diagram-desc">How the stack connects. The Cloudflare Worker handles the latency-critical edge (banner delivery and consent event ingestion). Supabase is the operational state store with RLS-enforced multi-tenancy. Vercel hosts the Next.js application. Customer-owned storage (R2/S3) holds the canonical compliance record.</div>
+    <div class="diagram-svg">
+      <svg viewBox="0 0 960 680" xmlns="http://www.w3.org/2000/svg" style="max-width:960px">
+        <defs>
+          <marker id="arrow" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6Z" fill="#94A3B8"/></marker>
+          <marker id="arrow-teal" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6Z" fill="#0D7A6B"/></marker>
+          <marker id="arrow-navy" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6Z" fill="#0F2D5B"/></marker>
+          <filter id="shadow"><feDropShadow dx="0" dy="1" stdDeviation="2" flood-opacity="0.08"/></filter>
+        </defs>
+
+        <!-- Background zones -->
+        <rect x="10" y="10" width="940" height="100" rx="8" fill="#F0FAF8" stroke="#0D7A6B" stroke-width="1" stroke-dasharray="4" opacity=".5"/>
+        <text x="24" y="30" font-family="DM Sans" font-size="10" fill="#0D7A6B" font-weight="600" text-transform="uppercase" letter-spacing="1">USER / BROWSER</text>
+
+        <rect x="10" y="130" width="940" height="180" rx="8" fill="#EFF6FF" stroke="#2563EB" stroke-width="1" stroke-dasharray="4" opacity=".4"/>
+        <text x="24" y="150" font-family="DM Sans" font-size="10" fill="#2563EB" font-weight="600" letter-spacing="1">EDGE LAYER</text>
+
+        <rect x="10" y="330" width="940" height="180" rx="8" fill="#EEF0F4" stroke="#0F2D5B" stroke-width="1" stroke-dasharray="4" opacity=".4"/>
+        <text x="24" y="350" font-family="DM Sans" font-size="10" fill="#0F2D5B" font-weight="600" letter-spacing="1">APPLICATION LAYER</text>
+
+        <rect x="10" y="530" width="940" height="140" rx="8" fill="#FFF7ED" stroke="#EA580C" stroke-width="1" stroke-dasharray="4" opacity=".4"/>
+        <text x="24" y="550" font-family="DM Sans" font-size="10" fill="#EA580C" font-weight="600" letter-spacing="1">EXTERNAL SERVICES</text>
+
+        <!-- User browser -->
+        <rect x="80" y="40" width="180" height="56" rx="8" fill="white" stroke="#0D7A6B" stroke-width="1.5" filter="url(#shadow)"/>
+        <text x="170" y="63" font-family="DM Sans" font-size="13" fill="#0F172A" font-weight="600" text-anchor="middle">Customer's Website</text>
+        <text x="170" y="80" font-family="DM Mono" font-size="10" fill="#94A3B8" text-anchor="middle">banner.js v2 loaded</text>
+
+        <rect x="390" y="40" width="180" height="56" rx="8" fill="white" stroke="#0D7A6B" stroke-width="1.5" filter="url(#shadow)"/>
+        <text x="480" y="63" font-family="DM Sans" font-size="13" fill="#0F172A" font-weight="600" text-anchor="middle">ConsentShield App</text>
+        <text x="480" y="80" font-family="DM Mono" font-size="10" fill="#94A3B8" text-anchor="middle">app.consentshield.in</text>
+
+        <rect x="700" y="40" width="180" height="56" rx="8" fill="white" stroke="#0D7A6B" stroke-width="1.5" filter="url(#shadow)"/>
+        <text x="790" y="63" font-family="DM Sans" font-size="13" fill="#0F172A" font-weight="600" text-anchor="middle">Rights Request Portal</text>
+        <text x="790" y="80" font-family="DM Mono" font-size="10" fill="#94A3B8" text-anchor="middle">privacy.customer.com</text>
+
+        <!-- Edge: Cloudflare Worker -->
+        <rect x="60" y="170" width="260" height="120" rx="10" fill="white" stroke="#2563EB" stroke-width="1.5" filter="url(#shadow)"/>
+        <rect x="60" y="170" width="260" height="28" rx="10" fill="#2563EB"/>
+        <rect x="60" y="186" width="260" height="12" fill="#2563EB"/>
+        <text x="190" y="189" font-family="DM Sans" font-size="11" fill="white" font-weight="600" text-anchor="middle">Cloudflare Worker + KV</text>
+        <text x="190" y="215" font-family="DM Sans" font-size="11" fill="#475569" text-anchor="middle">cdn.consentshield.in</text>
+        <text x="80" y="238" font-family="DM Mono" font-size="10" fill="#94A3B8">GET /v1/banner.js</text>
+        <text x="80" y="253" font-family="DM Mono" font-size="10" fill="#94A3B8">POST /v1/events</text>
+        <text x="80" y="268" font-family="DM Mono" font-size="10" fill="#94A3B8">POST /v1/observations</text>
+
+        <!-- Edge: Vercel -->
+        <rect x="380" y="170" width="200" height="120" rx="10" fill="white" stroke="#0F172A" stroke-width="1.5" filter="url(#shadow)"/>
+        <rect x="380" y="170" width="200" height="28" rx="10" fill="#0F172A"/>
+        <rect x="380" y="186" width="200" height="12" fill="#0F172A"/>
+        <text x="480" y="189" font-family="DM Sans" font-size="11" fill="white" font-weight="600" text-anchor="middle">Vercel</text>
+        <text x="480" y="215" font-family="DM Sans" font-size="11" fill="#475569" text-anchor="middle">Next.js 14 Application</text>
+        <text x="400" y="238" font-family="DM Mono" font-size="10" fill="#94A3B8">Dashboard UI</text>
+        <text x="400" y="253" font-family="DM Mono" font-size="10" fill="#94A3B8">API Routes</text>
+        <text x="400" y="268" font-family="DM Mono" font-size="10" fill="#94A3B8">Cron Jobs (scans)</text>
+
+        <!-- Edge: Supabase Edge Functions -->
+        <rect x="640" y="170" width="280" height="120" rx="10" fill="white" stroke="#0D7A6B" stroke-width="1.5" filter="url(#shadow)"/>
+        <rect x="640" y="170" width="280" height="28" rx="10" fill="#0D7A6B"/>
+        <rect x="640" y="186" width="280" height="12" fill="#0D7A6B"/>
+        <text x="780" y="189" font-family="DM Sans" font-size="11" fill="white" font-weight="600" text-anchor="middle">Supabase Edge Functions</text>
+        <text x="780" y="215" font-family="DM Sans" font-size="11" fill="#475569" text-anchor="middle">Async Processing (Deno)</text>
+        <text x="660" y="238" font-family="DM Mono" font-size="10" fill="#94A3B8">deliver-consent-events</text>
+        <text x="660" y="253" font-family="DM Mono" font-size="10" fill="#94A3B8">send-sla-reminders</text>
+        <text x="660" y="268" font-family="DM Mono" font-size="10" fill="#94A3B8">orchestrate-deletion</text>
+
+        <!-- Application: Supabase -->
+        <rect x="180" y="360" width="320" height="130" rx="10" fill="white" stroke="#0F2D5B" stroke-width="1.5" filter="url(#shadow)"/>
+        <rect x="180" y="360" width="320" height="28" rx="10" fill="#0F2D5B"/>
+        <rect x="180" y="376" width="320" height="12" fill="#0F2D5B"/>
+        <text x="340" y="379" font-family="DM Sans" font-size="11" fill="white" font-weight="600" text-anchor="middle">Supabase (PostgreSQL + Auth)</text>
+        <text x="200" y="410" font-family="DM Sans" font-size="11" fill="#475569">Auth: email, magic link, Google OAuth</text>
+        <text x="200" y="428" font-family="DM Sans" font-size="11" fill="#475569">DB: RLS-enforced multi-tenancy</text>
+        <text x="200" y="446" font-family="DM Sans" font-size="11" fill="#475569">Operational state store (not compliance record)</text>
+        <text x="200" y="464" font-family="DM Sans" font-size="11" fill="#475569">Buffer tables: consent events, audit log</text>
+        <text x="200" y="482" font-family="DM Mono" font-size="10" fill="#94A3B8">pg_cron: nightly purge, SLA checks</text>
+
+        <!-- Application: Customer Storage -->
+        <rect x="570" y="360" width="320" height="130" rx="10" fill="white" stroke="#EA580C" stroke-width="1.5" filter="url(#shadow)"/>
+        <rect x="570" y="360" width="320" height="28" rx="10" fill="#EA580C"/>
+        <rect x="570" y="376" width="320" height="12" fill="#EA580C"/>
+        <text x="730" y="379" font-family="DM Sans" font-size="11" fill="white" font-weight="600" text-anchor="middle">Customer-Owned Storage</text>
+        <text x="590" y="410" font-family="DM Sans" font-size="11" fill="#475569">Cloudflare R2 (default) or AWS S3 (BYOS)</text>
+        <text x="590" y="428" font-family="DM Sans" font-size="11" fill="#475569">Canonical compliance record lives here</text>
+        <text x="590" y="446" font-family="DM Sans" font-size="11" fill="#475569">Write-only access from ConsentShield</text>
+        <text x="590" y="464" font-family="DM Sans" font-size="11" fill="#475569">Customer holds all encryption keys</text>
+        <text x="590" y="482" font-family="DM Mono" font-size="10" fill="#EA580C" font-weight="500">ConsentShield cannot read this data</text>
+
+        <!-- External services -->
+        <rect x="60" y="565" width="140" height="46" rx="8" fill="white" stroke="#EA580C" stroke-width="1" filter="url(#shadow)"/>
+        <text x="130" y="592" font-family="DM Sans" font-size="11" fill="#475569" font-weight="500" text-anchor="middle">Resend (Email)</text>
+
+        <rect x="230" y="565" width="140" height="46" rx="8" fill="white" stroke="#EA580C" stroke-width="1" filter="url(#shadow)"/>
+        <text x="300" y="592" font-family="DM Sans" font-size="11" fill="#475569" font-weight="500" text-anchor="middle">Razorpay (Billing)</text>
+
+        <rect x="400" y="565" width="140" height="46" rx="8" fill="white" stroke="#EA580C" stroke-width="1" filter="url(#shadow)"/>
+        <text x="470" y="592" font-family="DM Sans" font-size="11" fill="#475569" font-weight="500" text-anchor="middle">Slack / Teams</text>
+
+        <rect x="570" y="565" width="140" height="46" rx="8" fill="white" stroke="#EA580C" stroke-width="1" filter="url(#shadow)"/>
+        <text x="640" y="585" font-family="DM Sans" font-size="11" fill="#475569" font-weight="500" text-anchor="middle">Deletion APIs</text>
+        <text x="640" y="600" font-family="DM Mono" font-size="9" fill="#94A3B8" text-anchor="middle">Mailchimp, HubSpot...</text>
+
+        <rect x="740" y="565" width="170" height="46" rx="8" fill="white" stroke="#EA580C" stroke-width="1" filter="url(#shadow)"/>
+        <text x="825" y="585" font-family="DM Sans" font-size="11" fill="#475569" font-weight="500" text-anchor="middle">Sentry + Analytics</text>
+        <text x="825" y="600" font-family="DM Mono" font-size="9" fill="#94A3B8" text-anchor="middle">Error tracking</text>
+
+        <!-- Connections -->
+        <!-- Browser → Worker -->
+        <line x1="170" y1="96" x2="170" y2="170" stroke="#94A3B8" stroke-width="1.5" marker-end="url(#arrow)"/>
+        <text x="178" y="136" font-family="DM Mono" font-size="9" fill="#94A3B8">banner.js + events</text>
+
+        <!-- Browser → Vercel -->
+        <line x1="480" y1="96" x2="480" y2="170" stroke="#94A3B8" stroke-width="1.5" marker-end="url(#arrow)"/>
+        <text x="488" y="136" font-family="DM Mono" font-size="9" fill="#94A3B8">app UI</text>
+
+        <!-- Worker → Supabase -->
+        <line x1="240" y1="290" x2="290" y2="360" stroke="#2563EB" stroke-width="1.5" marker-end="url(#arrow-navy)"/>
+        <text x="238" y="328" font-family="DM Mono" font-size="9" fill="#2563EB">service role writes</text>
+
+        <!-- Vercel → Supabase -->
+        <line x1="440" y1="290" x2="380" y2="360" stroke="#0F2D5B" stroke-width="1.5" marker-end="url(#arrow-navy)"/>
+
+        <!-- Vercel → Edge Functions -->
+        <line x1="560" y1="230" x2="640" y2="230" stroke="#0D7A6B" stroke-width="1.5" marker-end="url(#arrow-teal)"/>
+        <text x="576" y="222" font-family="DM Mono" font-size="9" fill="#0D7A6B">trigger async</text>
+
+        <!-- Edge Functions → Supabase -->
+        <line x1="720" y1="290" x2="470" y2="360" stroke="#0D7A6B" stroke-width="1.5" marker-end="url(#arrow-navy)"/>
+
+        <!-- Edge Functions → Customer Storage -->
+        <line x1="780" y1="290" x2="730" y2="360" stroke="#EA580C" stroke-width="1.5" marker-end="url(#arrow)"/>
+        <text x="770" y="328" font-family="DM Mono" font-size="9" fill="#EA580C">deliver + export</text>
+
+        <!-- Supabase → External -->
+        <line x1="300" y1="490" x2="130" y2="565" stroke="#94A3B8" stroke-width="1" marker-end="url(#arrow)"/>
+        <line x1="340" y1="490" x2="300" y2="565" stroke="#94A3B8" stroke-width="1" marker-end="url(#arrow)"/>
+        <line x1="380" y1="490" x2="470" y2="565" stroke="#94A3B8" stroke-width="1" marker-end="url(#arrow)"/>
+
+        <!-- Edge Functions → Deletion APIs -->
+        <line x1="780" y1="290" x2="640" y2="565" stroke="#94A3B8" stroke-width="1" stroke-dasharray="4" marker-end="url(#arrow)"/>
+
+        <!-- Rights portal → Vercel -->
+        <line x1="790" y1="96" x2="530" y2="170" stroke="#94A3B8" stroke-width="1" marker-end="url(#arrow)"/>
+      </svg>
+    </div>
+    <div class="legend">
+      <div class="legend-item"><div class="legend-dot" style="background:#2563EB"></div>Edge / CDN (Cloudflare)</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#0F2D5B"></div>Application (Vercel + Supabase)</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#0D7A6B"></div>Async Processing (Edge Functions)</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#EA580C"></div>Customer Storage / External</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ CONSENT EVENT FLOW ═══════════════ -->
+<div id="panel-consent" class="panel">
+  <div class="diagram-card">
+    <div class="diagram-title">Consent Event Lifecycle</div>
+    <div class="diagram-desc">The complete journey from a visitor landing on the customer's website through consent capture, tracker monitoring, observation reporting, and delivery to customer-owned storage. The banner script v2 is a monitoring agent, not just a consent collector.</div>
+    <div class="diagram-svg">
+      <svg viewBox="0 0 960 600" xmlns="http://www.w3.org/2000/svg" style="max-width:960px">
+        <defs>
+          <marker id="a1" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6Z" fill="#0D7A6B"/></marker>
+          <marker id="a2" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6Z" fill="#2563EB"/></marker>
+          <marker id="a3" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6Z" fill="#DC2626"/></marker>
+        </defs>
+
+        <!-- Step boxes -->
+        <rect x="40" y="30" width="160" height="60" rx="8" fill="#F0FAF8" stroke="#0D7A6B" stroke-width="1.5"/>
+        <text x="120" y="55" font-family="DM Sans" font-size="12" fill="#0F172A" font-weight="600" text-anchor="middle">1. Page Load</text>
+        <text x="120" y="72" font-family="DM Sans" font-size="10" fill="#475569" text-anchor="middle">Visitor arrives</text>
+
+        <line x1="200" y1="60" x2="250" y2="60" stroke="#0D7A6B" stroke-width="1.5" marker-end="url(#a1)"/>
+
+        <rect x="250" y="30" width="180" height="60" rx="8" fill="#F0FAF8" stroke="#0D7A6B" stroke-width="1.5"/>
+        <text x="340" y="55" font-family="DM Sans" font-size="12" fill="#0F172A" font-weight="600" text-anchor="middle">2. Banner Loads</text>
+        <text x="340" y="72" font-family="DM Mono" font-size="10" fill="#94A3B8" text-anchor="middle">cdn.consentshield.in</text>
+
+        <line x1="430" y1="60" x2="480" y2="60" stroke="#0D7A6B" stroke-width="1.5" marker-end="url(#a1)"/>
+
+        <rect x="480" y="30" width="160" height="60" rx="8" fill="#F0FAF8" stroke="#0D7A6B" stroke-width="1.5"/>
+        <text x="560" y="55" font-family="DM Sans" font-size="12" fill="#0F172A" font-weight="600" text-anchor="middle">3. Check Storage</text>
+        <text x="560" y="72" font-family="DM Sans" font-size="10" fill="#475569" text-anchor="middle">localStorage for consent</text>
+
+        <!-- Branch: consent exists vs doesn't -->
+        <line x1="560" y1="90" x2="560" y2="120" stroke="#94A3B8" stroke-width="1"/>
+        <line x1="560" y1="120" x2="340" y2="120" stroke="#94A3B8" stroke-width="1"/>
+        <line x1="560" y1="120" x2="780" y2="120" stroke="#94A3B8" stroke-width="1"/>
+
+        <text x="420" y="115" font-family="DM Sans" font-size="10" fill="#15803D" font-weight="500">No consent found</text>
+        <text x="680" y="115" font-family="DM Sans" font-size="10" fill="#94A3B8" font-weight="500">Consent exists</text>
+
+        <!-- No consent path -->
+        <line x1="340" y1="120" x2="340" y2="150" stroke="#0D7A6B" stroke-width="1.5" marker-end="url(#a1)"/>
+
+        <rect x="250" y="150" width="180" height="60" rx="8" fill="white" stroke="#0D7A6B" stroke-width="2"/>
+        <text x="340" y="175" font-family="DM Sans" font-size="12" fill="#0F172A" font-weight="600" text-anchor="middle">4. Render Banner</text>
+        <text x="340" y="192" font-family="DM Sans" font-size="10" fill="#475569" text-anchor="middle">User sees consent UI</text>
+
+        <line x1="340" y1="210" x2="340" y2="240" stroke="#0D7A6B" stroke-width="1.5" marker-end="url(#a1)"/>
+
+        <rect x="230" y="240" width="220" height="60" rx="8" fill="#0D7A6B" stroke="none"/>
+        <text x="340" y="265" font-family="DM Sans" font-size="12" fill="white" font-weight="600" text-anchor="middle">5. User Decision</text>
+        <text x="340" y="282" font-family="DM Sans" font-size="10" fill="rgba(255,255,255,.7)" text-anchor="middle">Accept / Reject / Customise</text>
+
+        <!-- Consent exists path - skip to monitoring -->
+        <rect x="700" y="150" width="180" height="50" rx="8" fill="#E2E8F0" stroke="#94A3B8" stroke-width="1"/>
+        <text x="790" y="175" font-family="DM Sans" font-size="11" fill="#475569" text-anchor="middle">Skip banner</text>
+        <text x="790" y="190" font-family="DM Sans" font-size="10" fill="#94A3B8" text-anchor="middle">Go to monitoring</text>
+        <line x1="780" y1="120" x2="780" y2="150" stroke="#94A3B8" stroke-width="1" marker-end="url(#arrow)"/>
+
+        <!-- After decision: two parallel paths -->
+        <line x1="340" y1="300" x2="340" y2="330" stroke="#94A3B8" stroke-width="1"/>
+        <line x1="340" y1="330" x2="190" y2="330" stroke="#94A3B8" stroke-width="1"/>
+        <line x1="340" y1="330" x2="580" y2="330" stroke="#94A3B8" stroke-width="1"/>
+
+        <!-- Path A: POST consent event -->
+        <line x1="190" y1="330" x2="190" y2="360" stroke="#2563EB" stroke-width="1.5" marker-end="url(#a2)"/>
+
+        <rect x="80" y="360" width="220" height="70" rx="8" fill="#DBEAFE" stroke="#2563EB" stroke-width="1.5"/>
+        <text x="190" y="385" font-family="DM Sans" font-size="12" fill="#0F172A" font-weight="600" text-anchor="middle">6a. POST Consent Event</text>
+        <text x="190" y="402" font-family="DM Mono" font-size="10" fill="#2563EB" text-anchor="middle">cdn.consentshield.in/v1/events</text>
+        <text x="190" y="417" font-family="DM Sans" font-size="10" fill="#475569" text-anchor="middle">Worker → buffer → deliver → delete</text>
+
+        <!-- Path B: Start monitoring -->
+        <line x1="580" y1="330" x2="580" y2="360" stroke="#DC2626" stroke-width="1.5" marker-end="url(#a3)"/>
+        <line x1="790" y1="200" x2="790" y2="330" stroke="#94A3B8" stroke-width="1" stroke-dasharray="4"/>
+        <line x1="790" y1="330" x2="580" y2="330" stroke="#94A3B8" stroke-width="1" stroke-dasharray="4"/>
+
+        <rect x="470" y="360" width="220" height="70" rx="8" fill="#FEE2E2" stroke="#DC2626" stroke-width="1.5"/>
+        <text x="580" y="385" font-family="DM Sans" font-size="12" fill="#0F172A" font-weight="600" text-anchor="middle">6b. Start Monitoring</text>
+        <text x="580" y="402" font-family="DM Sans" font-size="10" fill="#475569" text-anchor="middle">MutationObserver + PerformanceObserver</text>
+        <text x="580" y="417" font-family="DM Sans" font-size="10" fill="#DC2626" text-anchor="middle">Watch for third-party trackers</text>
+
+        <!-- Monitoring window -->
+        <line x1="580" y1="430" x2="580" y2="460" stroke="#DC2626" stroke-width="1.5" marker-end="url(#a3)"/>
+
+        <rect x="470" y="460" width="220" height="60" rx="8" fill="white" stroke="#DC2626" stroke-width="1.5"/>
+        <text x="580" y="485" font-family="DM Sans" font-size="12" fill="#0F172A" font-weight="600" text-anchor="middle">7. Classify Trackers</text>
+        <text x="580" y="502" font-family="DM Sans" font-size="10" fill="#475569" text-anchor="middle">Compare vs consent state</text>
+
+        <line x1="580" y1="520" x2="580" y2="550" stroke="#DC2626" stroke-width="1.5" marker-end="url(#a3)"/>
+
+        <rect x="430" y="550" width="300" height="40" rx="8" fill="#DC2626"/>
+        <text x="580" y="575" font-family="DM Sans" font-size="12" fill="white" font-weight="600" text-anchor="middle">8. POST Observation Report (violations)</text>
+
+        <!-- Consent event delivery -->
+        <line x1="190" y1="430" x2="190" y2="490" stroke="#2563EB" stroke-width="1.5" marker-end="url(#a2)"/>
+
+        <rect x="60" y="490" width="260" height="80" rx="8" fill="white" stroke="#EA580C" stroke-width="1.5"/>
+        <text x="190" y="518" font-family="DM Sans" font-size="12" fill="#0F172A" font-weight="600" text-anchor="middle">Customer Storage (R2/S3)</text>
+        <text x="190" y="536" font-family="DM Sans" font-size="10" fill="#475569" text-anchor="middle">Consent event + observation report</text>
+        <text x="190" y="554" font-family="DM Sans" font-size="10" fill="#EA580C" text-anchor="middle">Canonical compliance record</text>
+      </svg>
+    </div>
+    <div class="legend">
+      <div class="legend-item"><div class="legend-dot" style="background:#0D7A6B"></div>Consent capture path</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#2563EB"></div>Event delivery path</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#DC2626"></div>Tracker monitoring path (new in v2)</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#EA580C"></div>Customer-owned storage</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ STATELESS ORACLE ═══════════════ -->
+<div id="panel-oracle" class="panel">
+  <div class="diagram-card">
+    <div class="diagram-title">Stateless Oracle: Buffer → Deliver → Delete</div>
+    <div class="diagram-desc">The core data architecture principle. ConsentShield processes compliance data and delivers it to customer-owned storage. It never holds the canonical record. The buffer exists only to guarantee delivery — once the customer's storage confirms the write, ConsentShield's copy is hard-deleted.</div>
+    <div class="diagram-svg">
+      <svg viewBox="0 0 960 420" xmlns="http://www.w3.org/2000/svg" style="max-width:960px">
+        <defs>
+          <marker id="ao1" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6Z" fill="#0D7A6B"/></marker>
+          <marker id="ao2" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6Z" fill="#EA580C"/></marker>
+          <marker id="ao3" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6Z" fill="#DC2626"/></marker>
+        </defs>
+
+        <!-- Event source -->
+        <rect x="40" y="160" width="140" height="80" rx="10" fill="#0D7A6B"/>
+        <text x="110" y="195" font-family="DM Sans" font-size="12" fill="white" font-weight="600" text-anchor="middle">Event Source</text>
+        <text x="110" y="215" font-family="DM Sans" font-size="10" fill="rgba(255,255,255,.7)" text-anchor="middle">Consent, audit,</text>
+        <text x="110" y="229" font-family="DM Sans" font-size="10" fill="rgba(255,255,255,.7)" text-anchor="middle">tracker, deletion</text>
+
+        <line x1="180" y1="200" x2="240" y2="200" stroke="#0D7A6B" stroke-width="2" marker-end="url(#ao1)"/>
+
+        <!-- Buffer (ConsentShield) -->
+        <rect x="240" y="120" width="220" height="160" rx="10" fill="white" stroke="#0F2D5B" stroke-width="2"/>
+        <rect x="240" y="120" width="220" height="32" rx="10" fill="#0F2D5B"/>
+        <rect x="240" y="140" width="220" height="12" fill="#0F2D5B"/>
+        <text x="350" y="143" font-family="DM Sans" font-size="11" fill="white" font-weight="600" text-anchor="middle">ConsentShield Buffer</text>
+        <text x="350" y="175" font-family="DM Sans" font-size="11" fill="#475569" text-anchor="middle">Write-ahead log</text>
+        <text x="350" y="195" font-family="DM Sans" font-size="11" fill="#475569" text-anchor="middle">Retention: hours</text>
+        <text x="350" y="215" font-family="DM Mono" font-size="10" fill="#94A3B8" text-anchor="middle">consent_events</text>
+        <text x="350" y="230" font-family="DM Mono" font-size="10" fill="#94A3B8" text-anchor="middle">delivery_buffer</text>
+        <text x="350" y="245" font-family="DM Mono" font-size="10" fill="#94A3B8" text-anchor="middle">audit_log (buffered)</text>
+        <text x="350" y="265" font-family="DM Sans" font-size="10" fill="#DC2626" font-weight="500" text-anchor="middle">Hard-deleted after delivery ✗</text>
+
+        <line x1="460" y1="200" x2="540" y2="200" stroke="#EA580C" stroke-width="2" marker-end="url(#ao2)"/>
+        <text x="500" y="190" font-family="DM Sans" font-size="10" fill="#EA580C" font-weight="500" text-anchor="middle">Deliver</text>
+
+        <!-- Customer storage -->
+        <rect x="540" y="120" width="220" height="160" rx="10" fill="white" stroke="#EA580C" stroke-width="2"/>
+        <rect x="540" y="120" width="220" height="32" rx="10" fill="#EA580C"/>
+        <rect x="540" y="140" width="220" height="12" fill="#EA580C"/>
+        <text x="650" y="143" font-family="DM Sans" font-size="11" fill="white" font-weight="600" text-anchor="middle">Customer Storage</text>
+        <text x="650" y="175" font-family="DM Sans" font-size="11" fill="#475569" text-anchor="middle">Cloudflare R2 or AWS S3</text>
+        <text x="650" y="195" font-family="DM Sans" font-size="11" fill="#475569" text-anchor="middle">Retention: 1+ years (legal req)</text>
+        <text x="650" y="215" font-family="DM Sans" font-size="11" fill="#475569" text-anchor="middle">Customer holds encryption keys</text>
+        <text x="650" y="240" font-family="DM Sans" font-size="11" fill="#EA580C" font-weight="600" text-anchor="middle">Canonical compliance record</text>
+        <text x="650" y="265" font-family="DM Sans" font-size="10" fill="#15803D" font-weight="500" text-anchor="middle">Survives ConsentShield shutdown ✓</text>
+
+        <!-- Confirm back -->
+        <path d="M 650 280 L 650 320 L 350 320 L 350 280" fill="none" stroke="#15803D" stroke-width="1.5" stroke-dasharray="4" marker-end="url(#ao1)"/>
+        <text x="500" y="314" font-family="DM Sans" font-size="10" fill="#15803D" font-weight="500" text-anchor="middle">Confirm write → trigger buffer delete</text>
+
+        <!-- Modes box -->
+        <rect x="40" y="340" width="720" height="70" rx="8" fill="#F8FAFC" stroke="#E2E8F0" stroke-width="1"/>
+        <text x="60" y="362" font-family="DM Sans" font-size="11" fill="#0F172A" font-weight="600">Processing Modes:</text>
+        <text x="60" y="382" font-family="DM Sans" font-size="11" fill="#475569"><tspan font-weight="600" fill="#0F2D5B">Standard</tspan> — ConsentShield-provisioned R2, customer-held key</text>
+        <text x="60" y="398" font-family="DM Sans" font-size="11" fill="#475569"><tspan font-weight="600" fill="#0F2D5B">Insulated</tspan> — Customer's own bucket, write-only access</text>
+        <text x="420" y="382" font-family="DM Sans" font-size="11" fill="#475569"><tspan font-weight="600" fill="#0F2D5B">Zero-Storage</tspan> — In-memory transit only (health data)</text>
+
+        <!-- DPB arrow -->
+        <line x1="760" y1="200" x2="860" y2="200" stroke="#94A3B8" stroke-width="1.5" marker-end="url(#arrow)"/>
+        <rect x="860" y="170" width="90" height="60" rx="8" fill="white" stroke="#94A3B8" stroke-width="1"/>
+        <text x="905" y="195" font-family="DM Sans" font-size="11" fill="#475569" font-weight="500" text-anchor="middle">DPB Audit</text>
+        <text x="905" y="212" font-family="DM Sans" font-size="10" fill="#94A3B8" text-anchor="middle">Export from</text>
+        <text x="905" y="224" font-family="DM Sans" font-size="10" fill="#94A3B8" text-anchor="middle">customer storage</text>
+      </svg>
+    </div>
+    <div class="note">ConsentShield's database is an operational state store, not a compliance record store. The canonical record always lives in the customer's storage.</div>
+  </div>
+</div>
+
+<!-- ═══════════════ DELETION ORCHESTRATION ═══════════════ -->
+<div id="panel-deletion" class="panel">
+  <div class="diagram-card">
+    <div class="diagram-title">Deletion Orchestration Flow</div>
+    <div class="diagram-desc">When a data deletion is triggered — by an erasure request, expired retention period, or consent withdrawal — ConsentShield issues deletion commands to all connected third-party systems and collects confirmation receipts. The receipts are the evidence that data was actually removed, not just that removal was requested.</div>
+    <div class="diagram-svg">
+      <svg viewBox="0 0 960 520" xmlns="http://www.w3.org/2000/svg" style="max-width:960px">
+        <defs>
+          <marker id="ad1" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6Z" fill="#DC2626"/></marker>
+          <marker id="ad2" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6Z" fill="#15803D"/></marker>
+          <marker id="ad3" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6Z" fill="#0F2D5B"/></marker>
+        </defs>
+
+        <!-- Triggers -->
+        <text x="120" y="25" font-family="DM Sans" font-size="11" fill="#475569" font-weight="600" text-anchor="middle">TRIGGERS</text>
+        <rect x="30" y="40" width="180" height="44" rx="8" fill="#FEE2E2" stroke="#DC2626" stroke-width="1"/>
+        <text x="120" y="67" font-family="DM Sans" font-size="11" fill="#DC2626" font-weight="500" text-anchor="middle">Erasure request approved</text>
+
+        <rect x="30" y="94" width="180" height="44" rx="8" fill="#FEF3C7" stroke="#F59E0B" stroke-width="1"/>
+        <text x="120" y="121" font-family="DM Sans" font-size="11" fill="#C97B00" font-weight="500" text-anchor="middle">Retention period expired</text>
+
+        <rect x="30" y="148" width="180" height="44" rx="8" fill="#EDE9FE" stroke="#7C3AED" stroke-width="1"/>
+        <text x="120" y="175" font-family="DM Sans" font-size="11" fill="#7C3AED" font-weight="500" text-anchor="middle">Consent withdrawn</text>
+
+        <!-- Orchestrator -->
+        <line x1="210" y1="116" x2="280" y2="116" stroke="#0F2D5B" stroke-width="2" marker-end="url(#ad3)"/>
+
+        <rect x="280" y="60" width="200" height="110" rx="10" fill="#0F2D5B"/>
+        <text x="380" y="90" font-family="DM Sans" font-size="12" fill="white" font-weight="600" text-anchor="middle">Orchestrate Deletion</text>
+        <text x="380" y="110" font-family="DM Sans" font-size="10" fill="rgba(255,255,255,.6)" text-anchor="middle">Edge Function</text>
+        <text x="380" y="130" font-family="DM Sans" font-size="10" fill="rgba(255,255,255,.6)" text-anchor="middle">Identify connected systems</text>
+        <text x="380" y="148" font-family="DM Sans" font-size="10" fill="rgba(255,255,255,.6)" text-anchor="middle">Issue deletion per system</text>
+
+        <!-- Fan out to connectors -->
+        <line x1="480" y1="90" x2="560" y2="60" stroke="#DC2626" stroke-width="1.5" marker-end="url(#ad1)"/>
+        <line x1="480" y1="115" x2="560" y2="115" stroke="#DC2626" stroke-width="1.5" marker-end="url(#ad1)"/>
+        <line x1="480" y1="140" x2="560" y2="170" stroke="#DC2626" stroke-width="1.5" marker-end="url(#ad1)"/>
+        <line x1="480" y1="155" x2="560" y2="230" stroke="#DC2626" stroke-width="1.5" marker-end="url(#ad1)"/>
+
+        <!-- Connector boxes -->
+        <rect x="560" y="38" width="170" height="44" rx="8" fill="white" stroke="#DC2626" stroke-width="1.5"/>
+        <text x="600" y="60" font-family="DM Sans" font-size="11" fill="#0F172A" font-weight="500">Mailchimp</text>
+        <text x="600" y="74" font-family="DM Mono" font-size="9" fill="#94A3B8">DELETE /members/{hash}</text>
+
+        <rect x="560" y="93" width="170" height="44" rx="8" fill="white" stroke="#DC2626" stroke-width="1.5"/>
+        <text x="600" y="115" font-family="DM Sans" font-size="11" fill="#0F172A" font-weight="500">HubSpot</text>
+        <text x="600" y="129" font-family="DM Mono" font-size="9" fill="#94A3B8">DELETE /contacts/{id}</text>
+
+        <rect x="560" y="148" width="170" height="44" rx="8" fill="white" stroke="#DC2626" stroke-width="1.5"/>
+        <text x="600" y="170" font-family="DM Sans" font-size="11" fill="#0F172A" font-weight="500">Zoho CRM</text>
+        <text x="600" y="184" font-family="DM Mono" font-size="9" fill="#94A3B8">DELETE /Contacts/{id}</text>
+
+        <rect x="560" y="208" width="170" height="44" rx="8" fill="white" stroke="#DC2626" stroke-width="1.5" stroke-dasharray="4"/>
+        <text x="600" y="230" font-family="DM Sans" font-size="11" fill="#0F172A" font-weight="500">Custom Webhook</text>
+        <text x="600" y="244" font-family="DM Mono" font-size="9" fill="#94A3B8">POST /your-endpoint</text>
+
+        <!-- Responses -->
+        <line x1="730" y1="60" x2="800" y2="60" stroke="#15803D" stroke-width="1.5" marker-end="url(#ad2)"/>
+        <line x1="730" y1="115" x2="800" y2="115" stroke="#15803D" stroke-width="1.5" marker-end="url(#ad2)"/>
+        <line x1="730" y1="170" x2="800" y2="170" stroke="#DC2626" stroke-width="1.5" marker-end="url(#ad1)"/>
+        <line x1="730" y1="230" x2="800" y2="230" stroke="#F59E0B" stroke-width="1.5"/>
+
+        <!-- Receipt column -->
+        <text x="870" y="25" font-family="DM Sans" font-size="11" fill="#475569" font-weight="600" text-anchor="middle">RECEIPTS</text>
+        <rect x="800" y="38" width="130" height="34" rx="6" fill="#DCFCE7" stroke="#15803D" stroke-width="1"/>
+        <text x="865" y="60" font-family="DM Sans" font-size="10" fill="#15803D" font-weight="500" text-anchor="middle">✓ Deleted 14:32</text>
+
+        <rect x="800" y="93" width="130" height="34" rx="6" fill="#DCFCE7" stroke="#15803D" stroke-width="1"/>
+        <text x="865" y="115" font-family="DM Sans" font-size="10" fill="#15803D" font-weight="500" text-anchor="middle">✓ Deleted 14:33</text>
+
+        <rect x="800" y="148" width="130" height="34" rx="6" fill="#FEE2E2" stroke="#DC2626" stroke-width="1"/>
+        <text x="865" y="170" font-family="DM Sans" font-size="10" fill="#DC2626" font-weight="500" text-anchor="middle">✗ Rate limited</text>
+
+        <rect x="800" y="208" width="130" height="34" rx="6" fill="#FEF3C7" stroke="#F59E0B" stroke-width="1"/>
+        <text x="865" y="230" font-family="DM Sans" font-size="10" fill="#C97B00" font-weight="500" text-anchor="middle">⏳ Awaiting callback</text>
+
+        <!-- Retry -->
+        <path d="M 865 182 L 865 200 L 920 200 L 920 155 L 865 155" fill="none" stroke="#DC2626" stroke-width="1" stroke-dasharray="3"/>
+        <text x="930" y="180" font-family="DM Sans" font-size="9" fill="#DC2626">Retry</text>
+
+        <!-- Receipts → storage -->
+        <line x1="865" y1="260" x2="865" y2="310" stroke="#EA580C" stroke-width="1.5" marker-end="url(#ao2)"/>
+
+        <rect x="60" y="310" width="870" height="80" rx="10" fill="white" stroke="#0F2D5B" stroke-width="1.5"/>
+        <text x="480" y="340" font-family="DM Sans" font-size="13" fill="#0F172A" font-weight="600" text-anchor="middle">Deletion Receipt Log (Immutable)</text>
+        <text x="480" y="360" font-family="DM Sans" font-size="11" fill="#475569" text-anchor="middle">Every deletion produces a timestamped receipt: what was requested, which systems confirmed, when. Exported to customer storage as DPB evidence.</text>
+        <text x="480" y="378" font-family="DM Mono" font-size="10" fill="#94A3B8" text-anchor="middle">deletion_receipts: id | trigger_type | target_system | status | requested_at | confirmed_at | response_payload</text>
+
+        <!-- Dashboard view -->
+        <rect x="60" y="420" width="870" height="80" rx="10" fill="#F8FAFC" stroke="#E2E8F0" stroke-width="1"/>
+        <text x="480" y="450" font-family="DM Sans" font-size="13" fill="#0F172A" font-weight="600" text-anchor="middle">Dashboard: Deletion History</text>
+        <text x="200" y="475" font-family="DM Sans" font-size="11" fill="#475569">✓ Mailchimp: 1 subscriber deleted at 14:32</text>
+        <text x="200" y="492" font-family="DM Sans" font-size="11" fill="#475569">✓ HubSpot: 1 contact deleted at 14:33</text>
+        <text x="530" y="475" font-family="DM Sans" font-size="11" fill="#DC2626">✗ Zoho CRM: rate limited — retry at 15:30</text>
+        <text x="530" y="492" font-family="DM Sans" font-size="11" fill="#C97B00">⏳ Custom CRM: awaiting webhook callback</text>
+      </svg>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ WITHDRAWAL VERIFICATION ═══════════════ -->
+<div id="panel-withdrawal" class="panel">
+  <div class="diagram-card">
+    <div class="diagram-title">Consent Withdrawal Verification Loop</div>
+    <div class="diagram-desc">When a user withdraws consent, ConsentShield doesn't just fire a webhook and move on. It schedules three automated scans to verify that the relevant trackers actually stopped. Client-side monitoring (banner script) catches dynamic trackers. Server-side scans (HTTP checks) catch hardcoded scripts.</div>
+    <div class="diagram-svg">
+      <svg viewBox="0 0 960 480" xmlns="http://www.w3.org/2000/svg" style="max-width:960px">
+        <!-- Trigger -->
+        <rect x="40" y="40" width="200" height="60" rx="8" fill="#7C3AED"/>
+        <text x="140" y="67" font-family="DM Sans" font-size="12" fill="white" font-weight="600" text-anchor="middle">User Withdraws Consent</text>
+        <text x="140" y="84" font-family="DM Sans" font-size="10" fill="rgba(255,255,255,.7)" text-anchor="middle">consent_withdrawn event</text>
+
+        <!-- Two paths -->
+        <line x1="240" y1="70" x2="290" y2="70" stroke="#94A3B8" stroke-width="1.5"/>
+        <line x1="290" y1="70" x2="290" y2="40" stroke="#94A3B8" stroke-width="1"/>
+        <line x1="290" y1="70" x2="290" y2="180" stroke="#94A3B8" stroke-width="1"/>
+
+        <!-- Path A: Client-side (immediate) -->
+        <line x1="290" y1="40" x2="380" y2="40" stroke="#DC2626" stroke-width="1.5" marker-end="url(#ad1)"/>
+        <rect x="380" y="15" width="260" height="55" rx="8" fill="#FEE2E2" stroke="#DC2626" stroke-width="1.5"/>
+        <text x="510" y="38" font-family="DM Sans" font-size="12" fill="#0F172A" font-weight="600" text-anchor="middle">Client-Side Monitoring</text>
+        <text x="510" y="55" font-family="DM Sans" font-size="10" fill="#475569" text-anchor="middle">Banner script watches: did trackers stop?</text>
+        <text x="660" y="46" font-family="DM Sans" font-size="10" fill="#DC2626" font-weight="500">Immediate</text>
+
+        <!-- Path B: Server-side (scheduled) -->
+        <line x1="290" y1="180" x2="380" y2="180" stroke="#0F2D5B" stroke-width="1.5" marker-end="url(#ad3)"/>
+        <rect x="380" y="120" width="260" height="120" rx="10" fill="white" stroke="#0F2D5B" stroke-width="1.5"/>
+        <text x="510" y="148" font-family="DM Sans" font-size="12" fill="#0F172A" font-weight="600" text-anchor="middle">Server-Side Scans</text>
+        <text x="510" y="168" font-family="DM Sans" font-size="10" fill="#475569" text-anchor="middle">HTTP GET → parse HTML → check trackers</text>
+
+        <text x="410" y="195" font-family="DM Mono" font-size="10" fill="#2563EB">Scan 1: T + 15 minutes</text>
+        <text x="410" y="212" font-family="DM Mono" font-size="10" fill="#2563EB">Scan 2: T + 1 hour</text>
+        <text x="410" y="229" font-family="DM Mono" font-size="10" fill="#2563EB">Scan 3: T + 24 hours</text>
+
+        <!-- Results -->
+        <line x1="640" y1="40" x2="720" y2="40" stroke="#94A3B8" stroke-width="1.5"/>
+        <line x1="640" y1="180" x2="720" y2="180" stroke="#94A3B8" stroke-width="1.5"/>
+        <line x1="720" y1="40" x2="720" y2="180" stroke="#94A3B8" stroke-width="1"/>
+        <line x1="720" y1="110" x2="770" y2="110" stroke="#94A3B8" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+        <!-- Decision -->
+        <rect x="770" y="75" width="60" height="60" rx="4" fill="white" stroke="#94A3B8" stroke-width="1.5" transform="rotate(45, 800, 105)"/>
+        <text x="800" y="108" font-family="DM Sans" font-size="10" fill="#475569" font-weight="600" text-anchor="middle">Result?</text>
+
+        <!-- Pass -->
+        <line x1="842" y1="70" x2="880" y2="40" stroke="#15803D" stroke-width="1.5"/>
+        <rect x="860" y="10" width="90" height="50" rx="8" fill="#DCFCE7" stroke="#15803D" stroke-width="1.5"/>
+        <text x="905" y="32" font-family="DM Sans" font-size="11" fill="#15803D" font-weight="600" text-anchor="middle">Verified ✓</text>
+        <text x="905" y="48" font-family="DM Sans" font-size="9" fill="#15803D" text-anchor="middle">Audit log entry</text>
+
+        <!-- Fail -->
+        <line x1="842" y1="140" x2="880" y2="180" stroke="#DC2626" stroke-width="1.5"/>
+        <rect x="860" y="160" width="90" height="50" rx="8" fill="#FEE2E2" stroke="#DC2626" stroke-width="1.5"/>
+        <text x="905" y="182" font-family="DM Sans" font-size="11" fill="#DC2626" font-weight="600" text-anchor="middle">Violation ✗</text>
+        <text x="905" y="198" font-family="DM Sans" font-size="9" fill="#DC2626" text-anchor="middle">Alert + score ↓</text>
+
+        <!-- What each catches -->
+        <rect x="40" y="290" width="410" height="80" rx="8" fill="#FEE2E2" stroke="#DC2626" stroke-width="1"/>
+        <text x="245" y="315" font-family="DM Sans" font-size="12" fill="#0F172A" font-weight="600" text-anchor="middle">Client-Side Catches</text>
+        <text x="245" y="335" font-family="DM Sans" font-size="11" fill="#475569" text-anchor="middle">Dynamically injected trackers (tag managers, delayed loads)</text>
+        <text x="245" y="355" font-family="DM Sans" font-size="11" fill="#475569" text-anchor="middle">Only runs when real users visit the site</text>
+
+        <rect x="490" y="290" width="420" height="80" rx="8" fill="#EEF0F4" stroke="#0F2D5B" stroke-width="1"/>
+        <text x="700" y="315" font-family="DM Sans" font-size="12" fill="#0F172A" font-weight="600" text-anchor="middle">Server-Side Catches</text>
+        <text x="700" y="335" font-family="DM Sans" font-size="11" fill="#475569" text-anchor="middle">Hardcoded tracker scripts in page HTML source</text>
+        <text x="700" y="355" font-family="DM Sans" font-size="11" fill="#475569" text-anchor="middle">Runs on schedule regardless of traffic</text>
+
+        <rect x="40" y="400" width="870" height="50" rx="8" fill="#F0FAF8" stroke="#0D7A6B" stroke-width="1"/>
+        <text x="480" y="430" font-family="DM Sans" font-size="12" fill="#0D7A6B" font-weight="600" text-anchor="middle">Together they cover the most important violation patterns. Neither alone is sufficient.</text>
+      </svg>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ TRACKER DETECTION ═══════════════ -->
+<div id="panel-tracker" class="panel">
+  <div class="diagram-card">
+    <div class="diagram-title">Tracker Detection Engine</div>
+    <div class="diagram-desc">The banner script v2 observes third-party scripts loading on the customer's website, classifies them against a curated signature database, and compares classifications against the user's consent state. Mismatches are violations.</div>
+    <div class="diagram-svg">
+      <svg viewBox="0 0 960 440" xmlns="http://www.w3.org/2000/svg" style="max-width:960px">
+        <!-- Input -->
+        <rect x="40" y="30" width="200" height="80" rx="8" fill="#0D7A6B"/>
+        <text x="140" y="60" font-family="DM Sans" font-size="12" fill="white" font-weight="600" text-anchor="middle">Page Activity</text>
+        <text x="140" y="78" font-family="DM Sans" font-size="10" fill="rgba(255,255,255,.7)" text-anchor="middle">MutationObserver</text>
+        <text x="140" y="95" font-family="DM Sans" font-size="10" fill="rgba(255,255,255,.7)" text-anchor="middle">PerformanceObserver</text>
+
+        <line x1="240" y1="70" x2="300" y2="70" stroke="#0D7A6B" stroke-width="2" marker-end="url(#a1)"/>
+
+        <!-- Detection -->
+        <rect x="300" y="20" width="240" height="100" rx="10" fill="white" stroke="#0F2D5B" stroke-width="1.5"/>
+        <text x="420" y="48" font-family="DM Sans" font-size="12" fill="#0F172A" font-weight="600" text-anchor="middle">Detect Third-Party Scripts</text>
+        <text x="320" y="70" font-family="DM Mono" font-size="10" fill="#94A3B8">connect.facebook.net → Meta Pixel</text>
+        <text x="320" y="86" font-family="DM Mono" font-size="10" fill="#94A3B8">googletagmanager.com → GA4</text>
+        <text x="320" y="102" font-family="DM Mono" font-size="10" fill="#94A3B8">static.hotjar.com → Hotjar</text>
+
+        <line x1="540" y1="70" x2="600" y2="70" stroke="#0F2D5B" stroke-width="2" marker-end="url(#ad3)"/>
+
+        <!-- Classify -->
+        <rect x="600" y="20" width="200" height="100" rx="10" fill="white" stroke="#7C3AED" stroke-width="1.5"/>
+        <text x="700" y="48" font-family="DM Sans" font-size="12" fill="#0F172A" font-weight="600" text-anchor="middle">Classify</text>
+        <text x="620" y="70" font-family="DM Sans" font-size="11" fill="#7C3AED">Meta Pixel → Marketing</text>
+        <text x="620" y="88" font-family="DM Sans" font-size="11" fill="#2563EB">GA4 → Analytics</text>
+        <text x="620" y="106" font-family="DM Sans" font-size="11" fill="#0D7A6B">Razorpay → Functional</text>
+
+        <!-- Signature DB -->
+        <rect x="600" y="150" width="200" height="60" rx="8" fill="#EDE9FE" stroke="#7C3AED" stroke-width="1"/>
+        <text x="700" y="175" font-family="DM Sans" font-size="11" fill="#7C3AED" font-weight="600" text-anchor="middle">Tracker Signature DB</text>
+        <text x="700" y="195" font-family="DM Sans" font-size="10" fill="#475569" text-anchor="middle">~15KB JSON, 40+ services</text>
+        <line x1="700" y1="120" x2="700" y2="150" stroke="#7C3AED" stroke-width="1" stroke-dasharray="3"/>
+
+        <!-- Compare -->
+        <line x1="700" y1="120" x2="700" y2="250" stroke="#94A3B8" stroke-width="1.5"/>
+        <line x1="420" y1="250" x2="700" y2="250" stroke="#94A3B8" stroke-width="1.5"/>
+
+        <!-- Consent state -->
+        <rect x="40" y="180" width="200" height="80" rx="8" fill="#DBEAFE" stroke="#2563EB" stroke-width="1"/>
+        <text x="140" y="205" font-family="DM Sans" font-size="12" fill="#0F172A" font-weight="600" text-anchor="middle">User's Consent State</text>
+        <text x="60" y="225" font-family="DM Mono" font-size="10" fill="#2563EB">analytics: true</text>
+        <text x="60" y="241" font-family="DM Mono" font-size="10" fill="#DC2626">marketing: false</text>
+
+        <line x1="240" y1="220" x2="340" y2="250" stroke="#2563EB" stroke-width="1.5"/>
+
+        <!-- Compare box -->
+        <rect x="300" y="230" width="260" height="50" rx="8" fill="#0F2D5B"/>
+        <text x="430" y="260" font-family="DM Sans" font-size="12" fill="white" font-weight="600" text-anchor="middle">Compare: tracker category vs consent</text>
+
+        <!-- Results -->
+        <line x1="430" y1="280" x2="430" y2="310" stroke="#94A3B8" stroke-width="1.5"/>
+        <line x1="430" y1="310" x2="200" y2="310" stroke="#94A3B8" stroke-width="1"/>
+        <line x1="430" y1="310" x2="660" y2="310" stroke="#94A3B8" stroke-width="1"/>
+
+        <!-- Match -->
+        <line x1="200" y1="310" x2="200" y2="340" stroke="#15803D" stroke-width="1.5"/>
+        <rect x="80" y="340" width="240" height="80" rx="8" fill="#DCFCE7" stroke="#15803D" stroke-width="1.5"/>
+        <text x="200" y="368" font-family="DM Sans" font-size="12" fill="#15803D" font-weight="600" text-anchor="middle">Compliant ✓</text>
+        <text x="200" y="388" font-family="DM Sans" font-size="10" fill="#475569" text-anchor="middle">GA4 loads, analytics consent = true</text>
+        <text x="200" y="405" font-family="DM Sans" font-size="10" fill="#475569" text-anchor="middle">Razorpay loads, functional = exempt</text>
+
+        <!-- Mismatch -->
+        <line x1="660" y1="310" x2="660" y2="340" stroke="#DC2626" stroke-width="1.5"/>
+        <rect x="540" y="340" width="240" height="80" rx="8" fill="#FEE2E2" stroke="#DC2626" stroke-width="1.5"/>
+        <text x="660" y="368" font-family="DM Sans" font-size="12" fill="#DC2626" font-weight="600" text-anchor="middle">Violation ✗</text>
+        <text x="660" y="388" font-family="DM Sans" font-size="10" fill="#475569" text-anchor="middle">Meta Pixel loads, marketing consent = false</text>
+        <text x="660" y="405" font-family="DM Sans" font-size="10" fill="#DC2626" text-anchor="middle">→ POST observation report with violation</text>
+      </svg>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ DATABASE SCHEMA ═══════════════ -->
+<div id="panel-schema" class="panel">
+  <div class="diagram-card">
+    <div class="diagram-title">Database Schema — Entity Relationships</div>
+    <div class="diagram-desc">All tables with their relationships and data classification. Blue tables hold operational state (permanent). Orange tables hold user data (buffered, delivered to customer storage, then deleted). The organisations table is the root of all multi-tenant data — every row in every table carries an org_id enforced by Row-Level Security.</div>
+    <div class="diagram-svg">
+      <svg viewBox="0 0 960 780" xmlns="http://www.w3.org/2000/svg" style="max-width:960px">
+
+        <!-- Legend -->
+        <rect x="620" y="10" width="330" height="50" rx="6" fill="white" stroke="#E2E8F0" stroke-width="1"/>
+        <rect x="635" y="25" width="14" height="14" rx="3" fill="#0F2D5B"/>
+        <text x="655" y="36" font-family="DM Sans" font-size="10" fill="#475569">Operational state (permanent)</text>
+        <rect x="795" y="25" width="14" height="14" rx="3" fill="#EA580C"/>
+        <text x="815" y="36" font-family="DM Sans" font-size="10" fill="#475569">User data buffer (deliver → delete)</text>
+
+        <!-- ===== CORE TABLES ===== -->
+        <!-- organisations -->
+        <rect x="340" y="80" width="280" height="120" rx="8" fill="white" stroke="#0F2D5B" stroke-width="2"/>
+        <rect x="340" y="80" width="280" height="26" rx="8" fill="#0F2D5B"/>
+        <rect x="340" y="98" width="280" height="8" fill="#0F2D5B"/>
+        <text x="480" y="99" font-family="DM Sans" font-size="11" fill="white" font-weight="600" text-anchor="middle">organisations</text>
+        <text x="352" y="122" font-family="DM Mono" font-size="9" fill="#475569">id, name, industry, plan</text>
+        <text x="352" y="136" font-family="DM Mono" font-size="9" fill="#475569">razorpay_subscription_id</text>
+        <text x="352" y="150" font-family="DM Mono" font-size="9" fill="#475569">compliance_contact_email, dpo_name</text>
+        <text x="352" y="164" font-family="DM Mono" font-size="9" fill="#475569">plan_started_at, trial_ends_at</text>
+        <text x="352" y="185" font-family="DM Sans" font-size="9" fill="#0F2D5B" font-weight="500">ROOT — all org_id FKs point here</text>
+
+        <!-- organisation_members -->
+        <rect x="40" y="80" width="220" height="80" rx="8" fill="white" stroke="#0F2D5B" stroke-width="1.5"/>
+        <rect x="40" y="80" width="220" height="24" rx="8" fill="#0F2D5B"/>
+        <rect x="40" y="96" width="220" height="8" fill="#0F2D5B"/>
+        <text x="150" y="97" font-family="DM Sans" font-size="10" fill="white" font-weight="600" text-anchor="middle">organisation_members</text>
+        <text x="52" y="118" font-family="DM Mono" font-size="9" fill="#475569">id, org_id, user_id, role</text>
+        <text x="52" y="132" font-family="DM Mono" font-size="9" fill="#94A3B8">Links auth.users to orgs</text>
+        <text x="52" y="148" font-family="DM Mono" font-size="9" fill="#94A3B8">JWT claims: org_id, org_role</text>
+        <line x1="260" y1="120" x2="340" y2="120" stroke="#0F2D5B" stroke-width="1"/>
+
+        <!-- web_properties -->
+        <rect x="40" y="220" width="220" height="80" rx="8" fill="white" stroke="#0F2D5B" stroke-width="1.5"/>
+        <rect x="40" y="220" width="220" height="24" rx="8" fill="#0F2D5B"/>
+        <rect x="40" y="236" width="220" height="8" fill="#0F2D5B"/>
+        <text x="150" y="237" font-family="DM Sans" font-size="10" fill="white" font-weight="600" text-anchor="middle">web_properties</text>
+        <text x="52" y="258" font-family="DM Mono" font-size="9" fill="#475569">id, org_id, name, url</text>
+        <text x="52" y="272" font-family="DM Mono" font-size="9" fill="#475569">snippet_verified_at</text>
+        <text x="52" y="286" font-family="DM Mono" font-size="9" fill="#94A3B8">Each property → own banner</text>
+        <line x1="150" y1="200" x2="150" y2="220" stroke="#0F2D5B" stroke-width="1"/>
+        <line x1="150" y1="200" x2="400" y2="200" stroke="#0F2D5B" stroke-width="1"/>
+
+        <!-- consent_banners -->
+        <rect x="40" y="340" width="220" height="80" rx="8" fill="white" stroke="#0F2D5B" stroke-width="1.5"/>
+        <rect x="40" y="340" width="220" height="24" rx="8" fill="#0F2D5B"/>
+        <rect x="40" y="356" width="220" height="8" fill="#0F2D5B"/>
+        <text x="150" y="357" font-family="DM Sans" font-size="10" fill="white" font-weight="600" text-anchor="middle">consent_banners</text>
+        <text x="52" y="378" font-family="DM Mono" font-size="9" fill="#475569">id, org_id, property_id, version</text>
+        <text x="52" y="392" font-family="DM Mono" font-size="9" fill="#475569">purposes (jsonb), position</text>
+        <text x="52" y="406" font-family="DM Mono" font-size="9" fill="#475569">monitoring_enabled</text>
+        <line x1="150" y1="300" x2="150" y2="340" stroke="#0F2D5B" stroke-width="1"/>
+
+        <!-- ===== USER DATA BUFFERS ===== -->
+        <!-- consent_events -->
+        <rect x="340" y="240" width="280" height="80" rx="8" fill="white" stroke="#EA580C" stroke-width="1.5"/>
+        <rect x="340" y="240" width="280" height="24" rx="8" fill="#EA580C"/>
+        <rect x="340" y="256" width="280" height="8" fill="#EA580C"/>
+        <text x="480" y="257" font-family="DM Sans" font-size="10" fill="white" font-weight="600" text-anchor="middle">consent_events (buffer)</text>
+        <text x="352" y="278" font-family="DM Mono" font-size="9" fill="#475569">org_id, property_id, banner_id</text>
+        <text x="352" y="292" font-family="DM Mono" font-size="9" fill="#475569">event_type, purposes_accepted/rejected</text>
+        <text x="352" y="306" font-family="DM Mono" font-size="9" fill="#EA580C">APPEND-ONLY · delivered_at → purge</text>
+        <line x1="400" y1="200" x2="400" y2="240" stroke="#EA580C" stroke-width="1"/>
+
+        <!-- tracker_observations -->
+        <rect x="340" y="360" width="280" height="80" rx="8" fill="white" stroke="#EA580C" stroke-width="1.5"/>
+        <rect x="340" y="360" width="280" height="24" rx="8" fill="#EA580C"/>
+        <rect x="340" y="376" width="280" height="8" fill="#EA580C"/>
+        <text x="480" y="377" font-family="DM Sans" font-size="10" fill="white" font-weight="600" text-anchor="middle">tracker_observations (buffer)</text>
+        <text x="352" y="398" font-family="DM Mono" font-size="9" fill="#475569">org_id, property_id, consent_state</text>
+        <text x="352" y="412" font-family="DM Mono" font-size="9" fill="#475569">trackers_detected (jsonb), violations (jsonb)</text>
+        <text x="352" y="426" font-family="DM Mono" font-size="9" fill="#EA580C">APPEND-ONLY · delivered_at → purge</text>
+        <line x1="480" y1="320" x2="480" y2="360" stroke="#EA580C" stroke-width="1"/>
+
+        <!-- audit_log -->
+        <rect x="700" y="240" width="240" height="70" rx="8" fill="white" stroke="#EA580C" stroke-width="1.5"/>
+        <rect x="700" y="240" width="240" height="24" rx="8" fill="#EA580C"/>
+        <rect x="700" y="256" width="240" height="8" fill="#EA580C"/>
+        <text x="820" y="257" font-family="DM Sans" font-size="10" fill="white" font-weight="600" text-anchor="middle">audit_log (buffer)</text>
+        <text x="712" y="278" font-family="DM Mono" font-size="9" fill="#475569">org_id, actor_id, event_type</text>
+        <text x="712" y="292" font-family="DM Mono" font-size="9" fill="#475569">entity_type, entity_id, payload</text>
+        <line x1="620" y1="140" x2="820" y2="140" stroke="#EA580C" stroke-width="1"/>
+        <line x1="820" y1="140" x2="820" y2="240" stroke="#EA580C" stroke-width="1"/>
+
+        <!-- delivery_buffer -->
+        <rect x="700" y="340" width="240" height="70" rx="8" fill="white" stroke="#EA580C" stroke-width="1.5"/>
+        <rect x="700" y="340" width="240" height="24" rx="8" fill="#EA580C"/>
+        <rect x="700" y="356" width="240" height="8" fill="#EA580C"/>
+        <text x="820" y="357" font-family="DM Sans" font-size="10" fill="white" font-weight="600" text-anchor="middle">delivery_buffer</text>
+        <text x="712" y="378" font-family="DM Mono" font-size="9" fill="#475569">event_type, payload, attempt_count</text>
+        <text x="712" y="392" font-family="DM Mono" font-size="9" fill="#EA580C">WAL — hours retention, then purge</text>
+        <line x1="820" y1="310" x2="820" y2="340" stroke="#EA580C" stroke-width="1"/>
+
+        <!-- ===== WORKFLOW TABLES ===== -->
+        <!-- data_inventory -->
+        <rect x="40" y="470" width="220" height="60" rx="8" fill="white" stroke="#0F2D5B" stroke-width="1.5"/>
+        <rect x="40" y="470" width="220" height="24" rx="8" fill="#0F2D5B"/>
+        <rect x="40" y="486" width="220" height="8" fill="#0F2D5B"/>
+        <text x="150" y="487" font-family="DM Sans" font-size="10" fill="white" font-weight="600" text-anchor="middle">data_inventory</text>
+        <text x="52" y="508" font-family="DM Mono" font-size="9" fill="#475569">org_id, category, purpose, retention</text>
+        <text x="52" y="522" font-family="DM Mono" font-size="9" fill="#475569">third_parties, source (auto/manual)</text>
+
+        <!-- rights_requests -->
+        <rect x="310" y="470" width="240" height="70" rx="8" fill="white" stroke="#EA580C" stroke-width="1.5"/>
+        <rect x="310" y="470" width="240" height="24" rx="8" fill="#EA580C"/>
+        <rect x="310" y="486" width="240" height="8" fill="#EA580C"/>
+        <text x="430" y="487" font-family="DM Sans" font-size="10" fill="white" font-weight="600" text-anchor="middle">rights_requests</text>
+        <text x="322" y="508" font-family="DM Mono" font-size="9" fill="#475569">org_id, type, status, sla_deadline</text>
+        <text x="322" y="522" font-family="DM Mono" font-size="9" fill="#475569">requestor_email, assignee_id</text>
+        <text x="322" y="536" font-family="DM Mono" font-size="9" fill="#94A3B8">→ rights_request_events (sub-table)</text>
+
+        <!-- breach_notifications -->
+        <rect x="600" y="470" width="240" height="60" rx="8" fill="white" stroke="#0F2D5B" stroke-width="1.5"/>
+        <rect x="600" y="470" width="240" height="24" rx="8" fill="#0F2D5B"/>
+        <rect x="600" y="486" width="240" height="8" fill="#0F2D5B"/>
+        <text x="720" y="487" font-family="DM Sans" font-size="10" fill="white" font-weight="600" text-anchor="middle">breach_notifications</text>
+        <text x="612" y="508" font-family="DM Mono" font-size="9" fill="#475569">org_id, discovered_at, severity</text>
+        <text x="612" y="522" font-family="DM Mono" font-size="9" fill="#475569">dpb_notification_deadline (72h trigger)</text>
+
+        <!-- ===== ENFORCEMENT TABLES ===== -->
+        <!-- withdrawal_verifications -->
+        <rect x="40" y="580" width="220" height="60" rx="8" fill="white" stroke="#EA580C" stroke-width="1.5"/>
+        <rect x="40" y="580" width="220" height="24" rx="8" fill="#EA580C"/>
+        <rect x="40" y="596" width="220" height="8" fill="#EA580C"/>
+        <text x="150" y="597" font-family="DM Sans" font-size="10" fill="white" font-weight="600" text-anchor="middle">withdrawal_verifications</text>
+        <text x="52" y="618" font-family="DM Mono" font-size="9" fill="#475569">withdrawn_purposes, scan_results</text>
+        <text x="52" y="632" font-family="DM Mono" font-size="9" fill="#475569">overall_status (pending/verified/violation)</text>
+
+        <!-- security_scans -->
+        <rect x="310" y="580" width="220" height="60" rx="8" fill="white" stroke="#EA580C" stroke-width="1.5"/>
+        <rect x="310" y="580" width="220" height="24" rx="8" fill="#EA580C"/>
+        <rect x="310" y="596" width="220" height="8" fill="#EA580C"/>
+        <text x="420" y="597" font-family="DM Sans" font-size="10" fill="white" font-weight="600" text-anchor="middle">security_scans</text>
+        <text x="322" y="618" font-family="DM Mono" font-size="9" fill="#475569">property_id, scan_type, severity</text>
+        <text x="322" y="632" font-family="DM Mono" font-size="9" fill="#475569">signal_key, details, remediation</text>
+
+        <!-- integration_connectors -->
+        <rect x="580" y="580" width="180" height="60" rx="8" fill="white" stroke="#0F2D5B" stroke-width="1.5"/>
+        <rect x="580" y="580" width="180" height="24" rx="8" fill="#0F2D5B"/>
+        <rect x="580" y="596" width="180" height="8" fill="#0F2D5B"/>
+        <text x="670" y="597" font-family="DM Sans" font-size="10" fill="white" font-weight="600" text-anchor="middle">integration_connectors</text>
+        <text x="592" y="618" font-family="DM Mono" font-size="9" fill="#475569">connector_type, config</text>
+        <text x="592" y="632" font-family="DM Mono" font-size="9" fill="#475569">status, last_health_check</text>
+
+        <!-- deletion_receipts -->
+        <rect x="790" y="580" width="160" height="60" rx="8" fill="white" stroke="#EA580C" stroke-width="1.5"/>
+        <rect x="790" y="580" width="160" height="24" rx="8" fill="#EA580C"/>
+        <rect x="790" y="596" width="160" height="8" fill="#EA580C"/>
+        <text x="870" y="597" font-family="DM Sans" font-size="10" fill="white" font-weight="600" text-anchor="middle">deletion_receipts</text>
+        <text x="802" y="618" font-family="DM Mono" font-size="9" fill="#475569">trigger_type, target_system</text>
+        <text x="802" y="632" font-family="DM Mono" font-size="9" fill="#475569">status, confirmed_at</text>
+
+        <!-- Reference tables -->
+        <rect x="40" y="690" width="180" height="50" rx="8" fill="white" stroke="#0F2D5B" stroke-width="1"/>
+        <rect x="40" y="690" width="180" height="22" rx="8" fill="#0F2D5B"/>
+        <rect x="40" y="704" width="180" height="8" fill="#0F2D5B"/>
+        <text x="130" y="707" font-family="DM Sans" font-size="10" fill="white" font-weight="600" text-anchor="middle">tracker_signatures</text>
+        <text x="52" y="728" font-family="DM Mono" font-size="9" fill="#94A3B8">Reference data (not per-org)</text>
+
+        <rect x="260" y="690" width="180" height="50" rx="8" fill="white" stroke="#0F2D5B" stroke-width="1"/>
+        <rect x="260" y="690" width="180" height="22" rx="8" fill="#0F2D5B"/>
+        <rect x="260" y="704" width="180" height="8" fill="#0F2D5B"/>
+        <text x="350" y="707" font-family="DM Sans" font-size="10" fill="white" font-weight="600" text-anchor="middle">tracker_overrides</text>
+        <text x="272" y="728" font-family="DM Mono" font-size="9" fill="#94A3B8">Per-org false positive config</text>
+
+        <rect x="480" y="690" width="180" height="50" rx="8" fill="white" stroke="#0F2D5B" stroke-width="1"/>
+        <rect x="480" y="690" width="180" height="22" rx="8" fill="#0F2D5B"/>
+        <rect x="480" y="704" width="180" height="8" fill="#0F2D5B"/>
+        <text x="570" y="707" font-family="DM Sans" font-size="10" fill="white" font-weight="600" text-anchor="middle">retention_rules</text>
+        <text x="492" y="728" font-family="DM Mono" font-size="9" fill="#94A3B8">Per-org retention + auto-delete</text>
+
+        <rect x="700" y="690" width="180" height="50" rx="8" fill="white" stroke="#0F2D5B" stroke-width="1"/>
+        <rect x="700" y="690" width="180" height="22" rx="8" fill="#0F2D5B"/>
+        <rect x="700" y="704" width="180" height="8" fill="#0F2D5B"/>
+        <text x="790" y="707" font-family="DM Sans" font-size="10" fill="white" font-weight="600" text-anchor="middle">export_configurations</text>
+        <text x="712" y="728" font-family="DM Mono" font-size="9" fill="#94A3B8">R2/S3 credentials, mode</text>
+      </svg>
+    </div>
+    <div class="legend">
+      <div class="legend-item"><div class="legend-dot" style="background:#0F2D5B"></div>Operational state — lives in ConsentShield permanently</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#EA580C"></div>User data buffer — delivered to customer storage, then hard-deleted</div>
+    </div>
+    <div class="note">All tables carry org_id with Row-Level Security. The RLS policy is: every query filters by the org_id in the user's JWT. There is no way to forget it — it runs at the database level, not in application code.</div>
+  </div>
+</div>
+
+</div><!-- content -->
+
+<script>
+function showPanel(id) {
+  document.querySelectorAll('.panel').forEach(function(p) { p.classList.remove('active'); });
+  document.querySelectorAll('.tab').forEach(function(t) { t.classList.remove('active'); });
+  document.getElementById('panel-' + id).classList.add('active');
+  if (event && event.currentTarget) event.currentTarget.classList.add('active');
+  window.scrollTo(0, 0);
+}
+</script>
+</body>
+</html>

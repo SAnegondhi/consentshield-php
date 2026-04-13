@@ -1,0 +1,1080 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ConsentShield — Mobile Wireframes</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --navy:#0F2D5B;--teal:#0D7A6B;--teal-l:#E0F4F1;
+  --amber:#C97B00;--amber-l:#FEF3C7;--amber-m:#F59E0B;
+  --red:#DC2626;--red-l:#FEE2E2;
+  --green:#15803D;--green-l:#DCFCE7;
+  --bg:#F8FAFC;--text:#0F172A;--text2:#64748B;--text3:#94A3B8;
+  --border:#E2E8F0;
+  --font:'DM Sans',system-ui,sans-serif;
+  --mono:'DM Mono',monospace;
+  /* iOS system colors */
+  --ios-bg:#F2F2F7;--ios-card:#FFFFFF;--ios-sep:rgba(60,60,67,.2);
+  --ios-label:#000000;--ios-secondary:rgba(60,60,67,.6);
+  --ios-blue:#007AFF;--ios-red:#FF3B30;--ios-green:#34C759;
+  --ios-orange:#FF9500;--ios-teal:#30B0C7;
+}
+body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh}
+
+/* ── PAGE LAYOUT ── */
+.page-header{padding:28px 32px 0;max-width:1280px;margin:0 auto}
+.page-title{font-size:22px;font-weight:600;color:var(--text);letter-spacing:-.02em}
+.page-sub{font-size:13px;color:var(--text2);margin-top:4px}
+.flow-tabs{display:flex;gap:8px;padding:20px 32px 0;max-width:1280px;margin:0 auto}
+.flow-tab{padding:8px 18px;border-radius:20px;border:1.5px solid var(--border);font-size:13px;font-weight:500;cursor:pointer;color:var(--text2);background:white;transition:all .15s;font-family:var(--font)}
+.flow-tab.active{background:var(--navy);color:white;border-color:var(--navy)}
+.flow-meta{max-width:1280px;margin:0 auto;padding:16px 32px 0}
+.flow-name{font-size:15px;font-weight:600;color:var(--text);margin-bottom:3px}
+.flow-desc{font-size:13px;color:var(--text2);line-height:1.5}
+.stage-label{display:inline-block;background:var(--amber-l);color:var(--amber);font-size:11px;font-weight:600;padding:2px 8px;border-radius:4px;margin-left:8px;vertical-align:middle}
+
+/* ── SCREENS CANVAS ── */
+.screens-canvas{padding:28px 0 40px;overflow-x:auto;overflow-y:visible;-webkit-overflow-scrolling:touch;width:100%}
+.screens-canvas::-webkit-scrollbar{height:6px}
+.screens-canvas::-webkit-scrollbar-track{background:var(--border);border-radius:3px;margin:0 32px}
+.screens-canvas::-webkit-scrollbar-thumb{background:var(--text3);border-radius:3px}
+.screens-row{display:flex;gap:28px;align-items:flex-start;min-width:max-content;padding:0 32px 16px}
+.screen-wrap{display:flex;flex-direction:column;align-items:center;gap:14px}
+.screen-num{font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.06em}
+.screen-name{font-size:13px;font-weight:500;color:var(--text);text-align:center;max-width:200px}
+.screen-note{font-size:11px;color:var(--text2);text-align:center;max-width:200px;line-height:1.5}
+.arrow-connector{display:flex;align-items:center;padding-top:140px;color:var(--text3)}
+.arrow-connector svg{width:20px;height:20px}
+
+/* ── PHONE FRAME ── */
+.phone{
+  width:375px;
+  background:#1C1C1E;
+  border-radius:52px;
+  padding:14px;
+  box-shadow:0 0 0 1px rgba(255,255,255,.12),0 40px 80px rgba(0,0,0,.35),inset 0 0 0 1px rgba(255,255,255,.04);
+  position:relative;flex-shrink:0
+}
+/* volume buttons */
+.phone::before{content:'';position:absolute;left:-5px;top:108px;width:4px;height:32px;background:#2C2C2E;border-radius:3px 0 0 3px}
+.phone::after{content:'';position:absolute;left:-5px;top:152px;width:4px;height:56px;background:#2C2C2E;border-radius:3px 0 0 3px}
+.power-btn{position:absolute;right:-5px;top:130px;width:4px;height:68px;background:#2C2C2E;border-radius:0 3px 3px 0}
+.phone-screen{
+  background:white;border-radius:40px;overflow:hidden;
+  height:756px;position:relative;display:flex;flex-direction:column
+}
+
+/* ── DYNAMIC ISLAND ── */
+.dynamic-island{position:absolute;top:12px;left:50%;transform:translateX(-50%);width:120px;height:34px;background:#000;border-radius:20px;z-index:100}
+
+/* ── STATUS BAR ── */
+.status-bar{height:54px;display:flex;align-items:flex-end;padding:0 24px 10px;flex-shrink:0;position:relative;z-index:10}
+.status-bar.dark{background:transparent}
+.status-bar.light{background:white}
+.sb-time{font-size:15px;font-weight:600;letter-spacing:-.02em}
+.sb-icons{margin-left:auto;display:flex;align-items:center;gap:5px}
+.sb-icons svg{width:16px;height:16px}
+
+/* ── NAV BAR ── */
+.nav-bar{height:52px;display:flex;align-items:center;padding:0 16px;border-bottom:0.5px solid var(--ios-sep);background:rgba(248,248,252,.94);backdrop-filter:blur(20px);flex-shrink:0;position:relative;z-index:9}
+.nav-bar.transparent{background:transparent;border-bottom:none}
+.nb-back{display:flex;align-items:center;gap:2px;color:var(--ios-blue);font-size:17px;cursor:pointer}
+.nb-back svg{width:11px;height:18px}
+.nb-title{position:absolute;left:50%;transform:translateX(-50%);font-size:17px;font-weight:600;color:var(--ios-label);white-space:nowrap}
+.nb-action{margin-left:auto;color:var(--ios-blue);font-size:17px;cursor:pointer}
+
+/* ── CONTENT ── */
+.screen-content{flex:1;overflow-y:auto;background:var(--ios-bg);-webkit-overflow-scrolling:touch}
+.screen-content.white-bg{background:white}
+.screen-content.dark-bg{background:#1C1C1E}
+
+/* ── LARGE TITLE ── */
+.large-title{padding:4px 20px 8px;font-size:34px;font-weight:700;color:var(--ios-label);letter-spacing:-.02em}
+
+/* ── SECTION HEADERS ── */
+.section-hd{padding:18px 20px 6px;font-size:13px;font-weight:400;color:var(--ios-secondary);text-transform:uppercase;letter-spacing:.02em}
+
+/* ── CARD LIST (rounded) ── */
+.card-list{background:white;border-radius:12px;margin:0 16px;overflow:hidden}
+.card-list+.card-list{margin-top:10px}
+.list-row{padding:12px 16px;display:flex;align-items:center;gap:12px;border-bottom:0.5px solid var(--ios-sep);position:relative;cursor:pointer;min-height:52px}
+.list-row:last-child{border-bottom:none}
+.list-row:active{background:#F0F0F0}
+.list-icon{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:18px}
+.list-content{flex:1;min-width:0}
+.list-title{font-size:17px;color:var(--ios-label);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.list-sub{font-size:13px;color:var(--ios-secondary);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.list-right{display:flex;align-items:center;gap:4px;flex-shrink:0}
+.list-chevron{color:var(--text3)}
+.list-chevron svg{width:7px;height:12px}
+.list-badge{background:var(--ios-red);color:white;font-size:12px;font-weight:700;min-width:20px;height:20px;border-radius:10px;display:flex;align-items:center;justify-content:center;padding:0 5px}
+.disclosure-arrow{color:var(--text3);margin-left:4px;font-size:11px}
+
+/* ── TAB BAR ── */
+.tab-bar{height:83px;background:rgba(249,249,251,.94);backdrop-filter:blur(20px);border-top:0.5px solid var(--ios-sep);display:flex;align-items:flex-start;padding-top:10px;flex-shrink:0}
+.tab-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;padding:0 4px}
+.tab-icon{width:28px;height:28px;display:flex;align-items:center;justify-content:center;position:relative}
+.tab-icon svg{width:24px;height:24px}
+.tab-label{font-size:10px;font-weight:500}
+.tab-item.active .tab-icon svg{color:var(--teal)}
+.tab-item.active .tab-label{color:var(--teal)}
+.tab-item:not(.active) .tab-icon svg,.tab-item:not(.active) .tab-label{color:var(--text3)}
+.tab-badge{position:absolute;top:-4px;right:-6px;background:var(--ios-red);color:white;font-size:9px;font-weight:700;min-width:16px;height:16px;border-radius:8px;display:flex;align-items:center;justify-content:center;padding:0 3px;border:1.5px solid rgba(249,249,251,.94)}
+
+/* ── LOCK SCREEN ── */
+.lock-bg{width:100%;height:100%;background:linear-gradient(160deg,#0F2D5B 0%,#0a1f3d 40%,#050F1F 100%);position:relative;overflow:hidden;display:flex;flex-direction:column}
+.lock-bg::before{content:'';position:absolute;width:300px;height:300px;border-radius:50%;background:radial-gradient(circle,rgba(13,122,107,.3) 0%,transparent 70%);top:-50px;right:-80px}
+.lock-bg::after{content:'';position:absolute;width:200px;height:200px;border-radius:50%;background:radial-gradient(circle,rgba(245,158,11,.15) 0%,transparent 70%);bottom:100px;left:-40px}
+.lock-time{text-align:center;padding:80px 0 8px;color:white}
+.lock-hour{font-size:80px;font-weight:300;line-height:1;letter-spacing:-.03em}
+.lock-date{font-size:17px;color:rgba(255,255,255,.7);margin-top:4px}
+.lock-notif{margin:24px 16px 0;position:relative;z-index:1}
+.notif-banner{background:rgba(32,32,36,.85);backdrop-filter:blur(30px);border-radius:16px;padding:14px 14px;display:flex;gap:10px;align-items:flex-start;border:0.5px solid rgba(255,255,255,.12)}
+.notif-app-icon{width:40px;height:40px;border-radius:10px;background:linear-gradient(135deg,var(--teal),#0A5C50);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.notif-app-icon svg{width:22px;height:22px;fill:white}
+.notif-body{flex:1;min-width:0}
+.notif-app-name{font-size:12px;color:rgba(255,255,255,.5);font-weight:500;margin-bottom:2px;text-transform:uppercase;letter-spacing:.04em}
+.notif-title{font-size:15px;font-weight:600;color:white;line-height:1.3}
+.notif-msg{font-size:13px;color:rgba(255,255,255,.7);margin-top:3px;line-height:1.4}
+.notif-time{font-size:12px;color:rgba(255,255,255,.4);margin-top:4px}
+.lock-unlock{margin-top:auto;padding:0 0 20px;display:flex;flex-direction:column;align-items:center;gap:6px}
+.lock-hint{font-size:13px;color:rgba(255,255,255,.5)}
+.lock-home-bar{width:134px;height:5px;background:rgba(255,255,255,.35);border-radius:3px;margin-top:4px}
+
+/* ── COMPLIANCE SCORE (home screen widget) ── */
+.score-widget{background:white;border-radius:16px;margin:0 16px;padding:18px 18px 16px;display:flex;gap:16px;align-items:center}
+.score-ring{position:relative;width:72px;height:72px;flex-shrink:0}
+.score-ring svg{transform:rotate(-90deg)}
+.score-ring-center{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center}
+.score-pct{font-size:20px;font-weight:700;color:var(--amber-m);line-height:1}
+.score-lbl{font-size:9px;color:var(--text3);margin-top:1px}
+.score-info{flex:1}
+.score-title{font-size:15px;font-weight:600;color:var(--ios-label)}
+.score-sub{font-size:13px;color:var(--ios-secondary);margin-top:2px}
+.score-clock{margin-top:8px;display:flex;align-items:center;gap:5px;font-size:12px;color:var(--amber);font-weight:500}
+
+/* ── STATUS MINI CARDS ── */
+.status-row{display:flex;gap:8px;margin:10px 16px 0}
+.status-mini{flex:1;background:white;border-radius:12px;padding:11px 10px;display:flex;flex-direction:column;gap:4px}
+.sm-icon{font-size:18px}
+.sm-label{font-size:11px;color:var(--text2);font-weight:500;line-height:1.2}
+.sm-val{font-size:13px;font-weight:600}
+.sm-green{color:var(--green)}
+.sm-amber{color:var(--amber)}
+.sm-red{color:var(--red)}
+
+/* ── ALERT ITEMS ── */
+.alert-list{background:white;border-radius:12px;margin:10px 16px 0;overflow:hidden}
+.alert-row{padding:12px 14px;border-bottom:0.5px solid var(--ios-sep);display:flex;gap:10px;align-items:flex-start;cursor:pointer}
+.alert-row:last-child{border-bottom:none}
+.alert-dot{width:8px;height:8px;border-radius:50%;margin-top:5px;flex-shrink:0}
+.alert-dot.red{background:var(--ios-red)}
+.alert-dot.amber{background:var(--ios-orange)}
+.alert-dot.green{background:var(--ios-green)}
+.alert-content{flex:1}
+.alert-title{font-size:15px;color:var(--ios-label);font-weight:500;line-height:1.3}
+.alert-meta{font-size:13px;color:var(--ios-secondary);margin-top:2px}
+
+/* ── REQUEST CARDS ── */
+.req-card{background:white;border-radius:12px;margin:0 16px;overflow:hidden}
+.req-card+.req-card{margin-top:10px}
+.req-card-header{padding:12px 14px 8px;border-bottom:0.5px solid var(--ios-sep);display:flex;align-items:center;gap:10px}
+.req-type-pill{padding:3px 9px;border-radius:6px;font-size:12px;font-weight:600}
+.req-type-erasure{background:var(--red-l);color:var(--red)}
+.req-type-access{background:#EFF6FF;color:var(--navy)}
+.req-name{font-size:15px;font-weight:600;color:var(--ios-label)}
+.req-email{font-size:12px;color:var(--ios-secondary)}
+.req-card-body{padding:10px 14px 12px;display:flex;align-items:center;justify-content:space-between}
+.req-sla{display:flex;flex-direction:column;gap:3px}
+.req-sla-days{font-size:22px;font-weight:700}
+.req-sla-label{font-size:11px;color:var(--ios-secondary)}
+.sla-bar-wrap{width:120px}
+.sla-bar{height:4px;background:var(--border);border-radius:2px}
+.sla-fill{height:4px;border-radius:2px}
+.req-received{font-size:12px;color:var(--ios-secondary);text-align:right}
+.req-arrow{color:var(--text3);font-size:18px;margin-left:8px}
+
+/* ── REQUEST DETAIL ── */
+.sla-hero{background:var(--red-l);padding:20px 20px 16px;display:flex;align-items:center;gap:14px}
+.sla-hero.amber-bg{background:var(--amber-l)}
+.sla-hero.green-bg{background:var(--green-l)}
+.sla-big-days{font-size:48px;font-weight:700;line-height:1}
+.sla-big-days.red{color:var(--red)}
+.sla-big-days.amber{color:var(--amber-m)}
+.sla-big-days.green{color:var(--green)}
+.sla-hero-info{}
+.sla-hero-label{font-size:13px;color:var(--text2)}
+.sla-hero-desc{font-size:12px;color:var(--text2);margin-top:2px;line-height:1.4}
+.info-grid{background:white;border-radius:12px;margin:10px 16px 0;overflow:hidden}
+.info-row{padding:12px 14px;border-bottom:0.5px solid var(--ios-sep);display:flex;justify-content:space-between;align-items:center}
+.info-row:last-child{border-bottom:none}
+.info-label{font-size:15px;color:var(--ios-secondary)}
+.info-value{font-size:15px;color:var(--ios-label);font-weight:500;text-align:right}
+.info-value.verified{color:var(--green)}
+.erase-row{padding:10px 14px;border-bottom:0.5px solid var(--ios-sep);display:flex;justify-content:space-between;align-items:center}
+.erase-row:last-child{border-bottom:none}
+.erase-field{font-size:15px;color:var(--ios-label)}
+.erase-status{font-size:12px;font-weight:500;padding:2px 8px;border-radius:5px}
+.erase-ok{background:var(--green-l);color:var(--green)}
+.erase-lock{background:var(--amber-l);color:var(--amber)}
+
+/* ── ACTION BUTTONS ── */
+.action-stack{padding:14px 16px;display:flex;flex-direction:column;gap:10px}
+.action-btn{width:100%;padding:16px;border-radius:14px;font-size:17px;font-weight:600;border:none;cursor:pointer;font-family:var(--font);transition:all .1s}
+.action-btn:active{transform:scale(.97)}
+.action-primary{background:var(--teal);color:white}
+.action-danger{background:var(--ios-red);color:white}
+.action-secondary{background:white;color:var(--ios-blue);border:0.5px solid var(--ios-sep)}
+.action-ghost{background:transparent;color:var(--ios-secondary);font-size:15px;font-weight:400;padding:10px}
+.action-web{background:#EFF6FF;color:var(--navy);display:flex;align-items:center;justify-content:center;gap:8px}
+
+/* ── BREACH SCREEN ── */
+.breach-hero{padding:40px 24px 24px;text-align:center;background:white}
+.breach-icon-wrap{width:80px;height:80px;background:var(--red-l);border-radius:24px;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;font-size:40px}
+.breach-title{font-size:24px;font-weight:700;color:var(--red);margin-bottom:8px}
+.breach-desc{font-size:15px;color:var(--text2);line-height:1.5}
+.breach-timer{background:var(--red-l);border-radius:12px;margin:10px 16px 0;padding:14px;text-align:center}
+.breach-timer-num{font-size:36px;font-weight:700;color:var(--red)}
+.breach-timer-label{font-size:13px;color:var(--red);margin-top:2px}
+.breach-steps{background:white;border-radius:12px;margin:10px 16px 0;overflow:hidden}
+.breach-step{padding:12px 14px;border-bottom:0.5px solid var(--ios-sep);display:flex;gap:10px;align-items:flex-start}
+.breach-step:last-child{border-bottom:none}
+.bs-num{width:22px;height:22px;border-radius:50%;background:var(--navy);color:white;font-size:11px;font-weight:600;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+.bs-text{font-size:15px;color:var(--ios-label);line-height:1.4}
+.bs-sub{font-size:12px;color:var(--ios-secondary);margin-top:2px}
+.breach-confirm-overlay{position:absolute;inset:0;background:rgba(0,0,0,.5);display:flex;align-items:flex-end;z-index:50}
+.breach-sheet{background:var(--ios-card);border-radius:16px 16px 0 0;padding:20px 20px 40px;width:100%}
+.breach-sheet-title{font-size:20px;font-weight:700;color:var(--ios-label);text-align:center;margin-bottom:8px}
+.breach-sheet-desc{font-size:15px;color:var(--ios-secondary);text-align:center;line-height:1.5;margin-bottom:20px}
+.sheet-btn{width:100%;padding:16px;border-radius:14px;font-size:17px;font-weight:600;border:none;cursor:pointer;font-family:var(--font);margin-bottom:10px}
+.sheet-btn-red{background:var(--ios-red);color:white}
+.sheet-btn-cancel{background:var(--ios-bg);color:var(--ios-blue)}
+
+/* ── DONE / HANDOFF ── */
+.done-screen{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 24px;height:100%;background:white;text-align:center}
+.done-icon{width:80px;height:80px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:38px;margin-bottom:20px}
+.done-icon.green{background:var(--green-l)}
+.done-icon.blue{background:#EFF6FF}
+.done-title{font-size:22px;font-weight:700;color:var(--ios-label);margin-bottom:8px}
+.done-desc{font-size:15px;color:var(--ios-secondary);line-height:1.6;margin-bottom:28px}
+.done-link{background:#EFF6FF;border-radius:12px;padding:14px;width:100%;font-size:15px;color:var(--navy);font-weight:500;display:flex;align-items:center;justify-content:center;gap:8px;cursor:pointer}
+
+/* ── CLINIC SCREENS ── */
+.clinic-header{background:var(--navy);padding:16px 20px;display:flex;align-items:center;gap:12px}
+.clinic-title{color:white;font-size:20px;font-weight:600}
+.clinic-sub{color:rgba(255,255,255,.6);font-size:13px;margin-top:2px}
+.patient-queue{padding:12px 0}
+.scanner-view{flex:1;background:#000;position:relative;display:flex;flex-direction:column;align-items:center}
+.scanner-frame{width:220px;height:220px;margin-top:80px;position:relative}
+.scanner-corner{position:absolute;width:30px;height:30px;border-color:#00E5BB;border-style:solid;border-width:0}
+.sc-tl{top:0;left:0;border-top-width:4px;border-left-width:4px;border-radius:4px 0 0 0}
+.sc-tr{top:0;right:0;border-top-width:4px;border-right-width:4px;border-radius:0 4px 0 0}
+.sc-bl{bottom:0;left:0;border-bottom-width:4px;border-left-width:4px;border-radius:0 0 0 4px}
+.sc-br{bottom:0;right:0;border-bottom-width:4px;border-right-width:4px;border-radius:0 0 4px 0}
+.scanner-line{position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,#00E5BB,transparent);animation:scan 2s ease-in-out infinite}
+@keyframes scan{0%,100%{top:0}50%{top:218px}}
+.scanner-hint{color:rgba(255,255,255,.7);font-size:14px;margin-top:24px;text-align:center;padding:0 40px;line-height:1.5}
+.scanner-actions{padding:20px 20px 30px;display:flex;flex-direction:column;gap:10px;background:#111}
+.scan-btn{padding:16px;border-radius:14px;font-size:17px;font-weight:600;border:none;cursor:pointer;font-family:var(--font)}
+.scan-primary{background:#00E5BB;color:#000}
+.scan-secondary{background:rgba(255,255,255,.12);color:white}
+.patient-found{background:white;border-radius:16px;margin:16px;padding:16px;display:flex;align-items:center;gap:12px}
+.patient-avatar{width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,var(--teal),#0A5C50);display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:600;color:white;flex-shrink:0}
+.patient-name{font-size:17px;font-weight:600;color:var(--ios-label)}
+.patient-abha{font-family:var(--mono);font-size:12px;color:var(--teal);margin-top:2px}
+.patient-age{font-size:13px;color:var(--ios-secondary);margin-top:2px}
+.consent-request{background:white;border-radius:12px;margin:0 16px;overflow:hidden}
+.consent-hd{padding:12px 14px;background:var(--navy);color:white}
+.consent-hd-title{font-size:14px;font-weight:600}
+.consent-hd-sub{font-size:12px;color:rgba(255,255,255,.65);margin-top:2px}
+.consent-purpose{padding:11px 14px;border-bottom:0.5px solid var(--ios-sep);display:flex;align-items:center;justify-content:space-between}
+.consent-purpose:last-child{border-bottom:none}
+.cp-name{font-size:15px;color:var(--ios-label);font-weight:500}
+.cp-desc{font-size:12px;color:var(--ios-secondary);margin-top:1px}
+.cp-toggle{width:51px;height:31px;background:var(--ios-green);border-radius:16px;position:relative;flex-shrink:0}
+.cp-toggle::after{content:'';position:absolute;top:2px;right:2px;width:27px;height:27px;background:white;border-radius:50%;box-shadow:0 2px 4px rgba(0,0,0,.2)}
+.cp-toggle.off{background:rgba(120,120,128,.32)}
+.cp-toggle.off::after{right:auto;left:2px}
+.awaiting-patient{background:var(--navy);margin:10px 16px 0;border-radius:12px;padding:16px;text-align:center;color:white}
+.awaiting-icon{font-size:32px;margin-bottom:8px}
+.awaiting-text{font-size:15px;font-weight:600}
+.awaiting-sub{font-size:13px;color:rgba(255,255,255,.6);margin-top:4px}
+
+/* ── UTILITY ── */
+.px-4{padding-left:16px;padding-right:16px}
+.mt-8{margin-top:8px}
+.mt-16{margin-top:16px}
+.section-gap{height:18px}
+.home-bar{height:34px;display:flex;align-items:flex-start;justify-content:center;padding-top:8px;flex-shrink:0}
+.home-bar-line{width:134px;height:5px;background:#000;border-radius:3px;opacity:.18}
+</style>
+</head>
+<body>
+
+<div class="page-header">
+  <div class="page-title">ConsentShield — Mobile Wireframes</div>
+  <div class="page-sub">Native iOS app · Three user flows · Founder ICP (Flows 1–2) · Clinic segment Month 6+ (Flow 3)</div>
+</div>
+
+<div class="flow-tabs">
+  <button class="flow-tab active" onclick="setFlow('monitor',this)">Flow 1 — Rights request monitor</button>
+  <button class="flow-tab" onclick="setFlow('breach',this)">Flow 2 — Breach trigger</button>
+  <button class="flow-tab" onclick="setFlow('clinic',this)">Flow 3 — Clinic patient consent<span class="stage-label">Month 6+</span></button>
+</div>
+
+<div class="flow-meta">
+  <div class="flow-name" id="flow-name">Flow 1: Rights request monitor</div>
+  <div class="flow-desc" id="flow-desc">Founder receives a push notification at 7 PM on a Friday. Without opening a laptop, they review the request, see the SLA countdown, take a quick action, and hand off the full workflow to the web app. This is why the mobile app exists.</div>
+</div>
+
+<div class="screens-canvas">
+  <div class="screens-row" id="screens-row"></div>
+</div>
+
+<script>
+// ── REUSABLE FRAGMENTS ──────────────────────────────────────────────────────
+
+const statusBar = (dark=false) => `
+<div class="status-bar ${dark?'dark':'light'}">
+  <div class="sb-time" style="color:${dark?'white':'#000'};font-size:15px;font-weight:600">9:41</div>
+  <div class="sb-icons" style="color:${dark?'white':'#000'}">
+    <svg viewBox="0 0 17 12" fill="currentColor"><path d="M1 4.27a9 9 0 0115 0"/><path d="M3.8 6.9a5.5 5.5 0 019.4 0"/><path d="M6.7 9.5a2 2 0 013.6 0"/><circle cx="8.5" cy="12" r="1"/></svg>
+    <svg viewBox="0 0 16 12" fill="currentColor"><path d="M.5 3.5A11.5 11.5 0 0115.5 3.5"/><path d="M2.5 6A8.5 8.5 0 0113.5 6"/><path d="M4.5 8.5A5.5 5.5 0 0111.5 8.5"/><circle cx="8" cy="11" r="1"/></svg>
+    <svg viewBox="0 0 25 12" fill="currentColor"><rect x="0" y="1" width="22" height="10" rx="3.5" stroke="currentColor" stroke-width="1.2" fill="none" opacity=".35"/><rect x="1.5" y="2.5" width="16" height="7" rx="2" fill="currentColor"/><path d="M23 4.5v3a2 2 0 000-3z" opacity=".4"/></svg>
+  </div>
+</div>`;
+
+const dynIsland = () => `<div class="dynamic-island"></div>`;
+
+const tabBar = (active='dash') => `
+<div class="tab-bar">
+  <div class="tab-item ${active==='dash'?'active':''}" style="cursor:pointer">
+    <div class="tab-icon"><svg viewBox="0 0 24 24" fill="${active==='dash'?'var(--teal)':'none'}" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div>
+    <div class="tab-label">Home</div>
+  </div>
+  <div class="tab-item ${active==='req'?'active':''}" style="cursor:pointer">
+    <div class="tab-icon">
+      <svg viewBox="0 0 24 24" fill="${active==='req'?'var(--teal)':'none'}" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+      <span class="tab-badge">3</span>
+    </div>
+    <div class="tab-label">Requests</div>
+  </div>
+  <div class="tab-item ${active==='breach'?'active':''}" style="cursor:pointer">
+    <div class="tab-icon"><svg viewBox="0 0 24 24" fill="${active==='breach'?'var(--teal)':'none'}" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div>
+    <div class="tab-label">Breach</div>
+  </div>
+  <div class="tab-item ${active==='settings'?'active':''}" style="cursor:pointer">
+    <div class="tab-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z" style="color:${active==='settings'?'var(--teal)':'var(--text3)'}"/></svg></div>
+    <div class="tab-label">Settings</div>
+  </div>
+</div>
+<div class="home-bar"><div class="home-bar-line"></div></div>`;
+
+// ── SCREENS ─────────────────────────────────────────────────────────────────
+
+const screens = {
+
+// FLOW 1: MONITOR ──────────────────────────────────────────────────────────
+
+lock: {
+  name: 'Push notification',
+  note: 'Arrives on locked screen at 7 PM. The compliance SLA clock cannot wait for Monday morning.',
+  html: `
+    <div class="phone-screen">
+      ${dynIsland()}
+      <div class="lock-bg">
+        <div class="status-bar dark" style="position:relative;z-index:2">
+          <div class="sb-time" style="color:white;font-size:15px;font-weight:600">7:23 PM</div>
+          <div class="sb-icons" style="color:white">
+            <svg viewBox="0 0 17 12" fill="white" width="16" height="12"><path d="M1 4.27a9 9 0 0115 0"/><path d="M3.8 6.9a5.5 5.5 0 019.4 0"/><path d="M6.7 9.5a2 2 0 013.6 0"/><circle cx="8.5" cy="12" r="1"/></svg>
+            <svg viewBox="0 0 25 12" fill="white" width="22" height="12"><rect x="0" y="1" width="22" height="10" rx="3.5" stroke="white" stroke-width="1.2" fill="none" opacity=".35"/><rect x="1.5" y="2.5" width="16" height="7" rx="2" fill="white"/><path d="M23 4.5v3a2 2 0 000-3z" opacity=".4"/></svg>
+          </div>
+        </div>
+        <div class="lock-time" style="position:relative;z-index:2">
+          <div class="lock-hour">7:23</div>
+          <div class="lock-date">Friday, 11 April</div>
+        </div>
+        <div class="lock-notif">
+          <div class="notif-banner">
+            <div class="notif-app-icon">
+              <svg viewBox="0 0 24 24"><path d="M12 2L4 6v6c0 5.5 3.8 10.7 8 12 4.2-1.3 8-6.5 8-12V6l-8-4z"/></svg>
+            </div>
+            <div class="notif-body">
+              <div class="notif-app-name">ConsentShield</div>
+              <div class="notif-title">Rights request received</div>
+              <div class="notif-msg">Priya Sharma · Erasure request · 30-day SLA clock started. Act before May 11.</div>
+              <div class="notif-time">now</div>
+            </div>
+          </div>
+        </div>
+        <div class="lock-unlock" style="position:relative;z-index:2">
+          <div class="lock-hint">Tap to view request</div>
+          <div class="lock-home-bar"></div>
+        </div>
+      </div>
+    </div>`
+},
+
+dashboard: {
+  name: 'Compliance dashboard',
+  note: 'Home tab. At-a-glance compliance health. Enforcement countdown. Alert list. All readable in under 10 seconds.',
+  html: `
+    <div class="phone-screen">
+      ${dynIsland()}
+      ${statusBar()}
+      <div class="nav-bar">
+        <div class="nb-title" style="position:static;transform:none;font-size:34px;font-weight:700;padding:4px 0">Dashboard</div>
+        <div class="nb-action" style="margin-left:auto">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="24" height="24"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+        </div>
+      </div>
+      <div class="screen-content">
+        <div style="height:12px"></div>
+        <div class="score-widget">
+          <div class="score-ring">
+            <svg width="72" height="72" viewBox="0 0 72 72">
+              <circle cx="36" cy="36" r="30" fill="none" stroke="#E2E8F0" stroke-width="6"/>
+              <circle cx="36" cy="36" r="30" fill="none" stroke="#F59E0B" stroke-width="6" stroke-dasharray="139 188" stroke-linecap="round"/>
+            </svg>
+            <div class="score-ring-center">
+              <div class="score-pct">74%</div>
+              <div class="score-lbl">DPDP</div>
+            </div>
+          </div>
+          <div class="score-info">
+            <div class="score-title">Compliance score</div>
+            <div class="score-sub" style="color:var(--amber-m);font-weight:500">Amber — 3 gaps to close</div>
+            <div class="score-clock">
+              <svg viewBox="0 0 16 16" fill="currentColor" width="12" height="12"><path d="M8 1.5a6.5 6.5 0 100 13 6.5 6.5 0 000-13zM0 8a8 8 0 1116 0A8 8 0 010 8zm7.5-4a.5.5 0 01.5.5v3.793l2.146 2.147a.5.5 0 01-.707.707l-2.292-2.293A.5.5 0 017 8.5V4.5a.5.5 0 01.5-.5z"/></svg>
+              397 days to enforcement
+            </div>
+          </div>
+        </div>
+
+        <div class="status-row">
+          <div class="status-mini">
+            <div class="sm-icon">✅</div>
+            <div class="sm-label">Consent banner</div>
+            <div class="sm-val sm-green">Live</div>
+          </div>
+          <div class="status-mini">
+            <div class="sm-icon">⚠️</div>
+            <div class="sm-label">Data inventory</div>
+            <div class="sm-val sm-amber">8 of 12</div>
+          </div>
+          <div class="status-mini">
+            <div class="sm-icon">🔴</div>
+            <div class="sm-label">Rights requests</div>
+            <div class="sm-val sm-red">3 open</div>
+          </div>
+        </div>
+
+        <div class="section-hd">Alerts</div>
+        <div class="alert-list">
+          <div class="alert-row">
+            <div class="alert-dot red"></div>
+            <div class="alert-content">
+              <div class="alert-title">Erasure request due in 5 days</div>
+              <div class="alert-meta">Priya Sharma · SLA breach risk</div>
+            </div>
+            <div class="list-chevron"><svg viewBox="0 0 7 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 1l5 5-5 5"/></svg></div>
+          </div>
+          <div class="alert-row">
+            <div class="alert-dot amber"></div>
+            <div class="alert-content">
+              <div class="alert-title">Data inventory incomplete</div>
+              <div class="alert-meta">4 flows need completion</div>
+            </div>
+            <div class="list-chevron"><svg viewBox="0 0 7 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 1l5 5-5 5"/></svg></div>
+          </div>
+          <div class="alert-row">
+            <div class="alert-dot amber"></div>
+            <div class="alert-content">
+              <div class="alert-title">Processing log not enabled</div>
+              <div class="alert-meta">Required by DPDP Rules · 1yr retention</div>
+            </div>
+            <div class="list-chevron"><svg viewBox="0 0 7 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 1l5 5-5 5"/></svg></div>
+          </div>
+        </div>
+
+        <div class="section-hd" style="margin-top:6px">Quick actions</div>
+        <div class="card-list">
+          <div class="list-row" style="background:#EFF6FF;border-radius:12px;margin:0 16px;border:none">
+            <div class="list-icon" style="background:var(--navy);font-size:16px">🌐</div>
+            <div class="list-content"><div class="list-title" style="font-size:15px;color:var(--navy)">Open full dashboard on web</div><div class="list-sub">Banner builder · Audit reports · Settings</div></div>
+          </div>
+        </div>
+
+        <div style="height:20px"></div>
+      </div>
+      ${tabBar('dash')}
+    </div>`
+},
+
+inbox: {
+  name: 'Rights request inbox',
+  note: 'Three open requests sorted by SLA urgency. Colour-coded countdown bars. Tap any row to open detail.',
+  html: `
+    <div class="phone-screen">
+      ${dynIsland()}
+      ${statusBar()}
+      <div style="padding:4px 20px 8px;font-size:34px;font-weight:700;background:white">Requests</div>
+      <div class="screen-content">
+        <div style="height:12px"></div>
+
+        <div class="req-card" style="background:var(--red-l);border:1.5px solid rgba(220,38,38,.2)">
+          <div class="req-card-header">
+            <div><div class="req-name">Priya Sharma</div><div class="req-email">priya.s@gmail.com</div></div>
+            <span class="req-type-pill req-type-erasure" style="margin-left:auto">Erasure</span>
+          </div>
+          <div class="req-card-body">
+            <div class="req-sla">
+              <div class="req-sla-days" style="color:var(--red)">5 days</div>
+              <div class="req-sla-label">SLA remaining</div>
+              <div class="sla-bar-wrap" style="margin-top:5px"><div class="sla-bar"><div class="sla-fill" style="width:17%;background:var(--red)"></div></div></div>
+            </div>
+            <div style="text-align:right">
+              <div class="req-received">Received Apr 6</div>
+              <div style="font-size:11px;color:var(--red);font-weight:500;margin-top:4px;background:var(--red-l);padding:3px 8px;border-radius:5px">⚠ Act now</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="req-card" style="margin-top:10px">
+          <div class="req-card-header">
+            <div><div class="req-name">Amit Joshi</div><div class="req-email">amitj@acme.com</div></div>
+            <span class="req-type-pill req-type-access" style="margin-left:auto">Access</span>
+          </div>
+          <div class="req-card-body">
+            <div class="req-sla">
+              <div class="req-sla-days" style="color:var(--amber-m)">12 days</div>
+              <div class="req-sla-label">SLA remaining</div>
+              <div class="sla-bar-wrap" style="margin-top:5px"><div class="sla-bar"><div class="sla-fill" style="width:40%;background:var(--amber-m)"></div></div></div>
+            </div>
+            <div class="req-received" style="text-align:right">Received Apr 3</div>
+          </div>
+        </div>
+
+        <div class="req-card" style="margin-top:10px">
+          <div class="req-card-header">
+            <div><div class="req-name">Rekha Nair</div><div class="req-email">rekha.n@hotmail.com</div></div>
+            <span class="req-type-pill req-type-erasure" style="margin-left:auto">Erasure</span>
+          </div>
+          <div class="req-card-body">
+            <div class="req-sla">
+              <div class="req-sla-days" style="color:var(--green)">22 days</div>
+              <div class="req-sla-label">SLA remaining</div>
+              <div class="sla-bar-wrap" style="margin-top:5px"><div class="sla-bar"><div class="sla-fill" style="width:73%;background:var(--green)"></div></div></div>
+            </div>
+            <div class="req-received" style="text-align:right">Received Apr 1</div>
+          </div>
+        </div>
+
+        <div style="height:20px"></div>
+      </div>
+      ${tabBar('req')}
+    </div>`
+},
+
+detail: {
+  name: 'Request detail',
+  note: 'Deep-linked from notification. SLA urgency is the hero element. Quick actions at bottom — full 7-step workflow hands off to web.',
+  html: `
+    <div class="phone-screen">
+      ${dynIsland()}
+      ${statusBar()}
+      <div class="nav-bar">
+        <div class="nb-back"><svg viewBox="0 0 11 18" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 1L2 9l8 8"/></svg> Requests</div>
+        <div class="nb-title">Priya Sharma</div>
+      </div>
+      <div class="screen-content">
+
+        <div class="sla-hero">
+          <div>
+            <div class="req-sla-days" style="font-size:52px;font-weight:700;color:var(--red);line-height:1">5</div>
+            <div style="font-size:14px;color:var(--red)">days remaining</div>
+          </div>
+          <div style="flex:1;padding-left:16px">
+            <div style="font-size:15px;font-weight:600;color:var(--red);margin-bottom:4px">⚠ SLA breach risk</div>
+            <div style="font-size:13px;color:var(--text2);line-height:1.4">Must respond by<br><strong style="color:var(--red)">Wed, 16 April 2026</strong></div>
+          </div>
+        </div>
+
+        <div class="section-hd">Request info</div>
+        <div class="info-grid">
+          <div class="info-row"><div class="info-label">Type</div><div class="info-value"><span class="req-type-pill req-type-erasure">Erasure</span></div></div>
+          <div class="info-row"><div class="info-label">Received</div><div class="info-value">6 April, 6:31 PM</div></div>
+          <div class="info-row"><div class="info-label">Identity</div><div class="info-value verified">✓ Verified via OTP</div></div>
+          <div class="info-row"><div class="info-label">Assignee</div><div class="info-value">Sudhindra K.</div></div>
+        </div>
+
+        <div class="section-hd">Data to be erased</div>
+        <div class="info-grid">
+          <div class="erase-row"><div class="erase-field">Email address</div><span class="erase-status erase-ok">Can erase</span></div>
+          <div class="erase-row"><div class="erase-field">Usage analytics</div><span class="erase-status erase-ok">Can erase</span></div>
+          <div class="erase-row"><div class="erase-field">Payment records</div><span class="erase-status erase-lock">Retention lock 7yr</span></div>
+        </div>
+
+        <div class="action-stack">
+          <button class="action-btn action-primary">Start erasure process</button>
+          <button class="action-btn action-web">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>
+            Continue full workflow on web →
+          </button>
+          <button class="action-btn action-secondary">Escalate to colleague</button>
+        </div>
+
+        <div style="height:8px"></div>
+      </div>
+      <div class="home-bar"><div class="home-bar-line"></div></div>
+    </div>`
+},
+
+handoff: {
+  name: 'Handoff to web',
+  note: '"Continue on web" sends a deep link that opens the exact screen in the web app — no re-login, no navigation required.',
+  html: `
+    <div class="phone-screen">
+      ${dynIsland()}
+      ${statusBar()}
+      <div class="nav-bar">
+        <div class="nb-back"><svg viewBox="0 0 11 18" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 1L2 9l8 8"/></svg> Back</div>
+      </div>
+      <div class="screen-content white-bg">
+        <div class="done-screen">
+          <div class="done-icon blue">🌐</div>
+          <div class="done-title">Opening on desktop</div>
+          <div class="done-desc">The full 7-step response workflow has been opened in ConsentShield on your desktop. The request is marked as <strong>in progress</strong> and your work here is saved.</div>
+          <div style="width:100%;background:var(--green-l);border-radius:12px;padding:14px;text-align:left;margin-bottom:16px">
+            <div style="font-size:13px;font-weight:600;color:var(--green);margin-bottom:6px">✓ Actions recorded on mobile</div>
+            <div style="font-size:13px;color:var(--green)">Identity status: Verified<br>Retention lock flagged: Payment records<br>Assignee confirmed: Sudhindra K.</div>
+          </div>
+          <div class="done-link">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>
+            app.consentshield.in/rights/request-42
+          </div>
+        </div>
+      </div>
+      <div class="home-bar"><div class="home-bar-line"></div></div>
+    </div>`
+},
+
+// FLOW 2: BREACH ─────────────────────────────────────────────────────────────
+
+breachHome: {
+  name: 'Dashboard with breach tab',
+  note: 'The breach tab is always one tap from home. No hunting through menus in an emergency.',
+  html: `
+    <div class="phone-screen">
+      ${dynIsland()}
+      ${statusBar()}
+      <div style="padding:4px 20px 8px;font-size:34px;font-weight:700;background:white">Breach Alert</div>
+      <div class="screen-content">
+        <div style="height:12px"></div>
+
+        <div class="breach-timer" style="background:var(--red-l);border-radius:12px;margin:0 16px">
+          <div style="font-size:13px;color:var(--red);font-weight:500;margin-bottom:6px">DPB notification window</div>
+          <div style="font-size:42px;font-weight:700;color:var(--red)">72 hrs</div>
+          <div style="font-size:13px;color:var(--red);margin-top:4px">From breach discovery to mandatory reporting</div>
+        </div>
+
+        <div class="section-hd" style="margin-top:12px">If a data breach has occurred</div>
+        <div class="breach-steps">
+          <div class="breach-step">
+            <div class="bs-num">1</div>
+            <div><div class="bs-text">Tap "Report a breach" below</div><div class="bs-sub">Starts the 72-hour clock and notifies your compliance contacts</div></div>
+          </div>
+          <div class="breach-step">
+            <div class="bs-num">2</div>
+            <div><div class="bs-text">Describe the incident on web</div><div class="bs-sub">ConsentShield opens the full breach form on desktop via deep link</div></div>
+          </div>
+          <div class="breach-step">
+            <div class="bs-num">3</div>
+            <div><div class="bs-text">Submit to Data Protection Board</div><div class="bs-sub">ConsentShield generates the DPB notification package and files it</div></div>
+          </div>
+        </div>
+
+        <div class="action-stack" style="margin-top:8px">
+          <button class="action-btn action-danger" style="font-size:19px;padding:20px" onclick="this.closest('.screen-content').nextElementSibling && alert('')">Report a breach now</button>
+          <button class="action-btn action-ghost">No breach — I was checking the process</button>
+        </div>
+
+        <div style="height:8px"></div>
+      </div>
+      ${tabBar('breach')}
+    </div>`
+},
+
+breachConfirm: {
+  name: 'Confirmation sheet',
+  note: 'A deliberate friction step. Reporting a breach is irreversible — the sheet forces a conscious tap before the clock starts.',
+  html: `
+    <div class="phone-screen" style="position:relative">
+      ${dynIsland()}
+      ${statusBar()}
+      <div style="padding:4px 20px 8px;font-size:34px;font-weight:700;background:white">Breach Alert</div>
+      <div class="screen-content" style="filter:brightness(.5)">
+        <div style="height:12px"></div>
+        <div class="breach-timer" style="background:var(--red-l);border-radius:12px;margin:0 16px">
+          <div style="font-size:42px;font-weight:700;color:var(--red)">72 hrs</div>
+        </div>
+        <div class="section-hd" style="margin-top:12px">If a data breach has occurred</div>
+        <div class="breach-steps">
+          <div class="breach-step"><div class="bs-num">1</div><div><div class="bs-text">Tap "Report a breach" below</div></div></div>
+          <div class="breach-step"><div class="bs-num">2</div><div><div class="bs-text">Describe the incident on web</div></div></div>
+        </div>
+      </div>
+      <div class="breach-confirm-overlay">
+        <div class="breach-sheet">
+          <div style="width:36px;height:5px;background:var(--border);border-radius:3px;margin:0 auto 16px"></div>
+          <div class="breach-sheet-title">Confirm breach report</div>
+          <div class="breach-sheet-desc">This will start the 72-hour DPB notification window and alert your compliance contacts immediately. This action cannot be undone.</div>
+          <button class="sheet-btn sheet-btn-red">Yes — report this breach</button>
+          <button class="sheet-btn sheet-btn-cancel">Cancel</button>
+        </div>
+      </div>
+      <div class="home-bar" style="position:absolute;bottom:0;left:0;right:0;z-index:60;background:white"><div class="home-bar-line"></div></div>
+    </div>`
+},
+
+breachDone: {
+  name: 'Breach reported',
+  note: 'Clock confirmed started. Deep link opens the full incident form on the web app. Mobile\'s job is done.',
+  html: `
+    <div class="phone-screen">
+      ${dynIsland()}
+      ${statusBar()}
+      <div class="screen-content white-bg">
+        <div class="done-screen">
+          <div class="done-icon" style="background:var(--red-l);font-size:36px">🚨</div>
+          <div class="done-title" style="color:var(--red)">Breach reported</div>
+          <div class="done-desc">72-hour DPB notification window started at <strong>7:31 PM, Friday 11 April 2026.</strong> Your compliance contacts have been notified by email and SMS.</div>
+          <div style="width:100%;background:var(--amber-l);border-radius:12px;padding:14px;text-align:left;margin-bottom:16px">
+            <div style="font-size:13px;font-weight:600;color:var(--amber);margin-bottom:4px">⏱ Required by Sunday 13 April, 7:31 PM</div>
+            <div style="font-size:13px;color:var(--amber)">Complete the breach incident form on web and submit to the DPB within the notification window.</div>
+          </div>
+          <div class="done-link">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>
+            Complete incident form on web →
+          </div>
+        </div>
+      </div>
+      <div class="home-bar"><div class="home-bar-line"></div></div>
+    </div>`
+},
+
+// FLOW 3: CLINIC ──────────────────────────────────────────────────────────────
+
+clinicHome: {
+  name: 'Clinic home',
+  note: 'Clinic-specific app mode. All UI oriented around patient interaction, not compliance management. Doctor sees this at the front desk.',
+  html: `
+    <div class="phone-screen">
+      ${dynIsland()}
+      ${statusBar()}
+      <div class="clinic-header">
+        <div>
+          <div class="clinic-title">Patient Intake</div>
+          <div class="clinic-sub">Dr. Sunitha Rao · Morning clinic</div>
+        </div>
+        <div style="margin-left:auto;background:rgba(255,255,255,.15);border-radius:8px;padding:6px 10px;font-size:12px;color:white;font-weight:500">12 patients today</div>
+      </div>
+      <div class="screen-content">
+        <div style="height:12px"></div>
+
+        <div style="background:white;border-radius:12px;margin:0 16px;padding:16px">
+          <div style="font-size:13px;color:var(--text2);margin-bottom:10px;font-weight:500">NEXT PATIENT</div>
+          <div style="display:flex;align-items:center;gap:12px">
+            <div class="patient-avatar">KR</div>
+            <div>
+              <div style="font-size:17px;font-weight:600;color:var(--ios-label)">Kiran Rao</div>
+              <div style="font-size:13px;color:var(--teal);font-family:var(--mono)">Not registered on ABHA</div>
+              <div style="font-size:13px;color:var(--ios-secondary)">Follow-up · 10:15 AM</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="section-hd" style="margin-top:8px">Quick actions</div>
+        <div class="card-list">
+          <div class="list-row">
+            <div class="list-icon" style="background:var(--teal-l)">📷</div>
+            <div class="list-content"><div class="list-title">Scan ABHA QR code</div><div class="list-sub">Pull patient records with consent</div></div>
+            <div class="list-chevron"><svg viewBox="0 0 7 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 1l5 5-5 5"/></svg></div>
+          </div>
+          <div class="list-row">
+            <div class="list-icon" style="background:#EFF6FF">🔍</div>
+            <div class="list-content"><div class="list-title">Search by ABHA ID</div><div class="list-sub">Enter ID manually</div></div>
+            <div class="list-chevron"><svg viewBox="0 0 7 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 1l5 5-5 5"/></svg></div>
+          </div>
+          <div class="list-row">
+            <div class="list-icon" style="background:var(--green-l)">✅</div>
+            <div class="list-content"><div class="list-title">New patient — DPDP consent only</div><div class="list-sub">No ABHA ID required</div></div>
+            <div class="list-chevron"><svg viewBox="0 0 7 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 1l5 5-5 5"/></svg></div>
+          </div>
+        </div>
+
+        <div class="section-hd" style="margin-top:8px">Today's patients</div>
+        <div class="card-list">
+          <div class="list-row"><div class="patient-avatar" style="width:36px;height:36px;font-size:13px">PS</div><div class="list-content"><div class="list-title">Priya Shankar</div><div class="list-sub">9:00 AM · Consent collected ✓</div></div><span style="font-size:12px;background:var(--green-l);color:var(--green);padding:2px 7px;border-radius:4px;font-weight:500">Done</span></div>
+          <div class="list-row"><div class="patient-avatar" style="width:36px;height:36px;font-size:13px;background:linear-gradient(135deg,var(--amber),var(--amber-m))">MR</div><div class="list-content"><div class="list-title">Mohan Rao</div><div class="list-sub">9:30 AM · Pending</div></div><span style="font-size:12px;background:var(--amber-l);color:var(--amber);padding:2px 7px;border-radius:4px;font-weight:500">Next</span></div>
+        </div>
+        <div style="height:20px"></div>
+      </div>
+      <div class="home-bar"><div class="home-bar-line"></div></div>
+    </div>`
+},
+
+abhaScanner: {
+  name: 'ABHA QR scanner',
+  note: 'Full-screen native camera view. The scanning frame and animation communicate exactly where to point the phone. This requires native camera API — not possible reliably via PWA on iOS.',
+  html: `
+    <div class="phone-screen">
+      ${dynIsland()}
+      <div class="status-bar dark" style="position:absolute;top:0;left:0;right:0;z-index:10;background:transparent">
+        <div class="sb-time" style="color:white;font-size:15px;font-weight:600">9:41</div>
+        <div class="sb-icons" style="color:white">
+          <svg viewBox="0 0 25 12" fill="white" width="22" height="12"><rect x="0" y="1" width="22" height="10" rx="3.5" stroke="white" stroke-width="1.2" fill="none" opacity=".35"/><rect x="1.5" y="2.5" width="16" height="7" rx="2" fill="white"/></svg>
+        </div>
+      </div>
+      <div class="nav-bar" style="position:absolute;top:54px;left:0;right:0;z-index:10;background:rgba(0,0,0,.3);border-bottom:none;backdrop-filter:blur(10px)">
+        <div class="nb-back" style="color:white"><svg viewBox="0 0 11 18" fill="none" stroke="white" stroke-width="2"><path d="M10 1L2 9l8 8"/></svg> Back</div>
+        <div class="nb-title" style="color:white">Scan ABHA QR</div>
+        <div style="margin-left:auto;color:white;font-size:15px">💡</div>
+      </div>
+      <div class="screen-content dark-bg" style="display:flex;flex-direction:column;align-items:center;padding-top:110px">
+        <div class="scanner-frame">
+          <div class="scanner-corner sc-tl"></div>
+          <div class="scanner-corner sc-tr"></div>
+          <div class="scanner-corner sc-bl"></div>
+          <div class="scanner-corner sc-br"></div>
+          <div class="scanner-line"></div>
+          <div style="position:absolute;inset:0;background:rgba(255,255,255,.03);border-radius:4px"></div>
+        </div>
+        <div class="scanner-hint">Point at the patient's ABHA QR code.<br>Records will be fetched with patient consent.</div>
+        <div style="margin-top:20px;display:flex;gap:16px">
+          <div style="display:flex;flex-direction:column;align-items:center;gap:5px;cursor:pointer">
+            <div style="width:52px;height:52px;background:rgba(255,255,255,.15);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:22px">💡</div>
+            <div style="font-size:11px;color:rgba(255,255,255,.6)">Torch</div>
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:5px;cursor:pointer">
+            <div style="width:52px;height:52px;background:rgba(255,255,255,.15);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:22px">⌨️</div>
+            <div style="font-size:11px;color:rgba(255,255,255,.6)">Manual</div>
+          </div>
+        </div>
+      </div>
+      <div class="scanner-actions">
+        <button class="scan-btn scan-secondary">Enter ABHA ID manually</button>
+      </div>
+    </div>`
+},
+
+patientConsent: {
+  name: 'Patient consent request',
+  note: 'Patient identified from ABHA scan. Doctor selects which data to access. Patient approves on their own phone (ABHA app). Both ABDM consent artefact and DPDP consent are captured in a single interaction.',
+  html: `
+    <div class="phone-screen">
+      ${dynIsland()}
+      ${statusBar()}
+      <div class="nav-bar">
+        <div class="nb-back"><svg viewBox="0 0 11 18" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 1L2 9l8 8"/></svg> Scanner</div>
+        <div class="nb-title">Patient found</div>
+      </div>
+      <div class="screen-content">
+        <div style="height:10px"></div>
+
+        <div class="patient-found">
+          <div class="patient-avatar">MS</div>
+          <div>
+            <div class="patient-name">Mohan Subramaniam</div>
+            <div class="patient-abha">ABHA: 12-3456-7890-1234</div>
+            <div class="patient-age">Male · 54 yrs · Last visit: Jan 2026</div>
+          </div>
+          <span style="margin-left:auto;background:var(--green-l);color:var(--green);font-size:11px;font-weight:600;padding:3px 8px;border-radius:5px">Verified</span>
+        </div>
+
+        <div class="section-hd" style="margin-top:10px">Request consent for</div>
+        <div class="consent-request">
+          <div class="consent-hd">
+            <div class="consent-hd-title">ABDM + DPDP consent request</div>
+            <div class="consent-hd-sub">Patient must approve on their ABHA app</div>
+          </div>
+          <div class="consent-purpose">
+            <div><div class="cp-name">Previous prescriptions</div><div class="cp-desc">Last 12 months</div></div>
+            <div class="cp-toggle"></div>
+          </div>
+          <div class="consent-purpose">
+            <div><div class="cp-name">Lab reports & diagnostics</div><div class="cp-desc">Available from registered labs</div></div>
+            <div class="cp-toggle"></div>
+          </div>
+          <div class="consent-purpose">
+            <div><div class="cp-name">Discharge summaries</div><div class="cp-desc">Hospital records on ABDM</div></div>
+            <div class="cp-toggle off"></div>
+          </div>
+          <div class="consent-purpose">
+            <div><div class="cp-name">Vaccination records</div><div class="cp-desc">CoWIN and ABDM registered</div></div>
+            <div class="cp-toggle"></div>
+          </div>
+        </div>
+
+        <div class="awaiting-patient">
+          <div class="awaiting-icon">📱</div>
+          <div class="awaiting-text">Awaiting patient approval</div>
+          <div class="awaiting-sub">Consent request sent to<br>Mohan's ABHA app</div>
+        </div>
+
+        <div class="action-stack">
+          <button class="action-btn action-secondary">Cancel consent request</button>
+        </div>
+        <div style="height:8px"></div>
+      </div>
+      <div class="home-bar"><div class="home-bar-line"></div></div>
+    </div>`
+},
+
+consentDone: {
+  name: 'Consent confirmed',
+  note: 'Patient approved on their phone. Records pulled. Both ABDM consent artefact and DPDP consent logged automatically. No manual compliance steps for the doctor.',
+  html: `
+    <div class="phone-screen">
+      ${dynIsland()}
+      ${statusBar()}
+      <div class="nav-bar">
+        <div class="nb-back"><svg viewBox="0 0 11 18" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 1L2 9l8 8"/></svg> Patient</div>
+        <div class="nb-title">Mohan Subramaniam</div>
+      </div>
+      <div class="screen-content">
+        <div style="background:var(--green-l);padding:20px 20px 16px;display:flex;gap:14px;align-items:center">
+          <div style="font-size:42px">✅</div>
+          <div>
+            <div style="font-size:17px;font-weight:700;color:var(--green)">Consent approved</div>
+            <div style="font-size:13px;color:var(--green);margin-top:3px">Records fetched · 9:43 AM</div>
+            <div style="font-size:12px;color:var(--text2);margin-top:4px">ABDM artefact + DPDP consent<br>logged automatically</div>
+          </div>
+        </div>
+
+        <div class="section-hd">Available records</div>
+        <div class="card-list">
+          <div class="list-row">
+            <div class="list-icon" style="background:#EDE9FE;font-size:18px">💊</div>
+            <div class="list-content"><div class="list-title">Prescriptions</div><div class="list-sub">8 records · Dr. Ravi Varma, Apollo</div></div>
+            <div class="list-chevron"><svg viewBox="0 0 7 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 1l5 5-5 5"/></svg></div>
+          </div>
+          <div class="list-row">
+            <div class="list-icon" style="background:var(--teal-l);font-size:18px">🔬</div>
+            <div class="list-content"><div class="list-title">Lab reports</div><div class="list-sub">5 reports · Thyrocare, Lal Path</div></div>
+            <div class="list-chevron"><svg viewBox="0 0 7 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 1l5 5-5 5"/></svg></div>
+          </div>
+          <div class="list-row">
+            <div class="list-icon" style="background:#FEF3C7;font-size:18px">💉</div>
+            <div class="list-content"><div class="list-title">Vaccinations</div><div class="list-sub">CoWIN · COVID, Flu, Hep B</div></div>
+            <div class="list-chevron"><svg viewBox="0 0 7 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 1l5 5-5 5"/></svg></div>
+          </div>
+        </div>
+
+        <div class="section-hd" style="margin-top:4px">AI flags</div>
+        <div style="background:var(--amber-l);border-radius:12px;margin:0 16px;padding:14px;display:flex;gap:10px;align-items:flex-start">
+          <div style="font-size:20px;flex-shrink:0">⚠️</div>
+          <div>
+            <div style="font-size:14px;font-weight:600;color:var(--amber)">Potential drug interaction</div>
+            <div style="font-size:13px;color:var(--text2);margin-top:3px;line-height:1.4">Metformin (Jan prescription) + Amlodipine (current) — monitor for hypoglycaemia.</div>
+          </div>
+        </div>
+
+        <div class="action-stack">
+          <button class="action-btn action-primary">Write prescription</button>
+          <button class="action-btn action-secondary">Done — next patient</button>
+        </div>
+        <div style="height:8px"></div>
+      </div>
+      <div class="home-bar"><div class="home-bar-line"></div></div>
+    </div>`
+},
+}; // end screens
+
+// ── FLOWS ───────────────────────────────────────────────────────────────────
+
+const flows = {
+  monitor: {
+    name: 'Flow 1: Rights request monitor',
+    desc: 'Founder receives a push notification at 7 PM on a Friday. Without opening a laptop, they review the request, see the SLA countdown, take a quick action, and hand off the full workflow to the web app. This is why the mobile app exists.',
+    screens: [
+      { key: 'lock', label: 'Lock screen' },
+      { key: 'dashboard', label: 'Home' },
+      { key: 'inbox', label: 'Requests' },
+      { key: 'detail', label: 'Detail' },
+      { key: 'handoff', label: 'Handoff' },
+    ]
+  },
+  breach: {
+    name: 'Flow 2: Breach trigger',
+    desc: 'A breach is discovered at 7 PM on a Friday. The mobile app provides a one-tap trigger that starts the 72-hour DPB notification clock, alerts compliance contacts, and hands off the full incident form to the web app. This cannot wait until Monday morning.',
+    screens: [
+      { key: 'dashboard', label: 'Home' },
+      { key: 'breachHome', label: 'Breach tab' },
+      { key: 'breachConfirm', label: 'Confirm' },
+      { key: 'breachDone', label: 'Reported' },
+    ]
+  },
+  clinic: {
+    name: 'Flow 3: Clinic patient consent + ABHA scan',
+    desc: 'Doctor sees a patient at 9:43 AM. They scan the patient\'s ABHA QR code, select which records to access, the patient approves on their own phone, and the records arrive — with ABDM consent artefact and DPDP consent both logged automatically. Month 6+ · Gated on ABDM pilot commitments.',
+    screens: [
+      { key: 'clinicHome', label: 'Clinic home' },
+      { key: 'abhaScanner', label: 'QR scan' },
+      { key: 'patientConsent', label: 'Consent request' },
+      { key: 'consentDone', label: 'Records fetched' },
+    ]
+  }
+};
+
+let activeFlow = 'monitor';
+
+function setFlow(id, btn) {
+  activeFlow = id;
+  document.querySelectorAll('.flow-tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  const f = flows[id];
+  document.getElementById('flow-name').textContent = f.name;
+  document.getElementById('flow-desc').textContent = f.desc;
+  renderScreens();
+}
+
+function renderScreens() {
+  const f = flows[activeFlow];
+  const row = document.getElementById('screens-row');
+  row.innerHTML = '';
+
+  f.screens.forEach((item, idx) => {
+    const s = screens[item.key];
+    if (!s) return;
+
+    // Arrow between screens
+    if (idx > 0) {
+      const arrow = document.createElement('div');
+      arrow.className = 'arrow-connector';
+      arrow.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>`;
+      row.appendChild(arrow);
+    }
+
+    const wrap = document.createElement('div');
+    wrap.className = 'screen-wrap';
+    wrap.innerHTML = `
+      <div class="screen-num">Screen ${idx + 1}</div>
+      <div class="phone">
+        <div class="power-btn"></div>
+        ${s.html}
+      </div>
+      <div class="screen-name">${s.name}</div>
+      <div class="screen-note">${s.note}</div>
+    `;
+    row.appendChild(wrap);
+  });
+}
+
+renderScreens();
+</script>
+</body>
+</html>

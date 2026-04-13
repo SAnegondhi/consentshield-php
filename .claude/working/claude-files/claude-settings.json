@@ -1,0 +1,33 @@
+{
+  "permissions": {
+    "allow": [
+      "Read",
+      "Grep",
+      "Glob",
+      "Write",
+      "Edit",
+      "MultiEdit",
+      "Bash(npm run *)",
+      "Bash(npm test *)",
+      "Bash(npm ci)",
+      "Bash(npx supabase *)",
+      "Bash(npx prettier *)",
+      "Bash(npx eslint *)",
+      "Bash(cd worker && wrangler *)",
+      "Bash(curl *)",
+      "Bash(cat *)",
+      "Bash(ls *)",
+      "Bash(grep *)",
+      "Bash(git *)"
+    ],
+    "deny": [
+      "Bash(rm -rf /)",
+      "Bash(*SUPABASE_SERVICE_ROLE_KEY*)",
+      "Bash(*MASTER_ENCRYPTION_KEY*)",
+      "Bash(*SECRET*print*)",
+      "Bash(*SECRET*echo*)",
+      "Bash(*SECRET*log*)"
+    ]
+  },
+  "autoMemoryEnabled": true
+}
