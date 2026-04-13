@@ -1,6 +1,6 @@
 import type { Env } from './index'
 import { sha256, verifyHMAC, isTimestampValid } from './hmac'
-import { getPropertyConfig, validateOrigin, rejectOrigin } from './origin'
+import { getPropertyConfig, getPreviousSigningSecret, validateOrigin, rejectOrigin } from './origin'
 
 interface ObservationPayload {
   org_id: string
@@ -59,13 +59,27 @@ export async function handleObservation(
     return new Response('Timestamp expired (±5 minutes)', { status: 403, headers: CORS_HEADERS })
   }
 
-  const hmacValid = await verifyHMAC(
+  let hmacValid = await verifyHMAC(
     body.org_id,
     body.property_id,
     body.timestamp,
     body.signature,
     propConfig.event_signing_secret,
   )
+
+  if (!hmacValid) {
+    const prevSecret = await getPreviousSigningSecret(body.property_id, env)
+    if (prevSecret) {
+      hmacValid = await verifyHMAC(
+        body.org_id,
+        body.property_id,
+        body.timestamp,
+        body.signature,
+        prevSecret,
+      )
+    }
+  }
+
   if (!hmacValid) {
     return new Response('Invalid signature', { status: 403, headers: CORS_HEADERS })
   }

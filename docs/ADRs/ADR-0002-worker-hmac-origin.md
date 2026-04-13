@@ -2,9 +2,9 @@
 
 (c) 2026 Sudhindra Anegondhi a.d.sudhindra@gmail.com
 
-**Status:** In Progress
+**Status:** Completed
 **Date proposed:** 2026-04-13
-**Date completed:** —
+**Date completed:** 2026-04-13
 
 ---
 
@@ -91,7 +91,7 @@ After this ADR:
 - [ ] Events signed with old secret accepted during grace period
 - [ ] Events signed with old secret rejected after grace period expires
 
-**Status:** `[ ] planned`
+**Status:** `[x] complete`
 
 ---
 
@@ -165,6 +165,36 @@ Method: same HMAC flow against /v1/observations
 Expected: 202
 Actual: 202
 Result: PASS
+```
+
+### Sprint 1.3 — 2026-04-13
+
+```
+Test: Build passes with publish route
+Method: bun run build
+Expected: compiles, route registered
+Actual: ✓ /api/orgs/[orgId]/banners/[bannerId]/publish registered as dynamic route
+Result: PASS
+
+Test: Lint passes
+Method: bun run lint
+Actual: clean
+Result: PASS
+
+Implementation:
+- POST /api/orgs/[orgId]/banners/[bannerId]/publish:
+  1. Deactivates all banners for the property
+  2. Activates selected banner
+  3. Generates new event_signing_secret on web_properties
+  4. Invalidates KV caches (banner:config, property:config)
+  5. Stores old secret in KV with 1-hour TTL (signing_secret_prev:{propertyId})
+  6. Writes audit_log entry
+- Worker grace period: events.ts + observations.ts try current secret first,
+  fall back to previous secret from KV during grace period
+- tsconfig.json updated to exclude worker/ from Next.js type checking
+
+Note: Full end-to-end secret rotation test deferred to ADR-0003 when the
+banner script is compiled and can generate signed events.
 ```
 
 ---

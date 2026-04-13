@@ -43,6 +43,13 @@ export async function getPropertyConfig(
   return config
 }
 
+export async function getPreviousSigningSecret(
+  propertyId: string,
+  env: Env,
+): Promise<string | null> {
+  return env.BANNER_KV.get(`signing_secret_prev:${propertyId}`)
+}
+
 export function validateOrigin(request: Request, allowedOrigins: string[]): OriginResult {
   const origin = request.headers.get('Origin') || request.headers.get('Referer')
 
