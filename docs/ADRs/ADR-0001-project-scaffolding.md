@@ -2,9 +2,9 @@
 
 (c) 2026 Sudhindra Anegondhi a.d.sudhindra@gmail.com
 
-**Status:** In Progress
+**Status:** Completed
 **Date proposed:** 2026-04-13
-**Date completed:** —
+**Date completed:** 2026-04-13
 
 ---
 
@@ -188,7 +188,7 @@ This unblocks ADR-0002 (consent banner builder + dashboard) and ADR-0003 (Worker
 - [ ] POST /v1/events with malformed JSON → 400 (not 500)
 - [ ] OPTIONS /v1/events → 200 with CORS headers
 
-**Status:** `[ ] planned`
+**Status:** `[x] complete`
 
 ---
 
@@ -369,9 +369,25 @@ Test breakdown:
     Cannot SELECT rights_requests (no org claim)
 ```
 
-### Sprint 3.1 — [Date]
+### Sprint 3.1 — 2026-04-13
 
-_Pending_
+```
+Test: wrangler dev starts and all routes respond correctly
+Method: curl against localhost:8787
+
+GET  /v1/health                          → 200 {"status":"ok"} — PASS
+GET  /v1/banner.js (no params)           → 400              — PASS
+GET  /v1/banner.js?org=test&prop=test    → 404 (no data)    — PASS
+POST /v1/events (valid payload)          → 202              — PASS
+POST /v1/events (invalid event_type)     → 400              — PASS
+POST /v1/events (malformed JSON)         → 400 (not 500)    — PASS
+OPTIONS /v1/events (CORS preflight)      → 200              — PASS
+GET  /nonexistent                        → 404              — PASS
+
+All 8 tests PASS. Zero npm dependencies in worker/.
+Worker uses SUPABASE_WORKER_KEY (cs_worker role), not service role.
+HMAC verification stubbed with TODO for ADR-0002+.
+```
 
 ---
 

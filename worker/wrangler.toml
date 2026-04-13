@@ -1,0 +1,14 @@
+name = "consentshield-cdn"
+main = "src/index.ts"
+compatibility_date = "2026-04-13"
+
+account_id = "8244c59e71e49eaf6343ae0403d14785"
+
+[[kv_namespaces]]
+binding = "BANNER_KV"
+id = "dafd5bef6fa1455c8e8c05ccffcef20b"
+
+[vars]
+SUPABASE_URL = "https://xlqiakmkdjycfiioslgs.supabase.co"
+
+# SUPABASE_WORKER_KEY is set via `wrangler secret put` — never in this file
