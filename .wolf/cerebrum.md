@@ -20,6 +20,7 @@
 - **Every package must be latest with security patches, exact-pinned.** No `^`, no `~`. Check versions before adding any dependency.
 - **Supabase hosted: `gen_random_bytes()` lives in `extensions` schema.** Must qualify as `extensions.gen_random_bytes()` in all migrations. Same applies to other pgcrypto functions.
 - **Use pooler connection string for psql queries.** Direct DB hostname doesn't resolve from local. Use `postgresql://postgres.xlqiakmkdjycfiioslgs:PASSWORD@aws-1-ap-northeast-1.pooler.supabase.com:5432/postgres`.
+- **Supabase REST API only supports anon/service_role JWT auth, not custom Postgres roles.** The scoped roles (cs_worker, cs_delivery, cs_orchestrator) work with direct Postgres connections only. The Cloudflare Worker must use the service role key for Supabase REST API calls because the anon key triggers RLS with no org_id claim → empty results. The Worker's queries are limited in code (only reads web_properties and consent_banners, writes to consent_events and tracker_observations), even though the key technically has full access. This is a Supabase platform constraint, not a design choice.
 
 ## Do-Not-Repeat
 

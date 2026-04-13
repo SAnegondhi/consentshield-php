@@ -1,5 +1,6 @@
 import type { Env } from './index'
 import { sha256 } from './hmac'
+import { getPropertyConfig, validateOrigin, rejectOrigin } from './origin'
 
 interface ConsentEventPayload {
   org_id: string
@@ -50,10 +51,20 @@ export async function handleConsentEvent(
     })
   }
 
-  // TODO (ADR-0002+): HMAC verification against per-property signing secret
-  // TODO (ADR-0002+): Origin validation against allowed_origins
+  // Step 1: Origin validation
+  const propConfig = await getPropertyConfig(body.property_id, env)
+  if (!propConfig) {
+    return new Response('Unknown property', { status: 404, headers: CORS_HEADERS })
+  }
 
-  // Truncate IP, hash user agent
+  const originResult = validateOrigin(request, propConfig.allowed_origins)
+  if (originResult.status === 'rejected') {
+    return rejectOrigin(originResult.origin)
+  }
+
+  // Step 2: HMAC verification — TODO (ADR-0002 Sprint 1.2)
+
+  // Step 3: Truncate IP, hash user agent
   const ip = request.headers.get('CF-Connecting-IP') ?? ''
   const ipTruncated = ip.split('.').slice(0, 3).join('.') + '.0'
   const userAgent = request.headers.get('User-Agent') ?? ''
@@ -73,7 +84,7 @@ export async function handleConsentEvent(
     user_agent_hash: uaHash,
   }
 
-  // Write to consent_events buffer via cs_worker role
+  // Step 4: Write to consent_events buffer via cs_worker role
   const bufferRes = await fetch(`${env.SUPABASE_URL}/rest/v1/consent_events`, {
     method: 'POST',
     headers: {
@@ -86,10 +97,8 @@ export async function handleConsentEvent(
   })
 
   if (!bufferRes.ok) {
-    // Return 202 regardless — never break the customer's website
     console.error('Buffer write failed:', await bufferRes.text())
   }
 
-  // Return 202 immediately
   return new Response(null, { status: 202, headers: CORS_HEADERS })
 }

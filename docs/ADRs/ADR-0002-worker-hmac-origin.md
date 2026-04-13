@@ -2,7 +2,7 @@
 
 (c) 2026 Sudhindra Anegondhi a.d.sudhindra@gmail.com
 
-**Status:** Proposed
+**Status:** In Progress
 **Date proposed:** 2026-04-13
 **Date completed:** —
 
@@ -56,7 +56,7 @@ After this ADR:
 - [ ] Request with no Origin → 202 but flagged origin_unverified
 - [ ] KV cache hit vs cache miss both work
 
-**Status:** `[ ] planned`
+**Status:** `[x] complete`
 
 #### Sprint 1.2: HMAC Signature Verification
 **Estimated effort:** 3–4 hours
@@ -97,13 +97,41 @@ After this ADR:
 
 ## Architecture Changes
 
-_None — implements existing architecture Section 6.4._
+**Supabase REST API constraint:** The scoped cs_worker Postgres role cannot be used with the Supabase REST API (which only supports anon/service_role JWT auth). The Worker uses the service role key for REST API calls, with access limited in application code to the specific queries cs_worker needs (SELECT web_properties, consent_banners; INSERT consent_events, tracker_observations). This is a Supabase platform constraint documented in cerebrum.md.
 
 ---
 
 ## Test Results
 
-_Pending_
+### Sprint 1.1 — 2026-04-13
+
+```
+Test: No Origin header → 202 (accepted, flagged unverified)
+Method: curl POST /v1/events without Origin header
+Expected: 202
+Actual: 202
+Result: PASS
+
+Test: Matching Origin → 202
+Method: curl POST /v1/events with Origin: https://test.example.com
+Expected: 202
+Actual: 202
+Result: PASS
+
+Test: Wrong Origin → 403
+Method: curl POST /v1/events with Origin: https://evil.example.com
+Expected: 403
+Actual: 403 "Origin https://evil.example.com is not in the allowed origins"
+Result: PASS
+
+Test: Observations wrong Origin → 403
+Method: curl POST /v1/observations with Origin: https://evil.example.com
+Expected: 403
+Actual: 403
+Result: PASS
+```
+
+**Key discovery:** Supabase REST API requires service_role key for the Worker (anon key returns empty due to RLS with no org claim). Scoped Postgres roles only work with direct connections.
 
 ---
 

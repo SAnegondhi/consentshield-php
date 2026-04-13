@@ -1,5 +1,6 @@
 import type { Env } from './index'
 import { sha256 } from './hmac'
+import { getPropertyConfig, validateOrigin, rejectOrigin } from './origin'
 
 interface ObservationPayload {
   org_id: string
@@ -35,8 +36,18 @@ export async function handleObservation(
     )
   }
 
-  // TODO (ADR-0002+): HMAC verification against per-property signing secret
-  // TODO (ADR-0002+): Origin validation against allowed_origins
+  // Step 1: Origin validation
+  const propConfig = await getPropertyConfig(body.property_id, env)
+  if (!propConfig) {
+    return new Response('Unknown property', { status: 404, headers: CORS_HEADERS })
+  }
+
+  const originResult = validateOrigin(request, propConfig.allowed_origins)
+  if (originResult.status === 'rejected') {
+    return rejectOrigin(originResult.origin)
+  }
+
+  // Step 2: HMAC verification — TODO (ADR-0002 Sprint 1.2)
 
   const pageUrlHash = body.page_url ? await sha256(body.page_url) : null
 
