@@ -113,7 +113,16 @@ After this ADR:
 
 ## Architecture Changes
 
-_None — implements existing Section 10.1._
+- **2026-04-14 (B-9 remediation):** Sprint 1.2 deliverable "Cleanup job:
+  delete unverified rows > 24 hours old" was originally unimplemented.
+  Closed via migration `20260414000006_buffer_indexes_and_cleanup.sql`,
+  which adds `cleanup_unverified_rights_requests()` owned by
+  `cs_orchestrator` and schedules it daily at 02:15 UTC via pg_cron.
+- **2026-04-14 (via ADR-0009 Sprint 1.1):** OTP verify and rights-request
+  create paths now go through `rpc_rights_request_verify_otp` and
+  `rpc_rights_request_create` (security-definer, owned by
+  `cs_orchestrator`), removing the `SUPABASE_SERVICE_ROLE_KEY` usages in
+  `src/app/api/public/rights-request/*`.
 
 ---
 

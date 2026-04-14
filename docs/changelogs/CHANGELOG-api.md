@@ -20,6 +20,14 @@ API route changes.
 - [x] `bun run build` — PASS
 - [x] `bun run test` — 39 / 39 PASS
 
+## B-5 remediation — 2026-04-14
+
+### Changed
+- `src/app/api/webhooks/razorpay/route.ts` — unresolved `org_id` now returns
+  **422** (with a machine-readable error body) instead of a silent 200. The
+  lookup fallback to `razorpay_subscription_id` is preserved. Razorpay will
+  retry on non-2xx, buying time for investigation instead of losing the event.
+
 ## ADR-0009 Sprint 1.1 — 2026-04-14
 
 **ADR:** ADR-0009 — Scoped-Role Enforcement in REST Paths

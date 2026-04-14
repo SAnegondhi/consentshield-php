@@ -21,6 +21,29 @@ Database migrations, RLS policies, roles.
 - [ ] Live `supabase db push` — pending user approval (destructive on
   production secrets).
 
+## B-5 / B-7 / B-8 / B-9 remediation — 2026-04-14
+
+Closes four blocking findings from the 2026-04-14 review.
+
+### Added
+- `20260414000006_buffer_indexes_and_cleanup.sql`:
+  - **B-7:** partial indexes `idx_delivery_buffer_delivered_stale`,
+    `idx_rr_events_delivered_stale`,
+    `idx_deletion_receipts_delivered_stale`, and a full undelivered +
+    delivered-stale pair for `withdrawal_verifications`,
+    `security_scans`, and `consent_probe_runs` — the sweep and stuck
+    detection functions previously full-scanned these six tables.
+  - **B-9:** `cleanup_unverified_rights_requests()` security definer
+    function owned by `cs_orchestrator`, scheduled daily at 02:15 UTC
+    via pg_cron. Deletes rights_requests where `email_verified=false`
+    and `created_at < now() - 24h`.
+  - **B-8:** revoked `execute on encrypt_secret/decrypt_secret` from
+    `service_role`, granted execute on both to `cs_orchestrator` and
+    granted execute on `decrypt_secret` to `cs_delivery` (for dispatch).
+
+### Tested
+- [ ] Live `supabase db push` — pending user approval.
+
 ## ADR-0009 Sprint 1.1 — 2026-04-14
 
 **ADR:** ADR-0009 — Scoped-Role Enforcement in REST Paths

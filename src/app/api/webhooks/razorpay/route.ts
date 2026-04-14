@@ -46,26 +46,24 @@ export async function POST(request: Request) {
     return NextResponse.json({ received: true, handled: false })
   }
 
-  // Find which cs plan this corresponds to
   const csPlanFromNotes = subscription.notes?.cs_plan as PlanId | undefined
   const csPlan = csPlanFromNotes && PLANS[csPlanFromNotes] ? csPlanFromNotes : null
 
   const orgIdFromNotes = subscription.notes?.org_id
-  if (!orgIdFromNotes) {
-    // Fall back to lookup by razorpay_subscription_id
-    const { data: org } = await admin
-      .from('organisations')
-      .select('id')
-      .eq('razorpay_subscription_id', subscription.id)
-      .single()
-
-    if (!org) {
-      return NextResponse.json({ received: true, error: 'Org not found' })
-    }
-  }
-
   const orgId = orgIdFromNotes || (await lookupOrgBySubscription(admin, subscription.id))
-  if (!orgId) return NextResponse.json({ received: true, error: 'Org not found' })
+  if (!orgId) {
+    // B-5: hard-fail instead of silent ack. A signed event referencing a
+    // subscription we cannot resolve is either misrouted or a bug — Razorpay
+    // will retry on non-2xx, giving us time to investigate.
+    console.error('[razorpay] unresolved org for subscription', subscription.id)
+    return NextResponse.json(
+      {
+        error: 'Cannot resolve org_id from subscription notes or razorpay_subscription_id',
+        subscription_id: subscription.id,
+      },
+      { status: 422 },
+    )
+  }
 
   switch (event.event) {
     case 'subscription.activated':
