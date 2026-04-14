@@ -2,7 +2,7 @@
 
 (c) 2026 Sudhindra Anegondhi a.d.sudhindra@gmail.com
 
-**Status:** Proposed
+**Status:** In Progress
 **Date proposed:** 2026-04-14
 **Date completed:** —
 
@@ -54,7 +54,7 @@ After this ADR:
 - [ ] Rate limit: 6 submissions from same IP/hour → 6th gets 429
 - [ ] Compliance contact does NOT receive notification yet
 
-**Status:** `[ ] planned`
+**Status:** `[x] complete`
 
 #### Sprint 1.2: OTP Verification + Compliance Notification
 **Estimated effort:** 2–3 hours

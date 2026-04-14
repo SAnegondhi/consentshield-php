@@ -90,6 +90,12 @@ export function nowIso(): string {
   return new Date().toISOString()
 }
 
+export function daysBetween(a: string | Date, b: string | Date = new Date()): number {
+  const aMs = typeof a === 'string' ? new Date(a).getTime() : a.getTime()
+  const bMs = typeof b === 'string' ? new Date(b).getTime() : b.getTime()
+  return Math.ceil((aMs - bMs) / (1000 * 60 * 60 * 24))
+}
+
 // DPDP enforcement: 13 May 2027
 const ENFORCEMENT_DATE = new Date('2027-05-13T00:00:00+05:30')
 

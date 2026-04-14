@@ -11,6 +11,7 @@ const navItems = [
   { href: '/dashboard/banners', label: 'Banners' },
   { href: '/dashboard/inventory', label: 'Data Inventory' },
   { href: '/dashboard/rights', label: 'Rights Requests' },
+  { href: '/dashboard/billing', label: 'Billing' },
 ]
 
 export function DashboardNav() {

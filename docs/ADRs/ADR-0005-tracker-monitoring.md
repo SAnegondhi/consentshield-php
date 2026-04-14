@@ -2,7 +2,7 @@
 
 (c) 2026 Sudhindra Anegondhi a.d.sudhindra@gmail.com
 
-**Status:** Proposed
+**Status:** In Progress
 **Date proposed:** 2026-04-14
 **Date completed:** —
 
@@ -55,7 +55,7 @@ After this ADR:
 - [ ] All 30+ signatures inserted with correct category
 - [ ] Reference data RLS lets authenticated users read
 
-**Status:** `[ ] planned`
+**Status:** `[x] complete`
 
 #### Sprint 1.2: Banner Script v2 with Monitoring
 **Estimated effort:** 5–6 hours

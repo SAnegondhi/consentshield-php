@@ -2,7 +2,7 @@
 
 (c) 2026 Sudhindra Anegondhi a.d.sudhindra@gmail.com
 
-**Status:** Proposed
+**Status:** In Progress
 **Date proposed:** 2026-04-14
 **Date completed:** —
 
@@ -55,7 +55,7 @@ After this ADR:
 - [ ] Shows correct usage numbers (property count, etc.)
 - [ ] Trial expiry warning appears < 7 days left
 
-**Status:** `[ ] planned`
+**Status:** `[x] complete`
 
 #### Sprint 1.2: Razorpay Checkout Flow
 **Estimated effort:** 4–5 hours
