@@ -72,7 +72,7 @@ After this ADR:
 - [ ] Expired OTP (>15 min) → rejected
 - [ ] Unverified row after 24h → auto-deleted
 
-**Status:** `[ ] planned`
+**Status:** `[x] complete`
 
 ### Phase 2: Workflow
 

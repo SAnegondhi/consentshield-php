@@ -1,5 +1,6 @@
 import type { Env } from './index'
 import { getPropertyConfig } from './origin'
+import { getTrackerSignatures, compactSignatures } from './signatures'
 
 interface Purpose {
   id: string
@@ -57,6 +58,13 @@ export async function handleBannerScript(request: Request, env: Env): Promise<Re
   })
 
   const cdnOrigin = new URL(request.url).origin
+
+  // Fetch signatures only if monitoring is enabled for this banner
+  const monitoringEnabled = config.monitoring_enabled !== false
+  const compactSigs = monitoringEnabled
+    ? compactSignatures(await getTrackerSignatures(env))
+    : []
+
   const script = compileBannerScript({
     cdnOrigin,
     orgId,
@@ -68,7 +76,8 @@ export async function handleBannerScript(request: Request, env: Env): Promise<Re
     bodyCopy: config.body_copy,
     position: config.position,
     purposes: config.purposes ?? [],
-    monitoringEnabled: config.monitoring_enabled !== false,
+    monitoringEnabled,
+    signatures: compactSigs,
   })
 
   return new Response(script, {
@@ -107,6 +116,13 @@ async function getBannerConfig(propertyId: string, env: Env): Promise<BannerConf
   return config
 }
 
+interface CompiledSig {
+  s: string // slug
+  c: string // category shortform (a/m/p/f)
+  f: number // is_functional (1/0)
+  p: string[] // patterns
+}
+
 interface CompileArgs {
   cdnOrigin: string
   orgId: string
@@ -119,6 +135,7 @@ interface CompileArgs {
   position: string
   purposes: Purpose[]
   monitoringEnabled: boolean
+  signatures: CompiledSig[]
 }
 
 function compileBannerScript(args: CompileArgs): string {
@@ -136,6 +153,7 @@ function compileBannerScript(args: CompileArgs): string {
     position: args.position,
     purposes: args.purposes,
     monitoring: args.monitoringEnabled,
+    sigs: args.signatures,
   })
 
   return `(function(){
@@ -293,6 +311,106 @@ function finalise(eventType,accepted,rejected){
   localStorage.setItem(STORAGE_KEY,JSON.stringify({type:eventType,accepted:accepted,rejected:rejected,ts:Date.now()}));
   if(ui&&ui.root&&ui.root.parentNode)ui.root.parentNode.removeChild(ui.root);
   window.dispatchEvent(new CustomEvent("consentshield:consent",{detail:{event_type:eventType,accepted:accepted,rejected:rejected}}));
+  if(CFG.monitoring&&CFG.sigs&&CFG.sigs.length)startMonitoring(accepted,rejected);
+}
+
+// Category shortform → purpose id convention.
+// Matches the three default purposes seeded by CreateBannerForm.
+var CATEGORY_TO_PURPOSE={a:"analytics",m:"marketing",p:"personalisation",f:null};
+
+function classifyUrl(url){
+  for(var i=0;i<CFG.sigs.length;i++){
+    var sig=CFG.sigs[i];
+    for(var j=0;j<sig.p.length;j++){
+      if(url.indexOf(sig.p[j])!==-1)return sig;
+    }
+  }
+  return null;
+}
+
+function startMonitoring(accepted,rejected){
+  var detected={};
+  var violations=[];
+  var consentState={};
+  CFG.purposes.forEach(function(p){consentState[p.id]=accepted.indexOf(p.id)!==-1});
+
+  function processUrl(url){
+    if(!url||typeof url!=="string")return;
+    var sig=classifyUrl(url);
+    if(!sig)return;
+    if(detected[sig.s])return; // dedupe
+    detected[sig.s]={slug:sig.s,category:sig.c,functional:!!sig.f,url:url};
+    if(sig.f)return; // functional = never a violation
+    var requiredPurpose=CATEGORY_TO_PURPOSE[sig.c];
+    if(requiredPurpose&&!consentState[requiredPurpose]){
+      violations.push({slug:sig.s,category:sig.c,required_purpose:requiredPurpose,url:url});
+    }
+  }
+
+  // Scan existing scripts at monitoring start
+  var scripts=document.getElementsByTagName("script");
+  for(var i=0;i<scripts.length;i++)processUrl(scripts[i].src);
+
+  // MutationObserver for new <script> tags added to DOM
+  var mo;
+  try{
+    mo=new MutationObserver(function(muts){
+      muts.forEach(function(m){
+        m.addedNodes&&Array.prototype.forEach.call(m.addedNodes,function(n){
+          if(n.tagName==="SCRIPT"&&n.src)processUrl(n.src);
+          if(n.querySelectorAll){
+            var ss=n.querySelectorAll("script[src]");
+            for(var k=0;k<ss.length;k++)processUrl(ss[k].src);
+          }
+        });
+      });
+    });
+    mo.observe(document.documentElement,{childList:true,subtree:true});
+  }catch(e){}
+
+  // PerformanceObserver for resource timing entries
+  var po;
+  try{
+    po=new PerformanceObserver(function(list){
+      list.getEntries().forEach(function(e){processUrl(e.name)});
+    });
+    po.observe({type:"resource",buffered:true});
+  }catch(e){}
+
+  // Initial window: 5s
+  setTimeout(function(){postObservation(detected,violations,consentState)},5000);
+
+  // Extended window: 60s final report and stop observing
+  setTimeout(function(){
+    if(mo)try{mo.disconnect()}catch(e){}
+    if(po)try{po.disconnect()}catch(e){}
+    postObservation(detected,violations,consentState);
+  },60000);
+}
+
+async function postObservation(detected,violations,consentState){
+  try{
+    var ts=String(Date.now());
+    var sig=await hmac(CFG.org+CFG.prop+ts,CFG.secret);
+    var trackersList=[];
+    for(var k in detected)if(detected.hasOwnProperty(k))trackersList.push(detected[k]);
+    var payload={
+      org_id:CFG.org,
+      property_id:CFG.prop,
+      consent_state:consentState,
+      trackers_detected:trackersList,
+      violations:violations,
+      page_url:location.href,
+      signature:sig,
+      timestamp:ts
+    };
+    await fetch(CFG.cdn+"/v1/observations",{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify(payload),
+      keepalive:true
+    });
+  }catch(e){/* never break the page */}
 }
 
 if(document.readyState==="loading"){

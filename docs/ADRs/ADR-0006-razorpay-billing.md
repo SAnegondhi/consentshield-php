@@ -71,7 +71,7 @@ After this ADR:
 - [ ] Payment success → webhook fires (verified in Sprint 1.3)
 - [ ] Checkout failure → org stays on trial
 
-**Status:** `[ ] planned`
+**Status:** `[x] complete`
 
 #### Sprint 1.3: Webhook Handler + Plan Gating
 **Estimated effort:** 4–5 hours

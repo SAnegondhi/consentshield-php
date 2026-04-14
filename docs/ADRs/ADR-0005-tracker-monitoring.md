@@ -76,7 +76,7 @@ After this ADR:
 - [ ] Test page with Meta Pixel before consent → violation flagged
 - [ ] Consent withdrawal → trackers that were active flagged if still firing 60s later
 
-**Status:** `[ ] planned`
+**Status:** `[x] complete`
 
 #### Sprint 1.3: Dashboard Enforcement Monitor
 **Estimated effort:** 3–4 hours

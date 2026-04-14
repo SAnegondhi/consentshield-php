@@ -2,6 +2,7 @@ import { createServerClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { PLANS, PLAN_ORDER, getPlan, formatInr, type PlanId } from '@/lib/billing/plans'
 import { daysBetween } from '@/lib/compliance/score'
+import { UpgradeButton } from './upgrade-button'
 
 export default async function BillingPage() {
   const supabase = await createServerClient()
@@ -97,6 +98,7 @@ export default async function BillingPage() {
             return (
               <PlanCard
                 key={plan.id}
+                orgId={membership.org_id}
                 plan={plan}
                 isCurrent={isCurrent}
                 isDowngrade={isDowngrade}
@@ -114,10 +116,12 @@ export default async function BillingPage() {
 }
 
 function PlanCard({
+  orgId,
   plan,
   isCurrent,
   isDowngrade,
 }: {
+  orgId: string
   plan: (typeof PLANS)[PlanId]
   isCurrent: boolean
   isDowngrade: boolean
@@ -173,12 +177,7 @@ function PlanCard({
             Contact support
           </button>
         ) : (
-          <a
-            href={`/api/orgs/placeholder/billing/checkout?plan=${plan.id}`}
-            className="block w-full rounded bg-black px-3 py-2 text-center text-xs font-medium text-white hover:bg-gray-800"
-          >
-            Upgrade
-          </a>
+          <UpgradeButton orgId={orgId} planId={plan.id} planName={plan.name} />
         )}
       </div>
     </div>
