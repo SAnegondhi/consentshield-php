@@ -1,46 +1,34 @@
-import { createClient } from '@supabase/supabase-js'
+import { createServerClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 
 export async function POST(request: Request) {
-  const supabase = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!,
-  )
+  const supabase = await createServerClient()
 
-  const { userId, orgName, industry } = await request.json()
-
-  if (!userId || !orgName) {
-    return NextResponse.json({ error: 'userId and orgName are required' }, { status: 400 })
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+  if (!user) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
-  // Create org
-  const { data: org, error: orgError } = await supabase
-    .from('organisations')
-    .insert({ name: orgName, industry })
-    .select()
-    .single()
-
-  if (orgError) {
-    return NextResponse.json({ error: orgError.message }, { status: 500 })
+  const { orgName, industry } = await request.json()
+  if (!orgName) {
+    return NextResponse.json({ error: 'orgName is required' }, { status: 400 })
   }
 
-  // Link user as admin
-  const { error: memberError } = await supabase
-    .from('organisation_members')
-    .insert({ org_id: org.id, user_id: userId, role: 'admin' })
-
-  if (memberError) {
-    return NextResponse.json({ error: memberError.message }, { status: 500 })
-  }
-
-  // Write to audit_log
-  await supabase.from('audit_log').insert({
-    org_id: org.id,
-    actor_id: userId,
-    event_type: 'org_created',
-    entity_type: 'organisation',
-    entity_id: org.id,
+  // rpc_signup_bootstrap_org (ADR-0009) creates the org, adds the caller as
+  // admin, and writes audit_log — all atomically as cs_orchestrator under
+  // the caller's JWT (auth.uid() becomes the admin).
+  const { data, error } = await supabase.rpc('rpc_signup_bootstrap_org', {
+    p_org_name: orgName,
+    p_industry: industry ?? null,
   })
 
-  return NextResponse.json({ org })
+  if (error) {
+    if (error.code === '28000') return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    return NextResponse.json({ error: error.message }, { status: 500 })
+  }
+
+  const envelope = data as { ok: boolean; org_id: string; name: string }
+  return NextResponse.json({ org: { id: envelope.org_id, name: envelope.name } })
 }

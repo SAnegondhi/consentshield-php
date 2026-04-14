@@ -1,4 +1,3 @@
-import { createClient } from '@supabase/supabase-js'
 import { createServerClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 
@@ -14,16 +13,6 @@ export async function POST(
   } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-  // Verify user belongs to the org
-  const { data: membership } = await supabase
-    .from('organisation_members')
-    .select('org_id')
-    .eq('user_id', user.id)
-    .eq('org_id', orgId)
-    .single()
-
-  if (!membership) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
-
   const body = await request.json()
   const { event_type, notes, metadata } = body
 
@@ -31,27 +20,23 @@ export async function POST(
     return NextResponse.json({ error: 'event_type is required' }, { status: 400 })
   }
 
-  // rights_request_events is a buffer table — revoked INSERT from authenticated.
-  // Use service role for the insert (as cs_orchestrator would in an Edge Function).
-  const admin = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!,
-  )
+  // rpc_rights_event_append (ADR-0009) verifies auth.uid() membership in p_org_id
+  // and performs the insert as cs_orchestrator.
+  const { data, error } = await supabase.rpc('rpc_rights_event_append', {
+    p_org_id: orgId,
+    p_request_id: id,
+    p_event_type: event_type,
+    p_notes: notes ?? null,
+    p_metadata: metadata ?? null,
+  })
 
-  const { data, error } = await admin
-    .from('rights_request_events')
-    .insert({
-      request_id: id,
-      org_id: orgId,
-      actor_id: user.id,
-      event_type,
-      notes,
-      metadata,
-    })
-    .select('*')
-    .single()
+  if (error) {
+    const code = error.code
+    if (code === '28000') return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    if (code === '42501') return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+    return NextResponse.json({ error: error.message }, { status: 500 })
+  }
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
-
-  return NextResponse.json({ event: data }, { status: 201 })
+  const envelope = data as { ok: boolean; event_id?: string }
+  return NextResponse.json({ event: { id: envelope.event_id } }, { status: 201 })
 }

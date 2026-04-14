@@ -1,4 +1,3 @@
-import { createClient } from '@supabase/supabase-js'
 import { createServerClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 import { encryptForOrg } from '@/lib/encryption/crypto'
@@ -18,7 +17,6 @@ export async function GET(
   } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-  // RLS enforces org isolation
   const { data, error } = await supabase
     .from('integration_connectors')
     .select('id, connector_type, display_name, status, last_health_check_at, last_error, created_at')
@@ -42,22 +40,7 @@ export async function POST(
   } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-  // Verify admin role and plan gating
-  const { data: membership } = await supabase
-    .from('organisation_members')
-    .select('role')
-    .eq('user_id', user.id)
-    .eq('org_id', orgId)
-    .single()
-
-  if (!membership || membership.role !== 'admin') {
-    return NextResponse.json(
-      { error: 'Only org admins can manage connectors' },
-      { status: 403 },
-    )
-  }
-
-  const gate = await checkPlanLimit(orgId, 'deletion_connectors')
+  const gate = await checkPlanLimit(supabase, orgId, 'deletion_connectors')
   if (!gate.allowed) {
     return NextResponse.json(
       {
@@ -106,41 +89,49 @@ export async function POST(
     }
   }
 
-  // Encrypt the shared secret with the per-org derived key
   const configPayload = JSON.stringify({
     webhook_url: body.webhook_url,
     shared_secret: body.shared_secret ?? '',
   })
-  const encryptedConfig = await encryptForOrg(orgId, configPayload)
+  const encryptedConfig = await encryptForOrg(supabase, orgId, configPayload)
 
-  // integration_connectors has RLS allowing org insert; we use the user session client
-  const { data, error } = await supabase
-    .from('integration_connectors')
-    .insert({
-      org_id: orgId,
-      connector_type: body.connector_type,
-      display_name: body.display_name,
-      config: encryptedConfig,
-      status: 'active',
-    })
-    .select('id, connector_type, display_name, status, created_at')
-    .single()
-
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
-
-  // Audit log via service role
-  const admin = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!,
-  )
-  await admin.from('audit_log').insert({
-    org_id: orgId,
-    actor_id: user.id,
-    event_type: 'connector_added',
-    entity_type: 'integration_connector',
-    entity_id: data.id,
-    payload: { connector_type: body.connector_type, display_name: body.display_name },
+  // rpc_integration_connector_create (ADR-0009) enforces admin membership,
+  // inserts the row, and writes audit_log — all atomically as cs_orchestrator.
+  const { data, error } = await supabase.rpc('rpc_integration_connector_create', {
+    p_org_id: orgId,
+    p_connector_type: body.connector_type,
+    p_display_name: body.display_name,
+    p_encrypted_config: '\\x' + encryptedConfig.toString('hex'),
   })
 
-  return NextResponse.json({ connector: data }, { status: 201 })
+  if (error) {
+    const code = error.code
+    if (code === '28000') return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    if (code === '42501') {
+      return NextResponse.json(
+        { error: 'Only org admins can manage connectors' },
+        { status: 403 },
+      )
+    }
+    return NextResponse.json({ error: error.message }, { status: 500 })
+  }
+
+  const envelope = data as {
+    ok: boolean
+    connector_id: string
+    connector_type: string
+    display_name: string
+  }
+
+  return NextResponse.json(
+    {
+      connector: {
+        id: envelope.connector_id,
+        connector_type: envelope.connector_type,
+        display_name: envelope.display_name,
+        status: 'active',
+      },
+    },
+    { status: 201 },
+  )
 }

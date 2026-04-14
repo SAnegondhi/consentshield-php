@@ -9,18 +9,14 @@ export default async function RightsRequestPage({
 }) {
   const { orgId } = await params
 
-  const admin = createClient(
+  const anon = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
   )
 
-  const { data: org } = await admin
-    .from('organisations')
-    .select('id, name')
-    .eq('id', orgId)
-    .single()
-
-  if (!org) notFound()
+  const { data } = await anon.rpc('rpc_get_rights_portal', { p_org_id: orgId })
+  const org = Array.isArray(data) ? data[0] : data
+  if (!org?.id) notFound()
 
   const turnstileSiteKey =
     process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || '1x00000000000000000000AA'

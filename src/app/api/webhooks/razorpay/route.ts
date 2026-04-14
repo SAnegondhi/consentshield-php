@@ -1,9 +1,8 @@
-import { createClient, type SupabaseClient } from '@supabase/supabase-js'
+import { createClient } from '@supabase/supabase-js'
 import { NextResponse } from 'next/server'
 import { verifyWebhookSignature } from '@/lib/billing/razorpay'
 import { PLANS, type PlanId } from '@/lib/billing/plans'
 
-// Razorpay webhook events we handle
 const HANDLED_EVENTS = [
   'subscription.activated',
   'subscription.charged',
@@ -32,14 +31,8 @@ export async function POST(request: Request) {
   }
 
   if (!HANDLED_EVENTS.includes(event.event)) {
-    // Ack unhandled events
     return NextResponse.json({ received: true, handled: false })
   }
-
-  const admin = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!,
-  )
 
   const subscription = event.payload.subscription?.entity
   if (!subscription) {
@@ -48,87 +41,38 @@ export async function POST(request: Request) {
 
   const csPlanFromNotes = subscription.notes?.cs_plan as PlanId | undefined
   const csPlan = csPlanFromNotes && PLANS[csPlanFromNotes] ? csPlanFromNotes : null
+  const orgIdHint = subscription.notes?.org_id ?? null
 
-  const orgIdFromNotes = subscription.notes?.org_id
-  const orgId = orgIdFromNotes || (await lookupOrgBySubscription(admin, subscription.id))
-  if (!orgId) {
-    // B-5: hard-fail instead of silent ack. A signed event referencing a
-    // subscription we cannot resolve is either misrouted or a bug — Razorpay
-    // will retry on non-2xx, giving us time to investigate.
+  const anon = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+  )
+
+  const { data, error } = await anon.rpc('rpc_razorpay_apply_subscription', {
+    p_event: event.event,
+    p_subscription_id: subscription.id,
+    p_cs_plan: csPlan,
+    p_org_id_hint: orgIdHint,
+    p_payment_id: event.payload.payment?.entity.id ?? null,
+  })
+
+  if (error) {
+    console.error('[razorpay] rpc error', error)
+    return NextResponse.json({ error: error.message }, { status: 500 })
+  }
+
+  const envelope = data as { ok: boolean; error?: string; org_id?: string }
+  if (!envelope.ok) {
+    // B-5: hard-fail on unresolved org. Razorpay retries on non-2xx.
     console.error('[razorpay] unresolved org for subscription', subscription.id)
     return NextResponse.json(
       {
-        error: 'Cannot resolve org_id from subscription notes or razorpay_subscription_id',
+        error: envelope.error ?? 'Failed to apply subscription event',
         subscription_id: subscription.id,
       },
       { status: 422 },
     )
   }
 
-  switch (event.event) {
-    case 'subscription.activated':
-    case 'subscription.charged':
-    case 'subscription.resumed': {
-      if (csPlan) {
-        await admin
-          .from('organisations')
-          .update({
-            plan: csPlan,
-            plan_started_at: new Date().toISOString(),
-            razorpay_subscription_id: subscription.id,
-          })
-          .eq('id', orgId)
-      }
-      await writeAudit(admin, orgId, 'plan_activated', { plan: csPlan, subscription_id: subscription.id })
-      break
-    }
-    case 'subscription.cancelled':
-    case 'subscription.paused': {
-      await admin
-        .from('organisations')
-        .update({ plan: 'trial' })
-        .eq('id', orgId)
-      await writeAudit(admin, orgId, 'plan_downgraded', {
-        reason: event.event,
-        subscription_id: subscription.id,
-      })
-      break
-    }
-    case 'payment.failed': {
-      await writeAudit(admin, orgId, 'payment_failed', {
-        subscription_id: subscription.id,
-        payment_id: event.payload.payment?.entity.id,
-      })
-      break
-    }
-  }
-
-  return NextResponse.json({ received: true, handled: true })
-}
-
-async function lookupOrgBySubscription(
-  admin: SupabaseClient,
-  subId: string,
-): Promise<string | null> {
-  const { data } = await admin
-    .from('organisations')
-    .select('id')
-    .eq('razorpay_subscription_id', subId)
-    .single()
-  return (data as { id: string } | null)?.id ?? null
-}
-
-async function writeAudit(
-  admin: SupabaseClient,
-  orgId: string,
-  eventType: string,
-  payload: Record<string, unknown>,
-): Promise<void> {
-  await admin.from('audit_log').insert({
-    org_id: orgId,
-    event_type: eventType,
-    entity_type: 'organisation',
-    entity_id: orgId,
-    payload,
-  })
+  return NextResponse.json({ received: true, handled: true, org_id: envelope.org_id })
 }

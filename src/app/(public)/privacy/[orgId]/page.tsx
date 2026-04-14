@@ -2,8 +2,23 @@ import { createClient } from '@supabase/supabase-js'
 import { notFound } from 'next/navigation'
 import { composePrivacyNotice } from '@/lib/compliance/privacy-notice'
 
-// Public privacy notice page — no auth required.
-// Uses service role key to bypass RLS (the org id is part of the URL).
+// Public privacy notice page — no auth required. Backed by rpc_get_privacy_notice
+// (anon-granted security-definer RPC owned by cs_orchestrator). See ADR-0009.
+
+interface PrivacyEnvelope {
+  ok: boolean
+  error?: string
+  org?: { name: string; compliance_contact_email: string | null; dpo_name: string | null }
+  inventory?: Array<{
+    data_category: string
+    collection_source: string | null
+    purposes: string[]
+    legal_basis: string
+    retention_period: string | null
+    third_parties: string[]
+    data_locations: string[]
+  }>
+}
 
 export default async function PrivacyNoticePage({
   params,
@@ -12,33 +27,24 @@ export default async function PrivacyNoticePage({
 }) {
   const { orgId } = await params
 
-  const admin = createClient(
+  const anon = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
   )
 
-  const { data: org } = await admin
-    .from('organisations')
-    .select('name, compliance_contact_email, dpo_name')
-    .eq('id', orgId)
-    .single()
+  const { data } = await anon.rpc('rpc_get_privacy_notice', { p_org_id: orgId })
+  const envelope = data as PrivacyEnvelope | null
 
-  if (!org) notFound()
+  if (!envelope?.ok || !envelope.org) notFound()
 
-  const { data: inventory } = await admin
-    .from('data_inventory')
-    .select('data_category, collection_source, purposes, legal_basis, retention_period, third_parties, data_locations')
-    .eq('org_id', orgId)
-    .order('data_category')
-
-  const sections = composePrivacyNotice(org, inventory ?? [])
+  const sections = composePrivacyNotice(envelope.org, envelope.inventory ?? [])
 
   return (
     <main className="max-w-3xl mx-auto px-6 py-12">
       <header className="mb-8 pb-6 border-b border-gray-200">
         <h1 className="text-3xl font-bold">Privacy Notice</h1>
         <p className="mt-2 text-sm text-gray-600">
-          {org.name} · Compliant with the Digital Personal Data Protection Act 2023
+          {envelope.org.name} · Compliant with the Digital Personal Data Protection Act 2023
         </p>
       </header>
 

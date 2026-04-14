@@ -1,17 +1,15 @@
 // Deletion orchestration — dispatches deletion requests to webhook connectors
 // and creates immutable receipts in deletion_receipts.
+//
+// Caller supplies the SupabaseClient. In the request path it is the
+// authenticated user's client (via createServerClient); from an Edge Function
+// it is the cs_delivery client. Either can insert/update deletion_receipts
+// and audit_log via the appropriate RLS policies and column grants.
 
-import { createClient, type SupabaseClient } from '@supabase/supabase-js'
+import type { SupabaseClient } from '@supabase/supabase-js'
 import { createHash, createHmac } from 'node:crypto'
 import { decryptForOrg } from '@/lib/encryption/crypto'
 import { buildCallbackUrl } from './callback-signing'
-
-function service(): SupabaseClient {
-  return createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!,
-  )
-}
 
 interface Connector {
   id: string
@@ -28,21 +26,16 @@ export interface DispatchResult {
   error?: string
 }
 
-/**
- * Dispatch a deletion request to all active webhook connectors for an org.
- * Creates deletion_receipts rows (pending), POSTs signed payloads, updates status.
- */
 export async function dispatchDeletion(params: {
+  supabase: SupabaseClient
   orgId: string
   triggerType: 'erasure_request' | 'retention_expired' | 'consent_withdrawn'
   triggerId: string
   dataPrincipalEmail: string
 }): Promise<DispatchResult[]> {
-  const admin = service()
-  const { orgId, triggerType, triggerId, dataPrincipalEmail } = params
+  const { supabase, orgId, triggerType, triggerId, dataPrincipalEmail } = params
 
-  // Fetch active connectors for this org
-  const { data: connectors, error: connError } = await admin
+  const { data: connectors, error: connError } = await supabase
     .from('integration_connectors')
     .select('id, connector_type, display_name, config')
     .eq('org_id', orgId)
@@ -56,8 +49,7 @@ export async function dispatchDeletion(params: {
   const results: DispatchResult[] = []
 
   for (const conn of activeConnectors) {
-    // Create the receipt row first — gives us a receipt_id to embed in the callback URL
-    const { data: receipt, error: receiptError } = await admin
+    const { data: receipt, error: receiptError } = await supabase
       .from('deletion_receipts')
       .insert({
         org_id: orgId,
@@ -82,16 +74,15 @@ export async function dispatchDeletion(params: {
       continue
     }
 
-    // Decrypt the connector config to get webhook_url + shared_secret
     let webhookUrl: string
     let sharedSecret: string
     try {
-      const plaintext = await decryptForOrg(orgId, conn.config)
+      const plaintext = await decryptForOrg(supabase, orgId, conn.config)
       const cfg = JSON.parse(plaintext) as { webhook_url: string; shared_secret: string }
       webhookUrl = cfg.webhook_url
       sharedSecret = cfg.shared_secret ?? ''
     } catch (e) {
-      await markReceiptFailed(admin, receipt.id, `Config decrypt failed: ${e instanceof Error ? e.message : 'unknown'}`)
+      await markReceiptFailed(supabase, receipt.id, `Config decrypt failed: ${e instanceof Error ? e.message : 'unknown'}`)
       results.push({
         connector_id: conn.id,
         display_name: conn.display_name,
@@ -120,13 +111,12 @@ export async function dispatchDeletion(params: {
       ? createHmac('sha256', sharedSecret).update(rawBody).digest('hex')
       : undefined
 
-    // Save request payload (PII-redacted — only the hash, not the email)
     const redactedPayload = {
       ...payload,
       data_principal: { identifier_hash: identifierHash, identifier_type: 'email' },
     }
 
-    await admin
+    await supabase
       .from('deletion_receipts')
       .update({
         request_payload: redactedPayload,
@@ -134,7 +124,6 @@ export async function dispatchDeletion(params: {
       })
       .eq('id', receipt.id)
 
-    // POST to the webhook
     try {
       const headers: Record<string, string> = { 'Content-Type': 'application/json' }
       if (signatureHeader) headers['X-ConsentShield-Signature'] = signatureHeader
@@ -147,7 +136,7 @@ export async function dispatchDeletion(params: {
       })
 
       if (!dispatchRes.ok) {
-        await admin
+        await supabase
           .from('deletion_receipts')
           .update({
             status: 'dispatch_failed',
@@ -166,8 +155,7 @@ export async function dispatchDeletion(params: {
         continue
       }
 
-      // Dispatch succeeded — wait for callback
-      await admin
+      await supabase
         .from('deletion_receipts')
         .update({ status: 'awaiting_callback' })
         .eq('id', receipt.id)
@@ -180,7 +168,7 @@ export async function dispatchDeletion(params: {
       })
     } catch (e) {
       const msg = e instanceof Error ? e.message : 'Network error'
-      await admin
+      await supabase
         .from('deletion_receipts')
         .update({ status: 'dispatch_failed', failure_reason: msg, retry_count: 1 })
         .eq('id', receipt.id)
@@ -195,8 +183,7 @@ export async function dispatchDeletion(params: {
     }
   }
 
-  // Audit log
-  await admin.from('audit_log').insert({
+  await supabase.from('audit_log').insert({
     org_id: orgId,
     event_type: 'deletion_dispatched',
     entity_type: 'rights_request',
@@ -212,11 +199,11 @@ export async function dispatchDeletion(params: {
 }
 
 async function markReceiptFailed(
-  admin: SupabaseClient,
+  supabase: SupabaseClient,
   receiptId: string,
   reason: string,
 ): Promise<void> {
-  await admin
+  await supabase
     .from('deletion_receipts')
     .update({ status: 'failed', failure_reason: reason })
     .eq('id', receiptId)

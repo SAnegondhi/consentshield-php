@@ -1,47 +1,32 @@
-import { createClient } from '@supabase/supabase-js'
+import type { SupabaseClient } from '@supabase/supabase-js'
 import { PLANS, type PlanId } from './plans'
 
 type Resource = 'web_properties' | 'deletion_connectors'
 
 /**
  * Check if the org is allowed to create one more of `resource`.
- * Returns { allowed: true } or { allowed: false, limit, current } when blocked.
+ * Caller passes an authenticated SupabaseClient (the user must be a member
+ * of `orgId`); membership is enforced inside rpc_plan_limit_check.
  */
 export async function checkPlanLimit(
+  supabase: SupabaseClient,
   orgId: string,
   resource: Resource,
 ): Promise<{ allowed: true } | { allowed: false; limit: number; current: number; plan: string }> {
-  const admin = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!,
-  )
+  const { data, error } = await supabase.rpc('rpc_plan_limit_check', {
+    p_org_id: orgId,
+    p_resource: resource,
+  })
+  if (error) throw new Error(`plan check failed: ${error.message}`)
 
-  const { data: org } = await admin
-    .from('organisations')
-    .select('plan')
-    .eq('id', orgId)
-    .single()
-
-  const planId = (org?.plan ?? 'trial') as PlanId
+  const envelope = data as { plan: string; current: number }
+  const planId = (envelope.plan ?? 'trial') as PlanId
   const plan = PLANS[planId] ?? PLANS.trial
   const limit = plan.limits[resource]
 
-  if (limit === null) return { allowed: true } // unlimited
-
-  const tableMap: Record<Resource, string> = {
-    web_properties: 'web_properties',
-    deletion_connectors: 'integration_connectors',
+  if (limit === null) return { allowed: true }
+  if ((envelope.current ?? 0) >= limit) {
+    return { allowed: false, limit, current: envelope.current ?? 0, plan: planId }
   }
-
-  const { count } = await admin
-    .from(tableMap[resource])
-    .select('id', { count: 'exact', head: true })
-    .eq('org_id', orgId)
-
-  const current = count ?? 0
-  if (current >= limit) {
-    return { allowed: false, limit, current, plan: planId }
-  }
-
   return { allowed: true }
 }

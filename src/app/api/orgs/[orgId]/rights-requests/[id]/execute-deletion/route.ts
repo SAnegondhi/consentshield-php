@@ -57,6 +57,7 @@ export async function POST(
 
   try {
     const results = await dispatchDeletion({
+      supabase,
       orgId,
       triggerType: 'erasure_request',
       triggerId: req.id,

@@ -44,6 +44,24 @@ Closes four blocking findings from the 2026-04-14 review.
 ### Tested
 - [ ] Live `supabase db push` — pending user approval.
 
+## ADR-0009 Sprint 2.1 + 3.1 — 2026-04-14
+
+**ADR:** ADR-0009 — Scoped-Role Enforcement in REST Paths
+**Sprint:** Phase 2, Sprint 2.1 and Phase 3, Sprint 3.1
+
+### Added
+- `20260414000007_scoped_rpcs_authenticated.sql`:
+  - Public reads: `rpc_get_rights_portal`, `rpc_get_privacy_notice`
+    (anon-granted).
+  - Authenticated writes: `rpc_rights_event_append`, `rpc_banner_publish`,
+    `rpc_integration_connector_create`, `rpc_signup_bootstrap_org`,
+    `rpc_plan_limit_check` (authenticated-granted; auth.uid() membership
+    check inside).
+  - Webhook: `rpc_razorpay_apply_subscription` (anon-granted, state machine
+    in SQL).
+  - Widened `encrypt_secret` and `decrypt_secret` execute to `authenticated`
+    so the Next.js encryption library can call them without service-role.
+
 ## ADR-0009 Sprint 1.1 — 2026-04-14
 
 **ADR:** ADR-0009 — Scoped-Role Enforcement in REST Paths

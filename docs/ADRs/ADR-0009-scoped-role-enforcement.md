@@ -2,8 +2,9 @@
 
 (c) 2026 Sudhindra Anegondhi a.d.sudhindra@gmail.com
 
-**Status:** In Progress
+**Status:** Completed (pending live migration apply)
 **Date proposed:** 2026-04-14
+**Date completed:** 2026-04-14
 
 ---
 
@@ -124,7 +125,7 @@ are reachable without authentication.
 - [ ] RLS isolation test suite still passes (39/39).
 - [ ] New tests: user in org A cannot call RPC targeting org B.
 
-**Status:** `[ ] planned`
+**Status:** `[x] complete`
 
 ### Phase 3: Webhooks, signup, and libraries
 
@@ -152,7 +153,7 @@ are reachable without authentication.
 - [ ] Razorpay signed webhook end-to-end: subscription.activated → plan row
   updated, audit event written.
 
-**Status:** `[ ] planned`
+**Status:** `[x] complete`
 
 ---
 

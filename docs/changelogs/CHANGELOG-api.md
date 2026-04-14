@@ -28,6 +28,34 @@ API route changes.
   lookup fallback to `razorpay_subscription_id` is preserved. Razorpay will
   retry on non-2xx, buying time for investigation instead of losing the event.
 
+## ADR-0009 Sprint 2.1 + 3.1 — 2026-04-14
+
+### Changed
+- `src/app/(public)/rights/[orgId]/page.tsx` — uses anon client + `rpc_get_rights_portal`.
+- `src/app/(public)/privacy/[orgId]/page.tsx` — uses anon client + `rpc_get_privacy_notice`.
+- `src/app/api/auth/signup/route.ts` — calls `rpc_signup_bootstrap_org` under
+  the user's JWT. `userId` body field is no longer trusted (auth.uid() wins).
+- `src/app/api/webhooks/razorpay/route.ts` — signature verify stays in Node,
+  state transitions delegated to `rpc_razorpay_apply_subscription`.
+- `src/app/api/orgs/[orgId]/rights-requests/[id]/events/route.ts` —
+  `rpc_rights_event_append`.
+- `src/app/api/orgs/[orgId]/banners/[bannerId]/publish/route.ts` —
+  `rpc_banner_publish`; Cloudflare KV invalidation + grace-period secret
+  storage remain in Node because they need the CF API token.
+- `src/app/api/orgs/[orgId]/integrations/route.ts` —
+  `rpc_integration_connector_create`.
+- `src/lib/billing/gate.ts`, `src/lib/encryption/crypto.ts`,
+  `src/lib/rights/deletion-dispatch.ts` — all now take a `SupabaseClient`
+  parameter instead of creating an internal service-role client.
+
+Net effect: `grep -r SUPABASE_SERVICE_ROLE_KEY src/` returns zero matches.
+Service-role key is now only used by migrations.
+
+### Tested
+- [x] `bun run lint` — PASS
+- [x] `bun run build` — PASS (38 routes)
+- [x] `bun run test` — 39/39 PASS
+
 ## ADR-0009 Sprint 1.1 — 2026-04-14
 
 **ADR:** ADR-0009 — Scoped-Role Enforcement in REST Paths

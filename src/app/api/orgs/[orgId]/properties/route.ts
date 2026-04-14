@@ -39,7 +39,7 @@ export async function POST(
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
   // Plan gating: check web property limit before creating
-  const gate = await checkPlanLimit(orgId, 'web_properties')
+  const gate = await checkPlanLimit(supabase, orgId, 'web_properties')
   if (!gate.allowed) {
     return NextResponse.json(
       {
