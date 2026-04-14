@@ -64,7 +64,7 @@ After this ADR:
 - [ ] Preview renders correctly for each position option
 - [ ] RLS: can only see own org's banners
 
-**Status:** `[ ] planned`
+**Status:** `[x] complete`
 
 #### Sprint 1.3: Banner Publish + Script Compilation
 **Estimated effort:** 3–4 hours
@@ -164,6 +164,38 @@ Implementation:
 - Properties list with status indicators (snippet verified / not installed)
 - Property detail page with copyable script tag, settings editor
 - Origin-aware: events from non-allowed origins will be rejected by Worker
+```
+
+### Sprint 1.2 — 2026-04-14
+
+```
+Test: Build passes with all banner routes
+Method: bun run build
+Actual: routes registered:
+  - /api/orgs/[orgId]/banners (GET, POST)
+  - /api/orgs/[orgId]/banners/[bannerId] (GET, PATCH)
+  - /dashboard/banners (list)
+  - /dashboard/banners/[bannerId] (editor)
+Result: PASS
+
+Test: Lint passes
+Result: PASS
+
+Test: RLS isolation tests still pass
+Method: bun run test
+Actual: 39/39 passed
+Result: PASS
+
+Implementation:
+- Banner CRUD with versioning (each save creates new version internally,
+  the editor edits the current draft until published)
+- Position options: bottom-bar, bottom-left, bottom-right, modal
+- Purpose management: id, name, description, required, default
+- Live preview panel renders banner with selected position and purposes
+- Save Draft (PATCH only) and Save & Publish (PATCH + POST publish)
+- Publish triggers signing secret rotation via ADR-0002 Sprint 1.3 route
+- Default purposes seeded on banner creation: Essential, Analytics, Marketing
+- Monitoring toggle for tracker observation
 ```
 
 ---
