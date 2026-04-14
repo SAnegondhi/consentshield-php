@@ -2,9 +2,9 @@
 
 (c) 2026 Sudhindra Anegondhi a.d.sudhindra@gmail.com
 
-**Status:** In Progress
+**Status:** Completed
 **Date proposed:** 2026-04-13
-**Date completed:** —
+**Date completed:** 2026-04-14
 
 ---
 
@@ -123,7 +123,7 @@ After this ADR:
 - [ ] Privacy notice generates with all DPDP-required disclosures
 - [ ] Public privacy notice page renders without auth
 
-**Status:** `[ ] planned`
+**Status:** `[x] complete`
 
 ---
 
@@ -274,9 +274,41 @@ Implementation:
 - ScoreGauge component: animated SVG ring with level color
 ```
 
----
+### Sprint 2.2 — 2026-04-14
 
-## Changelog References
+```
+Test: Build passes
+Method: bun run build
+Actual: routes registered:
+  - /api/orgs/[orgId]/inventory (GET, POST)
+  - /api/orgs/[orgId]/inventory/[itemId] (PATCH, DELETE)
+  - /dashboard/inventory (CRUD page)
+  - /privacy/[orgId] (public privacy notice)
+Result: PASS
+
+Test: Lint passes
+Result: PASS
+
+Test: RLS tests still pass
+Method: bun run test
+Actual: 39/39 passed
+Result: PASS
+
+Implementation:
+- Inventory API: list/create/update/delete with legal_basis validation
+  (consent, contract, legal_obligation, legitimate_interest, vital_interests, public_task)
+- Inventory dashboard page with inline create form and per-row delete
+- Status badges: Complete (green) vs Incomplete (amber), 'auto' tag for
+  auto-detected items
+- Privacy notice generator (src/lib/compliance/privacy-notice.ts):
+  composes 10 DPDP-required sections from org config + data inventory
+- Public privacy notice page at /privacy/[orgId]:
+  - No auth required (DPDP requires public notice)
+  - Uses service role key to bypass RLS (org id is in URL)
+  - Renders all 10 sections with org name, data categories, purposes,
+    legal bases, retention, third parties, cross-border, rights, complaints
+- Notice updates automatically as inventory items are added
+```
 
 - CHANGELOG-dashboard.md — [date] — All sprints
 - CHANGELOG-worker.md — [date] — Sprint 1.3 (banner compilation)
