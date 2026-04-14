@@ -20,3 +20,20 @@ Database migrations, RLS policies, roles.
 ### Tested
 - [ ] Live `supabase db push` — pending user approval (destructive on
   production secrets).
+
+## ADR-0009 Sprint 1.1 — 2026-04-14
+
+**ADR:** ADR-0009 — Scoped-Role Enforcement in REST Paths
+**Sprint:** Phase 1, Sprint 1.1
+
+### Added
+- `20260414000005_scoped_rpcs_public.sql` — three security-definer functions
+  owned by `cs_orchestrator` and granted to `anon`:
+  `rpc_rights_request_create`, `rpc_rights_request_verify_otp`,
+  `rpc_deletion_receipt_confirm`. The deletion-receipt RPC also enforces the
+  `awaiting_callback → confirmed` state machine (closes B-6).
+- Grant extensions on `cs_orchestrator`: `insert on rights_requests` plus
+  `update (email_verified, email_verified_at, otp_hash, otp_expires_at, otp_attempts)`.
+
+### Tested
+- [ ] Live `supabase db push` — pending.

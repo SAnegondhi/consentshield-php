@@ -2,7 +2,8 @@ import { createClient } from '@supabase/supabase-js'
 import { NextResponse } from 'next/server'
 import { verifyCallback } from '@/lib/rights/callback-signing'
 
-// Public callback endpoint. Signature verified, no auth required.
+// Public callback endpoint. Signature-verified, no auth required. State
+// transitions are enforced by rpc_deletion_receipt_confirm (ADR-0009).
 export async function POST(
   request: Request,
   { params }: { params: Promise<{ id: string }> },
@@ -27,53 +28,51 @@ export async function POST(
     return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 })
   }
 
-  const admin = createClient(
+  const anon = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
   )
 
-  const { data: receipt } = await admin
-    .from('deletion_receipts')
-    .select('id, org_id, status')
-    .eq('id', id)
-    .single()
+  const { data, error } = await anon.rpc('rpc_deletion_receipt_confirm', {
+    p_receipt_id: id,
+    p_reported_status: body.status ?? 'completed',
+    p_records_deleted: body.records_deleted ?? 0,
+    p_systems_affected: body.systems_affected ?? [],
+    p_completed_at: body.completed_at ?? null,
+  })
 
-  if (!receipt) {
-    return NextResponse.json({ error: 'Receipt not found' }, { status: 404 })
+  if (error) {
+    return NextResponse.json({ error: error.message }, { status: 500 })
   }
 
-  // Idempotency: already confirmed
-  if (receipt.status === 'confirmed' || receipt.status === 'completed') {
+  const envelope = data as {
+    ok: boolean
+    error?: string
+    already_confirmed?: boolean
+    receipt_id?: string
+    status?: string
+    current?: string
+  }
+
+  if (!envelope.ok) {
+    switch (envelope.error) {
+      case 'not_found':
+        return NextResponse.json({ error: 'Receipt not found' }, { status: 404 })
+      case 'invalid_state':
+        return NextResponse.json(
+          { error: `Receipt is in state '${envelope.current}'; only 'awaiting_callback' may be confirmed` },
+          { status: 409 },
+        )
+      case 'race':
+        return NextResponse.json({ error: 'Concurrent update; retry' }, { status: 409 })
+      default:
+        return NextResponse.json({ error: envelope.error ?? 'Update failed' }, { status: 400 })
+    }
+  }
+
+  if (envelope.already_confirmed) {
     return NextResponse.json({ ok: true, already_confirmed: true })
   }
 
-  const validStatuses = ['completed', 'partial', 'failed']
-  const reportedStatus = validStatuses.includes(body.status ?? '') ? body.status : 'completed'
-
-  await admin
-    .from('deletion_receipts')
-    .update({
-      status: reportedStatus === 'completed' ? 'confirmed' : reportedStatus,
-      confirmed_at: body.completed_at ?? new Date().toISOString(),
-      response_payload: {
-        status: reportedStatus,
-        records_deleted: body.records_deleted ?? 0,
-        systems_affected: body.systems_affected ?? [],
-      },
-    })
-    .eq('id', id)
-
-  // Audit log
-  await admin.from('audit_log').insert({
-    org_id: receipt.org_id,
-    event_type: 'deletion_confirmed',
-    entity_type: 'deletion_receipt',
-    entity_id: id,
-    payload: {
-      reported_status: reportedStatus,
-      records_deleted: body.records_deleted ?? 0,
-    },
-  })
-
-  return NextResponse.json({ ok: true, receipt_id: id })
+  return NextResponse.json({ ok: true, receipt_id: envelope.receipt_id, status: envelope.status })
 }

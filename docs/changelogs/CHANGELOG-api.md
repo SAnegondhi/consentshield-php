@@ -19,3 +19,24 @@ API route changes.
 - [x] `bun run lint` — PASS
 - [x] `bun run build` — PASS
 - [x] `bun run test` — 39 / 39 PASS
+
+## ADR-0009 Sprint 1.1 — 2026-04-14
+
+**ADR:** ADR-0009 — Scoped-Role Enforcement in REST Paths
+**Sprint:** Phase 1, Sprint 1.1
+
+### Changed
+- `src/app/api/public/rights-request/route.ts` — now calls
+  `rpc_rights_request_create` via the anon key. Service-role client removed.
+- `src/app/api/public/rights-request/verify-otp/route.ts` — now calls
+  `rpc_rights_request_verify_otp` via the anon key. OTP state transitions,
+  rights_request_events insert, and audit_log insert all happen atomically
+  server-side.
+- `src/app/api/v1/deletion-receipts/[id]/route.ts` — now calls
+  `rpc_deletion_receipt_confirm` via the anon key. Signature verification
+  still happens in Node. Replays and racing updates now return 409.
+
+### Tested
+- [x] `bun run lint` — PASS
+- [x] `bun run build` — PASS
+- [x] `bun run test` — 39 / 39 PASS
