@@ -88,7 +88,7 @@ After this ADR:
 - [ ] Banner respects localStorage (doesn't show again after dismissal)
 - [ ] End-to-end: deploy on test page → click accept → event appears in buffer
 
-**Status:** `[ ] planned`
+**Status:** `[x] complete`
 
 ### Phase 2: Dashboard
 
@@ -196,6 +196,45 @@ Implementation:
 - Publish triggers signing secret rotation via ADR-0002 Sprint 1.3 route
 - Default purposes seeded on banner creation: Essential, Analytics, Marketing
 - Monitoring toggle for tracker observation
+```
+
+### Sprint 1.3 — 2026-04-14
+
+```
+Test: Worker deployed to Cloudflare
+Method: wrangler deploy
+Actual: Deployed to https://consentshield-cdn.a-d-sudhindra.workers.dev
+Result: PASS
+
+Test: Banner script served with full config
+Method: GET /v1/banner.js?org=$ORG&prop=$PROP
+Expected: ~6KB script with config, HMAC code, banner UI
+Actual: 6655 bytes — org_id, property_id, banner_id, signing_secret,
+        headline, purposes, crypto.subtle (HMAC) all present
+Result: PASS
+
+Test: End-to-end consent event flow
+Method: openssl HMAC with property's signing secret → POST /v1/events
+Expected: 202, row in consent_events buffer
+Actual: 202, event_type=consent_given, purposes_accepted=["essential","analytics"]
+Result: PASS
+
+Test: Build + lint pass after Worker rewrite
+Result: PASS
+
+Implementation:
+- worker/src/banner.ts: rewrote stub to compile real banner script
+- compileBannerScript() embeds config + signing secret in the JS
+- Banner script (vanilla JS, ~6.6KB):
+  - Reads localStorage to skip if already dismissed
+  - Renders accessible banner with positioning support
+  - Three actions: Accept all, Customise (shows checkboxes), Reject all
+  - On submit: computes HMAC-SHA256 via crypto.subtle, POSTs to /v1/events
+  - Persists decision in localStorage (cs_consent_{prop}_v{version})
+  - Dispatches consentshield:consent CustomEvent for downstream listeners
+  - Uses keepalive: true so the POST survives page navigation
+  - Wraps everything in try/catch — never breaks the customer's site
+- Worker fires async UPDATE on snippet_last_seen_at (non-blocking)
 ```
 
 ---
