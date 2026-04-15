@@ -2,134 +2,115 @@
 
 (c) 2026 Sudhindra Anegondhi a.d.sudhindra@gmail.com
 
-**Snapshot date:** 2026-04-14
+**Snapshot date:** 2026-04-15
 **Branch:** main
-**Latest commit:** `4bacdfa` — feat(ADR-0007): deletion orchestration with generic webhook protocol
+**Latest commit:** `90cfd5d` — feat: root page is now a real landing with signup/login + demo-sites link
 
 ---
 
 ## Summary
 
-Seven ADRs planned for Phase 1 are complete (28 sprints). Production CDN is live at
-`cdn.consentshield.in`. Full customer flow works end-to-end: signup → web property
-configuration → banner publish → snippet install → consent event ingestion → tracker
-observation → rights request intake → deletion orchestration → signed receipt.
+Phase 1 (ADR-0001…0007) closed on 2026-04-14. On 2026-04-14/15 an internal
+codebase review (`docs/reviews/2026-04-14-codebase-architecture-review.md`)
+surfaced nine blocking security / compliance issues and thirteen should-fix
+items. All nine blockers are closed; nine of thirteen should-fix items are
+closed; the remaining four are scoped into named future ADRs
+(`docs/reviews/2026-04-15-deferred-items-analysis.md`). The Next.js app is
+deployed to Vercel at `consentshield-one.vercel.app`, five static demo
+customer sites at `consentshield-demo.vercel.app`, the Worker at
+`cdn.consentshield.in`, and the SLA Edge Function in Supabase. One known
+bug blocks end-to-end signup on the live environment — documented below.
 
 ---
 
 ## ADR Completion
 
-| ADR | Title | Status | Phases | Sprints |
-|-----|-------|--------|--------|---------|
-| 0001 | Project scaffolding (Next.js 16, schema, RLS, scoped roles, Worker skeleton) | Completed | 3 | 7 |
-| 0002 | Worker HMAC verification + origin validation + secret rotation | Completed | 1 | 3 |
-| 0003 | Consent banner builder + compliance dashboard + data inventory + privacy notice | Completed | 2 | 5 |
-| 0004 | Rights request workflow (Turnstile + OTP + dashboard inbox + SLA reminders) | Completed | 2 | 4 |
-| 0005 | Tracker monitoring (34 signatures + banner script v2 with MutationObserver) | Completed | 1 | 3 |
-| 0006 | Razorpay billing + plan gating | Completed | 1 | 3 |
-| 0007 | Deletion orchestration (generic webhook protocol + signed callbacks + receipts) | Completed | 1 | 3 |
+| ADR | Title | Status |
+|-----|-------|--------|
+| 0001 | Project scaffolding | Completed |
+| 0002 | Worker HMAC + origin validation | Completed |
+| 0003 | Banner builder + dashboard + privacy notice | Completed |
+| 0004 | Rights request workflow (Turnstile + OTP) | Completed |
+| 0005 | Tracker monitoring | Completed |
+| 0006 | Razorpay billing + plan gating | Completed |
+| 0007 | Deletion orchestration | Completed |
+| 0008 | Browser auth hardening (remove client secret, origin_verified, fail-fast Turnstile) | Completed |
+| 0009 | Scoped-role enforcement in REST paths | Completed |
+| 0010 | Distributed rate limiter (Vercel KV) | Proposed (scoped) |
+| 0011 | Deletion retry / timeout Edge Function | Proposed (scoped) |
+| 0012 | Automated test suites (worker / buffer / workflows) | Proposed (scoped) |
 
 ---
 
-## Infrastructure Live
+## Deployments Live
 
-| Component | Identifier / Endpoint |
-|-----------|-----------------------|
-| Supabase project | `xlqiakmkdjycfiioslgs` (ap-northeast-1 pooler) |
-| Cloudflare Worker | `consentshield-cdn` |
-| Custom domain | `https://cdn.consentshield.in/v1/*` |
-| Workers.dev URL | `https://consentshield-cdn.a-d-sudhindra.workers.dev` |
-| Cloudflare KV namespace | `dafd5bef6fa1455c8e8c05ccffcef20b` (consentshield-banner-kv) |
-| Cloudflare zone (consentshield.in) | `e703f9e0203e1806fd101134359cf446` |
-| GitHub repo | `github.com/SAnegondhi/consentshield` (main) |
-| pg_cron jobs | 5 active: buffer sweep (15 min), stuck detection (hourly), SLA reminders (daily), security scan (daily), retention check (daily) |
+| Component | URL / identifier |
+|-----------|------------------|
+| Admin app (Next.js on Vercel) | `https://consentshield-one.vercel.app` |
+| Demo customer sites (Vercel) | `https://consentshield-demo.vercel.app` (5 scenarios: ecommerce, saas, blog, healthtech, violator) |
+| Cloudflare Worker CDN | `https://cdn.consentshield.in/v1/*` (Worker version `9fb7bd37`) |
+| Supabase project | `xlqiakmkdjycfiioslgs` |
+| SLA Edge Function | `send-sla-reminders` deployed; reads `CS_ORCHESTRATOR_ROLE_KEY` (CS_ prefix because Supabase reserves SUPABASE_) |
+| pg_cron jobs | 6 active: 5 orchestrator HTTP posts (key via Supabase Vault `cs_orchestrator_key`) + `cleanup-unverified-rights-requests-daily` |
+| GitHub repo | `github.com/SAnegondhi/consentshield` |
 
 ---
 
 ## Database State
 
-- **32 tables**, all with RLS enabled.
-- **17 migrations applied** (`supabase/migrations/`), from `20260413000001_extensions.sql`
-  through `20260414000002_encryption_rpc.sql`.
-- **Scoped Postgres roles** exist at the DB level: `cs_worker`, `cs_delivery`,
-  `cs_orchestrator`. (See known limitation under Deferred.)
-- **Triggers and buffer lifecycle** installed: `delivered_at` on every buffer table;
-  scheduled sweep deletes rows 5 min after delivery confirmation.
-- **RLS isolation suite**: 39 tests passing (`tests/rls/isolation.test.ts`, runnable via
-  `bun run test`).
-
----
-
-## Code State by Area
-
-| Area | Path | Notes |
-|------|------|-------|
-| Next.js App Router dashboard | `src/app/(dashboard)/dashboard/` | billing, enforcement, integrations, inventory, rights, properties, banners |
-| Public routes | `src/app/(public)/` | login, signup, privacy, rights portal |
-| API routes | `src/app/api/` | auth, orgs/[orgId], public, v1, webhooks |
-| Libraries | `src/lib/` | billing, compliance, encryption, rights, supabase |
-| Cloudflare Worker | `worker/src/` | banner, events, observations, hmac, origin, signatures |
-| Supabase Edge Functions | `supabase/functions/send-sla-reminders/` | Deno; **not yet deployed** |
-| Seed data | `supabase/seed/tracker_signatures.sql` | 34 tracker services |
+- **32 operational tables** + `webhook_events_processed` (new for S-3). All with RLS enabled.
+- **20 migrations applied**, through `20260414000010_scoped_roles_rls_and_auth.sql`.
+- **Scoped roles** (`cs_worker`, `cs_delivery`, `cs_orchestrator`) are now the real runtime principals. Every mutating code path routes through a security-definer RPC owned by `cs_orchestrator` (or `cs_delivery`), granted to `anon` or `authenticated` per endpoint. `grep -r SUPABASE_SERVICE_ROLE_KEY src/` returns zero matches.
+- `cs_orchestrator` / `cs_delivery` carry `BYPASSRLS` + `USAGE on schema auth` so security-definer calls can read org-scoped tables inside their own function bodies.
+- **Demo org** seeded: `ConsentShield Demo Customer` (`432bca6d-8fce-415a-85e0-96397ddac666`) with 5 web properties + 5 banners matching the Vercel demo site routes.
+- RLS isolation suite: **39 / 39 passing** on every build.
 
 ---
 
 ## Pending Manual Setup
 
-These block production cutover for real customers; the code is in place.
-
 | Item | Action required |
 |------|-----------------|
-| Resend domain verification | Complete DNS verification for `consentshield.in`; switch sender from `onboarding@resend.dev` to `noreply@consentshield.in` |
-| Turnstile production keys | Create production Turnstile site in Cloudflare; set `NEXT_PUBLIC_TURNSTILE_SITE_KEY` + `TURNSTILE_SECRET_KEY` |
-| Razorpay account | Live account + 4 plan IDs; set `RAZORPAY_KEY_ID`, `RAZORPAY_KEY_SECRET`, `RAZORPAY_WEBHOOK_SECRET`, `RAZORPAY_PLAN_STARTER/GROWTH/PRO/ENTERPRISE` |
-| Edge Function deployment | `supabase functions deploy send-sla-reminders` (scheduled by pg_cron but not deployed) |
-| Supabase custom access token hook | Registered in dashboard (confirmed) |
-| Supabase SMTP | Configured via Resend; deliverability limited until domain verified |
+| Supabase Auth "Confirm email" | **Toggle off for dev** (Auth → Providers → Email). Currently ON, which breaks the `signUp` → bootstrap flow (signUp returns `session=null`, `/api/auth/signup` 401s on `auth.getUser()`). See Known Bugs below for proper fix plan. |
+| Resend domain verification | `consentshield.in` still unverified; sender is `onboarding@resend.dev`. |
+| Turnstile production keys | Using CF always-pass test keys on Vercel. Production fail-fast is enforced; replace before any real traffic. |
+| Razorpay account | No keys. Billing UI will 500 on checkout; intentional until real keys exist. |
+| NEXT_PUBLIC_APP_URL | Currently points to `https://consentshield-one.vercel.app`. Revisit if a custom domain is added. |
 
 ---
 
-## Deferred (Phase 2+ Work)
+## Known Bugs (Outstanding)
 
-- Supabase REST API does not accept custom Postgres-role JWTs. The Worker uses the
-  service role key today with app-level query restriction. Long-term fix: either
-  invoke a Postgres function via `SET LOCAL role` or move Worker writes through an
-  Edge Function that uses `cs_worker`. Tracked for a future ADR.
-- Security posture scanner Edge Function — stub exists in pg_cron only.
-- Consent probes (synthetic compliance tests) — not written.
-- Audit export package (PDF/ZIP evidence bundle) — not written.
-- Pre-built deletion connectors (Mailchimp, HubSpot OAuth) — generic webhook
-  protocol works; named connectors deferred.
-- GDPR module (dual-framework) — not started.
-- ABDM module — Phase 4, not started.
+1. **Signup bootstrap 401 when email confirmation is ON.**
+   Flow: `/signup` calls `supabase.auth.signUp` (session=null because confirm required) → browser fetches `/api/auth/signup` with no cookie → `auth.getUser()` returns null → route returns 401 → org never gets created. Quick fix: disable "Confirm email" in dev. Proper fix (deferred): stash `orgName` / `industry` in `options.data` on signUp, move the RPC call into an auth-state listener triggered after email-confirmation redirect. Until fixed, accounts can only be created by operator-provisioned SQL or with confirm-email off.
 
 ---
 
-## Known Bugs / Gotchas Logged to `.wolf/buglog.json`
+## Most Recent Work (2026-04-14 / 15)
 
-1. `pgcrypto` functions require `extensions.` prefix on hosted Supabase.
-2. Supabase REST only accepts `anon` and `service_role` JWTs (not custom roles).
-3. React 19 purity blocks `Date.now()`/`new Date()` inline in server components — use
-   helpers in `src/lib/compliance/score.ts`.
-4. Next.js 16 removed `next lint`; lint script runs `eslint src/` directly.
-5. Next.js 16 requires `<Suspense>` around `useSearchParams`.
-6. Supabase join type mismatch for dashboard org query — split into two queries.
-7. `tsconfig` must exclude `worker/` and `supabase/functions/` (Deno imports break
-   Next.js type-checking).
-8. Banner test fixture must be served via `python3 -m http.server 8080` to match
-   `allowed_origins`.
+Commits, newest last:
+
+```
+ac8b2de docs: deferred-items analysis — schedule S-1/S-5/S-11 into ADR-0010/0011/0012
+d619c29 chore: deployment fixups after hosted-Supabase + pooler constraints
+adcc184 fix: should-fix batch from 2026-04-14 review (S-3, S-6, S-7, S-10, S-12)
+da0d168 feat(ADR-0009): complete B-4 — zero service-role usage in app code
+d50b98b fix: close B-5, B-7, B-8, B-9 from 2026-04-14 review
+b21b0dc feat(ADR-0009): sprint 1.1 — scoped-role RPCs for public buffer writes (B-4 partial, B-6)
+788c63c feat(ADR-0008): phase 1 — browser auth hardening (B-1, B-2, B-3)
+dc6b2c3 docs: refresh .env.local.example for Vercel + ADR-0008/0009 reality
+266d885 fix: scoped roles need BYPASSRLS + auth schema usage for security-definer RPCs
+fcb0de4 feat: test-sites — 5 static demo customer pages for ConsentShield
+90cfd5d feat: root page is now a real landing with signup/login + demo-sites link
+```
 
 ---
 
-## Next Candidate Work Streams
+## Where to Pick Up Next
 
-Unordered; selection pending.
+Two tracks, pick whichever matches your next session:
 
-- Security posture scanning Edge Function (SSL / HSTS / CSP nightly checks).
-- Pre-built deletion connectors (Mailchimp + HubSpot OAuth).
-- Consent probes (synthetic compliance tests on schedule).
-- Audit export package (generate compliance evidence PDF/ZIP).
-- Onboarding polish (signup → first consent UX).
-- GDPR module (dual-framework support).
-- Architecture/codebase critical review (compliance with architecture docs +
-  non-negotiable rules).
+- **Unblock signup properly** — implement the `options.data` metadata path so signup works with "Confirm email" ON. Touches `(public)/signup/page.tsx` and adds an auth-state handler client component that fires the bootstrap RPC after confirmation. Estimated 2–3 h.
+- **Start ADR-0010 / 0011 / 0012** — any of the three can be picked up independently (`docs/reviews/2026-04-15-deferred-items-analysis.md` has effort estimates). ADR-0012 Sprint 1 (SLA-timer property tests) is the smallest useful bite.
+
+Until signup is unblocked, the live demo flow depends on manually inserted users (the two existing admins for `Estara-ai` / `Estara-ai` orgs) or SQL-provisioned test accounts. The demo site tour (banner → consent event → observation) works today without any login.
