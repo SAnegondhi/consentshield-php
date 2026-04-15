@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Tracker Times — ConsentShield demo</title>
+<link rel="stylesheet" href="/shared/demo.css" />
+
+<!--
+  When ?violate=1 is present, the following block synchronously injects GA4
+  and Meta Pixel BEFORE the consent banner has been shown or acted on. The
+  ConsentShield banner script (loaded next) starts monitoring and detects
+  both trackers in the DOM before any consent event is posted — that is a
+  violation and will surface in the enforcement dashboard.
+
+  Without ?violate=1, trackers load only on consent (same pattern as the
+  other demos). This is deliberate — per review decision, the site looks
+  clean by default.
+-->
+<script>
+(function () {
+  var p = new URLSearchParams(location.search);
+  if (p.get('violate') !== '1') return;
+  function inject(src) {
+    var s = document.createElement('script');
+    s.src = src; s.async = true;
+    (document.head || document.documentElement).appendChild(s);
+  }
+  inject('https://www.googletagmanager.com/gtag/js?id=G-VIOLATE');
+  inject('https://connect.facebook.net/en_US/fbevents.js');
+})();
+</script>
+
+<script async
+  src="https://cdn.consentshield.in/v1/banner.js?org=432bca6d-8fce-415a-85e0-96397ddac666&prop=a74d5534-dbc5-4eb8-b533-53159be05f16"></script>
+</head>
+<body>
+<header class="site-head">
+  <div class="wrap" style="display:flex;align-items:center;justify-content:space-between">
+    <div class="brand"><a href="/violator/">Tracker Times</a></div>
+    <nav><a href="#">World</a><a href="#">Tech</a><a href="#">Culture</a></nav>
+  </div>
+</header>
+
+<main class="wrap" style="padding:32px 24px">
+  <h1 style="margin:0 0 8px">Today's headlines</h1>
+  <p style="color:var(--mut);margin:0 0 24px">
+    A normal-looking site. Append
+    <code><a href="?violate=1">?violate=1</a></code>
+    to load GA4 and Meta Pixel before consent — the ConsentShield
+    enforcement monitor should flag both.
+  </p>
+
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px">
+    <article class="panel"><h3>Markets wobble on RBI guidance</h3><p style="color:var(--mut);font-size:14px">Analysts said the tightening was expected.</p></article>
+    <article class="panel"><h3>Monsoon arrives in Kerala</h3><p style="color:var(--mut);font-size:14px">Farmers brace for an above-average season.</p></article>
+    <article class="panel"><h3>DPDP Act enforcement ramps up</h3><p style="color:var(--mut);font-size:14px">The DPB has issued its first set of notices.</p></article>
+  </div>
+
+  <div class="panel status">
+    <h3>Consent state (live)</h3>
+    <pre id="status">Waiting for banner interaction…</pre>
+  </div>
+</main>
+
+<footer class="site-foot wrap">
+  <div class="links">
+    <a href="https://consentshield-one.vercel.app/privacy/432bca6d-8fce-415a-85e0-96397ddac666">Privacy notice</a>
+    <a href="https://consentshield-one.vercel.app/rights/432bca6d-8fce-415a-85e0-96397ddac666">Your data rights</a>
+    <a href="/">All demos</a>
+  </div>
+</footer>
+
+<script>
+const TRACKERS = {
+  analytics: [{ src: 'https://www.googletagmanager.com/gtag/js?id=G-VIOLATE' }],
+  marketing: [{ src: 'https://connect.facebook.net/en_US/fbevents.js' }],
+};
+function inject(src) {
+  const s = document.createElement('script');
+  s.src = src; s.async = true;
+  document.head.appendChild(s);
+}
+const status = document.getElementById('status');
+window.addEventListener('consentshield:consent', (e) => {
+  const { event_type, accepted, rejected } = e.detail;
+  status.textContent =
+    `event: ${event_type}\naccepted: ${accepted.join(', ') || '(none)'}\nrejected: ${rejected.join(', ') || '(none)'}`;
+  accepted.forEach(p => (TRACKERS[p] || []).forEach(t => inject(t.src)));
+});
+</script>
+</body>
+</html>

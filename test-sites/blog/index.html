@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Notes from the Field — ConsentShield demo</title>
+<link rel="stylesheet" href="/shared/demo.css" />
+<script async
+  src="https://cdn.consentshield.in/v1/banner.js?org=432bca6d-8fce-415a-85e0-96397ddac666&prop=a54ef829-9571-45a0-af1e-adaecbb28a66"></script>
+</head>
+<body>
+<header class="site-head">
+  <div class="wrap" style="display:flex;align-items:center;justify-content:space-between">
+    <div class="brand"><a href="/blog/">Notes from the Field</a></div>
+    <nav><a href="#">Archive</a><a href="#">About</a></nav>
+  </div>
+</header>
+
+<main class="wrap" style="padding:32px 24px;max-width:720px">
+  <article>
+    <p style="color:var(--mut);font-size:13px;margin:0 0 4px">14 April 2026 · 6 min read</p>
+    <h1 style="margin:0 0 16px">On the subtle art of not over-tracking</h1>
+    <p>For most content sites, anonymised page-view analytics is enough to know what is working. Marketing pixels, retargeting, and session replay tools add weight, legal exposure, and audit surface without proportional value.</p>
+    <p>This page loads a single analytics tracker — Google Analytics — only after you accept. Nothing else. The consent banner is a small corner prompt, not a full-screen takeover.</p>
+    <p>When you reject, no third-party requests fire from this page. You can verify this in the browser network panel.</p>
+  </article>
+
+  <div class="panel status" style="margin-top:32px">
+    <h3>Consent state (live)</h3>
+    <pre id="status">Waiting for banner interaction…</pre>
+  </div>
+</main>
+
+<footer class="site-foot wrap">
+  <div class="links">
+    <a href="https://consentshield-one.vercel.app/privacy/432bca6d-8fce-415a-85e0-96397ddac666">Privacy notice</a>
+    <a href="https://consentshield-one.vercel.app/rights/432bca6d-8fce-415a-85e0-96397ddac666">Your data rights</a>
+    <a href="/">All demos</a>
+  </div>
+</footer>
+
+<script>
+const status = document.getElementById('status');
+window.addEventListener('consentshield:consent', (e) => {
+  const { event_type, accepted, rejected } = e.detail;
+  status.textContent =
+    `event: ${event_type}\naccepted: ${accepted.join(', ') || '(none)'}\nrejected: ${rejected.join(', ') || '(none)'}`;
+  if (accepted.includes('analytics')) {
+    const s = document.createElement('script');
+    s.src = 'https://www.googletagmanager.com/gtag/js?id=G-BLOGDEMO';
+    s.async = true;
+    document.head.appendChild(s);
+  }
+});
+</script>
+</body>
+</html>

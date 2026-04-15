@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>DemoOps — ConsentShield demo</title>
+<link rel="stylesheet" href="/shared/demo.css" />
+<script async
+  src="https://cdn.consentshield.in/v1/banner.js?org=432bca6d-8fce-415a-85e0-96397ddac666&prop=534ca6dc-0c07-4601-a9b9-e78f4268f7e0"></script>
+</head>
+<body>
+<header class="site-head">
+  <div class="wrap" style="display:flex;align-items:center;justify-content:space-between">
+    <div class="brand"><a href="/saas/">DemoOps</a></div>
+    <nav><a href="#">Dashboard</a><a href="#">Customers</a><a href="#">Billing</a></nav>
+  </div>
+</header>
+
+<main class="wrap" style="padding:32px 24px">
+  <h1 style="margin:0 0 8px">Welcome back</h1>
+  <p style="color:var(--mut);margin:0 0 24px">This page shows a modal consent banner. Analytics + personalisation purposes only — no marketing cookies.</p>
+
+  <div class="panel">
+    <h3>This month</h3>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px">
+      <div><div style="color:var(--mut);font-size:12px">MRR</div><div style="font-size:22px;font-weight:700">$42,310</div></div>
+      <div><div style="color:var(--mut);font-size:12px">Active users</div><div style="font-size:22px;font-weight:700">1,284</div></div>
+      <div><div style="color:var(--mut);font-size:12px">Trials</div><div style="font-size:22px;font-weight:700">72</div></div>
+      <div><div style="color:var(--mut);font-size:12px">Churn</div><div style="font-size:22px;font-weight:700">1.8%</div></div>
+    </div>
+  </div>
+
+  <div class="panel status">
+    <h3>Consent state (live)</h3>
+    <pre id="status">Waiting for banner interaction…</pre>
+  </div>
+</main>
+
+<footer class="site-foot wrap">
+  <div class="links">
+    <a href="https://consentshield-one.vercel.app/privacy/432bca6d-8fce-415a-85e0-96397ddac666">Privacy notice</a>
+    <a href="https://consentshield-one.vercel.app/rights/432bca6d-8fce-415a-85e0-96397ddac666">Your data rights</a>
+    <a href="/">All demos</a>
+  </div>
+</footer>
+
+<script>
+const TRACKERS = {
+  analytics: [
+    { src: 'https://cdn.mxpnl.com/libs/mixpanel-2-latest.min.js' }
+  ],
+  personalisation: [
+    { src: 'https://cdn.segment.com/analytics.js/v1/DEMO/analytics.min.js' },
+    { src: 'https://widget.intercom.io/widget/demo' }
+  ],
+  essential: []
+};
+
+function inject(src) {
+  const s = document.createElement('script');
+  s.src = src; s.async = true;
+  document.head.appendChild(s);
+}
+
+const status = document.getElementById('status');
+window.addEventListener('consentshield:consent', (e) => {
+  const { event_type, accepted, rejected } = e.detail;
+  status.textContent =
+    `event: ${event_type}\naccepted: ${accepted.join(', ') || '(none)'}\nrejected: ${rejected.join(', ') || '(none)'}`;
+  accepted.forEach(p => (TRACKERS[p] || []).forEach(t => inject(t.src)));
+});
+</script>
+</body>
+</html>

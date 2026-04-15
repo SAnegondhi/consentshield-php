@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>MediCare — ConsentShield demo</title>
+<link rel="stylesheet" href="/shared/demo.css" />
+<script async
+  src="https://cdn.consentshield.in/v1/banner.js?org=432bca6d-8fce-415a-85e0-96397ddac666&prop=79591058-7544-4862-973b-dccfdabf54ee"></script>
+</head>
+<body>
+<header class="site-head">
+  <div class="wrap" style="display:flex;align-items:center;justify-content:space-between">
+    <div class="brand"><a href="/healthtech/">MediCare</a></div>
+    <nav><a href="#">Find a doctor</a><a href="#">Appointments</a><a href="#">Records</a></nav>
+  </div>
+</header>
+
+<main class="wrap" style="padding:32px 24px;max-width:720px">
+  <h1 style="margin:0 0 8px">Book a consultation</h1>
+  <p style="color:var(--mut);margin:0 0 24px">This site collects only what is strictly necessary to schedule your appointment. No analytics, no advertising, no third-party sharing. The banner is one button — there is nothing optional to consent to.</p>
+
+  <div class="panel">
+    <h3>Why this page shows a banner at all</h3>
+    <p style="margin:0;color:var(--mut);font-size:14px">DPDP Section 5 still requires notice of what is collected, why, and for how long, even when only required data is processed. This banner satisfies that notice requirement.</p>
+  </div>
+
+  <div class="panel status">
+    <h3>Consent state (live)</h3>
+    <pre id="status">Waiting for banner interaction…</pre>
+  </div>
+</main>
+
+<footer class="site-foot wrap">
+  <div class="links">
+    <a href="https://consentshield-one.vercel.app/privacy/432bca6d-8fce-415a-85e0-96397ddac666">Privacy notice</a>
+    <a href="https://consentshield-one.vercel.app/rights/432bca6d-8fce-415a-85e0-96397ddac666">Your data rights</a>
+    <a href="/">All demos</a>
+  </div>
+</footer>
+
+<script>
+const status = document.getElementById('status');
+window.addEventListener('consentshield:consent', (e) => {
+  const { event_type, accepted, rejected } = e.detail;
+  status.textContent =
+    `event: ${event_type}\naccepted: ${accepted.join(', ') || '(none — no optional cookies)'}\nrejected: ${rejected.join(', ') || '(none)'}\n\nNo trackers were loaded. Monitoring is disabled on this property.`;
+});
+</script>
+</body>
+</html>

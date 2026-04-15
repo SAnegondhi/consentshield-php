@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>ConsentShield Demo Sites</title>
+<link rel="stylesheet" href="/shared/demo.css" />
+</head>
+<body>
+<header class="hero">
+  <div class="wrap">
+    <p class="eyebrow">Test fixtures for ConsentShield</p>
+    <h1>Demo Sites</h1>
+    <p class="lede">
+      Five fake customer sites, each with its own banner configuration and
+      tracker mix. Use these to exercise banner rendering, consent event
+      ingestion, tracker-observation monitoring, and the enforcement
+      dashboard on the ConsentShield admin app.
+    </p>
+  </div>
+</header>
+
+<main class="wrap grid">
+  <a class="card" href="/ecommerce/">
+    <h2>/ecommerce</h2>
+    <p>A mock online store. Full purpose set (analytics + marketing + personalisation). After consent, loads GA4, Meta Pixel, and Razorpay (functional, never a violation).</p>
+    <span class="tag">bottom-bar · monitoring on</span>
+  </a>
+  <a class="card" href="/saas/">
+    <h2>/saas</h2>
+    <p>A B2B dashboard. Analytics + personalisation only — no marketing cookies. Loads Segment, Mixpanel, Intercom (functional). Banner is a modal, not a bar.</p>
+    <span class="tag">modal · monitoring on</span>
+  </a>
+  <a class="card" href="/blog/">
+    <h2>/blog</h2>
+    <p>Smallest possible configuration. Analytics only (GA4). Corner banner. Use this to test minimal-banner rendering and single-tracker detection.</p>
+    <span class="tag">bottom-right · monitoring on</span>
+  </a>
+  <a class="card" href="/healthtech/">
+    <h2>/healthtech</h2>
+    <p>No optional cookies at all. Banner renders once per version, monitoring is off. Use this to verify the "no tracking" path does not accidentally fire observations.</p>
+    <span class="tag">bottom-bar · monitoring off</span>
+  </a>
+  <a class="card" href="/violator/">
+    <h2>/violator</h2>
+    <p>Looks like a normal site by default. Append <code>?violate=1</code> and it loads GA4 and Meta Pixel <em>before</em> consent — should surface as violations in the enforcement dashboard.</p>
+    <span class="tag">bottom-bar · monitoring on · <strong>?violate=1</strong></span>
+  </a>
+</main>
+
+<footer class="foot wrap">
+  <p>Admin app: <a href="https://consentshield-one.vercel.app">consentshield-one.vercel.app</a></p>
+</footer>
+</body>
+</html>
