@@ -68,14 +68,27 @@ export async function POST(
   const archive = await zip.generateAsync({ type: 'uint8array', compression: 'DEFLATE' })
 
   // Record a manifest row (pointer only — never the bytes).
-  await supabase.from('audit_export_manifests').insert({
-    org_id: orgId,
-    requested_by: user.id,
-    format_version: m.format_version,
-    section_counts: m.section_counts,
-    content_bytes: archive.byteLength,
-    delivery_target: 'direct_download',
-  })
+  // N-S2: fail loudly. A silent insert failure would ship a ZIP with no
+  // audit-trail row, breaking rule #4's customer-owned-record guarantee.
+  const { error: manifestError } = await supabase
+    .from('audit_export_manifests')
+    .insert({
+      org_id: orgId,
+      requested_by: user.id,
+      format_version: m.format_version,
+      section_counts: m.section_counts,
+      content_bytes: archive.byteLength,
+      delivery_target: 'direct_download',
+    })
+  if (manifestError) {
+    return NextResponse.json(
+      {
+        error: 'Failed to record export manifest',
+        detail: manifestError.message,
+      },
+      { status: 500 },
+    )
+  }
 
   const filename = `audit-export-${orgId}-${m.generated_at.replace(/[:.]/g, '-')}.zip`
   return new NextResponse(archive as unknown as BodyInit, {

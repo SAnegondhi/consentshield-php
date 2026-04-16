@@ -2,6 +2,33 @@
 
 Database migrations, RLS policies, roles.
 
+## Review fix-batch — 2026-04-16
+
+**Source:** `docs/reviews/2026-04-16-phase2-completion-review.md` (N-S1, N-S3)
+
+### Added
+- `20260416000008_worker_errors_table.sql` (N-S1) — operational
+  table for Cloudflare Worker → Supabase write failures. Org-scoped
+  read for `authenticated`; INSERT to `cs_worker`; SELECT to
+  `cs_orchestrator`; REVOKE update/delete from `authenticated`. New
+  daily cleanup cron `worker-errors-cleanup-daily` at `15 3 * * *`
+  enforces 7-day retention.
+- `20260416000009_cron_url_via_vault.sql` (N-S3) — re-schedules the
+  4 HTTP cron jobs (`sla-reminders-daily`,
+  `check-stuck-deletions-hourly`, `security-scan-nightly`,
+  `consent-probes-hourly`) to read the project URL from
+  `vault.decrypted_secrets where name = 'supabase_url'` instead of
+  hardcoding `https://xlqiakmkdjycfiioslgs.supabase.co`. Same Vault
+  pattern as `cs_orchestrator_key`.
+- `20260416000010_seed_supabase_url_vault.sql` (N-S3 follow-on) —
+  idempotent `vault.create_secret` for the `supabase_url` Vault
+  entry so `db push` is self-sufficient on a clean environment.
+
+### Tested
+- [x] `supabase db push --linked` — all 3 migrations applied clean.
+- [x] `bun run test` — 86/86 still passing (no regression in
+  scoped-role tests).
+
 ## ADR-0017 Sprint 1.1 — 2026-04-16
 
 **ADR:** ADR-0017 — Audit Export Package (Phase 1)

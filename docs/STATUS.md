@@ -4,22 +4,33 @@
 
 **Snapshot date:** 2026-04-16
 **Branch:** main
-**Latest commit:** `b38862b` — docs: log loose-end cleanup (migration 20260414000010 + stale auth user)
+**Latest commit:** `c83831e` — feat(ADR-0018): pre-built connectors — Mailchimp + HubSpot direct API
 
 ---
 
 ## Summary
 
-Phase 1 (ADR-0001…0007) closed on 2026-04-14. The 2026-04-14 codebase
-review (`docs/reviews/2026-04-14-codebase-architecture-review.md`)
-surfaced nine blocking and thirteen should-fix items; all nine blockers
-and nine should-fix items are closed, the remaining four are scoped
-into ADR-0010/0011/0012 (`docs/reviews/2026-04-15-deferred-items-analysis.md`).
-ADR-0013 (signup bootstrap hardening, OTP-only) Sprint 1 is complete
-and live-verified end-to-end. The Next.js app is deployed to Vercel at
+**Phase 2 of `docs/ROADMAP-phase2.md` is COMPLETE.** All 18 ADRs
+(0001–0018) are Completed. All 11 Phase-2 sprints shipped in the
+2026-04-16 execution session: distributed rate limiter (ADR-0010),
+deletion retry (ADR-0011), full automated test suite — workflows /
+worker / buffer (ADR-0012), OTP-only signup (ADR-0013), external
+service activation — Resend / Turnstile / Razorpay (ADR-0014),
+security posture scanner (ADR-0015), consent probes v1 (ADR-0016),
+audit export Phase 1 (ADR-0017), pre-built deletion connectors
+Mailchimp + HubSpot (ADR-0018). Test suite grew **39 → 86**.
+
+The 2026-04-14 codebase review's 9 blocking + 13 should-fix items are
+all closed (some via ADR-0010/0011/0012 per
+`docs/reviews/2026-04-15-deferred-items-analysis.md`). The
+`docs/reviews/2026-04-16-phase2-completion-review.md` re-audit is the
+authoritative gap list.
+
+The Next.js app is deployed to Vercel at
 `consentshield-one.vercel.app`, five static demo customer sites at
 `consentshield-demo.vercel.app`, the Worker at `cdn.consentshield.in`,
-and the SLA Edge Function in Supabase. No known blocking bugs.
+and four Edge Functions in Supabase. No known blocking bugs. Eleven
+consciously-deferred items live in `docs/V2-BACKLOG.md`.
 
 ---
 
@@ -40,9 +51,15 @@ and the SLA Edge Function in Supabase. No known blocking bugs.
 | 0011 | Deletion retry / timeout Edge Function | Completed |
 | 0012 | Automated test suites (worker / buffer / workflows) | Completed |
 | 0013 | Signup bootstrap hardening (OTP-only) | Completed |
+| 0014 | External service activation (Resend / Turnstile / Razorpay) | Completed |
+| 0015 | Security posture scanner (run-security-scans + dashboard) | Completed |
+| 0016 | Consent probes v1 (run-consent-probes — static HTML analysis; headless v2 → V2-P1) | Completed |
+| 0017 | Audit export package Phase 1 (direct-download ZIP; R2 upload → V2-X3) | Completed |
+| 0018 | Pre-built deletion connectors (Mailchimp + HubSpot direct API; OAuth → V2-C1) | Completed |
 
-See `docs/ROADMAP-phase2.md` for the 11-sprint Phase 2 plan (ADR-0010
-through ADR-0018).
+`docs/ROADMAP-phase2.md` (11 sprints, ADR-0010 through ADR-0018) is
+fully shipped. Next: post-Phase-2 review picks 2–3 items from
+`docs/V2-BACKLOG.md` to graduate into Phase-3 ADRs.
 
 ---
 
@@ -98,38 +115,54 @@ Phase 2 closes will pick 2–3 to graduate into follow-up ADRs.
 
 ---
 
-## Most Recent Work (2026-04-14 → 2026-04-16)
+## Most Recent Work (2026-04-16 marathon — Phase 2 close-out)
 
-Commits, newest first:
+Commits from the Phase-2 execution session, newest first:
 
 ```
+c83831e feat(ADR-0018): pre-built connectors — Mailchimp + HubSpot direct API
+2204367 feat(ADR-0017): audit export package — Phase 1 direct-download ZIP
+293659f docs(CLAUDE.md): record v2-backlog rule alongside ADR workflow
+d9372da docs: consolidate deferred-item backlog into docs/V2-BACKLOG.md
+8819732 feat(ADR-0016): consent probes v1 — static HTML analysis
+b0106d5 feat(ADR-0015): security posture scanner — headers + TLS nightly
+9d7085d feat(ADR-0014): completed — Turnstile + Razorpay live on production
+3e1457e feat(ADR-0014): remove Resend onboarding@resend.dev fallback
+52199c5 feat(ADR-0012): sprint 3 — buffer-pipeline + lifecycle REVOKE tests
+8dee427 docs(ADR-0013): close open items — ops runbook + stale status cleanup
+7e72e6f feat(ADR-0012): sprint 2 — Worker test harness with Miniflare
+05ec7fc chore(ops): fix cron jobs — redeploy sla-reminders, unschedule orphans
+649d5dd feat(ADR-0011): sprint 1 — deletion retry + timeout for stuck callbacks
+67c1f7d docs: log ADR-0012 Sprint 1 — index, CHANGELOG-schema, STATUS
+1dfaafc feat(ADR-0012): sprint 1 — SLA-timer + URL-path RLS test coverage
+23fc160 feat(ADR-0010): sprint 1.1 completed — Upstash live, ADR closed
+b3b596f docs: log ADR-0010 Sprint 1.1 — index, CHANGELOG-api, STATUS
+599e169 feat(ADR-0010): sprint 1.1 — distributed rate limiter via Upstash Redis
+0404b67 docs: refresh STATUS.md to the 2026-04-16 pause point
 b38862b docs: log loose-end cleanup (migration 20260414000010 + stale auth user)
 2404833 chore: remove no-op grant usage on auth schema from migration 20260414000010
-28523d8 fix: public.current_uid() helper replaces auth.uid() in scoped-role RPCs
-0ee7a80 feat(ADR-0013): OTP boxes UX + support variable token lengths
-6f9ea01 feat(ADR-0013): sprint 1.2 — OTP-only signup + login (supersedes magic link)
-c3c0f67 feat(ADR-0013): sprint 1 — single /auth/callback for signup bootstrap
-90cfd5d feat: root page is now a real landing with signup/login + demo-sites link
-fcb0de4 feat: test-sites — 5 static demo customer pages for ConsentShield
-266d885 fix: scoped roles need BYPASSRLS + auth schema usage for security-definer RPCs
-dc6b2c3 docs: refresh .env.local.example for Vercel + ADR-0008/0009 reality
-ebfc5f8 docs: Phase 2 roadmap — 11 sprints sequenced by dependency + ROI
-f850568 docs: STATUS.md refreshed for the 2026-04-15 pause point
-ac8b2de docs: deferred-items analysis — schedule S-1/S-5/S-11 into ADR-0010/0011/0012
-d619c29 chore: deployment fixups after hosted-Supabase + pooler constraints
-adcc184 fix: should-fix batch from 2026-04-14 review (S-3, S-6, S-7, S-10, S-12)
-da0d168 feat(ADR-0009): complete B-4 — zero service-role usage in app code
-d50b98b fix: close B-5, B-7, B-8, B-9 from 2026-04-14 review
-b21b0dc feat(ADR-0009): sprint 1.1 — scoped-role RPCs for public buffer writes (B-4 partial, B-6)
-788c63c feat(ADR-0008): phase 1 — browser auth hardening (B-1, B-2, B-3)
 ```
+
+Earlier 2026-04-14/15 commits (Phase 1 close-out and ADR-0008/0009/0013
+groundwork) are preserved in `git log`.
 
 ---
 
 ## Where to Pick Up Next
 
-`docs/ROADMAP-phase2.md` enumerates Sprints 1–11. Sprint 1 (ADR-0013)
-is Complete. Two candidates for the next session:
+Phase 2 is closed. The natural next step is the **post-Phase-2
+review**:
 
-- **Sprint 2 — ADR-0010 distributed rate limiter.** ~3 h. Replaces the in-memory `Map` in `src/lib/rights/rate-limit.ts` with Upstash Redis via the Vercel Marketplace (Vercel KV is no longer offered as of 2025).
-- **Sprint 3 — ADR-0012 Sprint 1 (SLA-timer property tests + the S-2 URL-path RLS test).** Smallest useful bite, no new deps.
+1. Walk the existing code end-to-end (start with the
+   `2026-04-16-phase2-completion-review.md` gap report).
+2. Pick **2–3 architecture decision points** from
+   `docs/V2-BACKLOG.md` to graduate into Phase-3 ADRs.
+3. Down-grade or close the rest.
+
+Out-of-phase Phase-3+ headlines (per the Phase-2 roadmap "Out of
+scope"):
+
+- Continuous buffer-delivery-to-R2 pipeline (prerequisite for
+  ADR-0017's Phase 2 R2 upload flow — V2-X3).
+- GDPR dual-framework (multi-sprint, schema-wide).
+- ABDM healthcare module (never persists FHIR per rule #3).

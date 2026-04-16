@@ -149,6 +149,13 @@ async function handleMockSupabase(request: Request, state: MockState): Promise<R
     return new Response(null, { status: 201 })
   }
 
+  // POST /rest/v1/worker_errors — N-S1 fallback observability path
+  if (request.method === 'POST' && path === '/rest/v1/worker_errors') {
+    const body = await safeJson(request)
+    state.writes.push({ url: request.url, method: 'POST', body })
+    return new Response(null, { status: 201 })
+  }
+
   return new Response(`no mock for ${request.method} ${path}`, { status: 404 })
 }
 

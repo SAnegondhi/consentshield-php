@@ -2,6 +2,34 @@
 
 Cloudflare Worker changes.
 
+## Review fix-batch — 2026-04-16
+
+**Source:** `docs/reviews/2026-04-16-phase2-completion-review.md` (N-S1)
+
+### Added
+- `worker/src/worker-errors.ts` — `logWorkerError(env, record)`
+  helper. Best-effort POST to `/rest/v1/worker_errors` via the
+  existing `cs_worker` REST credential; caps `upstream_error` text
+  at 1000 chars. Zero new dependencies (rule #15).
+
+### Changed
+- `worker/src/events.ts` — when the consent_events INSERT returns
+  non-2xx, the upstream error is now also persisted to
+  `worker_errors` via `ctx.waitUntil(logWorkerError(...))`. Customer
+  page response remains 202; latency unchanged.
+- `worker/src/observations.ts` — same change for the
+  tracker_observations INSERT path.
+
+### Tested
+- `tests/worker/harness.ts` gains a mock for `POST
+  /rest/v1/worker_errors` so any future failure-path test won't
+  receive a 404 from the in-memory mock router.
+- [x] `bun run test` — 86/86 still passing (the existing tests all
+  exercise the success path, so the new fallback doesn't fire).
+
+**Deploy:** requires `bunx wrangler deploy` from `worker/` (not
+applied automatically by `db push`).
+
 ## ADR-0012 Sprint 2 — 2026-04-16
 
 **ADR:** ADR-0012 — Automated Test Suites for High-Risk Paths

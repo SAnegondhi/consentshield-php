@@ -1,6 +1,7 @@
 import type { Env } from './index'
 import { sha256, verifyHMAC, isTimestampValid } from './hmac'
 import { getPropertyConfig, getPreviousSigningSecret, validateOrigin, rejectOrigin } from './origin'
+import { logWorkerError } from './worker-errors'
 
 interface ObservationPayload {
   org_id: string
@@ -115,7 +116,17 @@ export async function handleObservation(
   })
 
   if (!bufferRes.ok) {
-    console.error('Observation write failed:', await bufferRes.text())
+    const upstreamError = await bufferRes.text()
+    console.error('Observation write failed:', upstreamError)
+    ctx.waitUntil(
+      logWorkerError(env, {
+        org_id: body.org_id,
+        property_id: body.property_id,
+        endpoint: '/v1/observations',
+        status_code: bufferRes.status,
+        upstream_error: upstreamError,
+      }),
+    )
   }
 
   return new Response(null, { status: 202, headers: CORS_HEADERS })

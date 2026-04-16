@@ -2,6 +2,22 @@
 
 API route changes.
 
+## Review fix-batch — 2026-04-16
+
+**Source:** `docs/reviews/2026-04-16-phase2-completion-review.md` (N-S2)
+
+### Fixed
+- `src/app/api/orgs/[orgId]/audit-export/route.ts` — the
+  `audit_export_manifests` INSERT was previously awaited but its
+  error was never inspected, so a silent insert failure could ship
+  a ZIP with no audit-trail row (breaking rule #4's customer-owned-
+  record guarantee). Capture `{ error }`, return HTTP 500 with the
+  Supabase error message before serving the ZIP.
+
+### Tested
+- [x] `bun run test` — 86/86 still passing.
+- [x] `bun run build` — clean.
+
 ## ADR-0018 Sprint 1.1 — 2026-04-16
 
 **ADR:** ADR-0018 — Pre-built Deletion Connectors (Phase 1)
