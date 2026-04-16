@@ -2,6 +2,29 @@
 
 Database migrations, RLS policies, roles.
 
+## ADR-0017 Sprint 1.1 — 2026-04-16
+
+**ADR:** ADR-0017 — Audit Export Package (Phase 1)
+
+### Added
+- `20260416000007_audit_export.sql`:
+  - Table `audit_export_manifests` — pointer-only history of
+    exports (never stores ZIP bytes). RLS restricts SELECT to the
+    org; INSERT flows through the RPC as `cs_orchestrator`.
+  - Function `public.rpc_audit_export_manifest(p_org_id uuid)` —
+    security-definer aggregator owned by `cs_orchestrator`, granted
+    to `authenticated`. Returns a single JSONB blob containing org
+    profile, data inventory, banners, properties, consent-events
+    monthly rollup (last 90 days), rights-request bucketed summary,
+    deletion receipts (hash only — never raw identifier), latest
+    security-scan signals per property, and last-30-day probe runs.
+  - Membership guard: caller must be a member of the org.
+
+### Tested
+- [x] `supabase db push` — migration applied clean.
+- [x] Direct psql call to the RPC as superuser (no JWT) fails with
+  `unauthenticated` — security-definer guard confirmed.
+
 ## ADR-0016 Sprint 1 — 2026-04-16
 
 **ADR:** ADR-0016 — Consent Probes (static HTML analysis v1)

@@ -20,6 +20,7 @@ All Architecture Decision Records for ConsentShield, in chronological order.
 | ADR-0014 | External Service Activation (Resend / Turnstile / Razorpay) | Completed | 2026-04-16 | 1 | 1 |
 | ADR-0015 | Security Posture Scanner (run-security-scans Edge Function + dashboard) | Completed | 2026-04-16 | 1 | 1 |
 | ADR-0016 | Consent Probes v1 (static HTML analysis; run-consent-probes Edge Function + dashboard) | Completed | 2026-04-16 | 1 | 1 |
+| ADR-0017 | Audit Export Package (Phase 1: direct-download ZIP; R2 upload → V2-X3) | Completed | 2026-04-16 | 1 | 1 |
 
 <!--
 When adding a new ADR:

@@ -2,6 +2,21 @@
 
 API route changes.
 
+## ADR-0017 Sprint 1.1 — 2026-04-16
+
+**ADR:** ADR-0017 — Audit Export Package (Phase 1)
+
+### Added
+- `src/app/api/orgs/[orgId]/audit-export/route.ts`: authenticated
+  `POST`. Runs the aggregator RPC, pipes every section into a JSZip
+  archive, records a manifest row, returns the archive as an
+  `application/zip` attachment. `delivery_target = 'direct_download'`
+  for Phase 1; the R2 upload flow is V2-X3.
+- `jszip@3.10.1` in `dependencies`, exact-pinned.
+
+### Tested
+- [x] Build + lint + test — clean (81/81 pass).
+
 ## ADR-0010 Sprint 1.1 — 2026-04-16
 
 **ADR:** ADR-0010 — Distributed Rate Limiter

@@ -2,6 +2,16 @@
 
 Next.js UI changes.
 
+## ADR-0017 Sprint 1.1 — 2026-04-16
+
+### Added
+- New page `src/app/(dashboard)/dashboard/exports/page.tsx` — lists
+  past export manifests (pointer-only; no ZIP bytes stored) with an
+  **Export ZIP** button that triggers `POST /api/orgs/[orgId]/audit-export`,
+  downloads the archive in-browser, and reloads the manifest list.
+- Companion client component `export-button.tsx` handles the
+  fetch-to-blob-to-anchor download flow.
+
 ## ADR-0016 Sprint 1 — 2026-04-16
 
 ### Changed
