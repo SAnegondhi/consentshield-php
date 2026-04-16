@@ -2,7 +2,7 @@
 
 (c) 2026 Sudhindra Anegondhi a.d.sudhindra@gmail.com
 
-**Status:** Completed (pending live manual signup test)
+**Status:** Completed
 **Date proposed:** 2026-04-15
 **Date completed:** 2026-04-15
 
@@ -142,7 +142,7 @@ email-as-identity moment.
 - Idempotency: existing user re-submitting the signup form does not
   create a new org.
 
-**Status:** `[x] complete` (pending live manual test)
+**Status:** `[x] complete`
 
 ---
 
@@ -189,16 +189,28 @@ Expected: organisations + organisation_members + audit_log rows
   created under the new auth.uid().
 Actual: confirmed by user. Idempotency not stressed yet (single
   fresh account) — revisit on next signup.
-Result: PASS (pending idempotency regression test in ADR-0012).
+Result: PASS. Idempotency regression test remains deferred — see
+follow-ups below.
 ```
 
 ### Follow-ups noted
 
 - DMARC is back at strict `p=reject` which is fine post-fix; relaxed
   alignment (`adkim=r; aspf=r`) stays.
-- Operators adding any *new* Supabase Auth flow (password reset, etc.)
-  must customise that template too. Add a checklist item to the ops
-  runbook.
+- **Ops runbook published.** `docs/ops/supabase-auth-templates.md`
+  carries the paste-ready OTP HTML for all four Supabase email
+  templates (Confirm signup, Magic Link, Reset Password,
+  Change Email Address). Anyone enabling a new auth flow uses that
+  file, not this ADR.
+- **Idempotency regression test — deferred.** The guard against
+  double-bootstrap lives in `src/app/auth/callback/route.ts` (checks
+  `organisation_members` before calling `rpc_signup_bootstrap_org`),
+  not in the RPC itself. Testing it requires Next.js route-handler
+  invocation with a mocked Supabase client; no such harness exists
+  in this repo yet. Will ride along with ADR-0012 Sprint 3
+  (buffer-pipeline + route tests) or a dedicated follow-up ADR.
+  Live single-account signup passed, so no known bug — only the
+  automated safety net is missing.
 
 ---
 

@@ -75,7 +75,7 @@ through ADR-0018).
 
 | Item | Action required |
 |------|-----------------|
-| Supabase email templates (password reset, email change) | Stock templates still use click-through links. Paste the OTP-form HTML from the `reference_email_deliverability` memory before enabling those flows. "Confirm signup" and "Magic Link" templates are already OTP-ready. |
+| Supabase email templates (password reset, email change) | Stock templates still use click-through links. Paste the OTP-form HTML from `docs/ops/supabase-auth-templates.md` before enabling those flows. "Confirm signup" and "Magic Link" templates are already OTP-ready. |
 | Resend domain verification | `consentshield.in` verified; relaxed-alignment DMARC live; deliverability confirmed to Gmail. |
 | Turnstile production keys | Using CF always-pass test keys on Vercel. Production fail-fast is enforced; replace before any real traffic. |
 | Razorpay account | No keys. Billing UI will 500 on checkout; intentional until real keys exist. |
