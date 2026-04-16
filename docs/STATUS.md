@@ -77,8 +77,8 @@ through ADR-0018).
 |------|-----------------|
 | Supabase email templates (password reset, email change) | Stock templates still use click-through links. Paste the OTP-form HTML from `docs/ops/supabase-auth-templates.md` before enabling those flows. "Confirm signup" and "Magic Link" templates are already OTP-ready. |
 | Resend domain verification | `consentshield.in` verified; relaxed-alignment DMARC live; deliverability confirmed to Gmail. |
-| Turnstile production keys | Using CF always-pass test keys on Vercel. Production fail-fast is enforced; replace before any real traffic. |
-| Razorpay account | No keys. Billing UI will 500 on checkout; intentional until real keys exist. |
+| Turnstile production keys | Live. Real site + secret keys deployed to Vercel Production; verified via live fake-token rejection. Preview env vars not set (new CLI requires per-branch targeting — see ADR-0014). |
+| Razorpay account | Live in test mode. Seven env vars set on Vercel Production. End-to-end checkout UX smoke with a test card still pending — infrastructure is all in place. |
 | Vercel Deployment Protection | Off on both projects for dev; revisit before any real traffic. |
 | NEXT_PUBLIC_APP_URL | Currently points to `https://consentshield-one.vercel.app`. Revisit if a custom domain is added. |
 
