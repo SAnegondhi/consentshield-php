@@ -10,7 +10,7 @@ const VALID_TYPES = ['erasure', 'access', 'correction', 'nomination']
 export async function POST(request: Request) {
   const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown'
 
-  const limit = checkRateLimit(`rights:${ip}`, 5, 60)
+  const limit = await checkRateLimit(`rl:rights:${ip}`, 5, 60)
   if (!limit.allowed) {
     return NextResponse.json(
       { error: 'Too many requests. Try again later.', retry_in_seconds: limit.retryInSeconds },

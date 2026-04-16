@@ -7,7 +7,7 @@ import { sendComplianceNotification } from '@/lib/rights/email'
 export async function POST(request: Request) {
   const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown'
 
-  const limit = checkRateLimit(`rights-otp:${ip}`, 10, 60)
+  const limit = await checkRateLimit(`rl:rights-otp:${ip}`, 10, 60)
   if (!limit.allowed) {
     return NextResponse.json(
       { error: 'Too many attempts. Try again later.' },
