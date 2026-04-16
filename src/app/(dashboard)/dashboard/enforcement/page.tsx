@@ -51,7 +51,7 @@ export default async function EnforcementPage() {
   const since7d = isoSinceHours(24 * 7)
   const since24h = isoSinceHours(24)
 
-  const [observationsRes, violations7dRes, properties] = await Promise.all([
+  const [observationsRes, violations7dRes, properties, scansRes] = await Promise.all([
     supabase
       .from('tracker_observations')
       .select('id, property_id, consent_state, trackers_detected, violations, page_url_hash, observed_at')
@@ -62,7 +62,12 @@ export default async function EnforcementPage() {
       .from('tracker_observations')
       .select('violations, observed_at')
       .gte('observed_at', since7d),
-    supabase.from('web_properties').select('id, name'),
+    supabase.from('web_properties').select('id, name, url'),
+    supabase
+      .from('security_scans')
+      .select('property_id, scan_type, severity, signal_key, details, remediation, scanned_at')
+      .order('scanned_at', { ascending: false })
+      .limit(500),
   ])
 
   const observations = (observationsRes.data ?? []) as ObservationRow[]
@@ -71,7 +76,30 @@ export default async function EnforcementPage() {
     observed_at: string
   }[]
 
-  const propertyMap = new Map((properties.data ?? []).map((p) => [p.id, p.name]))
+  const propertyRows = (properties.data ?? []) as Array<{ id: string; name: string; url: string }>
+  const propertyMap = new Map(propertyRows.map((p) => [p.id, p.name]))
+
+  interface ScanRow {
+    property_id: string
+    scan_type: string
+    severity: 'info' | 'low' | 'medium' | 'high' | 'critical'
+    signal_key: string
+    details: Record<string, unknown> | null
+    remediation: string | null
+    scanned_at: string
+  }
+  const scans = (scansRes.data ?? []) as ScanRow[]
+  const latestScanAt = scans.length > 0 ? scans[0].scanned_at : null
+  // Most-recent scan batch per property (group by scanned_at bucket per property).
+  const latestScansByProperty = new Map<string, ScanRow[]>()
+  for (const scan of scans) {
+    if (!latestScansByProperty.has(scan.property_id)) {
+      latestScansByProperty.set(scan.property_id, [scan])
+    } else {
+      const existing = latestScansByProperty.get(scan.property_id)!
+      if (existing[0].scanned_at === scan.scanned_at) existing.push(scan)
+    }
+  }
 
   // Aggregate violations by slug
   const byTracker = new Map<string, { slug: string; count: number; category: string }>()
@@ -198,8 +226,79 @@ export default async function EnforcementPage() {
         <CategoryStat label="Personalisation" count={detectedByCategory.p ?? 0} />
         <CategoryStat label="Functional" count={detectedByCategory.f ?? 0} />
       </section>
+
+      <section className="rounded border border-gray-200">
+        <div className="px-4 py-3 border-b border-gray-200 flex items-baseline justify-between">
+          <div>
+            <h2 className="font-medium">Security Posture</h2>
+            <p className="text-xs text-gray-500">
+              Nightly header + TLS scan per property. See ADR-0015.
+            </p>
+          </div>
+          <p className="text-xs text-gray-500">
+            {latestScanAt ? `Last scan: ${new Date(latestScanAt).toLocaleString()}` : 'No scan yet'}
+          </p>
+        </div>
+        {propertyRows.length > 0 ? (
+          <table className="w-full text-sm">
+            <thead className="bg-gray-50 text-left text-xs">
+              <tr>
+                <th className="px-4 py-2 font-medium">Property</th>
+                <th className="px-4 py-2 font-medium">Highest Severity</th>
+                <th className="px-4 py-2 font-medium">Findings</th>
+                <th className="px-4 py-2 font-medium">Worst Signal</th>
+              </tr>
+            </thead>
+            <tbody>
+              {propertyRows.map((p) => {
+                const propScans = latestScansByProperty.get(p.id) ?? []
+                const nonInfo = propScans.filter((s) => s.severity !== 'info')
+                const worst = pickWorst(propScans)
+                return (
+                  <tr key={p.id} className="border-t border-gray-200">
+                    <td className="px-4 py-2">{p.name}</td>
+                    <td className="px-4 py-2"><SeverityBadge level={worst?.severity ?? 'unscanned'} /></td>
+                    <td className="px-4 py-2 text-xs text-gray-600">
+                      {propScans.length > 0 ? `${nonInfo.length} issues / ${propScans.length} checks` : '—'}
+                    </td>
+                    <td className="px-4 py-2 font-mono text-xs text-gray-700">
+                      {worst?.signal_key ?? '—'}
+                    </td>
+                  </tr>
+                )
+              })}
+            </tbody>
+          </table>
+        ) : (
+          <p className="px-4 py-8 text-center text-sm text-gray-600">
+            Add a web property to enable security scans.
+          </p>
+        )}
+      </section>
     </main>
   )
+}
+
+const severityRank: Record<string, number> = {
+  critical: 5, high: 4, medium: 3, low: 2, info: 1, unscanned: 0,
+}
+
+function pickWorst<T extends { severity: string }>(rows: T[]): T | null {
+  if (rows.length === 0) return null
+  return rows.reduce((a, b) => (severityRank[b.severity] > severityRank[a.severity] ? b : a))
+}
+
+function SeverityBadge({ level }: { level: string }) {
+  const map: Record<string, string> = {
+    critical: 'bg-red-200 text-red-900',
+    high:     'bg-red-100 text-red-700',
+    medium:   'bg-amber-100 text-amber-800',
+    low:      'bg-yellow-100 text-yellow-800',
+    info:     'bg-green-100 text-green-700',
+    unscanned:'bg-gray-100 text-gray-500',
+  }
+  const cls = map[level] ?? 'bg-gray-100 text-gray-700'
+  return <span className={`rounded px-2 py-0.5 text-xs font-medium ${cls}`}>{level}</span>
 }
 
 function Stat({

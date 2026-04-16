@@ -2,6 +2,27 @@
 
 Supabase Edge Function changes.
 
+## ADR-0015 Sprint 1.1 — 2026-04-16
+
+**ADR:** ADR-0015 — Security Posture Scanner
+**Sprint:** Phase 1, Sprint 1.1
+
+### Added
+- `supabase/functions/run-security-scans/index.ts`: nightly posture
+  scan. For every `web_properties` row it fetches the URL over HTTPS
+  and inspects response headers for HSTS, CSP, X-Frame-Options, and
+  Referrer-Policy, plus TLS reachability. Emits one row per finding
+  into `security_scans` (already a buffer table with the
+  `cs_orchestrator` INSERT grant from migration 010). Writes
+  `posture_finding` audit events for every non-info finding. Zero
+  dependencies beyond `supabase-js`.
+
+### Deployment
+- `supabase functions deploy run-security-scans --no-verify-jwt`.
+
+### Tested
+- [x] Manual `net.http_post` — 200 OK, 18 findings from 6 properties.
+
 ## ADR-0011 Sprint 1.1 — 2026-04-16
 
 **ADR:** ADR-0011 — Deletion Retry and Timeout

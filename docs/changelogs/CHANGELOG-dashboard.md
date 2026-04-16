@@ -2,6 +2,23 @@
 
 Next.js UI changes.
 
+## ADR-0015 Sprint 1.1 — 2026-04-16
+
+**ADR:** ADR-0015 — Security Posture Scanner
+**Sprint:** Phase 1, Sprint 1.1
+
+### Changed
+- `src/app/(dashboard)/dashboard/enforcement/page.tsx`: new
+  **Security Posture** section. Queries `security_scans` alongside
+  the existing tracker-observations queries; for every property
+  shows the highest-severity finding from its most-recent scan with
+  a colour-coded badge (critical / high / medium / low / info /
+  unscanned). Lists total findings and the worst `signal_key` per
+  property.
+
+### Tested
+- [x] `bun run build` + `bun run lint` + `bun run test` — clean.
+
 ## ADR-0013 Sprint 1.2 — 2026-04-15
 
 ### Changed

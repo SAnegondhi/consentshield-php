@@ -2,6 +2,23 @@
 
 Database migrations, RLS policies, roles.
 
+## ADR-0015 Sprint 1.1 — 2026-04-16
+
+**ADR:** ADR-0015 — Security Posture Scanner
+**Sprint:** Phase 1, Sprint 1.1
+
+### Added
+- `20260416000005_security_scan_cron.sql`: re-schedules the nightly
+  `security-scan-nightly` cron at `30 20 * * *` (02:00 IST) pointing
+  at the newly-built `run-security-scans` Edge Function. (Had been
+  dropped in migration `20260416000004` because the function didn't
+  exist yet.)
+
+### Tested
+- [x] `supabase db push` — migration applied clean.
+- [x] `net.http_post` live call to the function returned 200 with
+  `{"scanned":6,"findings":18,"violations":12}`.
+
 ## ADR-0012 Sprint 3 — 2026-04-16
 
 **ADR:** ADR-0012 — Automated Test Suites for High-Risk Paths
