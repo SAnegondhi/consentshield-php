@@ -2,6 +2,35 @@
 
 API route changes.
 
+## ADR-0010 Sprint 1.1 — 2026-04-16
+
+**ADR:** ADR-0010 — Distributed Rate Limiter
+**Sprint:** Phase 1, Sprint 1.1
+
+### Added
+- `@upstash/redis@1.37.0` — REST client for the Vercel Marketplace
+  Upstash integration. Exact-pinned.
+- `tests/rights/rate-limit.test.ts` — four-case Vitest covering the
+  in-memory fallback (fresh / within-limit / exceed / reset-after-window).
+
+### Changed
+- `src/lib/rights/rate-limit.ts` — replaces the module-scoped `Map`
+  with an Upstash-backed fixed-window counter. `checkRateLimit` is
+  now `async`. Primary path: pipeline of `SET NX EX` + `INCR` + `PTTL`,
+  one REST round trip. Falls back to the original in-memory Map when
+  `KV_REST_API_URL` / `KV_REST_API_TOKEN` (aliased as
+  `UPSTASH_REDIS_REST_*`) are unset, with a one-time console warning.
+- `src/app/api/public/rights-request/route.ts` and
+  `.../verify-otp/route.ts` — both now `await checkRateLimit(...)`
+  and use `rl:` key-prefix (`rl:rights:<ip>`, `rl:rights-otp:<ip>`).
+
+### Tested
+- [x] `bun run test` — 43 / 43 PASS (was 39, +4 new for rate-limit)
+- [x] `bun run lint` — PASS
+- [x] `bun run build` — PASS
+- [ ] Manual multi-instance 429 — pending Upstash provisioning in
+  Vercel Dashboard (user action)
+
 ## ADR-0008 Sprint 1.3 — 2026-04-14
 
 **ADR:** ADR-0008 — Browser Auth Hardening
