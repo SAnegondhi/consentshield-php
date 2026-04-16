@@ -1952,6 +1952,134 @@
       "related_bugs": [],
       "occurrences": 1,
       "last_seen": "2026-04-16T14:46:53.058Z"
+    },
+    {
+      "id": "bug-123",
+      "timestamp": "2026-04-16T15:34:52.414Z",
+      "error_message": "Incorrect value in code",
+      "file": "package.json",
+      "root_cause": "Had \"admin\"",
+      "fix": "Changed to \"worker\"",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "json"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-16T15:34:52.414Z"
+    },
+    {
+      "id": "bug-124",
+      "timestamp": "2026-04-16T15:39:55.466Z",
+      "error_message": "Incorrect value in code",
+      "file": "app/tests/worker/harness.ts",
+      "root_cause": "Had '../../worker/src/index.ts'",
+      "fix": "Changed to '../../../worker/src/index.ts'",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-16T15:39:55.466Z"
+    },
+    {
+      "id": "bug-125",
+      "timestamp": "2026-04-16T15:40:45.094Z",
+      "error_message": "Incorrect value in code",
+      "file": "app/tests/buffer/lifecycle.test.ts",
+      "root_cause": "Had '../rls/helpers'",
+      "fix": "Changed to '../../../tests/rls/helpers'",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-16T15:40:45.094Z"
+    },
+    {
+      "id": "bug-126",
+      "timestamp": "2026-04-16T15:41:53.241Z",
+      "error_message": "Incorrect value in code",
+      "file": "docs/architecture/consentshield-definitive-architecture.md",
+      "root_cause": "Had `src/app/`",
+      "fix": "Changed to `app/src/app/`",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-16T15:41:53.241Z"
+    },
+    {
+      "id": "bug-127",
+      "timestamp": "2026-04-16T15:42:11.243Z",
+      "error_message": "Incorrect value in code",
+      "file": "docs/design/screen designs and ux/ARCHITECTURE-ALIGNMENT-2026-04-16.md",
+      "root_cause": "Had `src/app/`",
+      "fix": "Changed to `app/src/app/`",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 2,
+      "last_seen": "2026-04-16T15:42:13.918Z"
+    },
+    {
+      "id": "bug-128",
+      "timestamp": "2026-04-16T15:42:53.802Z",
+      "error_message": "Significant refactor of ",
+      "file": "CLAUDE.md",
+      "root_cause": "6 lines replaced/restructured",
+      "fix": "Rewrote 8→12 lines (6 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-16T15:42:53.802Z"
+    },
+    {
+      "id": "bug-129",
+      "timestamp": "2026-04-16T15:42:57.433Z",
+      "error_message": "Incorrect value in code",
+      "file": "CLAUDE.md",
+      "root_cause": "Had `npm run build && npm run lint && npm test`",
+      "fix": "Changed to `cd app && bun run build && bun run lint && bun ru",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-16T15:42:57.433Z"
+    },
+    {
+      "id": "bug-130",
+      "timestamp": "2026-04-16T15:43:25.533Z",
+      "error_message": "Significant refactor of ",
+      "file": "docs/ADRs/ADR-0026-monorepo-restructure.md",
+      "root_cause": "2 lines replaced/restructured",
+      "fix": "Rewrote 5→10 lines (2 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-16T15:43:25.533Z"
     }
   ]
 }

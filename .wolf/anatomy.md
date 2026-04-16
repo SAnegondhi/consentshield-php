@@ -1,7 +1,7 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-04-16T15:23:55.053Z
-> Files: 238 tracked | Anatomy hits: 0 | Misses: 0
+> Auto-maintained by OpenWolf. Last scanned: 2026-04-16T15:44:06.771Z
+> Files: 244 tracked | Anatomy hits: 0 | Misses: 0
 
 ## ../../../.claude/plans/
 
@@ -34,18 +34,32 @@
 
 ## ./
 
-- `.gitignore` — Git ignore rules (~167 tok)
+- `.gitignore` — Git ignore rules (~182 tok)
 - `.prettierrc` (~29 tok)
-- `CLAUDE.md` — OpenWolf (~4778 tok)
-- `package.json` — Node.js package manifest (~234 tok)
+- `CLAUDE.md` — OpenWolf (~4938 tok)
+- `package.json` — Node.js package manifest (~104 tok)
 - `sentry.client.config.ts` (~166 tok)
 - `sentry.server.config.ts` (~166 tok)
+- `tsconfig.base.json` (~110 tok)
 - `tsconfig.json` — TypeScript configuration (~206 tok)
-- `vitest.config.ts` — /*.test.ts'], (~106 tok)
+- `vitest.config.ts` — /*.test.ts'], (~77 tok)
 
 ## .claude/
 
 - `session-handoff.md` — Session Handoff (~2448 tok)
+
+## app/
+
+- `package.json` — Node.js package manifest (~245 tok)
+- `tsconfig.json` — TypeScript configuration (~117 tok)
+
+## app/tests/buffer/
+
+- `lifecycle.test.ts` — Migration 011 (20260413000011) revokes UPDATE and DELETE on all buffer (~1002 tok)
+
+## app/tests/worker/
+
+- `harness.ts` — API routes: GET (2 endpoints) (~1828 tok)
 
 ## docs/
 
@@ -73,9 +87,9 @@
 - `ADR-0016-consent-probes.md` — ADR-0016: Consent Probes (Synthetic Compliance Testing) (~1518 tok)
 - `ADR-0017-audit-export-package.md` — ADR-0017: Audit Export Package (~1578 tok)
 - `ADR-0018-prebuilt-deletion-connectors.md` — ADR-0018: Pre-built Deletion Connectors (Mailchimp, HubSpot) (~1457 tok)
-- `ADR-0026-monorepo-restructure.md` — ADR-0026: Monorepo Restructure (Bun Workspace — `app/` + `admin/` + `packages/*`) (~6230 tok)
+- `ADR-0026-monorepo-restructure.md` — ADR-0026: Monorepo Restructure (Bun Workspace — `app/` + `admin/` + `packages/*`) (~6882 tok)
 - `ADR-0027-admin-schema.md` — ADR-0027: Admin Platform Schema (cs_admin Role + `admin.*` Tables + Audit Log + Impersonation) (~7272 tok)
-- `ADR-index.md` — ADR Index (~759 tok)
+- `ADR-index.md` — ADR Index (~760 tok)
 - `ADR-template.md` — ADR-NNNN: Title (~423 tok)
 - `adr-workflow.md` — ADR Workflow Rules (~557 tok)
 
@@ -93,7 +107,7 @@
 ## docs/architecture/
 
 - `consentshield-complete-schema-design.md` — ConsentShield — Complete Schema Design (~31802 tok)
-- `consentshield-definitive-architecture.md` — ConsentShield — Definitive Architecture Reference (~15477 tok)
+- `consentshield-definitive-architecture.md` — ConsentShield — Definitive Architecture Reference (~15470 tok)
 - `consentshield-testing-strategy.md` — ConsentShield — The Testing Question (~8693 tok)
 - `nextjs-16-reference.md` — Next.js 16 — Project Reference (~1408 tok)
 
@@ -103,7 +117,7 @@
 - `CHANGELOG-dashboard.md` — Changelog — Dashboard (~852 tok)
 - `CHANGELOG-docs.md` — Changelog — Documentation (~13 tok)
 - `CHANGELOG-edge-functions.md` — Changelog — Edge Functions (~1242 tok)
-- `CHANGELOG-infra.md` — Changelog — Infrastructure (~19 tok)
+- `CHANGELOG-infra.md` — Changelog — Infrastructure (~951 tok)
 - `CHANGELOG-schema.md` — Changelog — Schema (~3448 tok)
 - `CHANGELOG-worker.md` — Changelog — Worker (~926 tok)
 
@@ -117,10 +131,10 @@
 
 ## docs/design/screen designs and ux/
 
-- `ARCHITECTURE-ALIGNMENT-2026-04-16.md` — Screen Designs — Architecture Alignment (~5351 tok)
+- `ARCHITECTURE-ALIGNMENT-2026-04-16.md` — Screen Designs — Architecture Alignment (~5353 tok)
 - `consentshield-mobile.html` — iOS wireframes spec, 3 flows (rights monitor, breach trigger, clinic ABDM Month 6+). M1/M2/M3 drift items deferred to ABDM/mobile/BFSI ADRs. (~17068 tok)
 - `consentshield-next-steps.md` — Strategic decisions log April 2026 + 2026-04-16 addendum noting DEPA architecture has moved on. (~2784 tok)
-- `consentshield-screens.html` — Web-app wireframes spec. 9 panels: Dashboard, Consent Manager, Consent Artefacts (DEPA), Purpose Definitions (DEPA), Data Inventory, Rights Centre, Audit & Reports, Onboarding, Settings. Amended 2026-04-16 with DEPA panels + score gauge + artefact-scoped erasure + purpose seed pack onboarding. (~28282 tok)
+- `consentshield-screens.html` — ConsentShield — Screen Designs & UX Flows (~28283 tok)
 
 ## docs/ops/
 
@@ -473,6 +487,7 @@
 
 ## worker/
 
+- `package.json` — Node.js package manifest (~67 tok)
 - `tsconfig.json` — TypeScript configuration (~105 tok)
 - `wrangler.toml` (~95 tok)
 

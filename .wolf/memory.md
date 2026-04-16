@@ -953,3 +953,28 @@
 
 | Time | Action | File(s) | Outcome | ~Tokens |
 |------|--------|---------|---------|--------|
+| 21:02 | Created tsconfig.base.json | — | ~110 |
+| 21:03 | Created package.json | — | ~110 |
+| 21:03 | Created app/package.json | — | ~245 |
+| 21:03 | Created worker/package.json | — | ~67 |
+| 21:03 | Created vitest.config.ts | — | ~77 |
+| 21:03 | Created app/tsconfig.json | — | ~112 |
+| 21:04 | Edited .gitignore | 5→7 lines | ~15 |
+| 21:04 | Edited .gitignore | 7→9 lines | ~35 |
+| 21:04 | Session end: 8 writes across 5 files (tsconfig.base.json, package.json, vitest.config.ts, tsconfig.json, .gitignore) | 18 reads | ~14355 tok |
+| 21:04 | Edited package.json | inline fix | ~10 |
+| 21:09 | Edited app/tsconfig.json | inline fix | ~24 |
+| 21:09 | Edited app/tests/worker/harness.ts | "../../worker/src/index.ts" → "../../../worker/src/index" | ~22 |
+| 21:10 | Edited app/tests/buffer/lifecycle.test.ts | "../rls/helpers" → "../../../tests/rls/helper" | ~33 |
+| 21:11 | Edited docs/architecture/consentshield-definitive-architecture.md | inline fix | ~131 |
+| 21:12 | Edited docs/design/screen designs and ux/ARCHITECTURE-ALIGNMENT-2026-04-16.md | "src/app/" → "app/src/app/" | ~110 |
+| 21:12 | Edited docs/design/screen designs and ux/ARCHITECTURE-ALIGNMENT-2026-04-16.md | "src/app/" → "app/src/app/" | ~99 |
+| 21:12 | Edited docs/design/screen designs and ux/consentshield-screens.html | inline fix | ~21 |
+| 21:12 | Edited CLAUDE.md | 42→43 lines | ~669 |
+| 21:12 | Edited CLAUDE.md | 8→12 lines | ~185 |
+| 21:12 | Edited CLAUDE.md | "npm run build && npm run " → "cd app && bun run build &" | ~33 |
+| 21:13 | Edited docs/ADRs/ADR-0026-monorepo-restructure.md | 3→3 lines | ~20 |
+| 21:13 | Edited docs/ADRs/ADR-0026-monorepo-restructure.md | modified notes() | ~608 |
+| 21:13 | Edited docs/ADRs/ADR-0026-monorepo-restructure.md | 5→10 lines | ~116 |
+| 21:13 | Edited docs/ADRs/ADR-index.md | inline fix | ~33 |
+| 21:14 | Created docs/changelogs/CHANGELOG-infra.md | — | ~1014 |

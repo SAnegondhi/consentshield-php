@@ -2,7 +2,7 @@
 
 (c) 2026 Sudhindra Anegondhi a.d.sudhindra@gmail.com
 
-**Status:** Proposed
+**Status:** In Progress
 **Date proposed:** 2026-04-16
 **Date completed:** —
 
@@ -98,7 +98,26 @@ The migration is reversible until Phase 4 (Vercel project split). Up to that poi
 - [ ] Vercel preview deploy from migration branch builds and renders the dashboard at the expected paths.
 - [ ] `cd tests/rls && bun test` — RLS isolation tests pass at the new repo-root location (39/39 baseline).
 
-**Status:** `[ ] planned`
+**Status:** `[x] complete` — 2026-04-16
+
+**Execution notes (2026-04-16):**
+- Worker got its own `worker/package.json` (zero runtime deps, `@cloudflare/workers-types` as devDep) so the workspace pattern can include it as a member.
+- Workspace list in root `package.json` is currently `["app", "worker"]` — `admin` and `packages/*` get added back in Sprints 3.1 and 2.1 respectively, because Bun refuses a workspace entry that points at a non-existent directory.
+- `tsconfig.base.json` created at repo root; `app/tsconfig.json` extends it and keeps `tests/worker` in `exclude` so the Next.js build's type check doesn't stumble on the Miniflare harness (which references Cloudflare-typed `Request` that's not type-compatible with the Next.js global `RequestInit`).
+- `tests/worker/harness.ts` relative path to the Worker entrypoint was rewritten from `../../worker/src/index.ts` to `../../../worker/src/index.ts` (one extra level because the tests now live at `app/tests/worker/` instead of `tests/worker/`).
+- `app/tests/buffer/lifecycle.test.ts` import of the RLS helpers was rewritten from `../rls/helpers` to `../../../tests/rls/helpers` — `tests/rls/` stays at repo root per the deliverables; a cleaner extraction to a shared test-utility package is deferred.
+- Root `vitest.config.ts` now runs the RLS suite only (`include: ['tests/rls/**/*.test.ts']`); `app/vitest.config.ts` unchanged (its `tests/**` glob picks up `app/tests/**` from the app CWD).
+- Root `package.json` exposes `bun run test:rls` as the cross-app RLS runner.
+- `.env.local` was copied to `app/.env.local` so the app workspace's vitest picks it up from its own CWD. Both files are now in `.gitignore`.
+- `CLAUDE.md` tree diagram rewritten to show the `app/` + `admin/` + `packages/` layout; build/test commands rewritten for Bun workspace (`cd app && bun run build`, `bun run test:rls`).
+
+**Commands that work today:**
+- `bun install` from repo root — installs deps for all workspaces
+- `cd app && bun run dev` — customer app on port 3000
+- `cd app && bun run build` — Next.js production build
+- `cd app && bun run lint` — zero warnings
+- `cd app && bun run test` — app/ vitest (worker harness, buffer, rights, workflows)
+- `bun run test:rls` — root-level RLS vitest run
 
 ### Phase 2: Extract shared packages
 
@@ -221,10 +240,15 @@ The path-prefix sweep happens inside Sprint 1.1 deliverables (last bullet) so th
 
 _To be filled per sprint as the work executes._
 
-### Sprint 1.1 — TBD
+### Sprint 1.1 — 2026-04-16 (Completed)
 
 ```
-Test: [pending]
+bun install                      → 1152 packages installed
+cd app && bun run lint           → $ eslint src/ ; exit 0 (zero warnings)
+cd app && bun run build          → Next.js 16.2.3 — all 38 routes compiled
+cd app && bun run test           → 7 files, 42/42 tests pass
+bun run test:rls                 → 2 files, 44/44 tests pass
+Total: 42 + 44 = 86/86 (matches Phase 2 close baseline)
 ```
 
 ### Sprint 2.1 — TBD

@@ -2,7 +2,7 @@ import { Miniflare } from 'miniflare'
 import { build } from 'esbuild'
 import path from 'path'
 
-const WORKER_ENTRY = path.resolve(__dirname, '../../worker/src/index.ts')
+const WORKER_ENTRY = path.resolve(__dirname, '../../../worker/src/index.ts')
 
 export interface PropertyConfig {
   id?: string

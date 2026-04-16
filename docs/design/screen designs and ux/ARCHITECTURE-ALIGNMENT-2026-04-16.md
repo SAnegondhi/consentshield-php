@@ -10,14 +10,14 @@
 
 ## 0. Normative reminder — read this before building any UI
 
-> **The HTML wireframes in this folder are the visual and interaction specification for the ConsentShield product UI.** They are the source of truth for layout, copy, navigation, and the user mental model. The Next.js implementation in `src/app/` MUST conform to these screens unless a divergence is documented in an ADR (or the wireframes are updated to reflect a new decision and re-aligned via this doc).
+> **The HTML wireframes in this folder are the visual and interaction specification for the ConsentShield product UI.** They are the source of truth for layout, copy, navigation, and the user mental model. The Next.js implementation in `app/src/app/` MUST conform to these screens unless a divergence is documented in an ADR (or the wireframes are updated to reflect a new decision and re-aligned via this doc).
 >
 > Two equally valid update paths:
 >
 > 1. **Wireframes change first** — a screen is updated here, then the relevant ADR ports it into code.
 > 2. **Code changes first** — but only via an ADR that records the rationale, and the wireframes in this folder are updated in the same ADR's sprint to keep them in sync.
 >
-> What is **not** acceptable: silent UI drift in `src/app/` away from these screens. If a screen lacks an element the architecture requires, the screen is to be updated (this doc tracks the gap until that happens). If the architecture changes, the screen is updated in the same review pass that amends the architecture doc — same pattern as the 2026-04-16 DEPA merge.
+> What is **not** acceptable: silent UI drift in `app/src/app/` away from these screens. If a screen lacks an element the architecture requires, the screen is to be updated (this doc tracks the gap until that happens). If the architecture changes, the screen is updated in the same review pass that amends the architecture doc — same pattern as the 2026-04-16 DEPA merge.
 >
 > This rule is mirrored in `CLAUDE.md`. Both files must be read every session.
 

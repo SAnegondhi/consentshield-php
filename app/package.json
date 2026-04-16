@@ -1,0 +1,36 @@
+{
+  "name": "@consentshield/app",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint src/",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@sentry/nextjs": "10.48.0",
+    "@supabase/ssr": "0.10.2",
+    "@supabase/supabase-js": "2.103.0",
+    "@upstash/redis": "1.37.0",
+    "input-otp": "1.4.2",
+    "jszip": "3.10.1",
+    "next": "16.2.3",
+    "react": "19.2.5",
+    "react-dom": "19.2.5"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "4.2.2",
+    "@types/react": "19.2.14",
+    "@types/react-dom": "19.2.3",
+    "dotenv": "17.4.2",
+    "esbuild": "0.28.0",
+    "eslint": "9.39.4",
+    "eslint-config-next": "16.2.3",
+    "miniflare": "4.20260415.0",
+    "tailwindcss": "4.2.2",
+    "typescript": "5.9.3",
+    "vitest": "4.1.4"
+  }
+}

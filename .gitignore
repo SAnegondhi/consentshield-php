@@ -5,6 +5,8 @@ node_modules/
 
 # Build
 .next/
+app/.next/
+admin/.next/
 out/
 dist/
 build/
@@ -15,6 +17,8 @@ build/
 .env.development.local
 .env.test.local
 .env.production.local
+app/.env.local
+admin/.env.local
 .secrets
 
 # Debug

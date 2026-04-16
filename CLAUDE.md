@@ -25,12 +25,16 @@ All documents, code, and other artefacts in this project are authored by and cop
 
 ## Build and test
 
-- `npm ci` (never `npm install`)
-- `npm run dev` for local development
-- `npm run build` before committing — build must pass
-- `npm run lint` before committing — zero warnings allowed
-- `npm test` runs the test suite
-- `npx supabase db push` for schema migrations
+The repo is a Bun workspace monorepo (ADR-0026). Run commands from the workspace that owns them.
+
+- `bun install` at repo root — installs deps for all workspaces
+- `cd app && bun run dev` — customer app local dev (port 3000)
+- `cd admin && bun run dev` — admin app local dev (port 3001, once ADR-0026 Sprint 3.1 lands)
+- `cd app && bun run build` — customer app build; must pass before committing
+- `cd app && bun run lint` — customer app lint; zero warnings allowed
+- `cd app && bun run test` — customer app tests (worker harness, buffer, rights, workflows)
+- `bun run test:rls` from repo root — cross-app RLS isolation tests
+- `bunx supabase db push` for schema migrations
 
 ## Architecture reference
 
@@ -241,7 +245,7 @@ No architecture doc is promoted to source of truth without a documented review. 
 - Branch naming: `feature/short-description` or `fix/short-description`
 - Conventional commits: `feat:`, `fix:`, `chore:`, `refactor:`, `test:`, `docs:`
 - Never commit `.env` files, secrets, or credentials
-- Run `npm run build && npm run lint && npm test` before every commit
+- Run `cd app && bun run build && bun run lint && bun run test` and `bun run test:rls` (from repo root) before every commit
 
 ## Directory structure
 
@@ -253,23 +257,27 @@ consentshield/
 ├── docs/ADRs/                         # Architecture Decision Records
 ├── docs/changelogs/                   # Per-area changelogs
 ├── docs/reviews/                      # Documented architecture and code reviews
-├── src/
-│   ├── app/                           # Next.js App Router
-│   │   ├── (dashboard)/               # Authenticated dashboard routes
-│   │   ├── api/                       # API routes (server-side only)
-│   │   │   ├── orgs/[orgId]/          # Authenticated org-scoped endpoints
-│   │   │   ├── public/                # Public endpoints (rights requests)
-│   │   │   ├── v1/                    # Compliance API (API key auth)
-│   │   │   └── webhooks/              # Razorpay, deletion callbacks
-│   │   └── (public)/                  # Public pages (login, rights portal)
-│   ├── components/                    # React components
-│   ├── lib/
-│   │   ├── supabase/                  # Supabase client (server + browser)
-│   │   ├── cloudflare/                # R2/KV utilities
-│   │   ├── encryption/                # Per-org key derivation, pgcrypto helpers
-│   │   ├── notifications/             # Email + Slack/Teams/Discord webhook sender
-│   │   └── connectors/                # Deletion connector interfaces
-│   └── types/                         # Shared TypeScript types
+├── app/                               # Customer-facing Next.js app (ADR-0026)
+│   ├── src/
+│   │   ├── app/                       # Next.js App Router
+│   │   │   ├── (dashboard)/           # Authenticated dashboard routes
+│   │   │   ├── api/                   # API routes (server-side only)
+│   │   │   │   ├── orgs/[orgId]/      # Authenticated org-scoped endpoints
+│   │   │   │   ├── public/            # Public endpoints (rights requests)
+│   │   │   │   ├── v1/                # Compliance API (API key auth)
+│   │   │   │   └── webhooks/          # Razorpay, deletion callbacks
+│   │   │   └── (public)/              # Public pages (login, rights portal)
+│   │   ├── components/                # React components
+│   │   ├── lib/
+│   │   │   ├── supabase/              # Supabase client (server + browser)
+│   │   │   ├── cloudflare/            # R2/KV utilities
+│   │   │   ├── encryption/            # Per-org key derivation, pgcrypto helpers
+│   │   │   ├── notifications/         # Email + Slack/Teams/Discord webhook sender
+│   │   │   └── connectors/            # Deletion connector interfaces
+│   │   └── types/                     # Shared TypeScript types
+│   └── tests/                         # App tests (worker harness, buffer, rights, workflows)
+├── admin/                             # Operator-facing Next.js app (ADR-0026 Sprint 3.1+)
+├── packages/                          # Shared workspace packages (ADR-0026 Sprint 2.1+)
 ├── worker/                            # Cloudflare Worker (zero npm deps)
 │   ├── src/
 │   │   ├── index.ts                   # Worker entry point
@@ -290,10 +298,7 @@ consentshield/
 │   │   └── verify-withdrawal/
 │   └── seed.sql                       # Tracker signatures, sector templates
 └── tests/
-    ├── rls/                           # Multi-tenant isolation tests (run every deploy)
-    ├── buffer/                        # Delivery pipeline tests
-    ├── worker/                        # Worker endpoint tests
-    └── workflows/                     # SLA timer, breach deadline tests
+    └── rls/                           # Cross-app multi-tenant isolation tests (run every deploy)
 ```
 
 ## When creating database migrations

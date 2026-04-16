@@ -1,5 +1,5 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
-import { createTestOrg, cleanupTestOrg, getServiceClient, TestOrg, bufferTables } from '../rls/helpers'
+import { createTestOrg, cleanupTestOrg, getServiceClient, TestOrg, bufferTables } from '../../../tests/rls/helpers'
 
 // Migration 011 (20260413000011) revokes UPDATE and DELETE on all buffer
 // tables from the `authenticated` role. This suite asserts the REVOKEs

@@ -1,0 +1,12 @@
+{
+  "name": "@consentshield/worker",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "4.20260414.1"
+  }
+}
