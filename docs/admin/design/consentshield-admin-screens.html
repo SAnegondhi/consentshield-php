@@ -1,0 +1,1445 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ConsentShield — Admin Platform Wireframes</title>
+<!--
+  (c) 2026 Sudhindra Anegondhi a.d.sudhindra@gmail.com
+
+  These wireframes are the visual + interaction SPECIFICATION for the
+  ConsentShield admin platform — the operator-facing app that lives in
+  admin/ in the monorepo, deployed to admin.consentshield.in.
+
+  Code MUST conform to these screens. Drift, gaps, and architecture
+  amendments are tracked in:
+      docs/admin/design/ARCHITECTURE-ALIGNMENT-2026-04-16.md
+  Architecture source of truth:
+      docs/admin/architecture/consentshield-admin-platform.md
+      docs/admin/architecture/consentshield-admin-schema.md
+      docs/admin/architecture/consentshield-admin-monorepo-migration.md
+  See CLAUDE.md "UI specification reference" section for the normative rule.
+
+  Initial pass: 2026-04-16. 11 panels covering the full operator surface
+  (Operations Dashboard, Organisations, Sectoral Templates, Connector
+  Catalogue, Tracker Signatures, Support Tickets, Pipeline Operations,
+  Billing Operations, Abuse & Security, Feature Flags & Kill Switches,
+  Audit Log) + Impersonation drawer.
+-->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --navy:#0F2D5B;--navy-dark:#091E3E;--navy-light:#1A3F73;
+  --teal:#0D7A6B;--teal-light:#E0F4F1;--teal-mid:#14A090;
+  --amber:#C97B00;--amber-light:#FEF3C7;--amber-mid:#F59E0B;
+  --red:#B91C1C;--red-light:#FEE2E2;--red-dark:#7F1D1D;
+  --green:#15803D;--green-light:#DCFCE7;
+  --slate:#475569;--slate-light:#94A3B8;
+  --bg:#F1F5F9;--surface:#FFFFFF;
+  --border:#E2E8F0;--border-mid:#CBD5E1;
+  --text:#0F172A;--text-2:#475569;--text-3:#94A3B8;
+  --font:'DM Sans',system-ui,sans-serif;
+  --mono:'DM Mono',monospace;
+  --r:8px;--r-lg:12px;
+  --shadow:0 1px 3px rgba(0,0,0,.08),0 1px 2px rgba(0,0,0,.05);
+  --shadow-md:0 4px 6px rgba(0,0,0,.07),0 2px 4px rgba(0,0,0,.05);
+  /* admin-only accent — signals "you are in admin mode" */
+  --admin-accent:#B91C1C;
+  --admin-accent-soft:#FEE2E2;
+}
+body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:14px;line-height:1.5;display:flex;height:100vh;overflow:hidden}
+
+/* ── ADMIN MODE BANNER (red strip across top of viewport) ── */
+.admin-mode-strip{position:fixed;top:0;left:0;right:0;height:24px;background:var(--admin-accent);color:white;z-index:1000;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;letter-spacing:.04em;text-transform:uppercase}
+.admin-mode-strip svg{width:12px;height:12px;margin-right:6px}
+.body-offset{padding-top:24px;width:100%;height:100vh;display:flex;overflow:hidden}
+
+/* ── SIDEBAR ── */
+.sidebar{width:240px;background:var(--navy-dark);display:flex;flex-direction:column;flex-shrink:0;height:100%;border-right:3px solid var(--admin-accent)}
+.sidebar-logo{padding:18px 18px 14px;border-bottom:1px solid rgba(255,255,255,.08)}
+.logo-mark{display:flex;align-items:center;gap:8px}
+.logo-icon{width:28px;height:28px;background:var(--admin-accent);border-radius:6px;display:flex;align-items:center;justify-content:center}
+.logo-icon svg{width:16px;height:16px;fill:white}
+.logo-text{font-size:15px;font-weight:600;color:white;letter-spacing:-.01em}
+.logo-sub{font-size:10px;color:var(--admin-accent-soft);margin-top:1px;letter-spacing:.04em;text-transform:uppercase;font-weight:600}
+.session-chip{margin:12px 18px 0;background:rgba(255,255,255,.06);border:1px solid rgba(185,28,28,.4);border-radius:6px;padding:8px 10px;font-size:11px}
+.session-chip-row{display:flex;justify-content:space-between;align-items:center;color:rgba(255,255,255,.5)}
+.session-chip-val{font-size:11px;color:white;font-weight:500}
+.session-chip-aal{font-size:10px;color:#86EFAC;margin-top:4px;display:flex;align-items:center;gap:4px}
+.nav{flex:1;padding:12px 0;overflow-y:auto}
+.nav-section{padding:0 10px;margin-bottom:4px}
+.nav-section-label{font-size:9px;text-transform:uppercase;letter-spacing:.08em;color:rgba(255,255,255,.3);padding:8px 10px 4px;font-weight:600}
+.nav-item{display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:6px;cursor:pointer;color:rgba(255,255,255,.55);font-size:13px;font-weight:400;transition:all .15s;user-select:none}
+.nav-item:hover{background:rgba(255,255,255,.07);color:rgba(255,255,255,.9)}
+.nav-item.active{background:rgba(185,28,28,.18);color:white;font-weight:500;border-left:3px solid var(--admin-accent);padding-left:7px}
+.nav-item svg{width:15px;height:15px;flex-shrink:0;opacity:.7}
+.nav-item.active svg{opacity:1}
+.nav-badge{margin-left:auto;background:var(--admin-accent);color:white;font-size:10px;font-weight:600;padding:1px 6px;border-radius:10px}
+.nav-badge.amber{background:var(--amber-mid)}
+.nav-badge.gray{background:rgba(255,255,255,.15)}
+.sidebar-footer{padding:14px 18px;border-top:1px solid rgba(255,255,255,.08)}
+.user-row{display:flex;align-items:center;gap:9px}
+.user-avatar{width:28px;height:28px;border-radius:50%;background:var(--admin-accent);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:white;flex-shrink:0}
+.user-name{font-size:12px;color:white;font-weight:500}
+.user-role{font-size:10px;color:var(--admin-accent-soft)}
+.session-timer{font-size:10px;color:var(--text-3);margin-top:6px;font-family:var(--mono)}
+
+/* ── MAIN ── */
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.topbar{height:56px;background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 24px;gap:16px;flex-shrink:0}
+.topbar-title{font-size:15px;font-weight:600;color:var(--text);flex:1}
+.topbar-actions{display:flex;align-items:center;gap:10px}
+.icon-btn{width:32px;height:32px;border-radius:6px;border:1px solid var(--border);background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--slate);transition:all .15s}
+.icon-btn:hover{background:var(--bg);border-color:var(--border-mid)}
+.icon-btn svg{width:15px;height:15px}
+.btn{padding:6px 14px;border-radius:var(--r);font-family:var(--font);font-size:13px;font-weight:500;cursor:pointer;transition:all .15s;border:none}
+.btn-primary{background:var(--teal);color:white}
+.btn-primary:hover{background:var(--teal-mid)}
+.btn-secondary{background:var(--surface);color:var(--text);border:1px solid var(--border)}
+.btn-secondary:hover{background:var(--bg)}
+.btn-danger{background:var(--admin-accent);color:white}
+.btn-danger:hover{background:var(--red-dark)}
+.btn-sm{padding:4px 10px;font-size:12px}
+.content-area{flex:1;overflow-y:auto;padding:24px}
+
+/* ── PANELS ── */
+.panel{display:none}
+.panel.active{display:block}
+
+/* ── CARDS ── */
+.card{background:var(--surface);border-radius:var(--r-lg);border:1px solid var(--border);box-shadow:var(--shadow)}
+.card-header{padding:16px 18px 12px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.card-title{font-size:13px;font-weight:600;color:var(--text)}
+.card-body{padding:18px}
+.card-sm-label{font-size:10px;font-weight:500;text-transform:uppercase;letter-spacing:.06em;color:var(--text-3)}
+
+/* ── GRID LAYOUTS ── */
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px}
+.grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.grid-6{display:grid;grid-template-columns:repeat(6,1fr);gap:14px}
+.flex-row{display:flex;gap:16px}
+.flex-col{display:flex;flex-direction:column;gap:16px}
+
+/* ── STATUS PILLS ── */
+.pill{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:500}
+.pill-green{background:var(--green-light);color:var(--green)}
+.pill-amber{background:var(--amber-light);color:var(--amber)}
+.pill-red{background:var(--red-light);color:var(--red)}
+.pill-navy{background:#EFF6FF;color:var(--navy)}
+.pill-gray{background:var(--bg);color:var(--slate)}
+.pill-admin{background:var(--admin-accent-soft);color:var(--admin-accent)}
+.dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.dot-green{background:var(--green)}
+.dot-amber{background:var(--amber-mid)}
+.dot-red{background:var(--red)}
+
+/* ── METRIC TILE (operations dashboard) ── */
+.metric-tile{background:var(--surface);border-radius:var(--r-lg);border:1px solid var(--border);padding:14px;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:6px}
+.metric-tile-label{font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--text-3);font-weight:600}
+.metric-tile-value{font-size:24px;font-weight:600;color:var(--text);line-height:1.1}
+.metric-tile-delta{font-size:11px;color:var(--text-2)}
+.metric-tile-delta.up{color:var(--green)}
+.metric-tile-delta.down{color:var(--red)}
+
+/* ── TABLES ── */
+.t{width:100%;border-collapse:collapse;font-size:13px}
+.t th{text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--text-3);font-weight:600;padding:10px 12px;border-bottom:1px solid var(--border);background:var(--bg)}
+.t td{padding:11px 12px;border-bottom:1px solid var(--border);color:var(--text);vertical-align:middle}
+.t tr:hover td{background:var(--bg)}
+.t tr.selected td{background:var(--teal-light)}
+.t code{font-family:var(--mono);font-size:11px;color:var(--text-2)}
+
+/* ── INPUT ── */
+.input{padding:7px 10px;border:1px solid var(--border);border-radius:var(--r);font-family:var(--font);font-size:13px;color:var(--text);background:var(--surface);width:100%}
+.input:focus{outline:2px solid var(--teal);outline-offset:-1px;border-color:transparent}
+.label{font-size:11px;font-weight:500;color:var(--text-2);margin-bottom:4px;display:block}
+
+/* ── TAB BAR ── */
+.tab-bar{display:flex;gap:0;border-bottom:1px solid var(--border);background:var(--surface);border-radius:var(--r-lg) var(--r-lg) 0 0;padding:0 16px;margin-bottom:14px}
+.tab-item{padding:10px 14px;font-size:13px;color:var(--text-2);cursor:pointer;border-bottom:2px solid transparent;transition:all .15s;font-weight:500}
+.tab-item:hover{color:var(--text)}
+.tab-item.active{color:var(--teal);border-bottom-color:var(--teal)}
+.tab-panel{display:none}
+.tab-panel.active{display:block}
+
+/* ── DRAWER (impersonation, RPC reason capture) ── */
+.drawer-backdrop{position:fixed;inset:0;background:rgba(15,23,42,.4);z-index:50;display:none;align-items:center;justify-content:center}
+.drawer-backdrop.active{display:flex}
+.drawer{background:var(--surface);width:480px;max-width:92vw;max-height:88vh;border-radius:var(--r-lg);box-shadow:0 20px 50px rgba(0,0,0,.25);overflow:hidden;display:flex;flex-direction:column}
+.drawer-header{padding:18px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.drawer-title{font-size:15px;font-weight:600;color:var(--text)}
+.drawer-body{padding:20px;overflow-y:auto}
+.drawer-footer{padding:14px 20px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:8px}
+
+/* ── IMPERSONATION ACTIVE BANNER (would render on customer app during session) ── */
+.impersonation-active-bar{background:var(--admin-accent);color:white;padding:8px 16px;display:flex;align-items:center;gap:10px;font-size:13px;font-weight:500}
+.imp-bar-icon{width:18px;height:18px;flex-shrink:0}
+.imp-bar-timer{margin-left:auto;font-family:var(--mono);font-size:12px;background:rgba(255,255,255,.18);padding:2px 8px;border-radius:4px}
+
+/* ── DETAIL DRAWER (right-hand split) ── */
+.split{display:grid;grid-template-columns:1.6fr 1fr;gap:16px;height:100%}
+
+/* ── HEALTH STATUS ── */
+.status-bar-row{display:flex;align-items:center;gap:8px;font-size:12px}
+.status-bar-track{flex:1;height:6px;background:var(--border);border-radius:3px;overflow:hidden}
+.status-bar-fill{height:100%;border-radius:3px}
+
+/* ── EVENT FEED ── */
+.event{display:flex;gap:10px;padding:10px 14px;border-bottom:1px solid var(--border);font-size:12px;color:var(--text-2)}
+.event:last-child{border-bottom:none}
+.event-dot{width:6px;height:6px;border-radius:50%;background:var(--teal);margin-top:6px;flex-shrink:0}
+.event-dot.amber{background:var(--amber-mid)}
+.event-dot.red{background:var(--red)}
+.event-time{font-size:11px;color:var(--text-3);margin-top:2px}
+
+/* ── KILL SWITCH ── */
+.kill-card{padding:14px;border-radius:var(--r);border:1px solid var(--border);background:var(--surface)}
+.kill-card.engaged{border-color:var(--admin-accent);background:var(--red-light)}
+.kill-row{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.kill-name{font-size:13px;font-weight:600;color:var(--text)}
+.kill-name.engaged{color:var(--admin-accent)}
+.kill-desc{font-size:11px;color:var(--text-3);margin-top:2px}
+.kill-status{font-size:11px;font-weight:600}
+.kill-status.engaged{color:var(--admin-accent)}
+.kill-status.normal{color:var(--green)}
+
+/* ── AUDIT LOG VIEW ── */
+.audit-row{padding:10px 12px;border-bottom:1px solid var(--border);display:grid;grid-template-columns:120px 1fr 200px 100px;gap:12px;align-items:center;font-size:12px}
+.audit-row:hover{background:var(--bg)}
+.audit-time{font-family:var(--mono);font-size:11px;color:var(--text-3)}
+.audit-action{font-weight:500;color:var(--text)}
+.audit-target{font-family:var(--mono);font-size:11px;color:var(--text-2)}
+</style>
+</head>
+<body>
+
+<div class="admin-mode-strip">
+  <svg viewBox="0 0 24 24" fill="white"><path d="M12 2L2 7v10l10 5 10-5V7l-10-5zm0 2.18L19.82 8 12 11.82 4.18 8 12 4.18zM4 9.82l7 3.5v6.36l-7-3.5V9.82zm9 9.86v-6.36l7-3.5v6.36l-7 3.5z"/></svg>
+  ConsentShield admin · production · Sudhindra K · session expires 22 min
+</div>
+
+<div class="body-offset">
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-mark">
+      <div class="logo-icon">
+        <svg viewBox="0 0 24 24"><path d="M12 2L4 6v6c0 5.5 3.8 10.7 8 12 4.2-1.3 8-6.5 8-12V6l-8-4z"/></svg>
+      </div>
+      <div>
+        <div class="logo-text">ConsentShield</div>
+        <div class="logo-sub">Operator Console</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="session-chip">
+    <div class="session-chip-row"><span>Logged in as</span><span class="session-chip-val">Sudhindra</span></div>
+    <div class="session-chip-row" style="margin-top:4px"><span>Role</span><span class="session-chip-val">platform_operator</span></div>
+    <div class="session-chip-aal">
+      <svg viewBox="0 0 16 16" fill="currentColor" width="11" height="11"><path d="M13.485 1.929a.75.75 0 011.06 1.061l-9.0 9a.75.75 0 01-1.06 0l-4-4a.75.75 0 011.06-1.061L5 10.439l8.485-8.51z"/></svg>
+      AAL2 verified · hardware key
+    </div>
+  </div>
+
+  <nav class="nav">
+    <div class="nav-section">
+      <div class="nav-section-label">Operate</div>
+      <div class="nav-item active" onclick="showPanel('ops')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M9 17v-6"/><path d="M13 17v-3"/><path d="M17 17v-9"/></svg>
+        Operations Dashboard
+      </div>
+      <div class="nav-item" onclick="showPanel('orgs')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21V5l9-3 9 3v16"/><path d="M9 9h6"/><path d="M9 13h6"/><path d="M9 17h6"/></svg>
+        Organisations
+        <span class="nav-badge gray">187</span>
+      </div>
+      <div class="nav-item" onclick="showPanel('support')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+        Support Tickets
+        <span class="nav-badge">9</span>
+      </div>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-label">Catalogue</div>
+      <div class="nav-item" onclick="showPanel('templates')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="3" x2="9" y2="21"/></svg>
+        Sectoral Templates
+      </div>
+      <div class="nav-item" onclick="showPanel('connectors')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 17l-3-3m0 0l3-3m-3 3h12a4 4 0 010 8h-1"/><circle cx="6" cy="14" r="2"/></svg>
+        Connector Catalogue
+      </div>
+      <div class="nav-item" onclick="showPanel('signatures')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        Tracker Signatures
+      </div>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-label">Pipeline</div>
+      <div class="nav-item" onclick="showPanel('pipeline')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+        Pipeline Operations
+        <span class="nav-badge amber">2</span>
+      </div>
+      <div class="nav-item" onclick="showPanel('billing')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+        Billing Operations
+      </div>
+      <div class="nav-item" onclick="showPanel('security')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        Abuse &amp; Security
+      </div>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-label">Control</div>
+      <div class="nav-item" onclick="showPanel('flags')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>
+        Feature Flags &amp; Kill Switches
+      </div>
+      <div class="nav-item" onclick="showPanel('audit')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="14 2 14 8 20 8"/><path d="M16 13H8"/><path d="M16 17H8"/><polyline points="10 9 9 9 8 9"/><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/></svg>
+        Audit Log
+      </div>
+    </div>
+  </nav>
+
+  <div class="sidebar-footer">
+    <div class="user-row">
+      <div class="user-avatar">SK</div>
+      <div>
+        <div class="user-name">Sudhindra K.</div>
+        <div class="user-role">platform_operator</div>
+      </div>
+    </div>
+    <div class="session-timer">Session: 00:22:04</div>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<div class="main">
+
+  <!-- ────────────────────── 1. OPERATIONS DASHBOARD ────────────────────── -->
+  <div id="panel-ops" class="panel active">
+    <div class="topbar">
+      <div class="topbar-title">Operations Dashboard</div>
+      <div class="topbar-actions">
+        <span style="font-size:11px;color:var(--text-3)">Refreshed nightly · 02:00 IST</span>
+        <button class="btn btn-secondary btn-sm">Refresh now</button>
+      </div>
+    </div>
+    <div class="content-area">
+      <div class="grid-6" style="margin-bottom:16px">
+        <div class="metric-tile">
+          <div class="metric-tile-label">Total orgs</div>
+          <div class="metric-tile-value">187</div>
+          <div class="metric-tile-delta up">+12 (last 30d)</div>
+        </div>
+        <div class="metric-tile">
+          <div class="metric-tile-label">Active orgs (7d)</div>
+          <div class="metric-tile-value">142</div>
+          <div class="metric-tile-delta">76% of total</div>
+        </div>
+        <div class="metric-tile">
+          <div class="metric-tile-label">Consents 24h</div>
+          <div class="metric-tile-value">14,832</div>
+          <div class="metric-tile-delta up">+8% vs prev day</div>
+        </div>
+        <div class="metric-tile">
+          <div class="metric-tile-label">Artefacts active</div>
+          <div class="metric-tile-value">2.4M</div>
+          <div class="metric-tile-delta">DEPA model</div>
+        </div>
+        <div class="metric-tile">
+          <div class="metric-tile-label">Rights requests open</div>
+          <div class="metric-tile-value" style="color:var(--amber)">312</div>
+          <div class="metric-tile-delta down">7 SLA-breached</div>
+        </div>
+        <div class="metric-tile">
+          <div class="metric-tile-label">Worker errors 24h</div>
+          <div class="metric-tile-value" style="color:var(--green)">3</div>
+          <div class="metric-tile-delta">healthy</div>
+        </div>
+      </div>
+
+      <div class="flex-row">
+        <div style="flex:1.5">
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">Pipeline health (last 24h)</div>
+              <div style="display:flex;gap:6px">
+                <span class="pill pill-green"><span class="dot dot-green"></span>4 of 4 cron jobs healthy</span>
+                <span class="pill pill-green"><span class="dot dot-green"></span>0 stuck buffers</span>
+              </div>
+            </div>
+            <div class="card-body">
+              <div style="display:flex;flex-direction:column;gap:12px">
+                <div>
+                  <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px"><span>Delivery latency (median)</span><span style="font-weight:500">312 ms</span></div>
+                  <div class="status-bar-track"><div class="status-bar-fill" style="width:31%;background:var(--green)"></div></div>
+                </div>
+                <div>
+                  <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px"><span>Delivery success rate</span><span style="font-weight:500;color:var(--green)">99.97%</span></div>
+                  <div class="status-bar-track"><div class="status-bar-fill" style="width:99%;background:var(--green)"></div></div>
+                </div>
+                <div>
+                  <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px"><span>DEPA artefact creation lag (p95)</span><span style="font-weight:500">847 ms</span></div>
+                  <div class="status-bar-track"><div class="status-bar-fill" style="width:42%;background:var(--green)"></div></div>
+                </div>
+                <div>
+                  <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px"><span>Rights request response (median)</span><span style="font-weight:500">2.1 days</span></div>
+                  <div class="status-bar-track"><div class="status-bar-fill" style="width:35%;background:var(--green)"></div></div>
+                </div>
+                <div>
+                  <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px"><span>Cloudflare Worker error rate</span><span style="font-weight:500">0.02%</span></div>
+                  <div class="status-bar-track"><div class="status-bar-fill" style="width:2%;background:var(--green)"></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card" style="margin-top:14px">
+            <div class="card-header"><div class="card-title">Cron job status</div><div style="font-size:11px;color:var(--text-3)">Last run within expected window</div></div>
+            <table class="t">
+              <thead>
+                <tr>
+                  <th>Job</th><th>Schedule</th><th>Last run</th><th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td><code>deliver-consent-events</code></td><td>*/30 * * * * *</td><td style="font-family:var(--mono);font-size:11px">14s ago</td><td><span class="pill pill-green">OK</span></td></tr>
+                <tr><td><code>send-sla-reminders</code></td><td>0 9,15 * * *</td><td style="font-family:var(--mono);font-size:11px">3h 12m ago</td><td><span class="pill pill-green">OK</span></td></tr>
+                <tr><td><code>orchestrate-deletion</code></td><td>*/5 * * * *</td><td style="font-family:var(--mono);font-size:11px">2m ago</td><td><span class="pill pill-green">OK</span></td></tr>
+                <tr><td><code>check-stuck-buffers</code></td><td>0 * * * *</td><td style="font-family:var(--mono);font-size:11px">42m ago</td><td><span class="pill pill-green">OK</span></td></tr>
+                <tr><td><code>check-stuck-deletions</code></td><td>0 * * * *</td><td style="font-family:var(--mono);font-size:11px">42m ago</td><td><span class="pill pill-green">OK</span></td></tr>
+                <tr><td><code>run-security-scans</code></td><td>0 3 * * *</td><td style="font-family:var(--mono);font-size:11px">9h ago</td><td><span class="pill pill-green">OK</span></td></tr>
+                <tr><td><code>run-consent-probes</code></td><td>0 * * * *</td><td style="font-family:var(--mono);font-size:11px">42m ago</td><td><span class="pill pill-green">OK</span></td></tr>
+                <tr><td><code>process-consent-event</code> (DEPA)</td><td>trigger + */5 safety</td><td style="font-family:var(--mono);font-size:11px">11s ago</td><td><span class="pill pill-green">OK</span></td></tr>
+                <tr><td><code>send-expiry-alerts</code> (DEPA)</td><td>0 8 * * *</td><td style="font-family:var(--mono);font-size:11px">5h ago</td><td><span class="pill pill-green">OK</span></td></tr>
+                <tr><td><code>enforce-artefact-expiry</code> (DEPA)</td><td>0 4 * * *</td><td style="font-family:var(--mono);font-size:11px">9h ago</td><td><span class="pill pill-green">OK</span></td></tr>
+                <tr><td><code>depa-score-refresh</code> (DEPA)</td><td>0 2 * * *</td><td style="font-family:var(--mono);font-size:11px">11h ago</td><td><span class="pill pill-green">OK</span></td></tr>
+                <tr><td><code>admin-refresh-platform-metrics</code></td><td>0 2 * * *</td><td style="font-family:var(--mono);font-size:11px">11h ago</td><td><span class="pill pill-green">OK</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div style="flex:1">
+          <div class="card">
+            <div class="card-header"><div class="card-title">Active incidents</div><span class="pill pill-amber">2 open</span></div>
+            <div class="card-body" style="padding:0">
+              <div class="event">
+                <div class="event-dot amber"></div>
+                <div style="flex:1">
+                  <div style="font-weight:500;color:var(--text);font-size:13px">Razorpay payment failure spike</div>
+                  <div>4 failures in last hour for <code>org_4af2…</code> · likely card decline</div>
+                  <div class="event-time">opened 47m ago · assigned: Sudhindra</div>
+                </div>
+              </div>
+              <div class="event">
+                <div class="event-dot amber"></div>
+                <div style="flex:1">
+                  <div style="font-weight:500;color:var(--text);font-size:13px">Rate-limit triggers from 1 IP</div>
+                  <div>26 hits on /rights-request in 10 min · 49.36.xxx.xxx · investigating</div>
+                  <div class="event-time">opened 2h ago · assigned: Sudhindra</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card" style="margin-top:14px">
+            <div class="card-header"><div class="card-title">Kill switches</div><span class="pill pill-green">All normal</span></div>
+            <div class="card-body" style="display:flex;flex-direction:column;gap:8px">
+              <div class="kill-card">
+                <div class="kill-row">
+                  <div>
+                    <div class="kill-name">banner_delivery</div>
+                    <div class="kill-desc">Cloudflare banner.js delivery</div>
+                  </div>
+                  <div class="kill-status normal">● Normal</div>
+                </div>
+              </div>
+              <div class="kill-card">
+                <div class="kill-row">
+                  <div>
+                    <div class="kill-name">depa_processing</div>
+                    <div class="kill-desc">process-consent-event Edge Function</div>
+                  </div>
+                  <div class="kill-status normal">● Normal</div>
+                </div>
+              </div>
+              <div class="kill-card">
+                <div class="kill-row">
+                  <div>
+                    <div class="kill-name">deletion_dispatch</div>
+                    <div class="kill-desc">orchestrate-deletion Edge Function</div>
+                  </div>
+                  <div class="kill-status normal">● Normal</div>
+                </div>
+              </div>
+              <div class="kill-card">
+                <div class="kill-row">
+                  <div>
+                    <div class="kill-name">rights_request_intake</div>
+                    <div class="kill-desc">Public /rights-request endpoint</div>
+                  </div>
+                  <div class="kill-status normal">● Normal</div>
+                </div>
+              </div>
+              <button class="btn btn-secondary btn-sm" style="margin-top:6px" onclick="showPanel('flags')">Manage in Feature Flags & Kill Switches →</button>
+            </div>
+          </div>
+
+          <div class="card" style="margin-top:14px">
+            <div class="card-header"><div class="card-title">Recent admin activity</div><span class="pill pill-gray">last 24h</span></div>
+            <div class="card-body" style="padding:0">
+              <div class="event">
+                <div class="event-dot"></div>
+                <div style="flex:1">
+                  <div>Sudhindra published <code>bfsi_starter v3</code></div>
+                  <div class="event-time">2h ago</div>
+                </div>
+              </div>
+              <div class="event">
+                <div class="event-dot"></div>
+                <div style="flex:1">
+                  <div>Sudhindra started impersonation: <code>org_4af2…</code> · billing query</div>
+                  <div class="event-time">4h ago · ended 18m</div>
+                </div>
+              </div>
+              <div class="event">
+                <div class="event-dot"></div>
+                <div style="flex:1">
+                  <div>Sudhindra deprecated <code>mailchimp_v0</code></div>
+                  <div class="event-time">yesterday</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ────────────────────── 2. ORGANISATIONS ────────────────────── -->
+  <div id="panel-orgs" class="panel">
+    <div class="topbar">
+      <div class="topbar-title">Organisations</div>
+      <div class="topbar-actions">
+        <input class="input" placeholder="Search by name, email, or org ID…" style="width:260px;font-size:12px">
+        <button class="btn btn-secondary btn-sm">Export CSV</button>
+      </div>
+    </div>
+    <div class="content-area">
+      <div class="card" style="margin-bottom:14px">
+        <div class="card-header">
+          <div class="card-title">Filters</div>
+          <div style="display:flex;gap:6px;flex-wrap:wrap">
+            <span class="pill pill-navy" style="cursor:pointer">All plans</span>
+            <span class="pill pill-gray" style="cursor:pointer">Free</span>
+            <span class="pill pill-gray" style="cursor:pointer">Growth</span>
+            <span class="pill pill-gray" style="cursor:pointer">Pro</span>
+            <span class="pill pill-gray" style="cursor:pointer">Enterprise</span>
+            <span class="pill pill-green" style="cursor:pointer">Active 7d</span>
+            <span class="pill pill-gray" style="cursor:pointer">Suspended</span>
+            <span class="pill pill-amber" style="cursor:pointer">Trial expiring &lt;7d</span>
+          </div>
+        </div>
+        <table class="t">
+          <thead>
+            <tr>
+              <th>Org</th>
+              <th>Plan</th>
+              <th>Status</th>
+              <th>DPDP / DEPA</th>
+              <th>Signup</th>
+              <th>Last active</th>
+              <th>Open RR</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="selected" onclick="selectOrg(this)">
+              <td><strong>Acme Technologies</strong><br><span style="font-size:11px;color:var(--text-3)"><code>org_4af2…</code> · sudhindra@acme.in</span></td>
+              <td>Growth</td>
+              <td><span class="pill pill-green">Active</span></td>
+              <td>74% / 86%</td>
+              <td style="font-size:12px">Mar 8</td>
+              <td style="font-size:12px">2h ago</td>
+              <td>3</td>
+              <td><button class="btn btn-secondary btn-sm">Open</button></td>
+            </tr>
+            <tr onclick="selectOrg(this)">
+              <td><strong>BetaBank Digital</strong><br><span style="font-size:11px;color:var(--text-3)"><code>org_8c1d…</code> · ops@betabank.in</span></td>
+              <td>Pro</td>
+              <td><span class="pill pill-green">Active</span></td>
+              <td>91% / 94%</td>
+              <td style="font-size:12px">Feb 17</td>
+              <td style="font-size:12px">14m ago</td>
+              <td>1</td>
+              <td><button class="btn btn-secondary btn-sm">Open</button></td>
+            </tr>
+            <tr onclick="selectOrg(this)">
+              <td><strong>Curio Learning</strong><br><span style="font-size:11px;color:var(--text-3)"><code>org_f7e3…</code> · founder@curio.edu</span></td>
+              <td>Free</td>
+              <td><span class="pill pill-amber">Trial expiring</span></td>
+              <td>52% / 60%</td>
+              <td style="font-size:12px">Apr 2</td>
+              <td style="font-size:12px">yesterday</td>
+              <td>0</td>
+              <td><button class="btn btn-secondary btn-sm">Open</button></td>
+            </tr>
+            <tr onclick="selectOrg(this)">
+              <td><strong>DemoShop Retail</strong><br><span style="font-size:11px;color:var(--text-3)"><code>org_22aa…</code> · cto@demoshop.in</span></td>
+              <td>Growth</td>
+              <td><span class="pill pill-green">Active</span></td>
+              <td>68% / 71%</td>
+              <td style="font-size:12px">Mar 21</td>
+              <td style="font-size:12px">5h ago</td>
+              <td>2</td>
+              <td><button class="btn btn-secondary btn-sm">Open</button></td>
+            </tr>
+            <tr onclick="selectOrg(this)">
+              <td><strong>EvoTax CA Firm</strong><br><span style="font-size:11px;color:var(--text-3)"><code>org_91b4…</code> · partner@evotax.in</span></td>
+              <td>Free</td>
+              <td><span class="pill pill-red">Suspended</span></td>
+              <td>—</td>
+              <td style="font-size:12px">Jan 30</td>
+              <td style="font-size:12px">12d ago</td>
+              <td>0</td>
+              <td><button class="btn btn-secondary btn-sm">Open</button></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- ORG DETAIL DRAWER (rendered inline below the table for the selected org) -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">Org detail — Acme Technologies (<code>org_4af2…</code>)</div>
+          <div class="topbar-actions">
+            <button class="btn btn-secondary btn-sm">Add note</button>
+            <button class="btn btn-secondary btn-sm">Extend trial</button>
+            <button class="btn btn-danger btn-sm" onclick="openImpersonationDrawer()">Start impersonation</button>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="grid-3">
+            <div>
+              <div class="card-sm-label">Health</div>
+              <div style="margin-top:8px;display:flex;flex-direction:column;gap:8px">
+                <div style="display:flex;justify-content:space-between;font-size:12px"><span>DPDP score</span><strong>74%</strong></div>
+                <div style="display:flex;justify-content:space-between;font-size:12px"><span>DEPA score</span><strong style="color:var(--teal)">86%</strong></div>
+                <div style="display:flex;justify-content:space-between;font-size:12px"><span>Banner status</span><span class="pill pill-green" style="font-size:10px">Live</span></div>
+                <div style="display:flex;justify-content:space-between;font-size:12px"><span>Last consent</span><span>2 min ago</span></div>
+                <div style="display:flex;justify-content:space-between;font-size:12px"><span>Active artefacts</span><strong>2,418</strong></div>
+              </div>
+            </div>
+            <div>
+              <div class="card-sm-label">Billing</div>
+              <div style="margin-top:8px;display:flex;flex-direction:column;gap:8px">
+                <div style="display:flex;justify-content:space-between;font-size:12px"><span>Plan</span><strong>Growth (₹5,999/mo)</strong></div>
+                <div style="display:flex;justify-content:space-between;font-size:12px"><span>Renews</span><span>May 11</span></div>
+                <div style="display:flex;justify-content:space-between;font-size:12px"><span>Lifetime value</span><strong>₹47,992</strong></div>
+                <div style="display:flex;justify-content:space-between;font-size:12px"><span>Last payment</span><span>Apr 11 · success</span></div>
+                <div style="display:flex;justify-content:space-between;font-size:12px"><span>Trial state</span><span>Converted Mar 22</span></div>
+              </div>
+            </div>
+            <div>
+              <div class="card-sm-label">Configuration</div>
+              <div style="margin-top:8px;display:flex;flex-direction:column;gap:8px">
+                <div style="display:flex;justify-content:space-between;font-size:12px"><span>Sector</span><span>SaaS / Technology</span></div>
+                <div style="display:flex;justify-content:space-between;font-size:12px"><span>Sector template</span><span class="pill pill-navy" style="font-size:10px">dpdp_extended v2</span></div>
+                <div style="display:flex;justify-content:space-between;font-size:12px"><span>Web properties</span><span>2</span></div>
+                <div style="display:flex;justify-content:space-between;font-size:12px"><span>Integrations</span><span>3 connectors</span></div>
+                <div style="display:flex;justify-content:space-between;font-size:12px"><span>Storage mode</span><span>Standard</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid-2" style="margin-top:14px">
+        <div class="card">
+          <div class="card-header"><div class="card-title">Recent activity</div></div>
+          <div class="card-body" style="padding:0">
+            <div class="event"><div class="event-dot"></div><div style="flex:1"><div>Banner v4 deployed to <code>myproduct.in</code></div><div class="event-time">today 9:14</div></div></div>
+            <div class="event"><div class="event-dot red"></div><div style="flex:1"><div>Erasure request received from priya@…</div><div class="event-time">yesterday 18:31</div></div></div>
+            <div class="event"><div class="event-dot amber"></div><div style="flex:1"><div>Privacy notice updated</div><div class="event-time">3 days ago</div></div></div>
+            <div class="event"><div class="event-dot"></div><div style="flex:1"><div>Mailchimp connector mapped to <code>marketing</code></div><div class="event-time">1 week ago</div></div></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="card-title">Operator notes &amp; support history</div><button class="btn btn-secondary btn-sm">+ Note</button></div>
+          <div class="card-body" style="padding:0">
+            <div class="event"><div class="event-dot"></div><div style="flex:1"><div><strong>Sudhindra</strong> · pinned · Founder is solo CTO; prefers email over Slack support.</div><div class="event-time">2 weeks ago</div></div></div>
+            <div class="event"><div class="event-dot"></div><div style="flex:1"><div>Support ticket <code>tk_8a31</code> resolved — onboarding question on banner placement.</div><div class="event-time">3 weeks ago</div></div></div>
+            <div class="event"><div class="event-dot amber"></div><div style="flex:1"><div>Impersonation 22m on Mar 14 — bug investigation (banner save 422); resolved in product fix.</div><div class="event-time">~1 month ago</div></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ────────────────────── 3. SUPPORT TICKETS ────────────────────── -->
+  <div id="panel-support" class="panel">
+    <div class="topbar">
+      <div class="topbar-title">Support Tickets</div>
+      <div class="topbar-actions">
+        <input class="input" placeholder="Search subject, ticket ID, org…" style="width:260px;font-size:12px">
+        <button class="btn btn-primary btn-sm">+ New ticket (operator-initiated)</button>
+      </div>
+    </div>
+    <div class="content-area">
+      <div class="grid-4" style="margin-bottom:14px">
+        <div class="metric-tile"><div class="metric-tile-label">Open</div><div class="metric-tile-value" style="color:var(--amber)">9</div><div class="metric-tile-delta">3 awaiting operator</div></div>
+        <div class="metric-tile"><div class="metric-tile-label">Resolved this week</div><div class="metric-tile-value">14</div><div class="metric-tile-delta up">↑ 22% vs prev</div></div>
+        <div class="metric-tile"><div class="metric-tile-label">Median first response</div><div class="metric-tile-value">42m</div><div class="metric-tile-delta">target: 1h</div></div>
+        <div class="metric-tile"><div class="metric-tile-label">Urgent open</div><div class="metric-tile-value" style="color:var(--admin-accent)">1</div><div class="metric-tile-delta">tk_3e9a · payment</div></div>
+      </div>
+
+      <div class="split">
+        <div class="card">
+          <div class="card-header"><div class="card-title">Tickets</div><span class="pill pill-navy">Awaiting operator (3)</span></div>
+          <table class="t">
+            <thead>
+              <tr><th>ID</th><th>Subject</th><th>Org</th><th>Priority</th><th>Status</th><th>Updated</th></tr>
+            </thead>
+            <tbody>
+              <tr class="selected"><td><code>tk_3e9a</code></td><td>Razorpay payment keeps failing on renewal</td><td>org_4af2</td><td><span class="pill pill-red">Urgent</span></td><td><span class="pill pill-amber">Awaiting operator</span></td><td style="font-size:11px">14m</td></tr>
+              <tr><td><code>tk_8a31</code></td><td>Banner not showing on subdomain</td><td>org_22aa</td><td><span class="pill pill-amber">High</span></td><td><span class="pill pill-amber">Awaiting operator</span></td><td style="font-size:11px">2h</td></tr>
+              <tr><td><code>tk_1f44</code></td><td>How to set up purpose for SMS marketing?</td><td>org_8c1d</td><td><span class="pill pill-gray">Normal</span></td><td><span class="pill pill-amber">Awaiting operator</span></td><td style="font-size:11px">5h</td></tr>
+              <tr><td><code>tk_9b22</code></td><td>Audit export missing one connector</td><td>org_f7e3</td><td><span class="pill pill-gray">Normal</span></td><td><span class="pill pill-navy">Awaiting customer</span></td><td style="font-size:11px">yesterday</td></tr>
+              <tr><td><code>tk_7e10</code></td><td>Wrong sector template applied at signup</td><td>org_91b4</td><td><span class="pill pill-amber">High</span></td><td><span class="pill pill-navy">Awaiting customer</span></td><td style="font-size:11px">2d</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">tk_3e9a — Razorpay payment keeps failing on renewal</div>
+            <select class="input" style="width:140px;font-size:11px"><option>Awaiting operator</option><option>Awaiting customer</option><option>Resolved</option><option>Closed</option></select>
+          </div>
+          <div class="card-body">
+            <div style="font-size:11px;color:var(--text-3);margin-bottom:8px">Org: <code>org_4af2</code> · Reporter: sudhindra@acme.in · Created 47m ago</div>
+            <div style="display:flex;flex-direction:column;gap:10px;max-height:300px;overflow-y:auto">
+              <div style="padding:10px 12px;border-radius:var(--r);background:var(--bg)">
+                <div style="font-size:11px;color:var(--text-3);margin-bottom:4px"><strong>Customer</strong> · 47m ago</div>
+                <div style="font-size:13px">Hi — my card is being declined every time the renewal runs. Razorpay says "Bank declined transaction" but my bank says nothing's wrong. Can you check from your end?</div>
+              </div>
+              <div style="padding:10px 12px;border-radius:var(--r);background:var(--teal-light)">
+                <div style="font-size:11px;color:var(--teal);margin-bottom:4px"><strong>Sudhindra</strong> · 22m ago</div>
+                <div style="font-size:13px">Looking into this now — I see 4 declines today on Razorpay's end. Will check the failure code and reply within an hour.</div>
+              </div>
+            </div>
+            <textarea class="input" rows="3" style="margin-top:10px;resize:vertical" placeholder="Reply to customer…"></textarea>
+            <div style="display:flex;gap:8px;margin-top:8px">
+              <button class="btn btn-secondary btn-sm">Attach file</button>
+              <button class="btn btn-secondary btn-sm">Internal note</button>
+              <button class="btn btn-primary btn-sm" style="margin-left:auto">Send reply</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ────────────────────── 4. SECTORAL TEMPLATES ────────────────────── -->
+  <div id="panel-templates" class="panel">
+    <div class="topbar">
+      <div class="topbar-title">Sectoral Templates</div>
+      <div class="topbar-actions">
+        <button class="btn btn-secondary btn-sm">Preview against org</button>
+        <button class="btn btn-primary btn-sm">+ New draft</button>
+      </div>
+    </div>
+    <div class="content-area">
+      <div class="card" style="margin-bottom:14px">
+        <div class="card-header">
+          <div class="card-title">All templates</div>
+          <div style="display:flex;gap:6px"><span class="pill pill-green">5 published</span><span class="pill pill-amber">2 drafts</span><span class="pill pill-gray">3 deprecated</span></div>
+        </div>
+        <table class="t">
+          <thead>
+            <tr><th>Template code</th><th>Display name</th><th>Sector</th><th>Version</th><th>Status</th><th>Purposes</th><th>Used by</th><th>Updated</th><th></th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>dpdp_minimum</code></td><td>DPDP Minimum</td><td>general</td><td>v3</td><td><span class="pill pill-green">Published</span></td><td>5</td><td>87 orgs</td><td style="font-size:11px">2026-04-02</td><td><button class="btn btn-secondary btn-sm">Edit</button></td></tr>
+            <tr><td><code>dpdp_extended</code></td><td>DPDP + Analytics Extended</td><td>general</td><td>v2</td><td><span class="pill pill-green">Published</span></td><td>8</td><td>54 orgs</td><td style="font-size:11px">2026-03-21</td><td><button class="btn btn-secondary btn-sm">Edit</button></td></tr>
+            <tr><td><code>bfsi_starter</code></td><td>BFSI Starter</td><td>bfsi</td><td>v3</td><td><span class="pill pill-green">Published</span></td><td>11</td><td>4 orgs (NBFC pilots)</td><td style="font-size:11px">2026-04-16</td><td><button class="btn btn-secondary btn-sm">Edit</button></td></tr>
+            <tr><td><code>bfsi_starter</code></td><td>BFSI Starter (next)</td><td>bfsi</td><td>v4</td><td><span class="pill pill-amber">Draft</span></td><td>12</td><td>—</td><td style="font-size:11px">2026-04-15</td><td><button class="btn btn-primary btn-sm">Publish</button></td></tr>
+            <tr><td><code>healthcare_clinic</code></td><td>Healthcare / Clinic</td><td>healthcare</td><td>v1</td><td><span class="pill pill-green">Published</span></td><td>9</td><td>0 orgs (Month 6+)</td><td style="font-size:11px">2026-04-11</td><td><button class="btn btn-secondary btn-sm">Edit</button></td></tr>
+            <tr><td><code>edtech_starter</code></td><td>Edtech Starter</td><td>edtech</td><td>v1</td><td><span class="pill pill-green">Published</span></td><td>7</td><td>12 orgs</td><td style="font-size:11px">2026-03-18</td><td><button class="btn btn-secondary btn-sm">Edit</button></td></tr>
+            <tr><td><code>healthcare_clinic</code></td><td>Healthcare / Clinic (with ABDM v2)</td><td>healthcare</td><td>v2</td><td><span class="pill pill-amber">Draft</span></td><td>11</td><td>—</td><td style="font-size:11px">2026-04-14</td><td><button class="btn btn-secondary btn-sm">Edit</button></td></tr>
+            <tr><td><code>dpdp_minimum</code></td><td>DPDP Minimum</td><td>general</td><td>v2</td><td><span class="pill pill-gray">Deprecated</span></td><td>4</td><td>0 orgs</td><td style="font-size:11px">2026-02-14</td><td><button class="btn btn-secondary btn-sm">View</button></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">Editor — bfsi_starter v4 (draft)</div>
+          <div style="display:flex;gap:8px">
+            <button class="btn btn-secondary btn-sm">Diff vs v3</button>
+            <button class="btn btn-secondary btn-sm">Preview against org…</button>
+            <button class="btn btn-primary btn-sm">Save draft</button>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="grid-2">
+            <div>
+              <div class="label">Template code</div>
+              <input class="input" value="bfsi_starter" disabled>
+            </div>
+            <div>
+              <div class="label">Display name</div>
+              <input class="input" value="BFSI Starter (next)">
+            </div>
+            <div>
+              <div class="label">Sector</div>
+              <select class="input"><option>bfsi</option><option>general</option><option>healthcare</option><option>edtech</option></select>
+            </div>
+            <div>
+              <div class="label">Version</div>
+              <input class="input" value="4" disabled>
+            </div>
+          </div>
+          <div style="margin-top:12px">
+            <div class="label">Description</div>
+            <textarea class="input" rows="2">DPDP base + KYC retention exemptions + RBI categories. Adds support for credit-history sharing under DEPA-Account-Aggregator framework.</textarea>
+          </div>
+
+          <div style="margin-top:16px">
+            <div class="label">Purpose definitions in this template</div>
+            <table class="t" style="margin-top:6px">
+              <thead><tr><th>Purpose code</th><th>Display</th><th>Framework</th><th>Data scope</th><th>Default expiry</th><th>Auto-delete</th><th></th></tr></thead>
+              <tbody>
+                <tr><td><code>essential</code></td><td>Essential</td><td>DPDP</td><td><span class="pill pill-gray">session_id</span> <span class="pill pill-gray">csrf_token</span></td><td>Never</td><td>—</td><td><button class="btn btn-secondary btn-sm">Edit</button></td></tr>
+                <tr><td><code>kyc_records</code></td><td>KYC records</td><td>DPDP + RBI KYC</td><td><span class="pill pill-gray">pan</span> <span class="pill pill-gray">aadhaar</span> <span class="pill pill-gray">document_image_ref</span></td><td>10 years</td><td>No (statutory)</td><td><button class="btn btn-secondary btn-sm">Edit</button></td></tr>
+                <tr><td><code>account_balance</code></td><td>Account balance</td><td>DPDP + RBI</td><td><span class="pill pill-gray">account_number</span> <span class="pill pill-gray">balance</span></td><td>8 years</td><td>No (statutory)</td><td><button class="btn btn-secondary btn-sm">Edit</button></td></tr>
+                <tr><td><code>transaction_history</code></td><td>Transaction history</td><td>DPDP + RBI + AA</td><td><span class="pill pill-gray">transaction_record</span></td><td>8 years</td><td>No (statutory)</td><td><button class="btn btn-secondary btn-sm">Edit</button></td></tr>
+                <tr><td><code>credit_score_share</code></td><td>Credit score sharing</td><td>DPDP + AA</td><td><span class="pill pill-gray">credit_score</span></td><td>180 days</td><td>Yes</td><td><button class="btn btn-secondary btn-sm">Edit</button></td></tr>
+                <tr><td><code>marketing</code></td><td>Marketing</td><td>DPDP</td><td><span class="pill pill-gray">email_address</span> <span class="pill pill-gray">marketing_consent</span></td><td>180 days</td><td>Yes</td><td><button class="btn btn-secondary btn-sm">Edit</button></td></tr>
+                <tr><td colspan="7" style="text-align:center"><button class="btn btn-secondary btn-sm">+ Add purpose</button></td></tr>
+              </tbody>
+            </table>
+            <div style="font-size:11px;color:var(--text-3);margin-top:8px">data_scope values are <strong>category declarations only</strong>, never actual personal data values (Rule 3, broadened 2026-04-16).</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ────────────────────── 5. CONNECTOR CATALOGUE ────────────────────── -->
+  <div id="panel-connectors" class="panel">
+    <div class="topbar">
+      <div class="topbar-title">Connector Catalogue</div>
+      <div class="topbar-actions">
+        <button class="btn btn-secondary btn-sm">Test connector</button>
+        <button class="btn btn-primary btn-sm">+ New connector</button>
+      </div>
+    </div>
+    <div class="content-area">
+      <div class="grid-4" style="margin-bottom:14px">
+        <div class="metric-tile"><div class="metric-tile-label">Active</div><div class="metric-tile-value">11</div><div class="metric-tile-delta">across 142 orgs</div></div>
+        <div class="metric-tile"><div class="metric-tile-label">Deprecated</div><div class="metric-tile-value" style="color:var(--amber)">2</div><div class="metric-tile-delta">cutover by May</div></div>
+        <div class="metric-tile"><div class="metric-tile-label">Highest usage</div><div class="metric-tile-value" style="font-size:18px">Mailchimp v1</div><div class="metric-tile-delta">87 orgs</div></div>
+        <div class="metric-tile"><div class="metric-tile-label">Avg deletion latency</div><div class="metric-tile-value" style="font-size:18px">1.2s</div><div class="metric-tile-delta up">↓ 18% vs Mar</div></div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">All connectors</div>
+          <div style="display:flex;gap:6px"><span class="pill pill-green">11 active</span><span class="pill pill-amber">2 deprecated</span><span class="pill pill-gray">3 retired</span></div>
+        </div>
+        <table class="t">
+          <thead>
+            <tr><th>Connector</th><th>Vendor</th><th>Version</th><th>Supported purposes</th><th>Retention lock</th><th>Used by</th><th>Status</th><th></th></tr>
+          </thead>
+          <tbody>
+            <tr><td><strong>Mailchimp</strong> · <code>mailchimp_v1</code></td><td>Mailchimp</td><td>v1</td><td><span class="pill pill-navy" style="font-size:10px">marketing</span></td><td>No</td><td>87 orgs</td><td><span class="pill pill-green">Active</span></td><td><button class="btn btn-secondary btn-sm">Edit</button></td></tr>
+            <tr><td><strong>HubSpot</strong> · <code>hubspot_v1</code></td><td>HubSpot</td><td>v1</td><td><span class="pill pill-navy" style="font-size:10px">marketing</span></td><td>No</td><td>34 orgs</td><td><span class="pill pill-green">Active</span></td><td><button class="btn btn-secondary btn-sm">Edit</button></td></tr>
+            <tr><td><strong>Mixpanel</strong> · <code>mixpanel_v1</code></td><td>Mixpanel</td><td>v1</td><td><span class="pill pill-navy" style="font-size:10px">analytics</span></td><td>No</td><td>62 orgs</td><td><span class="pill pill-green">Active</span></td><td><button class="btn btn-secondary btn-sm">Edit</button></td></tr>
+            <tr><td><strong>Intercom</strong> · <code>intercom_v1</code></td><td>Intercom</td><td>v1</td><td><span class="pill pill-navy" style="font-size:10px">support_chat</span></td><td>No</td><td>18 orgs</td><td><span class="pill pill-green">Active</span></td><td><button class="btn btn-secondary btn-sm">Edit</button></td></tr>
+            <tr><td><strong>Razorpay</strong> · <code>razorpay_v1</code></td><td>Razorpay</td><td>v1</td><td><span class="pill pill-navy" style="font-size:10px">payment_records</span></td><td>Yes (7yr)</td><td>11 orgs</td><td><span class="pill pill-green">Active</span></td><td><button class="btn btn-secondary btn-sm">Edit</button></td></tr>
+            <tr><td><strong>Generic Webhook</strong> · <code>webhook_v1</code></td><td>—</td><td>v1</td><td>Any (custom mapping)</td><td>Configurable</td><td>43 orgs</td><td><span class="pill pill-green">Active</span></td><td><button class="btn btn-secondary btn-sm">Edit</button></td></tr>
+            <tr><td><strong>Mailchimp</strong> · <code>mailchimp_v0</code></td><td>Mailchimp</td><td>v0 (legacy)</td><td><span class="pill pill-navy" style="font-size:10px">marketing</span></td><td>No</td><td>3 orgs</td><td><span class="pill pill-amber">Deprecated</span> · cutover May 1</td><td><button class="btn btn-secondary btn-sm">View</button></td></tr>
+            <tr><td><strong>SendGrid</strong> · <code>sendgrid_v1</code></td><td>Twilio SendGrid</td><td>v1</td><td><span class="pill pill-navy" style="font-size:10px">marketing</span></td><td>No</td><td>0 orgs</td><td><span class="pill pill-gray">Retired</span></td><td><button class="btn btn-secondary btn-sm">View</button></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="card" style="margin-top:14px">
+        <div class="card-header"><div class="card-title">Editor — mailchimp_v1</div><button class="btn btn-primary btn-sm">Save</button></div>
+        <div class="card-body">
+          <div class="grid-2">
+            <div><div class="label">Connector code</div><input class="input" value="mailchimp_v1" disabled></div>
+            <div><div class="label">Display name</div><input class="input" value="Mailchimp"></div>
+            <div><div class="label">Vendor</div><input class="input" value="Mailchimp"></div>
+            <div><div class="label">Version</div><input class="input" value="v1"></div>
+          </div>
+          <div style="margin-top:12px">
+            <div class="label">Webhook endpoint template</div>
+            <input class="input" value="https://api.mailchimp.com/3.0/lists/{list_id}/members/{subscriber_hash}" style="font-family:var(--mono);font-size:12px">
+          </div>
+          <div style="margin-top:12px">
+            <div class="label">Required credentials (JSON Schema)</div>
+            <textarea class="input" rows="6" style="font-family:var(--mono);font-size:12px">{
+  "type": "object",
+  "required": ["api_key", "list_id"],
+  "properties": {
+    "api_key": { "type": "string", "secret": true },
+    "list_id": { "type": "string" }
+  }
+}</textarea>
+          </div>
+          <div class="grid-2" style="margin-top:12px">
+            <div><div class="label">Supported purpose codes</div><input class="input" value="marketing"></div>
+            <div><div class="label">Documentation URL</div><input class="input" value="https://mailchimp.com/developer/marketing/api/list-members/"></div>
+          </div>
+          <div style="margin-top:14px;padding:10px;background:var(--bg);border-radius:var(--r);font-size:12px;color:var(--text-2)">
+            Deprecating a connector requires picking a replacement and a cutover deadline. Customers using this connector will see an in-product migration prompt with a one-click flow to switch.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ────────────────────── 6. TRACKER SIGNATURES ────────────────────── -->
+  <div id="panel-signatures" class="panel">
+    <div class="topbar">
+      <div class="topbar-title">Tracker Signatures</div>
+      <div class="topbar-actions">
+        <button class="btn btn-secondary btn-sm">Import pack</button>
+        <button class="btn btn-primary btn-sm">+ New signature</button>
+      </div>
+    </div>
+    <div class="content-area">
+      <div class="card" style="margin-bottom:14px">
+        <div class="card-header">
+          <div class="card-title">Catalogue</div>
+          <div style="display:flex;gap:6px;flex-wrap:wrap">
+            <span class="pill pill-navy" style="cursor:pointer">All</span>
+            <span class="pill pill-gray" style="cursor:pointer">Analytics</span>
+            <span class="pill pill-gray" style="cursor:pointer">Marketing</span>
+            <span class="pill pill-gray" style="cursor:pointer">Advertising</span>
+            <span class="pill pill-gray" style="cursor:pointer">Social</span>
+            <span class="pill pill-gray" style="cursor:pointer">Functional</span>
+            <span class="pill pill-amber" style="cursor:pointer">Critical severity</span>
+          </div>
+        </div>
+        <table class="t">
+          <thead>
+            <tr><th>Signature</th><th>Vendor</th><th>Type</th><th>Pattern</th><th>Category</th><th>Severity</th><th>Status</th><th></th></tr>
+          </thead>
+          <tbody>
+            <tr><td><strong>Google Analytics 4</strong> · <code>ga4</code></td><td>Google</td><td>script_src</td><td style="font-family:var(--mono);font-size:11px">/googletagmanager.com\/gtag\/js/</td><td>Analytics</td><td><span class="pill pill-amber">Warn</span></td><td><span class="pill pill-green">Active</span></td><td><button class="btn btn-secondary btn-sm">Edit</button></td></tr>
+            <tr><td><strong>Meta Pixel</strong> · <code>meta_pixel</code></td><td>Meta</td><td>script_src</td><td style="font-family:var(--mono);font-size:11px">/connect.facebook.net\/.+\/fbevents.js/</td><td>Advertising</td><td><span class="pill pill-red">Critical</span></td><td><span class="pill pill-green">Active</span></td><td><button class="btn btn-secondary btn-sm">Edit</button></td></tr>
+            <tr><td><strong>Mixpanel</strong> · <code>mixpanel</code></td><td>Mixpanel</td><td>script_src</td><td style="font-family:var(--mono);font-size:11px">/cdn.mxpnl.com\/libs\/mixpanel/</td><td>Analytics</td><td><span class="pill pill-amber">Warn</span></td><td><span class="pill pill-green">Active</span></td><td><button class="btn btn-secondary btn-sm">Edit</button></td></tr>
+            <tr><td><strong>Hotjar</strong> · <code>hotjar</code></td><td>Hotjar</td><td>script_src</td><td style="font-family:var(--mono);font-size:11px">/static.hotjar.com\/c\/hotjar/</td><td>Analytics</td><td><span class="pill pill-amber">Warn</span></td><td><span class="pill pill-green">Active</span></td><td><button class="btn btn-secondary btn-sm">Edit</button></td></tr>
+            <tr><td><strong>Linkedin Insight</strong> · <code>linkedin_insight</code></td><td>LinkedIn</td><td>script_src</td><td style="font-family:var(--mono);font-size:11px">/snap.licdn.com\/li.lms-analytics/</td><td>Advertising</td><td><span class="pill pill-red">Critical</span></td><td><span class="pill pill-green">Active</span></td><td><button class="btn btn-secondary btn-sm">Edit</button></td></tr>
+            <tr><td><strong>Tiktok Pixel</strong> · <code>tiktok_pixel</code></td><td>TikTok</td><td>script_src</td><td style="font-family:var(--mono);font-size:11px">/analytics.tiktok.com\/i18n\/pixel/</td><td>Advertising</td><td><span class="pill pill-red">Critical</span></td><td><span class="pill pill-green">Active</span></td><td><button class="btn btn-secondary btn-sm">Edit</button></td></tr>
+            <tr><td><strong>Intercom widget</strong> · <code>intercom_widget</code></td><td>Intercom</td><td>script_src</td><td style="font-family:var(--mono);font-size:11px">/widget.intercom.io\/widget/</td><td>Functional</td><td><span class="pill pill-gray">Info</span></td><td><span class="pill pill-green">Active</span></td><td><button class="btn btn-secondary btn-sm">Edit</button></td></tr>
+            <tr><td><strong>YouTube embed cookies</strong> · <code>youtube_embed</code></td><td>Google</td><td>cookie_name</td><td style="font-family:var(--mono);font-size:11px">/^(VISITOR_INFO1_LIVE|YSC|PREF)$/</td><td>Functional</td><td><span class="pill pill-amber">Warn</span></td><td><span class="pill pill-green">Active</span></td><td><button class="btn btn-secondary btn-sm">Edit</button></td></tr>
+            <tr><td><strong>Old GA Universal</strong> · <code>ga_universal</code></td><td>Google</td><td>script_src</td><td style="font-family:var(--mono);font-size:11px">/google-analytics.com\/(ga|analytics).js/</td><td>Analytics</td><td><span class="pill pill-amber">Warn</span></td><td><span class="pill pill-gray">Deprecated</span></td><td><button class="btn btn-secondary btn-sm">View</button></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="card">
+        <div class="card-header"><div class="card-title">Editor — ga4</div><button class="btn btn-primary btn-sm">Save</button></div>
+        <div class="card-body">
+          <div class="grid-2">
+            <div><div class="label">Signature code</div><input class="input" value="ga4" disabled></div>
+            <div><div class="label">Display name</div><input class="input" value="Google Analytics 4"></div>
+            <div><div class="label">Vendor</div><input class="input" value="Google"></div>
+            <div><div class="label">Signature type</div><select class="input"><option>script_src</option><option>cookie_name</option><option>localstorage_key</option><option>dom_attribute</option></select></div>
+            <div><div class="label">Category</div><select class="input"><option>Analytics</option><option>Marketing</option><option>Advertising</option><option>Social</option><option>Functional</option></select></div>
+            <div><div class="label">Severity</div><select class="input"><option>Info</option><option selected>Warn</option><option>Critical</option></select></div>
+          </div>
+          <div style="margin-top:12px">
+            <div class="label">Pattern (regex)</div>
+            <input class="input" value="/googletagmanager.com\/gtag\/js/" style="font-family:var(--mono);font-size:12px">
+          </div>
+          <div style="margin-top:12px">
+            <div class="label">Notes (operator-only)</div>
+            <textarea class="input" rows="3">GA4 fires on any site using GTM with the gtag config. Detected before consent → flagged as warn (analytics is opt-in but commonly accepted).</textarea>
+          </div>
+          <div style="margin-top:14px;padding:10px;background:var(--bg);border-radius:var(--r);font-size:12px;color:var(--text-2)">
+            Active signatures sync to Cloudflare KV every 2 minutes via the <code>admin-sync-config-to-kv</code> cron job; the Worker reads from KV when scoring tracker observations.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ────────────────────── 7. PIPELINE OPERATIONS ────────────────────── -->
+  <div id="panel-pipeline" class="panel">
+    <div class="topbar">
+      <div class="topbar-title">Pipeline Operations</div>
+      <div class="topbar-actions">
+        <span style="font-size:11px;color:var(--text-3)">Live · auto-refresh 30s</span>
+      </div>
+    </div>
+    <div class="content-area">
+      <div class="tab-bar">
+        <div class="tab-item active" onclick="switchTab(this,'pipe-worker-tab')">Worker errors</div>
+        <div class="tab-item" onclick="switchTab(this,'pipe-stuck-tab')">Stuck buffers</div>
+        <div class="tab-item" onclick="switchTab(this,'pipe-expiry-tab')">DEPA expiry queue</div>
+        <div class="tab-item" onclick="switchTab(this,'pipe-delivery-tab')">Delivery health</div>
+      </div>
+
+      <div id="pipe-worker-tab" class="tab-panel active">
+        <div class="card">
+          <div class="card-header"><div class="card-title">worker_errors — last 24h (3 events across 2 orgs)</div><span class="pill pill-green">healthy</span></div>
+          <table class="t">
+            <thead><tr><th>When</th><th>Endpoint</th><th>Org</th><th>Status</th><th>Error</th><th></th></tr></thead>
+            <tbody>
+              <tr><td style="font-family:var(--mono);font-size:11px">04:21:08</td><td><code>/v1/events</code></td><td><code>org_22aa</code></td><td>503</td><td>Supabase REST timeout</td><td><button class="btn btn-secondary btn-sm">View</button></td></tr>
+              <tr><td style="font-family:var(--mono);font-size:11px">02:18:44</td><td><code>/v1/observations</code></td><td><code>org_4af2</code></td><td>409</td><td>Duplicate trace_id (idempotency hit)</td><td><button class="btn btn-secondary btn-sm">View</button></td></tr>
+              <tr><td style="font-family:var(--mono);font-size:11px">yesterday 22:09</td><td><code>/v1/events</code></td><td><code>org_8c1d</code></td><td>500</td><td>HMAC verify failed (clock skew?)</td><td><button class="btn btn-secondary btn-sm">View</button></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div id="pipe-stuck-tab" class="tab-panel">
+        <div class="card">
+          <div class="card-header"><div class="card-title">Stuck buffer rows by table</div><span class="pill pill-green">0 stuck (target: 0)</span></div>
+          <table class="t">
+            <thead><tr><th>Table</th><th>Undelivered count</th><th>Oldest age</th><th>Status</th></tr></thead>
+            <tbody>
+              <tr><td><code>consent_events</code></td><td>147</td><td>11 sec</td><td><span class="pill pill-green">OK</span></td></tr>
+              <tr><td><code>tracker_observations</code></td><td>62</td><td>4 sec</td><td><span class="pill pill-green">OK</span></td></tr>
+              <tr><td><code>delivery_buffer</code></td><td>91</td><td>23 sec</td><td><span class="pill pill-green">OK</span></td></tr>
+              <tr><td><code>artefact_revocations</code> (DEPA)</td><td>3</td><td>8 sec</td><td><span class="pill pill-green">OK</span></td></tr>
+              <tr><td><code>audit_log</code></td><td>0</td><td>—</td><td><span class="pill pill-green">OK</span></td></tr>
+              <tr><td><code>processing_log</code></td><td>0</td><td>—</td><td><span class="pill pill-green">OK</span></td></tr>
+              <tr><td><code>rights_request_events</code></td><td>0</td><td>—</td><td><span class="pill pill-green">OK</span></td></tr>
+              <tr><td><code>deletion_receipts</code></td><td>2</td><td>4 min</td><td><span class="pill pill-green">OK</span></td></tr>
+              <tr><td><code>consent_probe_runs</code></td><td>0</td><td>—</td><td><span class="pill pill-green">OK</span></td></tr>
+              <tr><td><code>security_scans</code></td><td>0</td><td>—</td><td><span class="pill pill-green">OK</span></td></tr>
+              <tr><td><code>withdrawal_verifications</code></td><td>0</td><td>—</td><td><span class="pill pill-green">OK</span></td></tr>
+            </tbody>
+          </table>
+          <div style="font-size:11px;color:var(--text-3);padding:10px 16px;border-top:1px solid var(--border)">
+            Rules 11 references: any row > 1 hour is a pipeline failure; any row > 24 hours is a P0. The amber warning fires at 30 minutes.
+          </div>
+        </div>
+      </div>
+
+      <div id="pipe-expiry-tab" class="tab-panel">
+        <div class="card">
+          <div class="card-header"><div class="card-title">DEPA artefact expiry pipeline</div><span class="pill pill-amber">2 orgs need attention</span></div>
+          <div class="grid-3" style="padding:16px">
+            <div class="metric-tile"><div class="metric-tile-label">Expiring &lt; 7 days</div><div class="metric-tile-value" style="color:var(--admin-accent)">31</div><div class="metric-tile-delta">across 4 orgs</div></div>
+            <div class="metric-tile"><div class="metric-tile-label">Expiring &lt; 30 days</div><div class="metric-tile-value" style="color:var(--amber)">412</div><div class="metric-tile-delta">across 19 orgs</div></div>
+            <div class="metric-tile"><div class="metric-tile-label">Expired &amp; awaiting enforcement</div><div class="metric-tile-value" style="color:var(--green)">0</div><div class="metric-tile-delta">cron healthy</div></div>
+          </div>
+          <table class="t">
+            <thead><tr><th>Org</th><th>Expiring &lt;7d</th><th>Expiring &lt;30d</th><th>Last expiry alert sent</th><th>Re-consent campaign</th></tr></thead>
+            <tbody>
+              <tr><td><strong>Acme Technologies</strong> · <code>org_4af2</code></td><td>9</td><td>87</td><td>5h ago</td><td><span class="pill pill-amber">Not sent</span></td></tr>
+              <tr><td><strong>BetaBank Digital</strong> · <code>org_8c1d</code></td><td>11</td><td>142</td><td>5h ago</td><td><span class="pill pill-green">Sent yesterday</span></td></tr>
+              <tr><td><strong>DemoShop Retail</strong> · <code>org_22aa</code></td><td>7</td><td>61</td><td>5h ago</td><td><span class="pill pill-green">Sent today</span></td></tr>
+              <tr><td><strong>Curio Learning</strong> · <code>org_f7e3</code></td><td>4</td><td>18</td><td>5h ago</td><td><span class="pill pill-amber">Not sent</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div id="pipe-delivery-tab" class="tab-panel">
+        <div class="card">
+          <div class="card-header"><div class="card-title">Delivery health (last 24h)</div></div>
+          <div class="grid-3" style="padding:16px">
+            <div class="metric-tile"><div class="metric-tile-label">Median latency</div><div class="metric-tile-value">312 ms</div><div class="metric-tile-delta up">↓ 8% vs prev day</div></div>
+            <div class="metric-tile"><div class="metric-tile-label">Success rate</div><div class="metric-tile-value" style="color:var(--green)">99.97%</div><div class="metric-tile-delta">target ≥ 99.9%</div></div>
+            <div class="metric-tile"><div class="metric-tile-label">Throughput</div><div class="metric-tile-value">14.8K</div><div class="metric-tile-delta">consent events delivered</div></div>
+          </div>
+          <table class="t">
+            <thead><tr><th>Org</th><th>Median latency</th><th>P95 latency</th><th>Failures (24h)</th><th>Throughput (24h)</th></tr></thead>
+            <tbody>
+              <tr><td><strong>Acme Technologies</strong></td><td>247 ms</td><td>614 ms</td><td>0</td><td>1,243</td></tr>
+              <tr><td><strong>BetaBank Digital</strong></td><td>211 ms</td><td>587 ms</td><td>0</td><td>3,891</td></tr>
+              <tr><td><strong>DemoShop Retail</strong></td><td>318 ms</td><td>702 ms</td><td>1</td><td>2,604</td></tr>
+              <tr><td><strong>Curio Learning</strong></td><td>342 ms</td><td>891 ms</td><td>0</td><td>418</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ────────────────────── 8. BILLING OPERATIONS ────────────────────── -->
+  <div id="panel-billing" class="panel">
+    <div class="topbar">
+      <div class="topbar-title">Billing Operations</div>
+      <div class="topbar-actions">
+        <button class="btn btn-secondary btn-sm">Open Razorpay dashboard</button>
+      </div>
+    </div>
+    <div class="content-area">
+      <div class="tab-bar">
+        <div class="tab-item active" onclick="switchTab(this,'bill-fail-tab')">Payment failures</div>
+        <div class="tab-item" onclick="switchTab(this,'bill-refund-tab')">Refunds</div>
+        <div class="tab-item" onclick="switchTab(this,'bill-comp-tab')">Comp accounts</div>
+        <div class="tab-item" onclick="switchTab(this,'bill-override-tab')">Plan overrides</div>
+      </div>
+
+      <div id="bill-fail-tab" class="tab-panel active">
+        <div class="card">
+          <div class="card-header"><div class="card-title">Razorpay payment failures (last 7 days)</div><span class="pill pill-amber">4 active</span></div>
+          <table class="t">
+            <thead><tr><th>Org</th><th>Plan</th><th>Failed at</th><th>Razorpay code</th><th>Reason</th><th>Retries</th><th></th></tr></thead>
+            <tbody>
+              <tr><td><strong>Acme Technologies</strong> · <code>org_4af2</code></td><td>Growth</td><td style="font-size:12px">today 04:01</td><td><code style="font-family:var(--mono);font-size:11px">BAD_REQUEST_ERROR</code></td><td>Bank declined transaction</td><td>4</td><td><button class="btn btn-secondary btn-sm">Retry now</button></td></tr>
+              <tr><td><strong>EvoTax CA Firm</strong> · <code>org_91b4</code></td><td>Growth</td><td style="font-size:12px">yesterday 18:22</td><td><code style="font-family:var(--mono);font-size:11px">GATEWAY_ERROR</code></td><td>Insufficient funds</td><td>2</td><td><button class="btn btn-secondary btn-sm">Retry now</button></td></tr>
+              <tr><td><strong>NewOrg Trial</strong> · <code>org_55ee</code></td><td>Trial→Growth</td><td style="font-size:12px">2d ago</td><td><code style="font-family:var(--mono);font-size:11px">CARD_NETWORK</code></td><td>3DS challenge timeout</td><td>3</td><td><button class="btn btn-secondary btn-sm">Retry now</button></td></tr>
+              <tr><td><strong>SubscriptionCo</strong> · <code>org_3f1a</code></td><td>Pro</td><td style="font-size:12px">3d ago</td><td><code style="font-family:var(--mono);font-size:11px">SERVER_ERROR</code></td><td>Razorpay outage</td><td>5 (max)</td><td><button class="btn btn-danger btn-sm">Suspend org</button></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div id="bill-refund-tab" class="tab-panel">
+        <div class="card">
+          <div class="card-header"><div class="card-title">Refund queue</div><button class="btn btn-primary btn-sm">+ New refund</button></div>
+          <table class="t">
+            <thead><tr><th>Refund ID</th><th>Org</th><th>Amount</th><th>Reason</th><th>Status</th><th>Requested by</th></tr></thead>
+            <tbody>
+              <tr><td><code>rfd_8a1f</code></td><td>EvoTax CA Firm</td><td>₹5,999</td><td>Cancellation within 7-day window</td><td><span class="pill pill-amber">Pending</span></td><td>Sudhindra · 2h ago</td></tr>
+              <tr><td><code>rfd_3e2b</code></td><td>OldOrg Customer</td><td>₹3,000</td><td>Pro-rata for downgrade Mar 22</td><td><span class="pill pill-green">Issued</span></td><td>Sudhindra · 1w ago</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div id="bill-comp-tab" class="tab-panel">
+        <div class="card">
+          <div class="card-header"><div class="card-title">Comp accounts (free for partners / pilots)</div><button class="btn btn-primary btn-sm">+ Add comp</button></div>
+          <table class="t">
+            <thead><tr><th>Org</th><th>Plan</th><th>Duration</th><th>Reason</th><th>Granted by</th><th>Expires</th></tr></thead>
+            <tbody>
+              <tr><td><strong>Pilot Clinic A</strong></td><td>Pro</td><td>6 months</td><td>ABDM clinic pilot · Month 6+ commitment</td><td>Sudhindra</td><td>2026-10-16</td></tr>
+              <tr><td><strong>Pilot NBFC B</strong></td><td>Enterprise</td><td>3 months</td><td>BFSI design partner</td><td>Sudhindra</td><td>2026-07-16</td></tr>
+              <tr><td><strong>SaaSBoomi Member</strong></td><td>Growth</td><td>12 months</td><td>Community partner discount → 100%</td><td>Sudhindra</td><td>2027-04-12</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div id="bill-override-tab" class="tab-panel">
+        <div class="card">
+          <div class="card-header"><div class="card-title">Plan overrides (gate features without billing event)</div></div>
+          <table class="t">
+            <thead><tr><th>Org</th><th>Plan (effective)</th><th>Override expires</th><th>Reason</th></tr></thead>
+            <tbody>
+              <tr><td>Acme Technologies</td><td>Pro (was Growth)</td><td>May 11 (renewal)</td><td>Goodwill upgrade for support delay</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ────────────────────── 9. ABUSE & SECURITY ────────────────────── -->
+  <div id="panel-security" class="panel">
+    <div class="topbar">
+      <div class="topbar-title">Abuse &amp; Security</div>
+      <div class="topbar-actions">
+        <span style="font-size:11px;color:var(--text-3)">Sentry: consentshield-app + consentshield-admin</span>
+      </div>
+    </div>
+    <div class="content-area">
+      <div class="tab-bar">
+        <div class="tab-item active" onclick="switchTab(this,'sec-rate-tab')">Rate-limit triggers</div>
+        <div class="tab-item" onclick="switchTab(this,'sec-hmac-tab')">HMAC failures</div>
+        <div class="tab-item" onclick="switchTab(this,'sec-origin-tab')">Origin failures</div>
+        <div class="tab-item" onclick="switchTab(this,'sec-sentry-tab')">Sentry escalations</div>
+        <div class="tab-item" onclick="switchTab(this,'sec-block-tab')">Blocked IPs</div>
+      </div>
+
+      <div id="sec-rate-tab" class="tab-panel active">
+        <div class="card">
+          <div class="card-header"><div class="card-title">Rate-limit triggers (last 24h)</div><span class="pill pill-amber">26 hits from 1 IP under investigation</span></div>
+          <table class="t">
+            <thead><tr><th>When</th><th>Endpoint</th><th>IP</th><th>Identity</th><th>Hits</th><th></th></tr></thead>
+            <tbody>
+              <tr><td style="font-family:var(--mono);font-size:11px">07:14 → 07:24</td><td>/api/public/rights-request</td><td><code>49.36.xxx.xxx</code></td><td>—</td><td>26</td><td><button class="btn btn-danger btn-sm">Block IP</button></td></tr>
+              <tr><td style="font-family:var(--mono);font-size:11px">04:32</td><td>/v1/events</td><td><code>103.21.xxx.xxx</code></td><td>org_22aa</td><td>3</td><td><button class="btn btn-secondary btn-sm">Investigate</button></td></tr>
+              <tr><td style="font-family:var(--mono);font-size:11px">yesterday 21:08</td><td>/api/public/support-ticket</td><td><code>122.171.xxx.xxx</code></td><td>—</td><td>5</td><td><button class="btn btn-secondary btn-sm">Investigate</button></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div id="sec-hmac-tab" class="tab-panel">
+        <div class="card">
+          <div class="card-header"><div class="card-title">Worker HMAC verification failures</div><span class="pill pill-green">1 failure (24h) — likely clock skew</span></div>
+          <table class="t">
+            <thead><tr><th>When</th><th>Endpoint</th><th>Org</th><th>Reason</th></tr></thead>
+            <tbody>
+              <tr><td style="font-family:var(--mono);font-size:11px">yesterday 22:09</td><td>/v1/events</td><td>org_8c1d</td><td>Timestamp drift &gt; 5 min (client clock issue)</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div id="sec-origin-tab" class="tab-panel">
+        <div class="card">
+          <div class="card-header"><div class="card-title">Worker origin validation failures</div><span class="pill pill-green">2 (24h) — flagged origin_unverified</span></div>
+          <table class="t">
+            <thead><tr><th>When</th><th>Property</th><th>Allowed origin</th><th>Sent origin</th></tr></thead>
+            <tbody>
+              <tr><td style="font-family:var(--mono);font-size:11px">06:18</td><td>org_22aa · myproduct.in</td><td><code>https://myproduct.in</code></td><td><code>(empty)</code></td></tr>
+              <tr><td style="font-family:var(--mono);font-size:11px">02:44</td><td>org_4af2 · acme.in</td><td><code>https://acme.in</code></td><td><code>https://staging.acme.in</code></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div id="sec-sentry-tab" class="tab-panel">
+        <div class="card">
+          <div class="card-header"><div class="card-title">Sentry escalations (severity ≥ error)</div><span class="pill pill-green">2 events — both grouped</span></div>
+          <table class="t">
+            <thead><tr><th>When</th><th>Project</th><th>Title</th><th>Affected users</th><th></th></tr></thead>
+            <tbody>
+              <tr><td style="font-family:var(--mono);font-size:11px">09:14</td><td>consentshield-app</td><td>RangeError: invalid date in expiry-bar.tsx</td><td>1</td><td><a href="#" style="font-size:12px;color:var(--teal)">Open in Sentry →</a></td></tr>
+              <tr><td style="font-family:var(--mono);font-size:11px">04:21</td><td>consentshield-app</td><td>NetworkError: Supabase REST timeout</td><td>1 (org_22aa)</td><td><a href="#" style="font-size:12px;color:var(--teal)">Open in Sentry →</a></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div id="sec-block-tab" class="tab-panel">
+        <div class="card">
+          <div class="card-header"><div class="card-title">Blocked IPs (global)</div><button class="btn btn-primary btn-sm">+ Block IP</button></div>
+          <table class="t">
+            <thead><tr><th>IP / Range</th><th>Blocked since</th><th>Reason</th><th>Blocked by</th><th></th></tr></thead>
+            <tbody>
+              <tr><td><code>185.220.xxx.xxx</code></td><td>2026-03-08</td><td>Tor exit node hammering rights-request</td><td>Sudhindra</td><td><button class="btn btn-secondary btn-sm">Unblock</button></td></tr>
+              <tr><td><code>198.51.100.0/24</code></td><td>2026-02-14</td><td>Bot scraping privacy notice URLs at 1000+ rpm</td><td>Sudhindra</td><td><button class="btn btn-secondary btn-sm">Unblock</button></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ────────────────────── 10. FEATURE FLAGS & KILL SWITCHES ────────────────────── -->
+  <div id="panel-flags" class="panel">
+    <div class="topbar">
+      <div class="topbar-title">Feature Flags &amp; Kill Switches</div>
+      <div class="topbar-actions">
+        <span style="font-size:11px;color:var(--text-3)">platform_operator role required for all writes</span>
+      </div>
+    </div>
+    <div class="content-area">
+      <div class="tab-bar">
+        <div class="tab-item active" onclick="switchTab(this,'ff-tab')">Feature flags</div>
+        <div class="tab-item" onclick="switchTab(this,'ks-tab')">Kill switches</div>
+      </div>
+
+      <div id="ff-tab" class="tab-panel active">
+        <div class="card">
+          <div class="card-header"><div class="card-title">Feature flags</div><button class="btn btn-primary btn-sm">+ New flag</button></div>
+          <table class="t">
+            <thead><tr><th>Flag key</th><th>Scope</th><th>Org</th><th>Value</th><th>Description</th><th>Set by</th><th></th></tr></thead>
+            <tbody>
+              <tr><td><code>depa_dashboard_enabled</code></td><td>global</td><td>—</td><td><span class="pill pill-green">true</span></td><td>Show DEPA score and artefact panel in dashboard</td><td>Sudhindra · 2w ago</td><td><button class="btn btn-secondary btn-sm">Edit</button></td></tr>
+              <tr><td><code>banking_template_visible</code></td><td>org</td><td><code>org_8c1d</code></td><td><span class="pill pill-green">true</span></td><td>Beta — show BFSI template selector for this org only</td><td>Sudhindra · 1w ago</td><td><button class="btn btn-secondary btn-sm">Edit</button></td></tr>
+              <tr><td><code>worker_v2_enabled</code></td><td>global</td><td>—</td><td><span class="pill pill-gray">false</span></td><td>Use Worker v2 for banner delivery (canary not started)</td><td>Sudhindra · 3w ago</td><td><button class="btn btn-secondary btn-sm">Edit</button></td></tr>
+              <tr><td><code>razorpay_test_mode</code></td><td>org</td><td><code>org_55ee</code></td><td><span class="pill pill-amber">true</span></td><td>Test-mode billing for internal QA org</td><td>Sudhindra · 1m ago</td><td><button class="btn btn-secondary btn-sm">Edit</button></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div id="ks-tab" class="tab-panel">
+        <div class="card">
+          <div class="card-header"><div class="card-title">Kill switches</div><span class="pill pill-green">All normal</span></div>
+          <div class="card-body" style="display:flex;flex-direction:column;gap:10px">
+            <div class="kill-card">
+              <div class="kill-row">
+                <div>
+                  <div class="kill-name">banner_delivery</div>
+                  <div class="kill-desc">When engaged, Cloudflare Worker returns a no-op banner.js for ALL customers. Use only when banner code is dangerous (security incident, malicious change). Customer sites continue to function.</div>
+                </div>
+                <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px">
+                  <div class="kill-status normal">● Normal</div>
+                  <button class="btn btn-danger btn-sm">Engage kill</button>
+                </div>
+              </div>
+            </div>
+            <div class="kill-card">
+              <div class="kill-row">
+                <div>
+                  <div class="kill-name">depa_processing</div>
+                  <div class="kill-desc">When engaged, the process-consent-event Edge Function short-circuits and returns 200 without creating consent_artefacts. Triggers + safety-net cron continue but do nothing. Use only if DEPA logic is producing bad artefacts at scale.</div>
+                </div>
+                <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px">
+                  <div class="kill-status normal">● Normal</div>
+                  <button class="btn btn-danger btn-sm">Engage kill</button>
+                </div>
+              </div>
+            </div>
+            <div class="kill-card">
+              <div class="kill-row">
+                <div>
+                  <div class="kill-name">deletion_dispatch</div>
+                  <div class="kill-desc">When engaged, orchestrate-deletion does NOT dispatch new deletion_requests to connectors. In-flight requests continue. New revocations queue but don't fan out. Use during connector-side outages or when deletion logic itself is broken.</div>
+                </div>
+                <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px">
+                  <div class="kill-status normal">● Normal</div>
+                  <button class="btn btn-danger btn-sm">Engage kill</button>
+                </div>
+              </div>
+            </div>
+            <div class="kill-card">
+              <div class="kill-row">
+                <div>
+                  <div class="kill-name">rights_request_intake</div>
+                  <div class="kill-desc">When engaged, /api/public/rights-request returns 503 Service Unavailable. Use during major abuse incidents (rate-limit alone insufficient) or DPB regulatory takedown order.</div>
+                </div>
+                <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px">
+                  <div class="kill-status normal">● Normal</div>
+                  <button class="btn btn-danger btn-sm">Engage kill</button>
+                </div>
+              </div>
+            </div>
+            <div style="font-size:11px;color:var(--text-3);padding:6px 0;border-top:1px solid var(--border)">
+              Engaging a kill switch requires reason ≥ 10 chars (audit-logged). Confirmation prompt asks the operator to type the switch_key to confirm. Worker + Edge Functions read flag state from Cloudflare KV; sync runs every 2 minutes via the <code>admin-sync-config-to-kv</code> cron.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ────────────────────── 11. AUDIT LOG ────────────────────── -->
+  <div id="panel-audit" class="panel">
+    <div class="topbar">
+      <div class="topbar-title">Audit Log</div>
+      <div class="topbar-actions">
+        <span style="font-size:11px;color:var(--text-3)">Append-only · Rule 22 · this query is itself audited</span>
+        <button class="btn btn-secondary btn-sm">Export CSV</button>
+      </div>
+    </div>
+    <div class="content-area">
+      <div class="card" style="margin-bottom:14px">
+        <div class="card-header">
+          <div class="card-title">Filters</div>
+          <div style="display:flex;gap:6px;flex-wrap:wrap">
+            <select class="input" style="width:150px;font-size:11px"><option>All admins</option><option>Sudhindra K.</option></select>
+            <select class="input" style="width:170px;font-size:11px"><option>All actions</option><option>impersonate_*</option><option>publish_template</option><option>toggle_kill_switch</option><option>suspend_org</option><option>extend_trial</option></select>
+            <select class="input" style="width:150px;font-size:11px"><option>All orgs</option><option>org_4af2</option><option>org_8c1d</option><option>org_22aa</option></select>
+            <input class="input" type="date" style="width:140px;font-size:11px" value="2026-04-09">
+            <span style="font-size:12px;color:var(--text-3)">to</span>
+            <input class="input" type="date" style="width:140px;font-size:11px" value="2026-04-16">
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header"><div class="card-title">Entries (24)</div></div>
+        <div>
+          <div class="audit-row" style="background:var(--bg);font-weight:600;font-size:11px;color:var(--text-3);text-transform:uppercase;letter-spacing:.05em"><div>When</div><div>Action</div><div>Target</div><div>Org</div></div>
+          <div class="audit-row"><div class="audit-time">2026-04-16 14:32:08</div><div><span class="audit-action">publish_sectoral_template</span> · "BFSI v3 — adds RBI cyber-incident timeline"</div><div class="audit-target">admin.sectoral_templates · <code>bfsi_starter</code></div><div>—</div></div>
+          <div class="audit-row"><div class="audit-time">2026-04-16 11:09:44</div><div><span class="audit-action">impersonate_start</span> · billing_query · "Razorpay payment failure investigation"</div><div class="audit-target">admin.impersonation_sessions · <code>imp_8a2f…</code></div><div><code>org_4af2</code></div></div>
+          <div class="audit-row"><div class="audit-time">2026-04-16 11:31:18</div><div><span class="audit-action">impersonate_end</span> · session ended manually · 22 min</div><div class="audit-target">admin.impersonation_sessions · <code>imp_8a2f…</code></div><div><code>org_4af2</code></div></div>
+          <div class="audit-row"><div class="audit-time">2026-04-16 09:14:02</div><div><span class="audit-action">deprecate_connector</span> · "mailchimp_v0 → mailchimp_v1 · cutover May 1"</div><div class="audit-target">admin.connector_catalogue · <code>mailchimp_v0</code></div><div>—</div></div>
+          <div class="audit-row"><div class="audit-time">2026-04-15 18:22:11</div><div><span class="audit-action">extend_trial</span> · "Customer requested 7-day extension to evaluate Pro"</div><div class="audit-target">public.organisations · <code>org_f7e3</code></div><div><code>org_f7e3</code></div></div>
+          <div class="audit-row"><div class="audit-time">2026-04-15 12:18:33</div><div><span class="audit-action">create_comp_account</span> · "ABDM clinic pilot · 6 months Pro"</div><div class="audit-target">admin.feature_flags · <code>plan_override</code></div><div><code>org_pilot_a</code></div></div>
+          <div class="audit-row"><div class="audit-time">2026-04-14 22:41:09</div><div><span class="audit-action">suspend_org</span> · "Failed payment after 5 retries; awaiting customer response"</div><div class="audit-target">public.organisations · <code>org_91b4</code></div><div><code>org_91b4</code></div></div>
+          <div class="audit-row"><div class="audit-time">2026-04-14 16:08:00</div><div><span class="audit-action">block_ip</span> · "Tor exit node hammering rights-request"</div><div class="audit-target">admin.security · <code>185.220.xxx.xxx</code></div><div>—</div></div>
+          <div class="audit-row"><div class="audit-time">2026-04-13 09:55:18</div><div><span class="audit-action">audit_log_query</span> · "Quarterly review query — all impersonations Q1"</div><div class="audit-target">admin.admin_audit_log</div><div>—</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<!-- IMPERSONATION DRAWER (modal opened from Org detail) -->
+<div id="imp-drawer-backdrop" class="drawer-backdrop">
+  <div class="drawer">
+    <div class="drawer-header">
+      <div class="drawer-title">Start impersonation — Acme Technologies</div>
+      <button class="icon-btn" onclick="closeImpersonationDrawer()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+    <div class="drawer-body">
+      <div style="background:var(--red-light);border:1px solid var(--admin-accent);padding:12px 14px;border-radius:var(--r);font-size:12px;color:var(--red-dark);margin-bottom:14px;line-height:1.5">
+        <strong>Privileged action.</strong> The customer's compliance contact will receive an email within 5 minutes. Every page you view and every action you take will be audit-logged with the session ID. Maximum session duration is 30 minutes.
+      </div>
+      <div class="label">Reason</div>
+      <select class="input" style="margin-bottom:10px">
+        <option>bug_investigation</option>
+        <option>data_correction</option>
+        <option>compliance_query</option>
+        <option>partner_demo</option>
+        <option>other</option>
+      </select>
+      <div class="label">Reason detail (≥ 10 chars)</div>
+      <textarea class="input" rows="3" placeholder="Customer reported their banner is not saving (tk_3e9a). Reproducing to confirm the 422 error path."></textarea>
+      <div class="label" style="margin-top:10px">Session duration</div>
+      <select class="input"><option>15 minutes</option><option selected>30 minutes (default)</option><option>60 minutes</option><option>120 minutes (max)</option></select>
+      <div style="margin-top:14px;font-size:11px;color:var(--text-3)">By starting this session, you confirm you have a legitimate operational reason aligned with our customer support and incident response policies.</div>
+    </div>
+    <div class="drawer-footer">
+      <button class="btn btn-secondary" onclick="closeImpersonationDrawer()">Cancel</button>
+      <button class="btn btn-danger">Start session →</button>
+    </div>
+  </div>
+</div>
+
+<script>
+function showPanel(id) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('panel-' + id).classList.add('active');
+  event.currentTarget.classList.add('active');
+}
+
+function switchTab(el, tabId) {
+  const parent = el.closest('.content-area') || el.closest('.panel');
+  parent.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
+  parent.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById(tabId).classList.add('active');
+}
+
+function selectOrg(row) {
+  document.querySelectorAll('.t tr').forEach(r => r.classList.remove('selected'));
+  row.classList.add('selected');
+}
+
+function openImpersonationDrawer() {
+  document.getElementById('imp-drawer-backdrop').classList.add('active');
+}
+function closeImpersonationDrawer() {
+  document.getElementById('imp-drawer-backdrop').classList.remove('active');
+}
+
+// Tick the session timer in the sidebar footer for verisimilitude.
+let elapsed = 484;  // seconds since session start in this mock
+function tickTimer() {
+  elapsed++;
+  const h = String(Math.floor(elapsed / 3600)).padStart(2, '0');
+  const m = String(Math.floor((elapsed % 3600) / 60)).padStart(2, '0');
+  const s = String(elapsed % 60).padStart(2, '0');
+  const el = document.querySelector('.session-timer');
+  if (el) el.textContent = `Session: ${h}:${m}:${s}`;
+}
+setInterval(tickTimer, 1000);
+</script>
+
+</body>
+</html>
