@@ -121,3 +121,29 @@ The mobile app's scope and UX flows are fully documented and ready to build when
 ---
 
 *Document prepared April 2026. Stack decisions are final for Year 1. Re-evaluate at ₹3L MRR or 80+ customers, whichever comes first.*
+
+---
+
+## Addendum — 2026-04-16 (architecture has moved on)
+
+This document records the strategic decisions taken in early April 2026 and was correct at that time. Since then the architecture has evolved substantially — most importantly, the **DEPA artefact model** was merged into the source-of-truth architecture docs on 2026-04-16 (commit `9d1d05b`). The "✅ Completed April 2026" marks against items 1 and 2 (web screens and mobile UX) at the top of this file remain accurate as a historical record of when those wireframes were drafted, but they should not be read as "complete in absolute terms" — both files have since been amended (web) or annotated with deferred drift items (mobile) to reflect the DEPA architecture.
+
+**What changed since this doc was written:**
+
+- **DEPA artefact model** — per-purpose `consent_artefacts` rows replace the pre-existing `purposes_accepted[]` array on `consent_events`. New tables: `purpose_definitions`, `purpose_connector_mappings`, `consent_artefacts`, `artefact_revocations`, `consent_expiry_queue`, `depa_compliance_metrics`.
+- **Two new non-negotiable rules** — Rule 19 (consent artefacts append-only) and Rule 20 (every artefact has explicit `expires_at`).
+- **Rule 3 broadened** from FHIR-only to all regulated sensitive content (FHIR + banking identifiers + future sectors).
+- **9 new authenticated API routes + 5 new Compliance API routes** for DEPA primitives.
+- **Phase 2 closed** — 18 ADRs Completed; the DEPA roadmap (ADR-0019+) is the next chapter.
+- **Stack item update** — `Next.js 14` in the table above is now `Next.js 16` (App Router, proxy.ts middleware, Cache Components). The other rows (Supabase, Cloudflare, Resend, Razorpay, Vercel) are unchanged.
+
+**What this means for these wireframes:**
+
+The web screens (`consentshield-screens.html`) have been amended in the same 2026-04-16 pass to reflect the DEPA model — see `ARCHITECTURE-ALIGNMENT-2026-04-16.md` in this folder for the per-screen diff (W1 sidebar, W2 artefacts panel, W3 purposes panel, W4 banner→definition binding, W5 DEPA score gauge, W6 artefact lifecycle tile, W7 artefact-scoped erasure, W8 audit DEPA section, W9 onboarding seed pack, W10 settings sector template, W11 banner save 422, W12 worker pipeline tile).
+
+The mobile wireframes (`consentshield-mobile.html`) carry three open drift items (M1, M2, M3) documented in the alignment doc but deferred to their respective ADRs.
+
+**The decisions above remain valid.** Drizzle still not used. Clerk still not used. Cloudflare Workers still serve the banner. Mobile is still deferred until ABDM clinic pilots commit. The strategic posture is unchanged. What has expanded is the *data model* the screens express — and by extension, what the screens must show.
+
+*Addendum prepared 2026-04-16 alongside the DEPA architecture merge.*
+

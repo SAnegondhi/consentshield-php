@@ -1,22 +1,31 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-04-16T10:48:42.829Z
-> Files: 215 tracked | Anatomy hits: 0 | Misses: 0
+> Auto-maintained by OpenWolf. Last scanned: 2026-04-16T15:23:55.053Z
+> Files: 238 tracked | Anatomy hits: 0 | Misses: 0
+
+## ../../../.claude/plans/
+
+- `quiet-noodling-pond.md` — Plan — Merge DEPA package into `docs/architecture/` source of truth (~3175 tok)
 
 ## ../../../.claude/projects/-Users-sudhindra-projects-aiSpirit-consent-sheild/memory/
 
+- `feedback_hybrid_trigger_over_polling.md` (~654 tok)
 - `feedback_latest_versions.md` (~311 tok)
 - `feedback_no_ai_authorship.md` (~263 tok)
 - `feedback_no_auth_uid_in_scoped_rpcs.md` — Declares fails (~432 tok)
+- `feedback_no_legacy_vs_no_objects.md` — Declares change (~534 tok)
 - `feedback_openwolf_system.md` (~390 tok)
 - `feedback_otp_over_magic_link.md` (~439 tok)
 - `feedback_parallel_adrs.md` (~378 tok)
+- `feedback_share_narrowly_not_broadly.md` (~1004 tok)
 - `feedback_v2_backlog_pattern.md` (~479 tok)
-- `MEMORY.md` (~538 tok)
+- `feedback_wireframes_before_adrs.md` (~784 tok)
+- `MEMORY.md` (~875 tok)
+- `project_admin_platform_2026-04-16.md` — Key decisions locked in (these are NOT to be re-litigated without an ADR) (~1619 tok)
 - `project_dev_only_no_prod.md` (~347 tok)
 - `project_status_2026-04-14.md` — ADR status (~693 tok)
 - `project_status_2026-04-15.md` — Live deployments (~680 tok)
-- `project_status_2026-04-16.md` — ADR state (~988 tok)
+- `project_status_2026-04-16.md` — ADR state (~1731 tok)
 - `reference_email_deliverability.md` — Resend account (~907 tok)
 - `reference_infrastructure.md` (~628 tok)
 - `reference_supabase_platform_gotchas.md` — PG 16 GRANT ROLE split (migration role needs `WITH SET TRUE`) (~1219 tok)
@@ -27,7 +36,7 @@
 
 - `.gitignore` — Git ignore rules (~167 tok)
 - `.prettierrc` (~29 tok)
-- `CLAUDE.md` — OpenWolf (~4004 tok)
+- `CLAUDE.md` — OpenWolf (~4778 tok)
 - `package.json` — Node.js package manifest (~234 tok)
 - `sentry.client.config.ts` (~166 tok)
 - `sentry.server.config.ts` (~166 tok)
@@ -36,7 +45,7 @@
 
 ## .claude/
 
-- `session-handoff.md` — Session Handoff (~1029 tok)
+- `session-handoff.md` — Session Handoff (~2448 tok)
 
 ## docs/
 
@@ -64,12 +73,28 @@
 - `ADR-0016-consent-probes.md` — ADR-0016: Consent Probes (Synthetic Compliance Testing) (~1518 tok)
 - `ADR-0017-audit-export-package.md` — ADR-0017: Audit Export Package (~1578 tok)
 - `ADR-0018-prebuilt-deletion-connectors.md` — ADR-0018: Pre-built Deletion Connectors (Mailchimp, HubSpot) (~1457 tok)
-- `ADR-index.md` — ADR Index (~596 tok)
+- `ADR-0026-monorepo-restructure.md` — ADR-0026: Monorepo Restructure (Bun Workspace — `app/` + `admin/` + `packages/*`) (~6230 tok)
+- `ADR-0027-admin-schema.md` — ADR-0027: Admin Platform Schema (cs_admin Role + `admin.*` Tables + Audit Log + Impersonation) (~7272 tok)
+- `ADR-index.md` — ADR Index (~759 tok)
 - `ADR-template.md` — ADR-NNNN: Title (~423 tok)
 - `adr-workflow.md` — ADR Workflow Rules (~557 tok)
 
+## docs/admin/architecture/
+
+- `consentshield-admin-monorepo-migration.md` — ConsentShield — Monorepo Migration Plan (~5512 tok)
+- `consentshield-admin-platform.md` — ConsentShield — Admin Platform Architecture Reference (~9403 tok)
+- `consentshield-admin-schema.md` — Admin Postgres schema. cs_admin role with BYPASSRLS for SELECT only, writes via security-definer RPCs that audit-log in same transaction. 11 admin tables + 5 example RPCs + 14-step migration order. (~10213 tok)
+
+## docs/admin/design/
+
+- `ARCHITECTURE-ALIGNMENT-2026-04-16.md` — Coverage matrix (architecture concept → wireframe panel) — initial pass starts at zero drift. 2 customer cross-refs (W13 Support sessions tab, W14 suspended-org banner). 8 deliberate gaps deferred to future ADRs. Per-panel reconciliation tracker keyed to ADR-0028..0036. (~3394 tok)
+- `consentshield-admin-screens.html` — Admin wireframe spec: 11 panels (Operations Dashboard, Organisations, Support Tickets, Sectoral Templates, Connector Catalogue, Tracker Signatures, Pipeline Operations, Billing Operations, Abuse & Security, Feature Flags & Kill Switches, Audit Log) + Impersonation drawer. Red admin-mode strip + sidebar accent visually distinguish from customer app. (~26762 tok)
+
 ## docs/architecture/
 
+- `consentshield-complete-schema-design.md` — ConsentShield — Complete Schema Design (~31802 tok)
+- `consentshield-definitive-architecture.md` — ConsentShield — Definitive Architecture Reference (~15477 tok)
+- `consentshield-testing-strategy.md` — ConsentShield — The Testing Question (~8693 tok)
 - `nextjs-16-reference.md` — Next.js 16 — Project Reference (~1408 tok)
 
 ## docs/changelogs/
@@ -90,6 +115,13 @@
 - `consentshield-testing-strategy.md` — ConsentShield — The Testing Question (~6253 tok)
 - `consentshield-v2-complete-blueprint.md` — ConsentShield v2 — Complete Product Blueprint (~18422 tok)
 
+## docs/design/screen designs and ux/
+
+- `ARCHITECTURE-ALIGNMENT-2026-04-16.md` — Screen Designs — Architecture Alignment (~5351 tok)
+- `consentshield-mobile.html` — iOS wireframes spec, 3 flows (rights monitor, breach trigger, clinic ABDM Month 6+). M1/M2/M3 drift items deferred to ABDM/mobile/BFSI ADRs. (~17068 tok)
+- `consentshield-next-steps.md` — Strategic decisions log April 2026 + 2026-04-16 addendum noting DEPA architecture has moved on. (~2784 tok)
+- `consentshield-screens.html` — Web-app wireframes spec. 9 panels: Dashboard, Consent Manager, Consent Artefacts (DEPA), Purpose Definitions (DEPA), Data Inventory, Rights Centre, Audit & Reports, Onboarding, Settings. Amended 2026-04-16 with DEPA panels + score gauge + artefact-scoped erasure + purpose seed pack onboarding. (~28282 tok)
+
 ## docs/ops/
 
 - `supabase-auth-templates.md` — Supabase Auth Email Templates (OTP form) (~943 tok)
@@ -99,6 +131,7 @@
 - `2026-04-13-architecture-consistency-review.md` — Architecture Consistency Review — 2026-04-13 (~1426 tok)
 - `2026-04-14-codebase-architecture-review.md` — Critical Codebase Review — Architecture Compliance (~5835 tok)
 - `2026-04-15-deferred-items-analysis.md` — Deferred Items — Analysis (~1954 tok)
+- `2026-04-16-depa-package-architecture-review.md` — DEPA Package Architecture Review — 2026-04-16 (~5618 tok)
 - `2026-04-16-phase2-completion-review.md` — Critical Codebase Review — Phase 2 Completion (~6107 tok)
 
 ## scripts/
@@ -111,6 +144,8 @@
 - `context-2026-04-15-22-02-12.md` — Session Context — 2026-04-15 22:02:12 (~3565 tok)
 - `context-2026-04-16-07-01-59.md` — Session Context — 2026-04-16 07:01:59 (~2951 tok)
 - `context-2026-04-16-12-08-11.md` — Session Context — 2026-04-16 12:08:11 (~3965 tok)
+- `context-2026-04-16-18-12-48.md` — Session Context — 2026-04-16 18:12:48 (~4550 tok)
+- `context-2026-04-16-20-48-13.md` — Session Context — 2026-04-16 20:48:13 (~5237 tok)
 
 ## src/
 

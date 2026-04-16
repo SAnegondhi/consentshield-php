@@ -11,6 +11,10 @@
 
 This is the single authoritative technical document for ConsentShield. Every architectural decision, every data flow, every security rule, every integration contract is specified here. If something contradicts this document, this document wins.
 
+**Companion UI specification.** The visual and interaction spec for the dashboard, banners, rights flows, audit reports, and DEPA panels lives in `docs/design/screen designs and ux/`. The Next.js implementation in `src/app/` (post-monorepo: `app/src/app/`) MUST conform to those wireframes; drift between this architecture doc and the wireframes is tracked in `docs/design/screen designs and ux/ARCHITECTURE-ALIGNMENT-2026-04-16.md`. Read the wireframes alongside this doc when implementing or reviewing any UI surface.
+
+**Companion admin platform.** ConsentShield has a parallel **operator-facing** application — the admin platform — defined in `docs/admin/architecture/consentshield-admin-platform.md` (with schema in `consentshield-admin-schema.md` and monorepo migration plan in `consentshield-admin-monorepo-migration.md`). The admin platform shares this Supabase project but deploys as a separate Next.js app under `admin/` in the monorepo to `admin.consentshield.in`. It introduces 5 admin-side non-negotiable rules (21–25) that extend the 20 rules in §11 of this document. Admin-side UI lives in `docs/admin/design/`. Customer-side cross-references (W13 — "Support sessions" tab; W14 — suspended-org banner state) are tracked in the customer alignment doc.
+
 ---
 
 ## 1. Architectural Identity

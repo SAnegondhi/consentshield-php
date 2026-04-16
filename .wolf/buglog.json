@@ -1680,6 +1680,278 @@
       "related_bugs": [],
       "occurrences": 1,
       "last_seen": "2026-04-16T10:42:30.828Z"
+    },
+    {
+      "id": "bug-106",
+      "timestamp": "2026-04-16T11:30:03.419Z",
+      "error_message": "Incorrect value in code",
+      "file": "docs/reviews/2026-04-16-depa-package-architecture-review.md",
+      "root_cause": "Had `consent_events WHERE artefact_ids = '",
+      "fix": "Changed to `AFTER INSERT`",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 2,
+      "last_seen": "2026-04-16T11:30:15.841Z"
+    },
+    {
+      "id": "bug-107",
+      "timestamp": "2026-04-16T11:30:54.169Z",
+      "error_message": "Significant refactor of ",
+      "file": "docs/reviews/2026-04-16-depa-package-architecture-review.md",
+      "root_cause": "6 lines replaced/restructured",
+      "fix": "Rewrote 15→20 lines (6 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-16T11:30:54.169Z"
+    },
+    {
+      "id": "bug-108",
+      "timestamp": "2026-04-16T11:37:15.121Z",
+      "error_message": "Significant refactor of ",
+      "file": "docs/architecture/consentshield-definitive-architecture.md",
+      "root_cause": "6 lines replaced/restructured",
+      "fix": "Rewrote 21→29 lines (6 removed) | Also: CAN UPDATE: delivered_at column on all buffer tabl; If the delivery credential leaks, the attacker can | Also: withdrawal_verifications, security_scans, consent_; consent_probes, data_inventory | Also: ### 8.4 Deletion Orchestration; Triggered by: erasure request approved, retention ",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 4,
+      "last_seen": "2026-04-16T11:39:44.531Z"
+    },
+    {
+      "id": "bug-109",
+      "timestamp": "2026-04-16T11:51:24.588Z",
+      "error_message": "Significant refactor of ",
+      "file": "docs/architecture/consentshield-definitive-architecture.md",
+      "root_cause": "3 lines replaced/restructured",
+      "fix": "Rewrote 5→16 lines (3 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-16T11:51:24.588Z"
+    },
+    {
+      "id": "bug-110",
+      "timestamp": "2026-04-16T11:51:30.092Z",
+      "error_message": "Incorrect value in code",
+      "file": "docs/architecture/consentshield-definitive-architecture.md",
+      "root_cause": "Had `consent_events`",
+      "fix": "Changed to `purposes`",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-16T11:51:30.092Z"
+    },
+    {
+      "id": "bug-111",
+      "timestamp": "2026-04-16T11:51:36.660Z",
+      "error_message": "Incorrect value in code",
+      "file": "docs/reviews/2026-04-16-depa-package-architecture-review.md",
+      "root_cause": "Had \"Existing banners without `",
+      "fix": "Changed to \"legacy\"",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-16T11:51:36.660Z"
+    },
+    {
+      "id": "bug-112",
+      "timestamp": "2026-04-16T11:51:43.122Z",
+      "error_message": "Significant refactor of ",
+      "file": "docs/reviews/2026-04-16-depa-package-architecture-review.md",
+      "root_cause": "2 lines replaced/restructured",
+      "fix": "Rewrote 4→4 lines (2 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-16T11:51:43.122Z"
+    },
+    {
+      "id": "bug-113",
+      "timestamp": "2026-04-16T12:11:35.963Z",
+      "error_message": "Missing error handling in generate_artefact_id",
+      "file": "docs/architecture/consentshield-complete-schema-design.md",
+      "root_cause": "Code path had no error handling — exceptions would propagate uncaught",
+      "fix": "Added try/catch block",
+      "tags": [
+        "auto-detected",
+        "error-handling",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-16T12:11:35.963Z"
+    },
+    {
+      "id": "bug-114",
+      "timestamp": "2026-04-16T12:16:09.501Z",
+      "error_message": "Incorrect value in code",
+      "file": "docs/architecture/consentshield-complete-schema-design.md",
+      "root_cause": "Had 's \"",
+      "fix": "Changed to `consent_events`",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-16T12:16:09.501Z"
+    },
+    {
+      "id": "bug-115",
+      "timestamp": "2026-04-16T12:16:26.738Z",
+      "error_message": "Significant refactor of ",
+      "file": "docs/architecture/consentshield-complete-schema-design.md",
+      "root_cause": "2 lines replaced/restructured",
+      "fix": "Rewrote 5→20 lines (2 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-16T12:16:26.738Z"
+    },
+    {
+      "id": "bug-116",
+      "timestamp": "2026-04-16T13:10:11.036Z",
+      "error_message": "Significant refactor of ",
+      "file": "docs/design/screen designs and ux/consentshield-screens.html",
+      "root_cause": "6 lines replaced/restructured",
+      "fix": "Rewrote 16→38 lines (6 removed) | Also: <div class=\"config-label\">Consent purposes</div>; <div class=\"purpose-row\"> | Also: <div class=\"detail-label\">Data to be erased</div>; <div style=\"font-size:12px;color:var(--text-2);mar | Also: title: 'Choose your consent banner',; desc: 'Pick a starting template. You can customise | Also: title: 'Compliance score calculated',; desc: 'Based on your setup so far, here is your in | Also: <div><div class=\"settings-row-label\">Industry</div; <select class=\"config-input\" style=\"width:220px;pa",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "html"
+      ],
+      "related_bugs": [],
+      "occurrences": 6,
+      "last_seen": "2026-04-16T13:13:30.929Z"
+    },
+    {
+      "id": "bug-117",
+      "timestamp": "2026-04-16T13:45:15.652Z",
+      "error_message": "Significant refactor of ",
+      "file": "CLAUDE.md",
+      "root_cause": "4 lines replaced/restructured",
+      "fix": "Rewrote 9→29 lines (4 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-16T13:45:15.652Z"
+    },
+    {
+      "id": "bug-118",
+      "timestamp": "2026-04-16T13:45:29.497Z",
+      "error_message": "Incorrect value in code",
+      "file": "docs/architecture/consentshield-definitive-architecture.md",
+      "root_cause": "Had `docs/design/screen designs and ux/ARCHITECTURE-AL",
+      "fix": "Changed to `app/src/app/`",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-16T13:45:29.497Z"
+    },
+    {
+      "id": "bug-119",
+      "timestamp": "2026-04-16T14:44:12.872Z",
+      "error_message": "Significant refactor of ",
+      "file": "docs/ADRs/ADR-0026-monorepo-restructure.md",
+      "root_cause": "6 lines replaced/restructured",
+      "fix": "Rewrote 15→20 lines (6 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-16T14:44:12.872Z"
+    },
+    {
+      "id": "bug-120",
+      "timestamp": "2026-04-16T14:44:23.768Z",
+      "error_message": "Incorrect value in code",
+      "file": "docs/ADRs/ADR-0026-monorepo-restructure.md",
+      "root_cause": "Had `@/lib/supabase/server`",
+      "fix": "Changed to `shared-types`",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 2,
+      "last_seen": "2026-04-16T14:45:07.435Z"
+    },
+    {
+      "id": "bug-121",
+      "timestamp": "2026-04-16T14:46:11.767Z",
+      "error_message": "Significant refactor of ",
+      "file": "docs/admin/architecture/consentshield-admin-monorepo-migration.md",
+      "root_cause": "8 lines replaced/restructured",
+      "fix": "Rewrote 12→22 lines (8 removed) | Also: 5. Add `admin/package.json` with the same Next/Rea; 6. Add `admin/sentry.client.config.ts` and `admin/",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 2,
+      "last_seen": "2026-04-16T14:46:35.806Z"
+    },
+    {
+      "id": "bug-122",
+      "timestamp": "2026-04-16T14:46:53.058Z",
+      "error_message": "Significant refactor of ",
+      "file": "docs/admin/architecture/consentshield-admin-platform.md",
+      "root_cause": "7 lines replaced/restructured",
+      "fix": "Rewrote 7→11 lines (7 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-16T14:46:53.058Z"
     }
   ]
 }

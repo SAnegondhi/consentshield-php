@@ -4,6 +4,18 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ConsentShield — Screen Designs & UX Flows</title>
+<!--
+  (c) 2026 Sudhindra Anegondhi a.d.sudhindra@gmail.com
+
+  These screens are the visual + interaction SPECIFICATION for the ConsentShield
+  Next.js implementation in src/app/. Code MUST conform to these screens.
+  Drift, gaps, and the DEPA-amendment alignment are tracked in:
+      docs/design/screen designs and ux/ARCHITECTURE-ALIGNMENT-2026-04-16.md
+  See CLAUDE.md for the normative rule.
+
+  Last alignment pass: 2026-04-16 (DEPA architecture merge, commit 9d1d05b).
+-->
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
@@ -337,6 +349,16 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:14
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 12l2 2 4-4"/></svg>
         Consent Manager
       </div>
+      <div class="nav-item" onclick="showPanel('artefacts')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 7L9 18l-5-5"/><path d="M14 4l6 6"/></svg>
+        Consent Artefacts
+        <span class="nav-badge">DEPA</span>
+      </div>
+      <div class="nav-item" onclick="showPanel('purposes')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+        Purpose Definitions
+        <span class="nav-badge">DEPA</span>
+      </div>
       <div class="nav-item" onclick="showPanel('inventory')">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="16" y2="17"/></svg>
         Data Inventory
@@ -395,22 +417,44 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:14
 
       <div class="dash-grid">
         <div class="score-card">
-          <div class="card-sm-label">DPDP Compliance Score</div>
-          <div class="gauge-wrap">
-            <svg width="160" height="160" viewBox="0 0 160 160">
-              <circle cx="80" cy="80" r="64" fill="none" stroke="#E2E8F0" stroke-width="10"/>
-              <circle cx="80" cy="80" r="64" fill="none" stroke="#F59E0B" stroke-width="10"
-                stroke-dasharray="298 402" stroke-linecap="round"/>
-            </svg>
-            <div class="gauge-center">
-              <div class="gauge-pct">74%</div>
-              <div class="gauge-label">Amber zone</div>
+          <div class="card-sm-label">Compliance scores</div>
+          <div style="display:flex;gap:24px;align-items:center;justify-content:center;flex-wrap:wrap">
+            <!-- DPDP gauge -->
+            <div style="text-align:center">
+              <div class="gauge-wrap" style="width:120px;height:120px">
+                <svg width="120" height="120" viewBox="0 0 160 160">
+                  <circle cx="80" cy="80" r="64" fill="none" stroke="#E2E8F0" stroke-width="10"/>
+                  <circle cx="80" cy="80" r="64" fill="none" stroke="#F59E0B" stroke-width="10"
+                    stroke-dasharray="298 402" stroke-linecap="round"/>
+                </svg>
+                <div class="gauge-center">
+                  <div class="gauge-pct" style="font-size:24px">74%</div>
+                  <div class="gauge-label">DPDP</div>
+                </div>
+              </div>
+            </div>
+            <!-- DEPA gauge (DEPA — derived from depa_compliance_metrics view) -->
+            <div style="text-align:center">
+              <div class="gauge-wrap" style="width:120px;height:120px">
+                <svg width="120" height="120" viewBox="0 0 160 160">
+                  <circle cx="80" cy="80" r="64" fill="none" stroke="#E2E8F0" stroke-width="10"/>
+                  <circle cx="80" cy="80" r="64" fill="none" stroke="#0D7A6B" stroke-width="10"
+                    stroke-dasharray="346 402" stroke-linecap="round"/>
+                </svg>
+                <div class="gauge-center">
+                  <div class="gauge-pct" style="font-size:24px;color:var(--teal)">86%</div>
+                  <div class="gauge-label">DEPA</div>
+                </div>
+              </div>
+              <div style="font-size:10px;color:var(--text-3);margin-top:4px;max-width:140px">
+                Coverage 92% · Timeliness 88% · Scope precision 78%
+              </div>
             </div>
           </div>
-          <div class="score-meta">Last assessed 2 hours ago<br><span class="score-link">See full audit report →</span></div>
+          <div class="score-meta">DPDP last assessed 2 hours ago · DEPA refreshed nightly<br><span class="score-link">See full audit report →</span></div>
         </div>
 
-        <div class="status-grid">
+        <div class="status-grid" style="grid-template-columns:repeat(3,1fr)">
           <div class="status-item">
             <div class="status-item-title">Consent Banner</div>
             <div class="status-item-val live">● Live</div>
@@ -421,6 +465,11 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:14
             <div class="status-item-val live">● Published</div>
             <div style="font-size:11px;color:var(--text-3)">privacy.myproduct.in<br>Last updated 3 days ago</div>
           </div>
+          <div class="status-item" onclick="showPanel('artefacts')" style="cursor:pointer">
+            <div class="status-item-title">Consent Artefacts <span class="pill pill-navy" style="font-size:9px;padding:1px 5px">DEPA</span></div>
+            <div class="status-item-val live">2,418 active</div>
+            <div style="font-size:11px;color:var(--text-3)">87 expiring &lt;30d · 12 revoked this week<br>3 replaced this week</div>
+          </div>
           <div class="status-item">
             <div class="status-item-title">Data Inventory</div>
             <div class="status-item-val warn">● Incomplete</div>
@@ -430,6 +479,11 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:14
             <div class="status-item-title">Rights Requests</div>
             <div class="status-item-val bad">3 open</div>
             <div style="font-size:11px;color:var(--text-3)">1 due in 5 days<br>SLA risk — act now</div>
+          </div>
+          <div class="status-item">
+            <div class="status-item-title">Pipeline Health</div>
+            <div class="status-item-val live">● Healthy</div>
+            <div style="font-size:11px;color:var(--text-3)">0 worker errors · 24h<br>Last delivery 2 min ago</div>
           </div>
         </div>
       </div>
@@ -537,7 +591,8 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:14
       <div class="topbar-title">Consent Manager</div>
       <div class="topbar-actions">
         <button class="btn btn-secondary btn-sm">Analytics</button>
-        <button class="btn btn-primary btn-sm">Save & publish</button>
+        <!-- DEPA: button is disabled if any purpose lacks purpose_definition_id (banner save returns 422 — see ARCHITECTURE-ALIGNMENT W4/W11) -->
+        <button class="btn btn-primary btn-sm" title="All purposes must be linked to a Purpose Definition before publish">Save & publish</button>
       </div>
     </div>
     <div class="content-area">
@@ -631,34 +686,86 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:14
               <textarea class="config-input" rows="3" style="resize:none">This website uses cookies and processes your personal data to improve your experience. Under India's DPDP Act 2023, you have the right to control how your data is used.</textarea>
             </div>
             <div class="config-section">
-              <div class="config-label">Consent purposes</div>
-              <div class="purpose-row">
-                <div class="purpose-info">
-                  <div class="purpose-name">Essential</div>
-                  <div class="purpose-desc">Required for the site to function</div>
-                </div>
-                <span class="pill pill-gray">Required</span>
+              <div class="config-label">Consent purposes <span class="pill pill-navy" style="font-size:9px;padding:1px 5px;margin-left:6px">DEPA</span></div>
+              <!-- DEPA: every purpose row must bind to a purpose_definitions row. Banner save returns 422 if any binding is missing (see ARCHITECTURE-ALIGNMENT W4 / definitive-architecture §6.7 Phase B Point 1). -->
+              <div style="background:var(--green-light);border:1px solid var(--green);border-radius:var(--r);padding:8px 12px;font-size:11px;color:var(--green);margin-bottom:10px">
+                ✓ All 4 purposes are linked to Purpose Definitions. Banner is publishable.
               </div>
-              <div class="purpose-row">
-                <div class="purpose-info">
-                  <div class="purpose-name">Analytics</div>
-                  <div class="purpose-desc">Usage statistics and page views</div>
+              <div class="purpose-row" style="flex-direction:column;align-items:stretch;gap:8px">
+                <div style="display:flex;align-items:center;justify-content:space-between">
+                  <div class="purpose-info">
+                    <div class="purpose-name">Essential</div>
+                    <div class="purpose-desc">Required for the site to function</div>
+                  </div>
+                  <span class="pill pill-gray">Required</span>
                 </div>
-                <div class="toggle" onclick="this.classList.toggle('off')"></div>
+                <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;font-size:11px;color:var(--text-3)">
+                  <span style="color:var(--text-2)">Linked to</span>
+                  <span class="pill pill-navy" style="font-size:10px">dpdp_minimum.essential</span>
+                  <span style="color:var(--text-2)">· Expires</span>
+                  <span class="pill pill-gray" style="font-size:10px">never (default_expiry_days=0)</span>
+                  <span style="color:var(--text-2)">· Scope</span>
+                  <span class="pill pill-gray" style="font-size:10px">session_id</span>
+                  <span class="pill pill-gray" style="font-size:10px">csrf_token</span>
+                </div>
               </div>
-              <div class="purpose-row">
-                <div class="purpose-info">
-                  <div class="purpose-name">Marketing</div>
-                  <div class="purpose-desc">Retargeting and ad personalisation</div>
+              <div class="purpose-row" style="flex-direction:column;align-items:stretch;gap:8px">
+                <div style="display:flex;align-items:center;justify-content:space-between">
+                  <div class="purpose-info">
+                    <div class="purpose-name">Analytics</div>
+                    <div class="purpose-desc">Usage statistics and page views</div>
+                  </div>
+                  <div class="toggle" onclick="this.classList.toggle('off')"></div>
                 </div>
-                <div class="toggle off" onclick="this.classList.toggle('off')"></div>
+                <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;font-size:11px;color:var(--text-3)">
+                  <span style="color:var(--text-2)">Linked to</span>
+                  <span class="pill pill-navy" style="font-size:10px">dpdp_minimum.analytics</span>
+                  <span style="color:var(--text-2)">· Expires</span>
+                  <span class="pill pill-gray" style="font-size:10px">365 days from grant</span>
+                  <span style="color:var(--text-2)">· Scope</span>
+                  <span class="pill pill-gray" style="font-size:10px">page_view</span>
+                  <span class="pill pill-gray" style="font-size:10px">device_type</span>
+                  <span class="pill pill-gray" style="font-size:10px">referrer</span>
+                </div>
               </div>
-              <div class="purpose-row">
-                <div class="purpose-info">
-                  <div class="purpose-name">Personalisation</div>
-                  <div class="purpose-desc">Tailored content and recommendations</div>
+              <div class="purpose-row" style="flex-direction:column;align-items:stretch;gap:8px">
+                <div style="display:flex;align-items:center;justify-content:space-between">
+                  <div class="purpose-info">
+                    <div class="purpose-name">Marketing</div>
+                    <div class="purpose-desc">Retargeting and ad personalisation</div>
+                  </div>
+                  <div class="toggle off" onclick="this.classList.toggle('off')"></div>
                 </div>
-                <div class="toggle" onclick="this.classList.toggle('off')"></div>
+                <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;font-size:11px;color:var(--text-3)">
+                  <span style="color:var(--text-2)">Linked to</span>
+                  <span class="pill pill-navy" style="font-size:10px">dpdp_minimum.marketing</span>
+                  <span style="color:var(--text-2)">· Expires</span>
+                  <span class="pill pill-gray" style="font-size:10px">180 days from grant</span>
+                  <span style="color:var(--text-2)">· Scope</span>
+                  <span class="pill pill-gray" style="font-size:10px">email_address</span>
+                  <span class="pill pill-gray" style="font-size:10px">marketing_consent</span>
+                </div>
+              </div>
+              <div class="purpose-row" style="flex-direction:column;align-items:stretch;gap:8px">
+                <div style="display:flex;align-items:center;justify-content:space-between">
+                  <div class="purpose-info">
+                    <div class="purpose-name">Personalisation</div>
+                    <div class="purpose-desc">Tailored content and recommendations</div>
+                  </div>
+                  <div class="toggle" onclick="this.classList.toggle('off')"></div>
+                </div>
+                <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;font-size:11px;color:var(--text-3)">
+                  <span style="color:var(--text-2)">Linked to</span>
+                  <span class="pill pill-navy" style="font-size:10px">dpdp_minimum.personalisation</span>
+                  <span style="color:var(--text-2)">· Expires</span>
+                  <span class="pill pill-gray" style="font-size:10px">365 days from grant</span>
+                  <span style="color:var(--text-2)">· Scope</span>
+                  <span class="pill pill-gray" style="font-size:10px">user_preferences</span>
+                  <span class="pill pill-gray" style="font-size:10px">browse_history_summary</span>
+                </div>
+              </div>
+              <div style="font-size:11px;color:var(--text-3);margin-top:6px;line-height:1.4">
+                Manage the catalogue at <span class="score-link" onclick="showPanel('purposes')">Purpose Definitions →</span>. data_scope values are <strong>category declarations only</strong>, never actual personal data values (Rule 3, broadened 2026-04-16).
               </div>
             </div>
             <div class="config-section">
@@ -722,6 +829,235 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:14
             <div class="audit-score-row"><div class="audit-score-label">Marketing</div><div class="audit-score-bar"><div class="audit-score-fill" style="width:42%;background:var(--amber-mid)"></div></div><div class="audit-score-val" style="color:var(--amber)">42%</div></div>
           </div>
         </div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CONSENT ARTEFACTS (DEPA) -->
+  <!-- Reference: definitive-architecture §6.7, §7.3; ALIGNMENT W2. Live data wiring: ADR-0021 / ADR-0022. -->
+  <div id="panel-artefacts" class="panel">
+    <div class="topbar">
+      <div class="topbar-title">Consent Artefacts <span class="pill pill-navy" style="font-size:10px;margin-left:6px">DEPA</span></div>
+      <div class="topbar-actions">
+        <span style="font-size:11px;color:var(--text-3)">2,418 active · 87 expiring &lt;30d · 12 revoked this week</span>
+        <button class="btn btn-secondary btn-sm">Export CSV</button>
+      </div>
+    </div>
+    <div class="content-area">
+      <div class="stat-row">
+        <div class="stat-card"><div class="stat-label">Active</div><div class="stat-value" style="color:var(--green)">2,418</div><div class="stat-sub">Authoring data flows now</div></div>
+        <div class="stat-card"><div class="stat-label">Expiring &lt; 30 days</div><div class="stat-value" style="color:var(--amber)">87</div><div class="stat-sub">Re-consent campaign needed</div></div>
+        <div class="stat-card"><div class="stat-label">Revoked this week</div><div class="stat-value" style="color:var(--red)">12</div><div class="stat-sub">Triggered cascade deletions</div></div>
+        <div class="stat-card"><div class="stat-label">Replaced this week</div><div class="stat-value">3</div><div class="stat-sub">Re-consented after change</div></div>
+      </div>
+
+      <div class="card" style="margin-top:14px">
+        <div class="card-header">
+          <div class="card-title">Filters</div>
+          <div style="display:flex;gap:6px;flex-wrap:wrap">
+            <span class="pill pill-green" style="cursor:pointer">Status: Active</span>
+            <span class="pill pill-gray" style="cursor:pointer">Status: Replaced</span>
+            <span class="pill pill-gray" style="cursor:pointer">Status: Revoked</span>
+            <span class="pill pill-gray" style="cursor:pointer">Status: Expired</span>
+            <span class="pill pill-navy" style="cursor:pointer">Framework: DPDP</span>
+            <span class="pill pill-gray" style="cursor:pointer">Framework: ABDM</span>
+            <span class="pill pill-gray" style="cursor:pointer">Framework: RBI</span>
+            <span class="pill pill-amber" style="cursor:pointer">Expiring &lt; 30 days</span>
+          </div>
+        </div>
+        <div style="overflow-x:auto">
+          <table class="inv-table">
+            <thead>
+              <tr>
+                <th>Artefact ID</th>
+                <th>Subject</th>
+                <th>Purpose</th>
+                <th>Data scope</th>
+                <th>Framework</th>
+                <th>Expires</th>
+                <th>Status</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code style="font-size:11px;font-family:var(--mono)">art_8a2f…91c</code></td>
+                <td><strong>Priya Sharma</strong><br><span style="font-size:11px;color:var(--text-3)">priya@…</span></td>
+                <td><span class="pill pill-navy" style="font-size:10px">dpdp_minimum.analytics</span></td>
+                <td>
+                  <span class="pill pill-gray" style="font-size:10px">page_view</span>
+                  <span class="pill pill-gray" style="font-size:10px">device_type</span>
+                </td>
+                <td>DPDP</td>
+                <td><span style="color:var(--green)">in 312 days</span></td>
+                <td><span class="pill pill-green">Active</span></td>
+                <td style="text-align:right"><button class="btn btn-secondary btn-sm">View</button></td>
+              </tr>
+              <tr>
+                <td><code style="font-size:11px;font-family:var(--mono)">art_3b1c…7d2</code></td>
+                <td><strong>Amit Joshi</strong><br><span style="font-size:11px;color:var(--text-3)">amitj@…</span></td>
+                <td><span class="pill pill-navy" style="font-size:10px">dpdp_minimum.marketing</span></td>
+                <td>
+                  <span class="pill pill-gray" style="font-size:10px">email_address</span>
+                  <span class="pill pill-gray" style="font-size:10px">marketing_consent</span>
+                </td>
+                <td>DPDP</td>
+                <td><span style="color:var(--amber)">in 18 days</span></td>
+                <td><span class="pill pill-amber">Expiring</span></td>
+                <td style="text-align:right"><button class="btn btn-secondary btn-sm">View</button></td>
+              </tr>
+              <tr>
+                <td><code style="font-size:11px;font-family:var(--mono)">art_5e9a…44b</code></td>
+                <td><strong>Rekha Nair</strong><br><span style="font-size:11px;color:var(--text-3)">rekha@…</span></td>
+                <td><span class="pill pill-navy" style="font-size:10px">dpdp_minimum.analytics</span></td>
+                <td>
+                  <span class="pill pill-gray" style="font-size:10px">page_view</span>
+                </td>
+                <td>DPDP</td>
+                <td><span style="color:var(--text-3)">—</span></td>
+                <td><span class="pill pill-red">Revoked</span></td>
+                <td style="text-align:right"><button class="btn btn-secondary btn-sm">View</button></td>
+              </tr>
+              <tr>
+                <td><code style="font-size:11px;font-family:var(--mono)">art_2f7d…11e</code></td>
+                <td><strong>Vikram Rao</strong><br><span style="font-size:11px;color:var(--text-3)">vikram@…</span></td>
+                <td><span class="pill pill-navy" style="font-size:10px">dpdp_minimum.personalisation</span></td>
+                <td>
+                  <span class="pill pill-gray" style="font-size:10px">user_preferences</span>
+                </td>
+                <td>DPDP</td>
+                <td><span style="color:var(--text-3)">—</span></td>
+                <td><span class="pill pill-gray">Replaced</span></td>
+                <td style="text-align:right"><button class="btn btn-secondary btn-sm">View</button></td>
+              </tr>
+              <tr>
+                <td><code style="font-size:11px;font-family:var(--mono)">art_9c4e…b03</code></td>
+                <td><strong>Patient #ABHA-…1234</strong><br><span style="font-size:11px;color:var(--text-3)">via clinic kiosk</span></td>
+                <td><span class="pill pill-navy" style="font-size:10px">abdm.records_read</span></td>
+                <td>
+                  <span class="pill pill-gray" style="font-size:10px">MedicationRequest</span>
+                  <span class="pill pill-gray" style="font-size:10px">Observation</span>
+                </td>
+                <td>ABDM</td>
+                <td><span style="color:var(--green)">in 89 days</span></td>
+                <td><span class="pill pill-green">Active</span></td>
+                <td style="text-align:right"><button class="btn btn-secondary btn-sm">View</button></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:14px">
+        <div class="card-header"><div class="card-title">Detail — art_8a2f…91c (chain of custody)</div></div>
+        <div class="card-body">
+          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px">
+            <div style="padding:10px;background:var(--bg);border-radius:var(--r)">
+              <div style="font-size:10px;color:var(--text-3);text-transform:uppercase;letter-spacing:.05em">1. Consent event</div>
+              <div style="font-size:12px;margin-top:4px"><code style="font-family:var(--mono);font-size:11px">evt_5f3a…2b1</code></div>
+              <div style="font-size:11px;color:var(--text-3);margin-top:2px">Apr 1, 2026 14:32</div>
+            </div>
+            <div style="padding:10px;background:var(--bg);border-radius:var(--r)">
+              <div style="font-size:10px;color:var(--text-3);text-transform:uppercase;letter-spacing:.05em">2. Artefact created</div>
+              <div style="font-size:12px;margin-top:4px"><code style="font-family:var(--mono);font-size:11px">art_8a2f…91c</code></div>
+              <div style="font-size:11px;color:var(--text-3);margin-top:2px">via process-consent-event<br>+312ms</div>
+            </div>
+            <div style="padding:10px;background:var(--bg);border-radius:var(--r);opacity:.55">
+              <div style="font-size:10px;color:var(--text-3);text-transform:uppercase;letter-spacing:.05em">3. Revocation</div>
+              <div style="font-size:12px;margin-top:4px;color:var(--text-3)">— not revoked —</div>
+            </div>
+            <div style="padding:10px;background:var(--bg);border-radius:var(--r);opacity:.55">
+              <div style="font-size:10px;color:var(--text-3);text-transform:uppercase;letter-spacing:.05em">4. Deletion receipts</div>
+              <div style="font-size:12px;margin-top:4px;color:var(--text-3)">— none yet —</div>
+            </div>
+          </div>
+          <div style="margin-top:14px;display:flex;gap:8px">
+            <button class="btn btn-secondary btn-sm">View consent_event payload</button>
+            <button class="btn btn-secondary btn-sm">Show in audit log</button>
+            <button class="btn btn-secondary btn-sm" style="margin-left:auto;color:var(--red);border-color:var(--red-light)">Revoke artefact</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PURPOSE DEFINITIONS (DEPA) -->
+  <!-- Reference: definitive-architecture §6.7, §10.2; ALIGNMENT W3. CRUD wiring: ADR-0024. -->
+  <div id="panel-purposes" class="panel">
+    <div class="topbar">
+      <div class="topbar-title">Purpose Definitions <span class="pill pill-navy" style="font-size:10px;margin-left:6px">DEPA</span></div>
+      <div class="topbar-actions">
+        <button class="btn btn-secondary btn-sm">Import sector pack</button>
+        <button class="btn btn-primary btn-sm">+ New purpose</button>
+      </div>
+    </div>
+    <div class="content-area">
+      <div class="tab-bar">
+        <div class="tab-item active" onclick="switchTab(this,'purpose-catalogue-tab')">Catalogue</div>
+        <div class="tab-item" onclick="switchTab(this,'purpose-connectors-tab')">Connector mappings</div>
+      </div>
+
+      <div id="purpose-catalogue-tab" class="tab-panel active">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Active sector template: <span class="pill pill-navy" style="font-size:10px">dpdp_minimum + analytics_extended</span></div>
+            <div style="display:flex;gap:8px"><span class="pill pill-green">8 active</span><span class="pill pill-gray">2 archived</span></div>
+          </div>
+          <div style="overflow-x:auto">
+            <table class="inv-table">
+              <thead>
+                <tr>
+                  <th>Purpose code</th>
+                  <th>Display name</th>
+                  <th>Framework</th>
+                  <th>Data scope</th>
+                  <th>Default expiry</th>
+                  <th>Auto-delete on expiry</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td><code style="font-family:var(--mono);font-size:11px">essential</code></td><td>Essential</td><td>DPDP</td><td><span class="pill pill-gray" style="font-size:10px">session_id</span> <span class="pill pill-gray" style="font-size:10px">csrf_token</span></td><td>Never</td><td>—</td><td><span class="pill pill-green">Active</span></td></tr>
+                <tr><td><code style="font-family:var(--mono);font-size:11px">analytics</code></td><td>Analytics</td><td>DPDP</td><td><span class="pill pill-gray" style="font-size:10px">page_view</span> <span class="pill pill-gray" style="font-size:10px">device_type</span></td><td>365 days</td><td>Yes</td><td><span class="pill pill-green">Active</span></td></tr>
+                <tr><td><code style="font-family:var(--mono);font-size:11px">marketing</code></td><td>Marketing</td><td>DPDP</td><td><span class="pill pill-gray" style="font-size:10px">email_address</span> <span class="pill pill-gray" style="font-size:10px">marketing_consent</span></td><td>180 days</td><td>Yes</td><td><span class="pill pill-green">Active</span></td></tr>
+                <tr><td><code style="font-family:var(--mono);font-size:11px">personalisation</code></td><td>Personalisation</td><td>DPDP</td><td><span class="pill pill-gray" style="font-size:10px">user_preferences</span></td><td>365 days</td><td>Yes</td><td><span class="pill pill-green">Active</span></td></tr>
+                <tr><td><code style="font-family:var(--mono);font-size:11px">profile_data</code></td><td>Profile data</td><td>DPDP</td><td><span class="pill pill-gray" style="font-size:10px">name</span> <span class="pill pill-gray" style="font-size:10px">phone_number</span></td><td>Account lifetime</td><td>No</td><td><span class="pill pill-green">Active</span></td></tr>
+                <tr><td><code style="font-family:var(--mono);font-size:11px">payment_records</code></td><td>Payment records</td><td>DPDP + statutory</td><td><span class="pill pill-gray" style="font-size:10px">payment_id</span> <span class="pill pill-gray" style="font-size:10px">amount</span></td><td>7 years</td><td>No (retention lock)</td><td><span class="pill pill-green">Active</span></td></tr>
+                <tr><td><code style="font-family:var(--mono);font-size:11px">support_chat</code></td><td>Support chat history</td><td>DPDP</td><td><span class="pill pill-gray" style="font-size:10px">chat_transcript</span></td><td>730 days</td><td>Yes</td><td><span class="pill pill-green">Active</span></td></tr>
+                <tr><td><code style="font-family:var(--mono);font-size:11px">push_notifications</code></td><td>Push notifications</td><td>DPDP</td><td><span class="pill pill-gray" style="font-size:10px">device_token</span></td><td>365 days</td><td>Yes</td><td><span class="pill pill-green">Active</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div style="font-size:11px;color:var(--text-3);margin-top:10px;line-height:1.5">
+          Sector pack options when creating a new org: <strong>DPDP minimum (5 purposes)</strong> · <strong>DPDP + analytics extended (8 purposes)</strong> · <strong>BFSI starter</strong> (DPDP + KYC retention exemptions, 11 purposes; gated to BFSI sectoral ADR) · <strong>Healthcare/clinic starter</strong> (DPDP + ABDM, 9 purposes; gated to ABDM enrolment).
+        </div>
+      </div>
+
+      <div id="purpose-connectors-tab" class="tab-panel">
+        <div class="card">
+          <div class="card-header"><div class="card-title">Purpose → Connector mappings</div><div style="font-size:11px;color:var(--text-3)">When an artefact is revoked, deletion fans out to the connectors mapped here. Each mapping declares which subset of the purpose's data_scope that connector handles.</div></div>
+          <div style="overflow-x:auto">
+            <table class="inv-table">
+              <thead>
+                <tr>
+                  <th>Purpose</th>
+                  <th>Connector</th>
+                  <th>Handles scope subset</th>
+                  <th>Status</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td><code style="font-family:var(--mono);font-size:11px">analytics</code></td><td>Mixpanel</td><td><span class="pill pill-gray" style="font-size:10px">page_view</span> <span class="pill pill-gray" style="font-size:10px">device_type</span></td><td><span class="pill pill-green">Healthy</span></td><td style="text-align:right"><button class="btn btn-secondary btn-sm">Edit</button></td></tr>
+                <tr><td><code style="font-family:var(--mono);font-size:11px">marketing</code></td><td>Mailchimp</td><td><span class="pill pill-gray" style="font-size:10px">email_address</span> <span class="pill pill-gray" style="font-size:10px">marketing_consent</span></td><td><span class="pill pill-green">Healthy</span></td><td style="text-align:right"><button class="btn btn-secondary btn-sm">Edit</button></td></tr>
+                <tr><td><code style="font-family:var(--mono);font-size:11px">marketing</code></td><td>HubSpot</td><td><span class="pill pill-gray" style="font-size:10px">email_address</span></td><td><span class="pill pill-green">Healthy</span></td><td style="text-align:right"><button class="btn btn-secondary btn-sm">Edit</button></td></tr>
+                <tr><td><code style="font-family:var(--mono);font-size:11px">personalisation</code></td><td>(internal)</td><td><span class="pill pill-gray" style="font-size:10px">user_preferences</span></td><td><span class="pill pill-green">Healthy</span></td><td style="text-align:right"><button class="btn btn-secondary btn-sm">Edit</button></td></tr>
+                <tr><td><code style="font-family:var(--mono);font-size:11px">support_chat</code></td><td>Intercom</td><td><span class="pill pill-gray" style="font-size:10px">chat_transcript</span></td><td><span class="pill pill-amber">Not configured</span></td><td style="text-align:right"><button class="btn btn-primary btn-sm">Map now</button></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -860,11 +1196,39 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:14
               </div>
             </div>
             <div class="detail-section">
-              <div class="detail-label">Data to be erased</div>
-              <div style="font-size:12px;color:var(--text-2);margin-top:6px;display:flex;flex-direction:column;gap:4px">
-                <div style="display:flex;justify-content:space-between;padding:5px 8px;background:var(--bg);border-radius:4px"><span>Email address</span><span class="pill pill-green">Can erase</span></div>
-                <div style="display:flex;justify-content:space-between;padding:5px 8px;background:var(--bg);border-radius:4px"><span>Usage analytics</span><span class="pill pill-green">Can erase</span></div>
-                <div style="display:flex;justify-content:space-between;padding:5px 8px;background:var(--amber-light);border-radius:4px"><span>Payment records</span><span class="pill pill-amber">Retention lock (7yr)</span></div>
+              <div class="detail-label">Artefacts to revoke <span class="pill pill-navy" style="font-size:9px;padding:1px 5px;margin-left:4px">DEPA</span></div>
+              <!-- DEPA: erasure is now artefact-scoped per definitive-architecture §8.4. Each row resolves a consent_artefacts row → purpose_connector_mappings → deletion_requests fan-out. -->
+              <div style="font-size:12px;color:var(--text-2);margin-top:6px;display:flex;flex-direction:column;gap:6px">
+                <div style="padding:8px 10px;background:var(--bg);border-radius:4px">
+                  <div style="display:flex;justify-content:space-between;align-items:center">
+                    <span><code style="font-family:var(--mono);font-size:11px">art_3b1c…7d2</code> · <span class="pill pill-navy" style="font-size:10px">marketing</span></span>
+                    <span class="pill pill-green" style="font-size:10px">Will revoke</span>
+                  </div>
+                  <div style="font-size:11px;color:var(--text-3);margin-top:4px">
+                    Scope: <span class="pill pill-gray" style="font-size:10px">email_address</span> <span class="pill pill-gray" style="font-size:10px">marketing_consent</span> · Connectors: Mailchimp, HubSpot · Expects 2 receipts
+                  </div>
+                </div>
+                <div style="padding:8px 10px;background:var(--bg);border-radius:4px">
+                  <div style="display:flex;justify-content:space-between;align-items:center">
+                    <span><code style="font-family:var(--mono);font-size:11px">art_8a2f…91c</code> · <span class="pill pill-navy" style="font-size:10px">analytics</span></span>
+                    <span class="pill pill-green" style="font-size:10px">Will revoke</span>
+                  </div>
+                  <div style="font-size:11px;color:var(--text-3);margin-top:4px">
+                    Scope: <span class="pill pill-gray" style="font-size:10px">page_view</span> <span class="pill pill-gray" style="font-size:10px">device_type</span> · Connectors: Mixpanel · Expects 1 receipt
+                  </div>
+                </div>
+                <div style="padding:8px 10px;background:var(--amber-light);border-radius:4px">
+                  <div style="display:flex;justify-content:space-between;align-items:center">
+                    <span><code style="font-family:var(--mono);font-size:11px">art_4d6e…a17</code> · <span class="pill pill-navy" style="font-size:10px">payment_records</span></span>
+                    <span class="pill pill-amber" style="font-size:10px">Retention lock (7yr)</span>
+                  </div>
+                  <div style="font-size:11px;color:var(--text-3);margin-top:4px">
+                    Statutory hold under Income Tax Act 1961 §44AA. Artefact stays active until 2033-04-01. No deletion request dispatched.
+                  </div>
+                </div>
+                <div style="font-size:11px;color:var(--text-3);padding:6px 0 0;border-top:1px solid var(--border);margin-top:2px">
+                  Will revoke <strong>2 artefacts</strong> and dispatch <strong>3 deletion requests</strong> across <strong>3 connectors</strong>. 1 artefact held by retention lock.
+                </div>
               </div>
             </div>
             <div class="detail-section">
@@ -906,6 +1270,8 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:14
               <label class="check-item"><input type="checkbox"><div><div class="check-label">Processing log</div><div class="check-meta">Not enabled yet</div></div></label>
               <label class="check-item"><input type="checkbox" checked><div><div class="check-label">Audit readiness score</div><div class="check-meta">74% · April 2026</div></div></label>
               <label class="check-item"><input type="checkbox"><div><div class="check-label">Breach notifications</div><div class="check-meta">No breaches recorded</div></div></label>
+              <!-- DEPA: artefact ledger added per ALIGNMENT W8. Reads from consent_artefacts (current month). -->
+              <label class="check-item"><input type="checkbox" checked><div><div class="check-label">Consent artefact ledger <span class="pill pill-navy" style="font-size:9px;padding:1px 5px">DEPA</span></div><div class="check-meta">2,418 artefacts · current month · includes lifecycle transitions</div></div></label>
             </div>
             <button class="btn btn-primary" style="width:100%;margin-top:14px">Generate package</button>
           </div></div>
@@ -928,6 +1294,12 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:14
               <div class="audit-score-row"><div class="audit-score-label">Rights request workflow live</div><div class="audit-score-bar"><div class="audit-score-fill" style="width:100%;background:var(--green)"></div></div><div class="audit-score-val" style="color:var(--green)">Pass</div></div>
               <div class="audit-score-row"><div class="audit-score-label">Breach contacts configured</div><div class="audit-score-bar"><div class="audit-score-fill" style="width:0%;background:var(--red)"></div></div><div class="audit-score-val" style="color:var(--red)">Fail</div></div>
               <div class="audit-score-row"><div class="audit-score-label">72-hour template ready</div><div class="audit-score-bar"><div class="audit-score-fill" style="width:100%;background:var(--green)"></div></div><div class="audit-score-val" style="color:var(--green)">Pass</div></div>
+              <!-- DEPA: artefact governance section added per ALIGNMENT W8. Reads depa_compliance_metrics + Priority 10 test outcomes. -->
+              <div style="font-size:11px;font-weight:600;color:var(--text-3);text-transform:uppercase;letter-spacing:.05em;margin:12px 0 8px">DEPA artefact governance <span class="pill pill-navy" style="font-size:9px;padding:1px 5px">DEPA</span></div>
+              <div class="audit-score-row"><div class="audit-score-label">Coverage — every banner purpose has a definition</div><div class="audit-score-bar"><div class="audit-score-fill" style="width:100%;background:var(--green)"></div></div><div class="audit-score-val" style="color:var(--green)">100%</div></div>
+              <div class="audit-score-row"><div class="audit-score-label">Expiry compliance — no artefact past expires_at</div><div class="audit-score-bar"><div class="audit-score-fill" style="width:88%;background:var(--amber-mid)"></div></div><div class="audit-score-val" style="color:var(--amber)">88%</div></div>
+              <div class="audit-score-row"><div class="audit-score-label">Revocation responsiveness — median revoke→all receipts</div><div class="audit-score-bar"><div class="audit-score-fill" style="width:78%;background:var(--amber-mid)"></div></div><div class="audit-score-val" style="color:var(--amber)">2.4 hr</div></div>
+              <div class="audit-score-row"><div class="audit-score-label">Scope sanity — data_scope contains categories only (Rule 3)</div><div class="audit-score-bar"><div class="audit-score-fill" style="width:100%;background:var(--green)"></div></div><div class="audit-score-val" style="color:var(--green)">Pass</div></div>
             </div>
           </div></div>
         </div>
@@ -980,8 +1352,13 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:14
               <input class="config-input" value="compliance@acme.in" style="width:220px">
             </div>
             <div class="settings-row">
-              <div><div class="settings-row-label">Industry</div><div class="settings-row-desc">Affects which DPDP templates are pre-applied</div></div>
-              <select class="config-input" style="width:220px;padding:7px 10px"><option>SaaS / Technology</option><option>Healthcare</option><option>Edtech</option><option>E-commerce</option></select>
+              <div><div class="settings-row-label">Industry</div><div class="settings-row-desc">Determines which purpose definition seed pack is offered at onboarding (W9). Switching adds new sector purposes; existing definitions are preserved.</div></div>
+              <select class="config-input" style="width:220px;padding:7px 10px"><option>SaaS / Technology</option><option>Healthcare / Clinic</option><option>Edtech</option><option>E-commerce / D2C</option><option>BFSI — NBFC / Broking</option><option>HR Tech</option><option>Fintech</option></select>
+            </div>
+            <!-- DEPA: sector template row added per ALIGNMENT W10. -->
+            <div class="settings-row">
+              <div><div class="settings-row-label">Active sector template <span class="pill pill-navy" style="font-size:9px;padding:1px 5px;margin-left:4px">DEPA</span></div><div class="settings-row-desc">Read-only — manage individual purposes at <span class="score-link" onclick="showPanel('purposes')">Purpose Definitions →</span></div></div>
+              <span class="pill pill-navy">dpdp_minimum + analytics_extended</span>
             </div>
             <div class="settings-row">
               <div><div class="settings-row-label">Current plan</div><div class="settings-row-desc">Growth · ₹5,999/month · Renews May 11</div></div>
@@ -1069,24 +1446,28 @@ const obSteps = [
   },
   {
     label: 'Step 4 of 7',
-    title: 'Choose your consent banner',
-    desc: 'Pick a starting template. You can customise every word, colour, and purpose in the banner builder.',
+    title: 'Choose your purpose definition seed pack',
+    desc: 'A seed pack is a starter set of purpose_definitions — the canonical catalogue every consent artefact references. You can add, edit, or remove purposes later in Purpose Definitions. (DEPA — see ARCHITECTURE-ALIGNMENT W9.)',
     render: () => `
       <div class="ob-template-grid">
         <div class="ob-template selected" onclick="selectTemplate(this)">
-          <div class="ob-template-name">Minimal</div>
-          <div class="ob-template-desc">Single accept/reject. Clean and unobtrusive.</div>
+          <div class="ob-template-name">DPDP minimum</div>
+          <div class="ob-template-desc">5 purposes — essential, analytics, marketing, personalisation, profile_data. Recommended starting point.</div>
         </div>
         <div class="ob-template" onclick="selectTemplate(this)">
-          <div class="ob-template-name">Standard</div>
-          <div class="ob-template-desc">Accept all / Manage preferences / Reject all.</div>
+          <div class="ob-template-name">DPDP + analytics extended</div>
+          <div class="ob-template-desc">8 purposes — adds support_chat, push_notifications, payment_records (with retention lock).</div>
         </div>
         <div class="ob-template" onclick="selectTemplate(this)">
-          <div class="ob-template-name">Full</div>
-          <div class="ob-template-desc">Granular per-purpose toggles with descriptions.</div>
+          <div class="ob-template-name">BFSI starter</div>
+          <div class="ob-template-desc">11 purposes — DPDP base + KYC retention exemptions + RBI categories. Available when sector = BFSI.</div>
+        </div>
+        <div class="ob-template" onclick="selectTemplate(this)">
+          <div class="ob-template-name">Healthcare / clinic</div>
+          <div class="ob-template-desc">9 purposes — DPDP base + ABDM consent purposes. Available when ABDM is enrolled.</div>
         </div>
       </div>
-      <div class="ob-field"><div class="ob-label">Banner headline (editable)</div><input class="ob-input" value="We respect your privacy under India's DPDP Act"></div>
+      <div class="ob-field"><div class="ob-label">Banner headline (editable, applied to default consent banner)</div><input class="ob-input" value="We respect your privacy under India's DPDP Act"></div>
     `
   },
   {
@@ -1103,16 +1484,24 @@ const obSteps = [
   },
   {
     label: 'Step 6 of 7',
-    title: 'Compliance score calculated',
-    desc: 'Based on your setup so far, here is your initial DPDP compliance score.',
+    title: 'Compliance scores calculated',
+    desc: 'Based on your setup so far, here are your initial DPDP and DEPA compliance scores. (DEPA score reads from depa_compliance_metrics — refreshed nightly once live.)',
     render: () => `
-      <div style="text-align:center;margin:10px 0 20px">
-        <div style="font-size:48px;font-weight:600;color:var(--amber)">52%</div>
-        <div style="font-size:13px;color:var(--text-3);margin-top:4px">Amber zone — 3 gaps to close</div>
+      <div style="display:flex;gap:32px;justify-content:center;margin:10px 0 20px">
+        <div style="text-align:center">
+          <div style="font-size:42px;font-weight:600;color:var(--amber)">52%</div>
+          <div style="font-size:11px;color:var(--text-3);margin-top:2px;text-transform:uppercase;letter-spacing:.05em">DPDP</div>
+        </div>
+        <div style="text-align:center">
+          <div style="font-size:42px;font-weight:600;color:var(--teal)">68%</div>
+          <div style="font-size:11px;color:var(--text-3);margin-top:2px;text-transform:uppercase;letter-spacing:.05em">DEPA</div>
+        </div>
       </div>
-      <div style="font-size:12px;font-weight:600;color:var(--text-2);margin-bottom:8px">Next 3 actions to improve your score:</div>
+      <div style="font-size:11px;color:var(--text-3);text-align:center;margin-bottom:14px">Amber zone — 4 gaps to close</div>
+      <div style="font-size:12px;font-weight:600;color:var(--text-2);margin-bottom:8px">Next 4 actions to improve your scores:</div>
       <div class="ob-checklist">
         <div class="ob-check-row"><input type="checkbox"><div class="ob-check-label">Complete data inventory (4 flows pending)</div></div>
+        <div class="ob-check-row"><input type="checkbox"><div class="ob-check-label">Map purpose <code style="font-family:var(--mono);font-size:11px">support_chat</code> to a connector (DEPA)</div></div>
         <div class="ob-check-row"><input type="checkbox"><div class="ob-check-label">Enable processing log (1-year retention)</div></div>
         <div class="ob-check-row"><input type="checkbox"><div class="ob-check-label">Add breach notification contacts</div></div>
       </div>

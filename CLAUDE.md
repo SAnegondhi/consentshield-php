@@ -41,6 +41,36 @@ Read these on demand — before structural changes, ADR work, or anything touchi
 - `docs/architecture/consentshield-testing-strategy.md` — what to test and when. Read before: writing tests or modifying test infra.
 - `docs/architecture/nextjs-16-reference.md` — Next.js 16 specifics (proxy.ts, caching, breaking changes). Read before: routing, middleware/proxy, caching, or config changes.
 
+## UI specification reference
+
+There are **two** parallel UI specifications in this repository — one per app in the monorepo. Both follow the same normative discipline: the wireframes are the spec, code MUST conform, drift is recorded in an alignment doc + ADR.
+
+### Customer app (`app/` post-monorepo, currently `src/`)
+
+The wireframes in `docs/design/screen designs and ux/` are the visual and interaction specification for the ConsentShield customer-facing UI. The Next.js implementation MUST conform to those screens.
+
+- `docs/design/screen designs and ux/consentshield-screens.html` — web app wireframes (sidebar nav + 9 panels). Read before: any change to dashboard layout, panel structure, banner builder, rights flow, audit/reports, settings, onboarding, or the DEPA panels (Consent Artefacts, Purpose Definitions).
+- `docs/design/screen designs and ux/consentshield-mobile.html` — iOS wireframes (3 flows). Read before: any iOS work (deferred until Month 6+ ABDM trigger).
+- `docs/design/screen designs and ux/ARCHITECTURE-ALIGNMENT-2026-04-16.md` — drift catalogue between customer wireframes and architecture. Read before: building any new customer screen.
+
+### Admin app (`admin/` post-monorepo)
+
+The wireframes in `docs/admin/design/` are the visual and interaction specification for the ConsentShield operator console (admin.consentshield.in).
+
+- `docs/admin/architecture/consentshield-admin-platform.md` — admin platform source of truth. Read before: any admin auth, role, hosting topology, RPC contract, or impersonation work. Defines admin-side Rules 21–25.
+- `docs/admin/architecture/consentshield-admin-schema.md` — admin Postgres schema (admin tables, cs_admin role, RLS, audit-log RPC pattern). Read before: any admin migration or RPC.
+- `docs/admin/architecture/consentshield-admin-monorepo-migration.md` — step-by-step plan to convert this repo into a Bun workspace monorepo. Read before: starting Phase 1 of the restructure.
+- `docs/admin/design/consentshield-admin-screens.html` — admin wireframes (sidebar nav + 11 panels + impersonation drawer). Visual cue: red admin-mode strip + red sidebar border distinguishes the operator console from the customer app at a glance. Read before: any change to admin UI.
+- `docs/admin/design/ARCHITECTURE-ALIGNMENT-2026-04-16.md` — drift catalogue between admin wireframes and admin architecture. Cross-references customer-side items (W13, W14) where applicable.
+
+### The rule (both apps)
+
+Silent UI drift away from these screens is not acceptable in either app. Either update the wireframes (and re-align via the matching alignment doc) or update the code to match. The wireframes are normative. Tick items off the §4/§6 reconciliation trackers as the relevant ADRs ship.
+
+### Monorepo
+
+The repo will be restructured into a Bun workspace (`app/` + `admin/` + `worker/` + `packages/*` + shared `supabase/` + shared `docs/`) per the migration plan. Until that ADR (proposed: ADR-0026) ships, the customer app continues to live at the repo root. The admin platform implementation is blocked on the monorepo restructure landing first.
+
 ## Non-negotiable rules
 
 These are hard constraints. Do not work around them. Do not find creative interpretations. If a task conflicts with any of these rules, stop and say so.
