@@ -2,6 +2,29 @@
 
 Database migrations, RLS policies, roles.
 
+## ADR-0016 Sprint 1 — 2026-04-16
+
+**ADR:** ADR-0016 — Consent Probes (static HTML analysis v1)
+
+### Added
+- `20260416000006_consent_probes_cron.sql`: hourly `consent-probes-hourly`
+  cron at `10 * * * *` pointing at the new `run-consent-probes` Edge Function.
+  Reuses the vault orchestrator key pattern.
+
+### Changed
+- `web_properties.url` for `Demo Violator` → now points at
+  `consentshield-demo.vercel.app/violator?violate=1` so the probe target is
+  the pre-consent-injection variant. Dev-only demo data; not a schema change.
+
+### Seeded (direct SQL, not in a migration)
+- Two acceptance-test probes in the demo org: one against Demo Violator
+  (probe_type = `all-rejected`) and one against Demo Blog
+  (probe_type = `analytics-rejected`). Both with `schedule='hourly'`.
+
+### Tested
+- [x] `supabase db push` — migration applied clean.
+- [x] Live fire of the function returned 200 with probe runs inserted.
+
 ## ADR-0015 Sprint 1.1 — 2026-04-16
 
 **ADR:** ADR-0015 — Security Posture Scanner

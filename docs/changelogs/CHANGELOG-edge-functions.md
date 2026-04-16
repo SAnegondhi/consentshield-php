@@ -2,6 +2,35 @@
 
 Supabase Edge Function changes.
 
+## ADR-0016 Sprint 1 — 2026-04-16
+
+**ADR:** ADR-0016 — Consent Probes (static HTML analysis v1)
+**Sprint:** Phase 1
+
+### Added
+- `supabase/functions/run-consent-probes/index.ts`: hourly probe
+  runner. For each `consent_probes` row due for a run, fetches the
+  property URL and inspects the HTML for tracker patterns (two-pass:
+  structured `src`/`href` attributes first, then full-body substring
+  match for URLs referenced in inline JS). Classifies detections
+  against each tracker signature's `category`; flags violations when
+  the tracker's category is not consented AND the signature is not
+  functional. Inserts one row per run into `consent_probe_runs`;
+  updates `consent_probes.last_run_at`, `last_result`, `next_run_at`
+  based on `schedule`.
+- Acknowledged v1 limitation: static analysis cannot distinguish
+  conditional (`if (consented) { load() }`) from unconditional
+  script loads when the URL appears in inline JS. A v2 follow-up
+  with a headless-browser backend will handle this.
+
+### Deployment
+- `supabase functions deploy run-consent-probes --no-verify-jwt`.
+
+### Tested
+- [x] Live probe run: Demo Violator → 2 violations (GA4 + Meta Pixel),
+  Demo Blog → 1 violation (GA4 referenced in conditional block —
+  documented v1 false positive).
+
 ## ADR-0015 Sprint 1.1 — 2026-04-16
 
 **ADR:** ADR-0015 — Security Posture Scanner

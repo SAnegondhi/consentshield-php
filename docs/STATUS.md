@@ -55,7 +55,7 @@ through ADR-0018).
 | Cloudflare Worker CDN | `https://cdn.consentshield.in/v1/*` (Worker version `9fb7bd37`) |
 | Supabase project | `xlqiakmkdjycfiioslgs` |
 | SLA Edge Function | `send-sla-reminders` deployed; reads `CS_ORCHESTRATOR_ROLE_KEY` (CS_ prefix because Supabase reserves SUPABASE_) |
-| pg_cron jobs | 5 active, all green: `buffer-sweep-15min` + `cleanup-unverified-rights-requests-daily` (pure SQL), `sla-reminders-daily` + `check-stuck-deletions-hourly` + `security-scan-nightly` (HTTP via `net.http_post`, Edge Functions deployed with `--no-verify-jwt`). Two orphan jobs (`stuck-buffer-detection-hourly`, `retention-check-daily`) remain unscheduled — their target Edge Functions haven't been built; they will be re-registered when Phase-3 ops features ship. |
+| pg_cron jobs | 6 active, all green: `buffer-sweep-15min` + `cleanup-unverified-rights-requests-daily` (pure SQL), `sla-reminders-daily` + `check-stuck-deletions-hourly` + `security-scan-nightly` + `consent-probes-hourly` (HTTP via `net.http_post`, Edge Functions deployed with `--no-verify-jwt`). Two orphan jobs (`stuck-buffer-detection-hourly`, `retention-check-daily`) remain unscheduled — their target Edge Functions haven't been built; they will be re-registered when Phase-3 ops features ship. |
 | GitHub repo | `github.com/SAnegondhi/consentshield` |
 
 ---

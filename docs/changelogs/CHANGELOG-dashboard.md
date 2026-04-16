@@ -2,6 +2,16 @@
 
 Next.js UI changes.
 
+## ADR-0016 Sprint 1 — 2026-04-16
+
+### Changed
+- `src/app/(dashboard)/dashboard/enforcement/page.tsx`: new
+  **Consent Probes** section listing every active probe with its
+  schedule, last-run timestamp, and status (clean / N violations /
+  failed). Reads `consent_probes` + `consent_probe_runs`; joins the
+  latest run per probe. No CRUD UI in v1 — probes are seeded via
+  SQL until a dedicated micro-ADR adds the form.
+
 ## ADR-0015 Sprint 1.1 — 2026-04-16
 
 **ADR:** ADR-0015 — Security Posture Scanner

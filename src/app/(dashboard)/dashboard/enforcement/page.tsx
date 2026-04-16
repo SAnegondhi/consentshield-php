@@ -51,7 +51,7 @@ export default async function EnforcementPage() {
   const since7d = isoSinceHours(24 * 7)
   const since24h = isoSinceHours(24)
 
-  const [observationsRes, violations7dRes, properties, scansRes] = await Promise.all([
+  const [observationsRes, violations7dRes, properties, scansRes, probesRes, probeRunsRes] = await Promise.all([
     supabase
       .from('tracker_observations')
       .select('id, property_id, consent_state, trackers_detected, violations, page_url_hash, observed_at')
@@ -68,6 +68,15 @@ export default async function EnforcementPage() {
       .select('property_id, scan_type, severity, signal_key, details, remediation, scanned_at')
       .order('scanned_at', { ascending: false })
       .limit(500),
+    supabase
+      .from('consent_probes')
+      .select('id, property_id, probe_type, consent_state, schedule, is_active, last_run_at, last_result')
+      .eq('is_active', true),
+    supabase
+      .from('consent_probe_runs')
+      .select('probe_id, status, trackers_detected, violations, run_at')
+      .order('run_at', { ascending: false })
+      .limit(200),
   ])
 
   const observations = (observationsRes.data ?? []) as ObservationRow[]
@@ -88,6 +97,30 @@ export default async function EnforcementPage() {
     remediation: string | null
     scanned_at: string
   }
+  interface ProbeRow {
+    id: string
+    property_id: string
+    probe_type: string
+    consent_state: Record<string, boolean>
+    schedule: string
+    is_active: boolean
+    last_run_at: string | null
+    last_result: { status?: string; trackers?: number; violations?: number; url?: string } | null
+  }
+  interface ProbeRunRow {
+    probe_id: string
+    status: string
+    trackers_detected: unknown[]
+    violations: unknown[]
+    run_at: string
+  }
+  const probes = (probesRes.data ?? []) as ProbeRow[]
+  const probeRuns = (probeRunsRes.data ?? []) as ProbeRunRow[]
+  const latestRunByProbe = new Map<string, ProbeRunRow>()
+  for (const run of probeRuns) {
+    if (!latestRunByProbe.has(run.probe_id)) latestRunByProbe.set(run.probe_id, run)
+  }
+
   const scans = (scansRes.data ?? []) as ScanRow[]
   const latestScanAt = scans.length > 0 ? scans[0].scanned_at : null
   // Most-recent scan batch per property (group by scanned_at bucket per property).
@@ -275,6 +308,51 @@ export default async function EnforcementPage() {
           </p>
         )}
       </section>
+
+      <section className="rounded border border-gray-200">
+        <div className="px-4 py-3 border-b border-gray-200">
+          <h2 className="font-medium">Consent Probes</h2>
+          <p className="text-xs text-gray-500">
+            Synthetic compliance tests per property. v1 is static HTML analysis — see ADR-0016.
+          </p>
+        </div>
+        {probes.length > 0 ? (
+          <table className="w-full text-sm">
+            <thead className="bg-gray-50 text-left text-xs">
+              <tr>
+                <th className="px-4 py-2 font-medium">Property</th>
+                <th className="px-4 py-2 font-medium">Probe</th>
+                <th className="px-4 py-2 font-medium">Schedule</th>
+                <th className="px-4 py-2 font-medium">Last Run</th>
+                <th className="px-4 py-2 font-medium">Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {probes.map((probe) => {
+                const run = latestRunByProbe.get(probe.id)
+                const violations = run ? (run.violations as unknown[]).length : 0
+                return (
+                  <tr key={probe.id} className="border-t border-gray-200">
+                    <td className="px-4 py-2">{propertyMap.get(probe.property_id) ?? '—'}</td>
+                    <td className="px-4 py-2 text-xs font-mono text-gray-700">{probe.probe_type}</td>
+                    <td className="px-4 py-2 text-xs text-gray-600">{probe.schedule}</td>
+                    <td className="px-4 py-2 text-xs text-gray-500">
+                      {run ? new Date(run.run_at).toLocaleString() : probe.last_run_at ? new Date(probe.last_run_at).toLocaleString() : 'never'}
+                    </td>
+                    <td className="px-4 py-2">
+                      {run ? <ProbeStatusBadge violations={violations} status={run.status} /> : <span className="text-xs text-gray-500">pending first run</span>}
+                    </td>
+                  </tr>
+                )
+              })}
+            </tbody>
+          </table>
+        ) : (
+          <p className="px-4 py-8 text-center text-sm text-gray-600">
+            No active probes. Seed one via SQL; CRUD UI is a future sprint.
+          </p>
+        )}
+      </section>
     </main>
   )
 }
@@ -286,6 +364,16 @@ const severityRank: Record<string, number> = {
 function pickWorst<T extends { severity: string }>(rows: T[]): T | null {
   if (rows.length === 0) return null
   return rows.reduce((a, b) => (severityRank[b.severity] > severityRank[a.severity] ? b : a))
+}
+
+function ProbeStatusBadge({ violations, status }: { violations: number; status: string }) {
+  if (status !== 'completed') {
+    return <span className="rounded px-2 py-0.5 text-xs font-medium bg-gray-100 text-gray-700">failed</span>
+  }
+  if (violations > 0) {
+    return <span className="rounded px-2 py-0.5 text-xs font-medium bg-red-100 text-red-700">{violations} violations</span>
+  }
+  return <span className="rounded px-2 py-0.5 text-xs font-medium bg-green-100 text-green-700">clean</span>
 }
 
 function SeverityBadge({ level }: { level: string }) {
