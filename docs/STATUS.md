@@ -55,7 +55,7 @@ through ADR-0018).
 | Cloudflare Worker CDN | `https://cdn.consentshield.in/v1/*` (Worker version `9fb7bd37`) |
 | Supabase project | `xlqiakmkdjycfiioslgs` |
 | SLA Edge Function | `send-sla-reminders` deployed; reads `CS_ORCHESTRATOR_ROLE_KEY` (CS_ prefix because Supabase reserves SUPABASE_) |
-| pg_cron jobs | 7 active: `buffer-sweep-15min` (pure SQL, green), `cleanup-unverified-rights-requests-daily` (pure SQL, green), and 5 HTTP-based (`sla-reminders-daily`, `stuck-buffer-detection-hourly`, `security-scan-nightly`, `retention-check-daily`, `check-stuck-deletions-hourly`). `pg_net` is now enabled; the `check-stuck-deletions` function was redeployed with `--no-verify-jwt` — the other four HTTP functions still need the same flag before their cron hits succeed. |
+| pg_cron jobs | 4 active, all green: `buffer-sweep-15min` + `cleanup-unverified-rights-requests-daily` (pure SQL), `sla-reminders-daily` + `check-stuck-deletions-hourly` (HTTP via `net.http_post`, Edge Functions deployed with `--no-verify-jwt`). Three orphan jobs (`stuck-buffer-detection-hourly`, `security-scan-nightly`, `retention-check-daily`) were unscheduled — their target Edge Functions haven't been built; they will be re-registered when ADR-0015 (security scanner) and Phase-3 ops features ship. |
 | GitHub repo | `github.com/SAnegondhi/consentshield` |
 
 ---
@@ -63,7 +63,7 @@ through ADR-0018).
 ## Database State
 
 - **32 operational tables** + `webhook_events_processed`. All with RLS enabled.
-- **24 migrations applied**, through `20260416000003_enable_pg_net.sql`.
+- **25 migrations applied**, through `20260416000004_unschedule_orphan_crons.sql`.
 - **Scoped roles** (`cs_worker`, `cs_delivery`, `cs_orchestrator`) are the runtime principals. Every mutating code path routes through a security-definer RPC owned by `cs_orchestrator` (or `cs_delivery`), granted to `anon` or `authenticated` per endpoint. `grep -r SUPABASE_SERVICE_ROLE_KEY src/` returns zero matches.
 - `cs_orchestrator` / `cs_delivery` carry `BYPASSRLS` so security-definer calls can read org-scoped tables inside their own function bodies. They do **not** have USAGE on schema `auth` (hosted Supabase forbids it); RPCs that need the caller's user id use the `public.current_uid()` helper from `20260415000001`.
 - **Demo org** seeded: `ConsentShield Demo Customer` (`432bca6d-8fce-415a-85e0-96397ddac666`) with 5 web properties + 5 banners matching the Vercel demo site routes.

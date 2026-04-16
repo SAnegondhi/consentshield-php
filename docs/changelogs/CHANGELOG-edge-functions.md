@@ -35,6 +35,17 @@ Supabase Edge Function changes.
   vault orchestrator key. Response: `200 OK`,
   `{"ok":true,"scanned":0,"retried":0,"failed":0,"skipped":0}`.
 
+## send-sla-reminders redeploy — 2026-04-16
+
+### Changed
+- Redeployed with `supabase functions deploy send-sla-reminders
+  --no-verify-jwt`. Same reason as `check-stuck-deletions`: the
+  vault-stored orchestrator key is in `sb_secret_*` format, which
+  the gateway rejected as `UNAUTHORIZED_INVALID_JWT_FORMAT`. The
+  function still authenticates against PostgREST with the same key
+  at the data layer; only the gateway-level JWT check is skipped.
+- Verified live: `net.http_post` → `200 OK, {"sent":0}`.
+
 ## S-7 remediation — 2026-04-14
 
 ### Changed

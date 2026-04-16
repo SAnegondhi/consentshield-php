@@ -26,6 +26,28 @@ Database migrations, RLS policies, roles.
 - [x] `supabase db push` — three migrations applied clean.
 - [x] `net.http_post` live call to the deployed function returned 200 OK.
 
+## Cron cleanup — 2026-04-16
+
+**ADR:** n/a (ops cleanup surfaced by ADR-0011 verification)
+
+### Changed
+- `20260416000004_unschedule_orphan_crons.sql`: drops three cron
+  entries whose Edge Functions were never built —
+  `stuck-buffer-detection-hourly` (→ `check-stuck-buffers`),
+  `security-scan-nightly` (→ `run-security-scans`),
+  `retention-check-daily` (→ `check-retention-rules`). They had been
+  failing silently with `schema "net" does not exist` (before
+  pg_net was enabled) and would fail with `404` after, so removal
+  leaves the cron log clean. The jobs will be re-scheduled alongside
+  the corresponding features (ADR-0015 security scanner + Phase-3
+  retention enforcement).
+
+### Tested
+- [x] `select jobname from cron.job` — returns four green jobs, no
+  orphans.
+- [x] Live `send-sla-reminders` smoke — 200 OK `{"sent":0}` after
+  redeploy with `--no-verify-jwt`.
+
 ## ADR-0012 Sprint 1 — 2026-04-16
 
 **ADR:** ADR-0012 — Automated Test Suites for High-Risk Paths
