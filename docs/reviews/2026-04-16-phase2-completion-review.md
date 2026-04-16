@@ -19,7 +19,7 @@ Phase 2 has closed cleanly. The 9 blocking findings from 2026-04-14 are all clos
 - Browser-auth hardening complete: Worker no longer ships any signing secret to browsers; origin validation is strict; `origin_verified` persisted on every consent event.
 - Three new Edge Functions live (`check-stuck-deletions`, `run-security-scans`, `run-consent-probes`); all four use `cs_orchestrator` and fail-fast if its key is unset.
 
-This audit found **no new blocking issues**, **2 new should-fix issues** (N-S1, N-S2), and **1 new cosmetic issue** (N-S3). Findings are concrete, file-and-line cited, and verified against running code rather than inferred from documentation.
+This audit found **no new blocking issues**, **2 new should-fix issues** (N-S1, N-S2), and **1 new cosmetic issue** (N-S3). All three were closed in fix-batch commit `b871643` later the same day (see Section 5 closure block); the audit baseline is now **0 blocking, 0 should-fix, 0 cosmetic** with the verification work documented inline.
 
 **Overall posture:** ready for the post-Phase-2 review that picks 2–3 V2-BACKLOG items to graduate into Phase-3 ADRs. Nothing in this report is a prerequisite for that step.
 
@@ -101,17 +101,31 @@ No acceptance gaps found.
 
 ## 5. New Findings This Review
 
-> **Closure note (2026-04-16, post-review same day):** All three findings
-> below were closed in a single fix-batch immediately after this review
-> was filed. Migrations `20260416000008`, `_000009`, `_000010` plus the
-> Worker code change are live in dev Supabase; Worker deploy via
-> `bunx wrangler deploy` from `worker/` is the only remaining step.
-> Audit-trail in `CHANGELOG-schema.md`, `CHANGELOG-worker.md`, and
+> **All three findings below are CLOSED.** Fix-batch commit
+> `b871643 fix: review fix-batch — N-S1/N-S2/N-S3 from 2026-04-16
+> review` (13 files, +648 / −44) shipped the same day this review was
+> filed. Migrations `20260416000008` (worker_errors table),
+> `20260416000009` (cron URL via Vault), and `20260416000010` (Vault
+> seed) are live on Supabase project `xlqiakmkdjycfiioslgs`. Worker
+> deployed via `wrangler` (version `3e53f498-a79b-4e04-bad7-186aa844617f`).
+> Audit-trail: `CHANGELOG-schema.md`, `CHANGELOG-worker.md`,
 > `CHANGELOG-api.md` under "Review fix-batch — 2026-04-16".
 
 ### Should-fix
 
 #### N-S1. Worker buffer-write failures only log to Cloudflare console
+
+**Status:** Closed in `b871643`. Chose option (b) from the fix
+direction — kept Worker dep-count at zero (rule #15). New
+operational table `worker_errors` (org_id, property_id, endpoint,
+status_code, upstream_error, created_at) with org-scoped RLS read,
+INSERT to `cs_worker`, REVOKE update/delete from `authenticated`,
+and a 7-day retention cleanup cron `worker-errors-cleanup-daily`
+at `15 3 * * *`. Worker calls
+`ctx.waitUntil(logWorkerError(env, {...}))` from both `events.ts`
+and `observations.ts` on failed Supabase REST writes, capping
+upstream error text at 1000 chars. Customer page response remains
+202; latency unchanged. New file `worker/src/worker-errors.ts`.
 
 - **Files:** `worker/src/events.ts:147`, `worker/src/observations.ts:118`
 - **Evidence:** When the Supabase REST POST that writes a consent event or tracker observation returns non-2xx, the Worker logs `console.error('Buffer write failed:', await bufferRes.text())` and returns 202 to the customer's website. Nothing wakes Sentry, no row is queued for retry, and there is no operator-facing alert.
@@ -127,6 +141,12 @@ No acceptance gaps found.
 - **Severity:** Should-fix. Real but low-frequency; today's RLS posture makes the failure path very unlikely.
 - **Fix direction:** Capture `{ error }` from the insert; on error, either return 500 before serving the ZIP (strict) or log to a fallback table and continue (lenient). Strict is preferable — better to fail loudly than to ship a ZIP without a manifest row.
 
+**Status:** Closed in `b871643`. Took the strict path. The route
+now does `const { error: manifestError } = await supabase.from(...).insert(...)`
+and returns HTTP 500 (`{ error: 'Failed to record export manifest', detail: manifestError.message }`)
+before serving the ZIP if the insert fails. Customer never receives
+a ZIP that has no audit-trail row.
+
 ### Cosmetic
 
 #### N-S3. pg_cron HTTP target URL hardcoded to project subdomain
@@ -136,6 +156,15 @@ No acceptance gaps found.
 - **Impact:** Cosmetic / operational. URL is not secret; current single-project dev posture is unaffected.
 - **Severity:** Cosmetic. Defer until a second Supabase project is on the horizon.
 - **Fix direction:** Inject via `vault.decrypted_secrets where name = 'supabase_url'`, parallel to the existing `cs_orchestrator_key` Vault pattern.
+
+**Status:** Closed in `b871643`. Migration `20260416000009` re-schedules
+all 4 HTTP cron jobs (`sla-reminders-daily`,
+`check-stuck-deletions-hourly`, `security-scan-nightly`,
+`consent-probes-hourly`) to read the project URL from
+`vault.decrypted_secrets where name = 'supabase_url'`. Migration
+`20260416000010` idempotently seeds the Vault entry so a clean
+`db push` is self-sufficient. Future cron migrations now have a
+single URL source of truth instead of one literal per file.
 
 ---
 
@@ -220,19 +249,38 @@ Confirmed all 11 V2-BACKLOG entries (`docs/V2-BACKLOG.md`) are conscious deferra
 
 ## 9. Recommendations for Next Phase
 
-Listed in priority order. References to V2-BACKLOG IDs where applicable.
+Listed in priority order. N-S1/N-S2/N-S3 were closed in the same-day
+fix-batch (commit `b871643`); recommendations 1, 3, and 5 from the
+original draft are therefore retired. The remaining items below are
+the live to-do list.
 
-1. **Address N-S2 before any paying customer downloads an audit export.** A silent manifest-insert failure breaks rule #4. Fix is small (one error check, ~10 LoC). No need to wait for Phase 3.
-2. **Pick the first V2-BACKLOG graduation.** Most leveraged candidate is **V2-X3** (audit-export R2 upload), because it would close the gap between rule #4 in spirit (customer owns the record) and rule #4 in execution (ZIP currently goes through ConsentShield's bandwidth, not customer storage). Second-best: **V2-O3** (pg_cron watchdog) — small, removes the only operational surface that currently relies on manual inspection.
-3. **Address N-S1 before relying on Worker ingestion at customer scale.** Cloudflare logs are searchable but not paged. Sentry's Cloudflare Workers integration is a one-file add and keeps Worker dep-count at zero (rule #15) only if used very carefully — alternatively, write to a `worker_errors` buffer table and surface it on the existing dashboard.
-4. **Flip Vercel Deployment Protection (V2-O2) before any real traffic.** Five-minute task, sits in V2-BACKLOG specifically because it's a pre-launch checklist item rather than a code task.
-5. **Defer N-S3 indefinitely.** Cosmetic. Re-engage only if a second Supabase project is needed.
+1. **Pick the first V2-BACKLOG graduation.** Most leveraged candidate
+   is **V2-X3** (audit-export R2 upload), because it would close the
+   gap between rule #4 in spirit (customer owns the record) and rule
+   #4 in execution (ZIP currently goes through ConsentShield's
+   bandwidth, not customer storage). Second-best: **V2-O3** (pg_cron
+   watchdog) — small, removes the only operational surface that
+   currently relies on manual inspection.
+2. **Surface `worker_errors` on the dashboard.** N-S1's fix gives us
+   the data path; a small `/dashboard/enforcement` panel showing
+   recent rows would let the operator see ingestion breakage at a
+   glance. Cheap (~half day) and the table is already populated.
+3. **Flip Vercel Deployment Protection (V2-O2) before any real
+   traffic.** Five-minute task, sits in V2-BACKLOG specifically
+   because it's a pre-launch checklist item rather than a code task.
+
+**Retired from the to-do list (now closed):**
+- ~~N-S2 audit-export silent insert~~ — fixed; route returns 500 on
+  manifest insert error.
+- ~~N-S1 Worker observability~~ — `worker_errors` table + Worker
+  `ctx.waitUntil(logWorkerError)` shipped.
+- ~~N-S3 hardcoded cron URL~~ — Vault-injected via migration 009/010.
 
 ---
 
 ## 10. Outcome
 
-Phase 2 of `docs/ROADMAP-phase2.md` is complete and the codebase is in good shape. **0 blocking, 2 should-fix, 1 cosmetic** is a clean re-audit result. The 2026-04-14 review's 9-blocker / 13-should-fix baseline has been driven to zero blockers without regression; the new findings are smaller in scope than anything from the prior round.
+Phase 2 of `docs/ROADMAP-phase2.md` is complete and the codebase is in good shape. The initial audit result (**0 blocking, 2 should-fix, 1 cosmetic**) was driven to **0 / 0 / 0** by the same-day fix-batch (`b871643`). The 2026-04-14 review's 9-blocker / 13-should-fix baseline has been driven to zero blockers without regression; the new findings — once flagged — were smaller in scope than anything from the prior round and were closed in the same session.
 
 No work in this report is on the critical path for the post-Phase-2 backlog review. The natural next session is the user picking 2–3 V2-BACKLOG items to graduate into Phase-3 ADRs.
 
