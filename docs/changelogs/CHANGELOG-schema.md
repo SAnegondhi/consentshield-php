@@ -2,6 +2,28 @@
 
 Database migrations, RLS policies, roles.
 
+## Loose-end cleanup — 2026-04-16
+
+**ADR:** n/a (cleanup)
+
+### Changed
+- `20260414000010_scoped_roles_rls_and_auth.sql`: removed the
+  `grant usage on schema auth to cs_orchestrator, cs_delivery;` line.
+  It emitted `WARNING: no privileges were granted for "auth"` and
+  changed nothing — the `auth` schema is owned by `supabase_auth_admin`
+  and `postgres` cannot grant USAGE on it. The BYPASSRLS grants below
+  it were the actual fix. Any RPC needing `auth.uid()` must use
+  `public.current_uid()` (added in `20260415000001`).
+- No live DB change required — the live DB was already past this
+  migration and the removed line was a no-op. Fresh-DB setups will
+  no longer emit the misleading warning.
+
+### Fixed
+- Removed stale `auth.users` row for `anegondhi@gmail.com`
+  (id `cde31bea-734b-4796-ab3a-be490ac04b8b`, unconfirmed, 0
+  memberships) via one-off `DELETE` — created during the 2026-04-15
+  DNS/DMARC bounce-loop debugging and never completed signup.
+
 ## ADR-0008 Sprint 1.2, 1.4 — 2026-04-14
 
 **ADR:** ADR-0008 — Browser Auth Hardening
