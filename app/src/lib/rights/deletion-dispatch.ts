@@ -8,7 +8,7 @@
 
 import type { SupabaseClient } from '@supabase/supabase-js'
 import { createHash, createHmac } from 'node:crypto'
-import { decryptForOrg } from '@/lib/encryption/crypto'
+import { decryptForOrg } from '@consentshield/encryption'
 import { buildCallbackUrl } from './callback-signing'
 
 interface Connector {

@@ -1,6 +1,6 @@
 import { createServerClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
-import { encryptForOrg } from '@/lib/encryption/crypto'
+import { encryptForOrg } from '@consentshield/encryption'
 import { checkPlanLimit } from '@/lib/billing/gate'
 
 const VALID_CONNECTOR_TYPES = ['webhook', 'mailchimp', 'hubspot']

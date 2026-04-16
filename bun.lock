@@ -18,6 +18,7 @@
       "version": "0.1.0",
       "dependencies": {
         "@consentshield/compliance": "workspace:*",
+        "@consentshield/encryption": "workspace:*",
         "@sentry/nextjs": "10.48.0",
         "@supabase/ssr": "0.10.2",
         "@supabase/supabase-js": "2.103.0",
@@ -45,6 +46,13 @@
     "packages/compliance": {
       "name": "@consentshield/compliance",
       "version": "0.1.0",
+    },
+    "packages/encryption": {
+      "name": "@consentshield/encryption",
+      "version": "0.1.0",
+      "peerDependencies": {
+        "@supabase/supabase-js": "2.103.0",
+      },
     },
     "worker": {
       "name": "@consentshield/worker",
@@ -104,6 +112,8 @@
     "@consentshield/app": ["@consentshield/app@workspace:app"],
 
     "@consentshield/compliance": ["@consentshield/compliance@workspace:packages/compliance"],
+
+    "@consentshield/encryption": ["@consentshield/encryption@workspace:packages/encryption"],
 
     "@consentshield/worker": ["@consentshield/worker@workspace:worker"],
 
