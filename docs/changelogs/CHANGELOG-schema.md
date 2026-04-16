@@ -2,6 +2,30 @@
 
 Database migrations, RLS policies, roles.
 
+## ADR-0011 Sprint 1.1 — 2026-04-16
+
+**ADR:** ADR-0011 — Deletion Retry and Timeout
+**Sprint:** Phase 1, Sprint 1.1
+
+### Added
+- `20260416000001_deletion_retry_state.sql`:
+  - Column `next_retry_at timestamptz` on `deletion_receipts`.
+  - Partial index `idx_deletion_receipts_retry` on
+    `(next_retry_at) where status = 'awaiting_callback'` — keeps the
+    hourly retry scan bounded.
+  - Re-grants `UPDATE` to `cs_orchestrator` to include `next_retry_at`.
+- `20260416000002_deletion_retry_cron.sql`: registers
+  `check-stuck-deletions-hourly` pg_cron job at `45 * * * *`, using
+  the vault-stored `cs_orchestrator_key`.
+- `20260416000003_enable_pg_net.sql`: enables the `pg_net` extension
+  on hosted Supabase so that pg_cron's `net.http_post` calls actually
+  run. Was missing from the project — all HTTP cron jobs had been
+  silently failing with `schema "net" does not exist`.
+
+### Tested
+- [x] `supabase db push` — three migrations applied clean.
+- [x] `net.http_post` live call to the deployed function returned 200 OK.
+
 ## ADR-0012 Sprint 1 — 2026-04-16
 
 **ADR:** ADR-0012 — Automated Test Suites for High-Risk Paths
