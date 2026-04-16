@@ -34,12 +34,12 @@ All documents, code, and other artefacts in this project are authored by and cop
 
 ## Architecture reference
 
-Read these before making structural changes:
+Read these on demand — before structural changes, ADR work, or anything touching the area. Do NOT read for routine edits. These are the contradiction-winning source of truth; if guidance elsewhere conflicts, these files win.
 
-- @docs/architecture/consentshield-definitive-architecture.md — source of truth for all architecture
-- @docs/architecture/consentshield-complete-schema-design.md — source of truth for all database objects
-- @docs/architecture/consentshield-testing-strategy.md — what to test and when
-- @docs/architecture/nextjs-16-reference.md — Next.js 16 specifics (proxy.ts, caching, breaking changes)
+- `docs/architecture/consentshield-definitive-architecture.md` — source of truth for all architecture. Read before: Worker/pipeline/RLS/roles/enforcement/API changes.
+- `docs/architecture/consentshield-complete-schema-design.md` — source of truth for all database objects. Read before: any migration, new table, RLS policy, or role grant.
+- `docs/architecture/consentshield-testing-strategy.md` — what to test and when. Read before: writing tests or modifying test infra.
+- `docs/architecture/nextjs-16-reference.md` — Next.js 16 specifics (proxy.ts, caching, breaking changes). Read before: routing, middleware/proxy, caching, or config changes.
 
 ## Non-negotiable rules
 
@@ -264,7 +264,7 @@ consentshield/
 
 ## When creating database migrations
 
-1. Read @docs/architecture/consentshield-complete-schema-design.md first
+1. Read `docs/architecture/consentshield-complete-schema-design.md` first
 2. Every new table needs: `enable row level security`, at least one RLS policy, org_id column (unless it's reference data)
 3. Buffer tables need: `delivered_at` column, index on `delivered_at WHERE delivered_at IS NULL`, REVOKE UPDATE/DELETE from authenticated role
 4. Run the verification queries from Section 9 of the schema document after every migration

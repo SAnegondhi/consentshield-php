@@ -88,6 +88,14 @@ through ADR-0018).
 
 None blocking. Signup + login + dashboard property creation verified end-to-end on 2026-04-15.
 
+## V2 / post-Phase-2 backlog
+
+See `docs/V2-BACKLOG.md`. Items consciously deferred from Phase-2
+sprints (headless-browser probe runner, signup idempotency regression
+test, unbuilt Edge Function stubs, Vercel Preview env vars, etc.)
+live there. Do not pull from it mid-phase; a dedicated review after
+Phase 2 closes will pick 2–3 to graduate into follow-up ADRs.
+
 ---
 
 ## Most Recent Work (2026-04-14 → 2026-04-16)
