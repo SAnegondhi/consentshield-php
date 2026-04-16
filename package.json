@@ -2,7 +2,7 @@
   "name": "consentshield-monorepo",
   "version": "0.1.0",
   "private": true,
-  "workspaces": ["app", "worker", "packages/*"],
+  "workspaces": ["app", "admin", "worker", "packages/*"],
   "scripts": {
     "test:rls": "vitest run"
   },

@@ -190,7 +190,20 @@ The migration is reversible until Phase 4 (Vercel project split). Up to that poi
 - [ ] `bun --filter admin run test` smoke test passes.
 - [ ] `bun --filter app run dev` still works in parallel (port 3000); both apps run side-by-side without conflict.
 
-**Status:** `[ ] planned`
+**Status:** `[x] complete` — 2026-04-16
+
+**Execution notes (2026-04-16):**
+- Scaffolded with `bunx create-next-app@16.2.3 admin --typescript --tailwind --app --no-eslint --no-src-dir --no-turbopack --no-import-alias --use-bun --skip-install`, then reorganised `admin/app/` into `admin/src/app/` and trimmed the default `create-next-app` artefacts (`CLAUDE.md`, `AGENTS.md`, `README.md`, `public/`, default `page.tsx`, Geist font wiring).
+- `admin/package.json` — `@consentshield/admin`; exact-pinned to the same Next/React/Sentry/Supabase versions as `app/package.json`; devDeps match app (`eslint-config-next`, `tailwindcss`, `vitest`, `dotenv`). `workspace:*` dependency only on `@consentshield/shared-types` (compliance + encryption land in admin when ADR-0028+ needs them).
+- `admin/tsconfig.json` — extends `../tsconfig.base.json`; `paths: {"@/*": ["./src/*"]}`.
+- `admin/src/lib/supabase/{server,browser}.ts` — admin's own Supabase SSR clients. Functionally identical to app's for now; the `is_admin + AAL2` check is enforced at `proxy.ts` on every navigation and will be enforced at API handler layer too (ADR-0028+).
+- `admin/src/proxy.ts` — host check + session check + `is_admin` check + AAL2 check with stub-mode bypass (`ADMIN_HARDWARE_KEY_ENFORCED=false`). Implements Rules 21 + 24 from the admin platform doc §3. Public routes (`/login`, `/api/auth/*`) bypass.
+- Route groups: `(auth)/login/page.tsx` renders a stub login page describing the real flow (ADR-0028); `(operator)/layout.tsx` renders the red admin-mode strip + red-bordered sidebar per the admin wireframe; `(operator)/page.tsx` is the placeholder Operations Dashboard that reads the current user from Supabase and displays their name plus the admin Rules 21–25 summary.
+- `admin/sentry.{client,server}.config.ts` — point at `SENTRY_DSN_ADMIN` (separate DSN from the customer app); identical `beforeSend` scrubbing.
+- `admin/tests/smoke.test.ts` — trivial smoke to prove `bun run test` finds the admin suite. Real tests land with ADR-0028+.
+- `admin` added to root workspaces (`["app", "admin", "worker", "packages/*"]`).
+- **Deferred:** `bunx shadcn@latest init` inside `admin/` is NOT run yet. The skeleton uses raw Tailwind classes and doesn't consume a shadcn primitive. The first ADR-0028 sprint that needs a shadcn component will run `shadcn init` + add the component. Keeping the skeleton light now saves a merge of shadcn's generated boilerplate that isn't exercised.
+- **Deferred:** `admin/next.config.ts` is unchanged from `create-next-app`. No Sentry wrapping, no turbopack overrides — ADR-0028+ can wrap when Sentry wants to instrument admin.
 
 ### Phase 4: Vercel project split + CI isolation guards
 
@@ -280,7 +293,30 @@ Verification:
                               encryption, shared-types)
 ```
 
-### Sprint 3.1 — TBD
+### Sprint 3.1 — 2026-04-16 (Completed)
+
+```
+cd admin && bun run lint      → $ eslint src/ ; exit 0 (zero warnings)
+cd admin && bun run build     → Next.js 16.2.3 Turbopack, 2 routes (/, /login) compiled
+cd admin && bun run test      → 1 file (smoke), 1/1 tests pass
+cd app && bun run lint        → zero warnings (baseline unchanged)
+cd app && bun run build       → all 38 routes compiled (baseline unchanged)
+cd app && bun run test        → 7 files, 42/42 tests pass (baseline unchanged)
+bun run test:rls (from root)  → 2 files, 44/44 tests pass (baseline unchanged)
+
+Combined:
+  app    42
+  rls    44
+  admin   1 (new)
+ ----
+  total  87 (86 baseline + 1 smoke)
+
+Dev-server verification (manual, not yet automated):
+  cd admin && bun run dev   → starts on localhost:3001 (configured via
+                              "dev": "next dev --port 3001" in admin/package.json)
+  cd app && bun run dev     → still starts on localhost:3000
+  Both run side-by-side without conflict.
+```
 
 ### Sprint 4.1 — TBD
 
