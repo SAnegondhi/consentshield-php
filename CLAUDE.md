@@ -165,6 +165,10 @@ Each changelog entry follows this format:
 - **Superseded** — replaced by a later ADR (link to successor)
 - **Abandoned** — decided not to proceed (document why)
 
+### V2 backlog
+
+When an ADR consciously accepts a limitation (e.g., "static HTML analysis v1 — browser-based probes are a v2 follow-up"), record the deferred item in `docs/V2-BACKLOG.md` with a pointer back to the ADR. The backlog is reviewed only after Phase 2 closes; do NOT pull items from it into mid-phase sprints.
+
 ### The rule
 
 No code without a plan. No sprint without tests. No merge without a changelog. No architectural change without updating the architecture documents.
