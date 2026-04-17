@@ -47,6 +47,7 @@ export interface AdminConfigSnapshot {
   active_tracker_signatures: AdminTrackerSignature[]
   published_sectoral_templates: AdminSectoralTemplate[]
   suspended_org_ids: string[]
+  blocked_ips: string[]
   refreshed_at: string
 }
 
@@ -55,6 +56,7 @@ const EMPTY_SNAPSHOT: AdminConfigSnapshot = {
   active_tracker_signatures: [],
   published_sectoral_templates: [],
   suspended_org_ids: [],
+  blocked_ips: [],
   refreshed_at: '1970-01-01T00:00:00Z',
 }
 
@@ -62,7 +64,20 @@ export async function getAdminConfig(env: Env): Promise<AdminConfigSnapshot> {
   // KV put by the Edge Function stored a stringified JSON blob. Read as
   // 'json' so we don't re-parse on every call.
   const raw = await env.BANNER_KV.get(ADMIN_CONFIG_KEY, 'json')
-  if (raw) return raw as AdminConfigSnapshot
+  if (raw) {
+    // Defensive: older snapshots (pre ADR-0033 Sprint 2.3) had no
+    // blocked_ips key. Default to an empty array rather than undefined
+    // so downstream checks can iterate without null guards.
+    const snap = raw as Partial<AdminConfigSnapshot>
+    return {
+      kill_switches: snap.kill_switches ?? {},
+      active_tracker_signatures: snap.active_tracker_signatures ?? [],
+      published_sectoral_templates: snap.published_sectoral_templates ?? [],
+      suspended_org_ids: snap.suspended_org_ids ?? [],
+      blocked_ips: snap.blocked_ips ?? [],
+      refreshed_at: snap.refreshed_at ?? '1970-01-01T00:00:00Z',
+    }
+  }
   return EMPTY_SNAPSHOT
 }
 

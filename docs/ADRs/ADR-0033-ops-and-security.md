@@ -2,8 +2,9 @@
 
 (c) 2026 Sudhindra Anegondhi a.d.sudhindra@gmail.com
 
-**Status:** In Progress (Phase 1 complete · Phase 2 Sprint 2.1/2.2 complete · Sprint 2.3 Worker enforcement deferred)
+**Status:** Completed
 **Date proposed:** 2026-04-17
+**Date completed:** 2026-04-17
 **Depends on:**
 - ADR-0011 (pg_cron discipline, `detect_stuck_buffers()`)
 - ADR-0020 Sprint 1.1 (extended `detect_stuck_buffers()` for `artefact_revocations`)
@@ -146,20 +147,39 @@ Build two Next.js routes in the admin app, each with tabbed sub-panels. All read
 
 **Deliverables:**
 
-- [ ] `worker/src/middleware/check-blocked-ip.ts` — called at the top of `/v1/events` and `/v1/observations` handlers. Reads KV `cs:blocked_ips:v1`; if the caller IP (from `CF-Connecting-IP`) matches any CIDR, returns `403 ip_blocked`. Cache the KV read for 30s per isolate to keep the hot path fast.
-- [ ] `worker/tests/blocked-ip.test.ts` — unit test: (a) matches single IP, (b) matches CIDR range, (c) empty list = pass-through, (d) no KV key = pass-through (fail-open, not fail-closed — a KV outage must not DoS customers).
-- [ ] Smoke test via `curl`:
-  - Block `1.2.3.4` via admin UI → wait 2 min for KV sync → POST to Worker with `CF-Connecting-IP: 1.2.3.4` → expect `403 ip_blocked`.
-  - Unblock → wait 2 min → same curl → expect `202` (normal path).
-  - Record the smoke transcript in `## Test Results`.
+Deviation from original plan: **folded the KV sync into the existing `admin_config_snapshot()` pattern** instead of a separate Edge Function + cron. Rationale: `blocked_ips` has the same shape and cadence as `suspended_org_ids` (already in the snapshot), so the 2-minute `admin-sync-config-to-kv` cron picks it up for free. No new cron, no new Edge Function, no new KV key. Worker file lives at `worker/src/blocked-ip.ts` rather than `middleware/` — matches the flat layout of the existing Worker source tree.
 
-**Status:** `[ ] planned`
+- [x] `supabase/migrations/20260427000002_admin_config_snapshot_blocked_ips.sql` — extends `public.admin_config_snapshot()` to include a `blocked_ips` array (CIDR strings). Filters `unblocked_at is null AND (expires_at is null OR expires_at > now())`. Applied to remote.
+- [x] `worker/src/blocked-ip.ts` — `ipv4ToInt`, `isIpInCidr`, `isIpBlocked(ip, cidrs)`, `getClientIp(request)`, `ipBlockedResponse()`. IPv4 CIDR match; IPv6 tolerated-but-never-matched (v1 scope); fail-open on empty/malformed input. Zero npm deps (Rule 15).
+- [x] `worker/src/admin-config.ts` — added `blocked_ips: string[]` to `AdminConfigSnapshot`; `getAdminConfig` now defensively defaults missing keys on older snapshots so rollouts don't break during the sync lag.
+- [x] `worker/src/index.ts` — checks `isIpBlocked` before route dispatch on all paths except `/v1/health` (operator diagnostics exemption).
+- [x] `app/tests/worker/blocked-ip.test.ts` — 6 Miniflare tests covering: exact /32 match, /24 range match, outside-range pass-through, empty-snapshot fail-open, `/v1/health` exemption, IPv6 CIDR tolerated. All green (6/6).
+- [x] Regression check — full worker suite `app/tests/worker/` is **20/20 PASS**.
+- [x] Worker deployed via `wrangler deploy` — version `0de173db`. Live at `https://consentshield-cdn.a-d-sudhindra.workers.dev`.
+- [x] Live smoke:
+  - `curl /v1/health` → `200 {"status":"ok"}` ✓
+  - `curl -X POST /v1/events` with `Content-Type: application/json` and empty body → `400 "Missing required fields"` — request reached the handler, middleware passed through an empty blocked list ✓
+  - Full end-to-end (block → wait 2min → curl 403 → unblock → curl 202) not run because Cloudflare's edge rejects client-set `CF-Connecting-IP` headers with its own 403 before the Worker sees the request. The Miniflare unit tests cover that path faithfully; a real end-to-end would require routing traffic from an actually-blocked IP, which isn't a dev-loop action.
+
+**Status:** `[x] complete` — 2026-04-17
 
 ---
 
 ## Test Results
 
-_To be filled in as sprints close._
+**Sprint 1.1 — Pipeline RPCs.** `bunx vitest run tests/admin/pipeline-rpcs.test.ts` → **10/10 PASS**. One bug (`round(double, int)`) caught + patched via `20260426000002`, logged as `bug-249`.
+
+**Sprint 2.1 — Security schema + RPCs.** Migration `20260427000001_ops_and_security_phase2.sql` applied to remote. `public.blocked_ips` created with RLS (cs_admin only). 5 admin RPCs landed; `security_rate_limit_triggers` is a stub until V2-S2 ingestion path lands.
+
+**Sprint 2.3 — Worker enforcement.**
+- Unit tests: `app/tests/worker/blocked-ip.test.ts` → **6/6 PASS** (exact match, /24 range, pass-through, fail-open on missing snapshot, /v1/health exemption, IPv6-tolerated).
+- Regression: full worker suite → **20/20 PASS**.
+- Live smoke (deployed Worker version `0de173db`):
+  ```
+  GET  /v1/health                      → 200 {"status":"ok","ts":1776441917703}
+  POST /v1/events (empty body)         → 400 "Missing required fields" (reached handler)
+  ```
+  Middleware passed through on an empty blocked list, as expected.
 
 ---
 

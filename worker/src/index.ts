@@ -1,4 +1,6 @@
+import { getAdminConfig } from './admin-config'
 import { handleBannerScript } from './banner'
+import { getClientIp, ipBlockedResponse, isIpBlocked } from './blocked-ip'
 import { handleConsentEvent } from './events'
 import { handleObservation } from './observations'
 
@@ -23,6 +25,18 @@ export default {
           'Access-Control-Max-Age': '86400',
         },
       })
+    }
+
+    // Blocked-IP enforcement (ADR-0033 Sprint 2.3). Health + CORS above
+    // are exempt — a blocked IP should still see a loopback probe if an
+    // operator is diagnosing. Everything route-specific goes through
+    // the check. Reads from the shared admin_config snapshot in KV.
+    if (pathname !== '/v1/health') {
+      const clientIp = getClientIp(request)
+      const config = await getAdminConfig(env)
+      if (isIpBlocked(clientIp, config.blocked_ips)) {
+        return ipBlockedResponse()
+      }
     }
 
     // Route dispatch

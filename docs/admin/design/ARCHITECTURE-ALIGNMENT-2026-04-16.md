@@ -121,9 +121,9 @@ A live checklist of each panel against the ADR that ports it into code. Tick whe
 | Connector Catalogue | ADR-0031 (admin connector catalogue) | ✅ 2026-04-16 | ☐ |
 | Tracker Signatures | ADR-0031 (folded into connector catalogue ADR) | ✅ 2026-04-16 | ☐ |
 | Support Tickets | ADR-0032 (admin support tickets) | ✅ 2026-04-16 | ☐ |
-| Pipeline Operations | ADR-0033 (admin pipeline ops) | ✅ 2026-04-16 | ☐ |
+| Pipeline Operations | ADR-0033 (admin ops + security — Pipeline half) | ✅ 2026-04-16 | ☐ |
 | Billing Operations | ADR-0034 (admin billing ops) | ✅ 2026-04-16 | ☐ |
-| Abuse & Security | ADR-0035 (admin abuse & security) | ✅ 2026-04-16 | ☐ |
+| Abuse & Security | ADR-0033 (folded from ADR-0035 on 2026-04-17 — Security half of the Ops+Security ADR) | ✅ 2026-04-16 | ☐ |
 | Feature Flags & Kill Switches | ADR-0036 (admin feature flags + kill switches) | ✅ 2026-04-16 | ☐ |
 | Audit Log | ADR-0028 (folded into admin app skeleton ADR) | ✅ 2026-04-16 | ✅ 2026-04-17 |
 | Customer-side "Support sessions" tab (W-Admin-CustomerVisibility) | ADR-0029 Sprint 4.1 | ⚠️ HTML wireframe update deferred; implementation preceded formal wireframe | ✅ 2026-04-17 |
