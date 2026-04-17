@@ -23,24 +23,7 @@ backlog, not a sprint queue.
 
 ## Test coverage
 
-### V2-T1. Signup idempotency regression test  *(origin: ADR-0013)*
-
-The guard against double-bootstrap (creating two orgs for one user)
-lives in `src/app/auth/callback/route.ts`, not in the RPC. Testing
-it requires Next.js route-handler invocation with a mocked Supabase
-client. No such harness exists today.
-
-**Why deferred.** Would add a new test-infra dep tree (vitest + a
-Next request/response mock) for one test. Sprint-3 of ADR-0012
-(buffer pipeline) didn't need it, and the live signup path has been
-exercised manually. No known bug — only the automated safety net is
-missing.
-
-**Shape of the v2 fix.** Either:
-- Adopt `next-test-api-route-handler` (or the Next.js experimental
-  route-tests API if stable by then); or
-- Lift the idempotency guard into a pure `checkExistingMembership`
-  helper and unit-test it.
+### V2-T1. Signup idempotency regression test  → see ADR-0042
 
 ---
 

@@ -2,6 +2,17 @@
 
 Documentation changes.
 
+## [ADR-0042 charter + closeout] — 2026-04-17
+
+**ADR:** ADR-0042 (Signup idempotency regression test)
+
+### Added
+- `docs/ADRs/ADR-0042-signup-idempotency-test.md` — drafted Completed. One sprint. Closes V2-T1.
+
+### Changed
+- `docs/V2-BACKLOG.md` — V2-T1 replaced with pointer.
+- `docs/ADRs/ADR-index.md` — ADR-0042 added as Completed.
+
 ## [ADR-0040 charter + closeout] — 2026-04-17
 
 **ADR:** ADR-0040 (Audit R2 Upload Pipeline)

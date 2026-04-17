@@ -1702,3 +1702,29 @@
 | 19:05 | Edited docs/changelogs/CHANGELOG-dashboard.md | expanded (+17 lines) | ~432 |
 | 19:05 | Edited docs/changelogs/CHANGELOG-docs.md | expanded (+11 lines) | ~104 |
 | 19:10 | ADR-0040 shipped — sigv4 + R2 upload branch + /dashboard/exports/settings UI | 7 files; 160/160 + 7/7 sigv4; build clean | V2-X3 closed | ~12000 |
+| 19:06 | Created docs/ADRs/ADR-0042-signup-idempotency-test.md | — | ~584 |
+| 19:06 | Edited docs/ADRs/ADR-index.md | 1→2 lines | ~69 |
+| 19:07 | Created app/src/lib/auth/bootstrap-org.ts | — | ~423 |
+| 19:07 | Edited app/src/app/auth/callback/route.ts | modified GET() | ~417 |
+| 19:07 | Created app/tests/auth/bootstrap-org.test.ts | — | ~933 |
+| 19:08 | Edited docs/ADRs/ADR-0042-signup-idempotency-test.md | 2→3 lines | ~22 |
+| 19:08 | Edited docs/ADRs/ADR-0042-signup-idempotency-test.md | expanded (+9 lines) | ~95 |
+| 19:08 | Edited docs/ADRs/ADR-index.md | inline fix | ~33 |
+| 19:08 | Edited docs/V2-BACKLOG.md | removed 18 lines | ~17 |
+| 19:08 | Edited docs/changelogs/CHANGELOG-api.md | expanded (+15 lines) | ~214 |
+| 19:08 | Edited docs/changelogs/CHANGELOG-docs.md | expanded (+11 lines) | ~102 |
+| 19:12 | ADR-0042 shipped — ensureOrgBootstrap helper + 4 unit tests | V2-T1 closed | app 53/53 | ~1500 |
+| 19:27 | Created docs/design/brand-assets/app-icon-primary.svg | — | ~114 |
+| 19:27 | Created docs/design/brand-assets/app-icon-gradient.svg | — | ~167 |
+| 19:27 | Created docs/design/brand-assets/app-icon-teal-inverse.svg | — | ~114 |
+| 19:27 | Created docs/design/brand-assets/shield-standalone.svg | — | ~93 |
+| 19:27 | Created docs/design/brand-assets/shield-mono-navy.svg | — | ~101 |
+| 19:27 | Created docs/design/brand-assets/shield-mono-white.svg | — | ~101 |
+| 19:27 | Created docs/design/brand-assets/wordmark-light.svg | — | ~109 |
+| 19:27 | Created docs/design/brand-assets/wordmark-dark.svg | — | ~112 |
+| 19:27 | Created docs/design/brand-assets/full-logo-light.svg | — | ~346 |
+| 19:27 | Created docs/design/brand-assets/full-logo-dark.svg | — | ~372 |
+| 19:28 | Created docs/design/brand-assets/verified-badge.svg | — | ~299 |
+| 19:28 | Created docs/design/brand-assets/social-avatar.svg | — | ~188 |
+| 19:28 | Created docs/design/brand-assets/README.md | — | ~1061 |
+| 19:29 | Session end: 59 writes across 33 files (ADR-0038-operational-observability.md, ADR-index.md, V2-BACKLOG.md, CHANGELOG-schema.md, CHANGELOG-edge-functions.md) | 18 reads | ~55845 tok |

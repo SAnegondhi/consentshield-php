@@ -2,6 +2,21 @@
 
 API route changes.
 
+## [ADR-0042] — 2026-04-17
+
+**ADR:** ADR-0042 — Signup Idempotency Regression Test
+
+### Added
+- `app/src/lib/auth/bootstrap-org.ts` — `ensureOrgBootstrap(supabase, user)` helper. Returns a typed discriminator: `skipped` (existing member | no metadata), `bootstrapped`, or `failed`.
+- `app/tests/auth/bootstrap-org.test.ts` — 4 unit tests with a minimal SupabaseClient mock: existing-member skip, no-metadata skip, successful RPC call with correct params, RPC failure discriminator.
+
+### Changed
+- `app/src/app/auth/callback/route.ts` — delegates to `ensureOrgBootstrap`. Redirect logic unchanged; runtime behaviour identical.
+
+### Tested
+- [x] `cd app && bunx vitest run tests/auth/bootstrap-org.test.ts` — 4/4 PASS.
+- [x] `cd app && bunx vitest run` — 9 files, 53/53 PASS.
+
 ## [ADR-0040] — 2026-04-17
 
 **ADR:** ADR-0040 — Audit R2 Upload Pipeline

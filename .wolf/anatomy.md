@@ -1,7 +1,7 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-04-17T13:35:41.151Z
-> Files: 471 tracked | Anatomy hits: 0 | Misses: 0
+> Auto-maintained by OpenWolf. Last scanned: 2026-04-17T13:58:37.499Z
+> Files: 488 tracked | Anatomy hits: 0 | Misses: 0
 
 ## ../../../../../tmp/
 
@@ -336,6 +336,10 @@
 
 - `route.ts` — Next.js API route: POST (~1013 tok)
 
+## app/src/app/auth/callback/
+
+- `route.ts` — Single post-signup / post-email-confirmation landing path. (~417 tok)
+
 ## app/src/components/
 
 - `dashboard-nav.tsx` — navItems (~665 tok)
@@ -351,6 +355,10 @@
 
 - `template-picker.tsx` — TemplatePicker (~898 tok)
 
+## app/src/lib/auth/
+
+- `bootstrap-org.ts` — ADR-0042 — signup bootstrap extracted into a pure helper so the (~423 tok)
+
 ## app/src/lib/rights/
 
 - `deletion-dispatch.ts` — Deletion orchestration — dispatches erasure to connectors and records (~3008 tok)
@@ -360,6 +368,10 @@
 
 - `sigv4.test.ts` — ADR-0040 Sprint 1.1 — sigv4 primitive tests. (~1062 tok)
 - `sigv4.ts` — ADR-0040 — hand-rolled AWS sigv4 for Cloudflare R2 S3 compatibility. (~1895 tok)
+
+## app/tests/auth/
+
+- `bootstrap-org.test.ts` — ADR-0042 — unit tests for ensureOrgBootstrap idempotency guard. (~933 tok)
 
 ## app/tests/buffer/
 
@@ -377,7 +389,7 @@
 
 - `ROADMAP-phase2.md` — ConsentShield — Phase 2 Roadmap (~3150 tok)
 - `STATUS.md` — ConsentShield Status (~2363 tok)
-- `V2-BACKLOG.md` — V2 Backlog — Deferred Items for Post-Phase-2 Review (~1917 tok)
+- `V2-BACKLOG.md` — V2 Backlog — Deferred Items for Post-Phase-2 Review (~1727 tok)
 
 ## docs/ADRs/
 
@@ -416,7 +428,8 @@
 - `ADR-0037-depa-completion.md` — ADR-0037: DEPA Completion — Expiry Fan-out, Per-Requestor Binding, CSV Export, Audit DEPA Section, O (~3945 tok)
 - `ADR-0038-operational-observability.md` — ADR-0038: Operational Observability — Cron Failure Watchdog + Stuck-Buffer Alerting (~2095 tok)
 - `ADR-0040-audit-r2-upload.md` — ADR-0040: Audit R2 Upload Pipeline — sigv4, `export_configurations` UI, delivery-target branch (~2243 tok)
-- `ADR-index.md` — ADR Index (~1213 tok)
+- `ADR-0042-signup-idempotency-test.md` — ADR-0042: Signup Idempotency Regression Test (~635 tok)
+- `ADR-index.md` — ADR Index (~1244 tok)
 - `ADR-template.md` — ADR-NNNN: Title (~423 tok)
 - `adr-workflow.md` — ADR Workflow Rules (~557 tok)
 
@@ -440,9 +453,9 @@
 
 ## docs/changelogs/
 
-- `CHANGELOG-api.md` — Changelog — API (~2759 tok)
+- `CHANGELOG-api.md` — Changelog — API (~2953 tok)
 - `CHANGELOG-dashboard.md` — Changelog — Dashboard (~6793 tok)
-- `CHANGELOG-docs.md` — Changelog — Documentation (~1841 tok)
+- `CHANGELOG-docs.md` — Changelog — Documentation (~1925 tok)
 - `CHANGELOG-edge-functions.md` — Changelog — Edge Functions (~2734 tok)
 - `CHANGELOG-infra.md` — Changelog — Infrastructure (~3667 tok)
 - `CHANGELOG-schema.md` — Changelog — Schema (~12320 tok)
@@ -455,6 +468,22 @@
 - `consentshield-technical-architecture.md` — ConsentShield — Technical Architecture (~14936 tok)
 - `consentshield-testing-strategy.md` — ConsentShield — The Testing Question (~6253 tok)
 - `consentshield-v2-complete-blueprint.md` — ConsentShield v2 — Complete Product Blueprint (~18422 tok)
+
+## docs/design/brand-assets/
+
+- `app-icon-gradient.svg` (~167 tok)
+- `app-icon-primary.svg` (~114 tok)
+- `app-icon-teal-inverse.svg` (~114 tok)
+- `full-logo-dark.svg` (~372 tok)
+- `full-logo-light.svg` (~346 tok)
+- `README.md` — Project documentation (~994 tok)
+- `shield-mono-navy.svg` (~101 tok)
+- `shield-mono-white.svg` (~101 tok)
+- `shield-standalone.svg` (~93 tok)
+- `social-avatar.svg` (~188 tok)
+- `verified-badge.svg` (~299 tok)
+- `wordmark-dark.svg` (~112 tok)
+- `wordmark-light.svg` (~109 tok)
 
 ## docs/design/screen designs and ux/
 

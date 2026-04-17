@@ -39,6 +39,7 @@ All Architecture Decision Records for ConsentShield, in chronological order.
 | ADR-0037 | DEPA Completion (expiry fan-out + per-requestor binding + CSV + Audit DEPA + Onboarding seed pack) | Completed | 2026-04-17 | 1 | 5 |
 | ADR-0038 | Operational Observability (cron failure watchdog + stuck-buffer Edge Function) | Completed | 2026-04-17 | 1 | 3 |
 | ADR-0040 | Audit R2 Upload Pipeline (sigv4 + export_configurations UI + delivery-target branch) | Completed | 2026-04-17 | 1 | 4 |
+| ADR-0042 | Signup Idempotency Regression Test (ensureOrgBootstrap helper + unit test) | Completed | 2026-04-17 | 1 | 1 |
 
 <!--
 When adding a new ADR:
