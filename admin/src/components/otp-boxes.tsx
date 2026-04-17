@@ -14,7 +14,7 @@ interface OtpBoxesProps {
   autoFocus?: boolean
 }
 
-export function OtpBoxes({ length = 8, value, onChange, autoFocus }: OtpBoxesProps) {
+export function OtpBoxes({ length = 6, value, onChange, autoFocus }: OtpBoxesProps) {
   return (
     <OTPInput
       maxLength={length}
