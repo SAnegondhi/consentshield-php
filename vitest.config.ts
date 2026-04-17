@@ -8,6 +8,17 @@ export default defineConfig({
     globals: true,
     environment: 'node',
     testTimeout: 60000,
-    include: ['tests/rls/**/*.test.ts', 'tests/admin/**/*.test.ts'],
+    include: [
+      'tests/rls/**/*.test.ts',
+      'tests/admin/**/*.test.ts',
+      'tests/depa/**/*.test.ts',
+    ],
+    // Serialise test files. Parallel execution across 7+ files fires
+    // enough concurrent Supabase auth.admin.createUser calls to trip
+    // the "Request rate limit reached" / "Database error creating new
+    // user" throttles. The real bottleneck is Supabase-side, not test
+    // correctness — serial execution costs a few seconds and removes
+    // the flaky failure mode.
+    fileParallelism: false,
   },
 })

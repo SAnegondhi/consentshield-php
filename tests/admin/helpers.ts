@@ -35,6 +35,7 @@ let adminTestCounter = 0
 
 export async function createAdminTestUser(
   role: 'platform_operator' | 'support' | 'read_only' = 'platform_operator',
+  opts: { insertAdminUsersRow?: boolean } = {},
 ): Promise<AdminTestUser> {
   adminTestCounter++
   const tag = `admin${adminTestCounter}`
@@ -65,6 +66,19 @@ export async function createAdminTestUser(
     password,
   })
   if (signInError) throw new Error(`admin signIn failed: ${signInError.message}`)
+
+  // Most RPCs insert into admin.admin_audit_log, which FK-references
+  // admin.admin_users(id). Seed a matching row (default true; turn off
+  // for Sprint 1.1-style foundation tests that don't call RPCs).
+  if (opts.insertAdminUsersRow !== false) {
+    const { error: auErr } = await service.schema('admin').from('admin_users').insert({
+      id: userId,
+      display_name: `Test Admin ${tag}`,
+      admin_role: role,
+      status: 'active',
+    })
+    if (auErr) throw new Error(`admin_users insert failed: ${auErr.message}`)
+  }
 
   return { userId, email, client: userClient }
 }

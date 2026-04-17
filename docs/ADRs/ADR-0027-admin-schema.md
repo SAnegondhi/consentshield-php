@@ -150,9 +150,31 @@ The full SQL for every object is already specified in `docs/admin/architecture/c
 
 **Estimated effort:** 4 hours (one large migration for the RPC set + one for cron + matched RPC contract tests)
 
+**Status:** `[x] complete` — 2026-04-17
+
+**Execution notes (2026-04-17):**
+
+- **6 migrations landed** (the ADR planned 3). Sprint 3.1 had two discovered prerequisites + two follow-up fixes beyond the RPC/cron/grant trio:
+  1. `20260417000011_public_orgs_status_settings.sql` — prerequisite. `admin.suspend_org`, `admin.restore_org`, and `admin.update_customer_setting` mutate `public.organisations.status` and `public.organisations.settings`. Schema doc §7 item 1 claimed `status` "already exists" in the customer schema; it does not. Added both columns with safe defaults.
+  2. `20260417000012_admin_rpcs.sql` — 30 functions (the "40+" in the ADR deliverable text was aspirational; the actual enumeration across categories is 29 admin-claim RPCs + 1 customer-facing `admin.create_support_ticket`).
+  3. `20260417000013_admin_pg_cron.sql` — 4 jobs.
+  4. `20260417000014_admin_rpc_grants.sql` — dynamic `do $$` block granting EXECUTE.
+  5. `20260417000015_admin_grants_service_role.sql` — follow-up. PostgREST-via-service-role-key paths (test harnesses, bootstrap script) need USAGE on `admin` + full table grants. Granted to `service_role` (which has BYPASSRLS, so no weakening of the `authenticated` discipline).
+  6. `20260417000016_fix_add_org_note_return.sql` — follow-up. `admin.add_org_note` declared `returns uuid` but ran off the end of the function body (SQLSTATE 2F005). Added the missing `return v_id;`. Source migration 12 updated for consistency with the fix.
+- **Customer-facing RPC exception.** `admin.create_support_ticket` is the single admin.* function that deliberately skips `admin.require_admin`. It's called by a public `/api/public/support-ticket` endpoint on the customer app after captcha. The RPC is still SECURITY DEFINER so its insert lands despite admin.* grant restrictions. Nominal `admin_user_id` on the audit row is the oldest admin_users row (via `order by created_at limit 1`); pre-bootstrap no audit row is written. Documented in Architecture Changes.
+- **`admin.refresh_platform_metrics` guarded for pre-DEPA environments.** Uses `to_regclass('public.consent_artefacts')` etc. so the function compiles and runs before ADR-0020 lands. DEPA metrics report 0 until the tables exist, then populate automatically.
+- **`admin-expire-impersonation-sessions` cron now emits `pg_notify`.** Schema doc §9 only marked status flipping; a downstream Edge Function (Sprint 3.2) needs to know when a session ends regardless of whether it ended manually or by timeout. The cron uses a CTE to capture expired session IDs and `pg_notify('impersonation_ended', ...)` so downstream consumers receive a single signal.
+
+**Test harness additions (new):**
+- `tests/admin/rpcs.test.ts` — 26 assertions grouped into: no-claim rejection loop over 12 gated RPCs; reason-<10 rejection (3); platform_operator vs support role gate (3); impersonation lifecycle — start/end/force-end with ownership rule (3); sectoral template publish cascade — v1 publish then v2 supersedes v1 (2); kill-switch toggle (1); org_notes add/update/delete round-trip (1); feature_flags set → customer get round-trip (1).
+- `tests/admin/audit_log.test.ts` — 7 assertions: one-row-per-RPC with reason + old_value + new_value correctness (3); append-only invariant (INSERT/UPDATE/DELETE as authenticated all denied; 3); no-audit-row-on-validation-failure invariant (1).
+- `tests/admin/helpers.ts` — `createAdminTestUser(role, opts)` extended with `insertAdminUsersRow` (default true). The admin_users row is a prerequisite for every RPC call because `admin.admin_audit_log.admin_user_id` FK-references `admin.admin_users(id)`. Set `insertAdminUsersRow: false` only for Sprint 1.1-style foundation tests that don't call RPCs.
+- `vitest.config.ts` — set `fileParallelism: false` at root. Parallel test-file execution across 7+ files triggered Supabase auth's "Request rate limit reached" / "Database error creating new user" throttles. Serial execution costs ~60s instead of ~15s but removes the flaky failure mode.
+
 **Deliverables:**
 
-- [ ] **Migration `<ts>_admin_rpcs.sql`** — all admin RPCs per schema doc §§5, 6. Group by category for readability:
+
+- [x] **Migration `20260417000012_admin_rpcs.sql`** — all admin RPCs per schema doc §§5, 6. Group by category for readability:
   - **Org management**: `admin.suspend_org`, `admin.restore_org`, `admin.extend_trial`, `admin.update_customer_setting`
   - **Impersonation**: `admin.start_impersonation`, `admin.end_impersonation`, `admin.force_end_impersonation`
   - **Sectoral templates**: `admin.create_sectoral_template_draft`, `admin.update_sectoral_template_draft`, `admin.publish_sectoral_template`, `admin.deprecate_sectoral_template`
@@ -165,12 +187,12 @@ The full SQL for every object is already specified in `docs/admin/architecture/c
   - **Platform metrics**: `admin.refresh_platform_metrics(p_date date)` — re-aggregates `admin.platform_metrics_daily` for the given date
   - **Bulk-export auditing wrapper**: `admin.audit_bulk_export(p_target_table text, p_filter jsonb, p_row_count int)` — called by API routes after a bulk export so the audit log records what was exported
   - Each RPC follows the template in schema doc §5: requires admin role check, reason ≥ 10 chars, captures old + new state, inserts audit row + performs write in the same transaction. `pg_notify` calls for impersonation start/end + kill-switch toggles for downstream Edge Function consumption.
-- [ ] **Migration `<ts>_admin_pg_cron.sql`** — schedule the 4 cron jobs per schema doc §9:
+- [x] **Migration `20260417000013_admin_pg_cron.sql`** — schedule the 4 cron jobs per schema doc §9:
   - `admin-create-next-audit-partition` — `0 6 25 * *` (25th of month at 06:00)
   - `admin-expire-impersonation-sessions` — `*/5 * * * *`
   - `admin-refresh-platform-metrics` — `0 2 * * *`
   - `admin-sync-config-to-kv` — `*/2 * * * *` (calls a new `sync-admin-config-to-kv` Edge Function that lands in Sprint 3.2)
-- [ ] **Migration `<ts>_grant_admin_rpc_execute.sql`** — `grant execute on function admin.<each RPC>(...) to authenticated` (every admin RPC must be callable by the admin app's JWT). Wrap in a `do $$ ... $$` block that loops over `pg_proc` for `nspname = 'admin'` to keep the migration concise + future-proof for new RPCs.
+- [x] **Migration `20260417000014_admin_rpc_grants.sql`** — `grant execute on function admin.<each RPC>(...) to authenticated` (every admin RPC must be callable by the admin app's JWT). Wrap in a `do $$ ... $$` block that loops over `pg_proc` for `nspname = 'admin'` to keep the migration concise + future-proof for new RPCs.
 
 #### Sprint 3.2: sync-admin-config-to-kv Edge Function
 
@@ -253,6 +275,14 @@ The full SQL for every object is already specified in `docs/admin/architecture/c
 - `docs/architecture/consentshield-complete-schema-design.md` — small additions noted in `consentshield-admin-schema.md` §7: customer-side `public.integration_connectors.connector_catalogue_id` FK becomes part of the customer schema documentation (cross-reference back to admin schema).
 - `docs/admin/design/ARCHITECTURE-ALIGNMENT-2026-04-16.md` §6 — tick the "Bootstrap admin" deferred-gap row when this ADR completes, then close the prerequisite for ADR-0028.
 
+### Sprint 3.1 amendments to `consentshield-admin-schema.md` (landed 2026-04-17)
+
+Sprint 3.1 adds three more items to the amendment list started in Sprint 2.1:
+
+4. **§7 item 1 `public.organisations.status`.** Schema doc states the column "already exists in §3 of the schema design". It did not. Added in prerequisite migration `20260417000011_public_orgs_status_settings.sql` with a CHECK constraint covering `active|suspended|archived` and a default of `active`. Required by `admin.suspend_org` / `admin.restore_org`.
+5. **`public.organisations.settings` jsonb column.** Required by `admin.update_customer_setting` which does a per-key merge. Added alongside `status` in the same prerequisite migration. Default `'{}'::jsonb`.
+6. **Customer-facing `admin.create_support_ticket` RPC.** Schema doc §3.7 notes "Customer-side support ticket creation flows through a public endpoint" but doesn't define the function. Added in `20260417000012_admin_rpcs.sql` as a SECURITY DEFINER function that deliberately skips `admin.require_admin` (so it can be called without an admin JWT) while still writing an audit row. The nominal `admin_user_id` for the audit row is the oldest `admin.admin_users` row; pre-bootstrap no audit row is written — the ticket itself still gets created. An operator review in Sprint 4.1+ will revisit whether to (a) add a dedicated `system_user_id` sentinel in `admin.admin_users`, or (b) widen `admin.admin_audit_log.admin_user_id` to be nullable with a non-null constraint via CHECK + discriminator column.
+
 ### Sprint 2.1 amendments to `consentshield-admin-schema.md` (landed 2026-04-17)
 
 Three deviations from the schema doc are baked into the migrations and documented here as amendments. The schema doc itself should be updated when the next review pass runs.
@@ -333,7 +363,67 @@ Schema-doc amendments consolidated in Architecture Changes:
 ```
 
 
-### Sprint 3.1 — TBD
+### Sprint 3.1 — 2026-04-17 (Completed)
+
+```
+bunx supabase db push      → 6 migrations applied (20260417000011–16)
+bun run test:rls           → 7 files, 133/133 pass (serial mode)
+  - tests/rls/isolation.test.ts        → 25/25 (unchanged baseline)
+  - tests/rls/url-path.test.ts         → 19/19 (unchanged baseline)
+  - tests/rls/depa-isolation.test.ts   → 12/12 (Terminal B's ADR-0020)
+  - tests/admin/foundation.test.ts     → 11/11 (unchanged Sprint 1.1)
+  - tests/admin/rls.test.ts            → 33/33 (unchanged Sprint 2.1 —
+                                                 modulo one sector-label
+                                                 hardening fix)
+  - tests/admin/rpcs.test.ts           → 26/26 (new)
+  - tests/admin/audit_log.test.ts      → 7/7 (new)
+cd app && bun run test     → 42/42 (unchanged baseline)
+cd admin && bun run test   → 1/1 (unchanged smoke)
+Combined: 42 app + 133 rls/admin/depa + 1 admin smoke = 176/176
+
+Sprint 3.1 new assertions (33) — by concern:
+  ✓ RPC no-claim rejection — 12 RPCs × customer-JWT call = 12
+     suspend_org, restore_org, extend_trial, update_customer_setting,
+     start_impersonation, force_end_impersonation,
+     publish_sectoral_template, deprecate_sectoral_template,
+     deprecate_connector, deprecate_tracker_signature,
+     toggle_kill_switch, delete_feature_flag
+  ✓ reason < 10 chars rejection — 3 RPCs
+  ✓ platform_operator vs support role gate — 3 tests
+     (support JWT denied suspend_org; support JWT denied toggle_kill_switch;
+      platform_operator suspend_org → restore_org round-trip)
+  ✓ Impersonation lifecycle — 3 tests
+     (start_impersonation creates session row + audit + expires_at in future;
+      end_impersonation (self) flips status=completed;
+      end_impersonation non-owner rejected + force_end_impersonation works)
+  ✓ Sectoral template publish cascade — 2 tests
+     (create_sectoral_template_draft + publish;
+      publish v2 → v1.status='deprecated' + v1.superseded_by_id=v2.id)
+  ✓ Kill switch toggle — 1 test
+     (flips enabled + records set_by + audit with old/new value)
+  ✓ Org notes CRUD round-trip — 1 test
+     (add_org_note → update_org_note → delete_org_note)
+  ✓ Feature flags set + customer get round-trip — 1 test
+
+  ✓ One audit row per successful RPC — 3 tests
+     (suspend_org: old_value.status='active', new_value.status='suspended';
+      restore_org: old=suspended, new=active;
+      toggle_kill_switch: target_pk=switch_key; old.enabled=false, new.enabled=true)
+  ✓ Append-only invariant — 3 tests
+     (direct INSERT/UPDATE/DELETE as authenticated all denied on admin_audit_log)
+  ✓ No audit row on validation failure — 1 test
+     (suspend_org with reason="short" → no row written)
+
+pg_cron verification:
+  ✓ 4 admin-* jobs scheduled with expected cron expressions:
+     admin-create-next-audit-partition   0 6 25 * *
+     admin-expire-impersonation-sessions */5 * * * *
+     admin-refresh-platform-metrics      0 2 * * *
+     admin-sync-config-to-kv             */2 * * * *
+  ✓ 30 EXECUTE grants on admin.* RPCs to authenticated
+  ✓ admin schema USAGE + table grants to service_role
+```
+
 
 ### Sprint 3.2 — TBD
 

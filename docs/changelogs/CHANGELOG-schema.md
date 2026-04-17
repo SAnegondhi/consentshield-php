@@ -2,6 +2,53 @@
 
 Database migrations, RLS policies, roles.
 
+## [Sprint 3.1] — 2026-04-17
+
+**ADR:** ADR-0027 — Admin Platform Schema
+**Sprint:** Phase 3, Sprint 3.1 — Admin RPCs + pg_cron + EXECUTE grants
+
+### Added
+- `20260417000011_public_orgs_status_settings.sql` — prerequisite. Adds `public.organisations.status text NOT NULL DEFAULT 'active' CHECK (status IN ('active','suspended','archived'))` + `settings jsonb NOT NULL DEFAULT '{}'::jsonb` + partial index on `status <> 'active'`. Closes the schema-doc-vs-code mismatch where §7 claimed `status` already existed.
+- `20260417000012_admin_rpcs.sql` — 30 SECURITY DEFINER functions across 11 categories (org management, impersonation, sectoral templates, connector catalogue, tracker signatures, support tickets, org notes, feature flags, kill switches, platform metrics, audit bulk export). Each RPC follows the Rule-22 template: role gate via `admin.require_admin`, reason ≥ 10 chars, `to_jsonb(row.*)` capture for old/new value, audit insert + mutation in same transaction, `pg_notify` on impersonation start/end and kill-switch toggle. The single exception is `admin.create_support_ticket` — customer-facing, skips role gate, uses oldest admin row as nominal audit author.
+- `20260417000013_admin_pg_cron.sql` — 4 scheduled jobs: `admin-create-next-audit-partition` (0 6 25 * *), `admin-expire-impersonation-sessions` (*/5 * * * *) with CTE-emitted pg_notify on expired sessions, `admin-refresh-platform-metrics` (0 2 * * *), `admin-sync-config-to-kv` (*/2 * * * *) calling the Sprint 3.2 Edge Function.
+- `20260417000014_admin_rpc_grants.sql` — dynamic `do $$` block granting EXECUTE on every admin.* function (except the four Sprint 1.1 helpers) to `authenticated`. Uses `pg_get_function_identity_arguments` so overloaded functions are granted correctly.
+- `20260417000015_admin_grants_service_role.sql` — grants USAGE on schema admin + full table/sequence/function access to `service_role`, plus default privileges for future admin objects. Needed for test harnesses, the Sprint 4.1 bootstrap script, and the Supabase Dashboard Table Editor.
+- `20260417000016_fix_add_org_note_return.sql` — follow-up. `admin.add_org_note` declared `returns uuid` but the function body exited without a RETURN, tripping SQLSTATE 2F005. Added the missing `return v_id;`. Source migration 12 updated for consistency.
+
+### Changed
+- `public.organisations` — new `status` and `settings` columns. Worker banner serving (Sprint 3.2 wiring) will serve a no-op banner when `status='suspended'`.
+
+### Deviations from ADR-0027 plan
+- **"40+ RPCs" is actually 30.** The ADR deliverables text at Phase 3.1 says "40+"; the enumerated list across categories is 29 admin-claim RPCs + 1 customer-facing `admin.create_support_ticket` = 30. The enumerated list IS the contract; the "40+" is aspirational shorthand.
+- **`public.organisations.status` and `settings` columns did not exist** despite schema doc §7 claiming they did. Added in a prerequisite migration before the RPCs that mutate them.
+- **`admin.create_support_ticket` customer-facing RPC added.** Schema doc §3.7 described the flow but did not define the function. Defined here with explicit documentation of the "no admin claim" exception + the pre-bootstrap audit-row behaviour (no audit row written if no admin_users rows exist yet; ticket itself still creates).
+- **`admin-expire-impersonation-sessions` cron now fires `pg_notify('impersonation_ended', ...)`** on expired sessions. Schema doc §9 only flipped status; the downstream Edge Function (Sprint 3.2) shouldn't need to care whether the session ended manually or by timeout — it listens on one channel.
+- **`admin.refresh_platform_metrics` DEPA metrics guarded with `to_regclass`.** Pre-ADR-0020 environments (no DEPA tables) will report 0 for artefact metrics instead of failing; post-ADR-0020 environments light up automatically.
+
+### Tested
+- [x] `bun run test:rls` — 7 files, 133/133 (serial mode) — PASS
+  - tests/rls/isolation.test.ts — 25/25 (unchanged baseline)
+  - tests/rls/url-path.test.ts — 19/19 (unchanged baseline)
+  - tests/rls/depa-isolation.test.ts — 12/12 (Terminal B's ADR-0020)
+  - tests/admin/foundation.test.ts — 11/11 (unchanged Sprint 1.1 baseline)
+  - tests/admin/rls.test.ts — 33/33 (Sprint 2.1 baseline + 1 sector-label fix)
+  - tests/admin/rpcs.test.ts — 26/26 (new)
+  - tests/admin/audit_log.test.ts — 7/7 (new)
+- [x] `cd app && bun run test` — 7 files, 42/42 (unchanged baseline) — PASS
+- [x] `cd admin && bun run test` — 1/1 smoke (unchanged) — PASS
+- [x] `cd app && bun run lint` — 0 warnings — PASS
+- [x] Post-migration verification queries — PASS
+  - 30 admin.* RPCs (excluding the four Sprint 1.1 helpers)
+  - 30 EXECUTE grants on admin.* RPCs to `authenticated`
+  - 4 cron jobs (`admin-*`) with schedules matching spec
+  - `public.organisations.status` + `settings` columns present
+  - `service_role` has USAGE + insert/update/delete on admin schema
+
+Combined: 42 (app) + 133 (rls/admin/depa) + 1 (admin smoke) = **176/176** (was 131 after Sprint 2.1; +33 from Sprint 3.1 and +12 from Terminal B's ADR-0020 which landed on the same day).
+
+### Harness change
+- `vitest.config.ts` — `fileParallelism: false`. Parallel test-file execution across 7 files was enough concurrent load on Supabase auth.admin.createUser to trip the "Request rate limit reached" / "Database error creating new user" throttles. Serial execution costs a few extra seconds and eliminates the flaky failure mode. The rate limit is Supabase-side; no test-side correctness issue.
+
 ## [Sprint 1.1] — 2026-04-17
 
 **ADR:** ADR-0020 — DEPA Schema Skeleton

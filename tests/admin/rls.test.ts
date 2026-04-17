@@ -147,9 +147,12 @@ describe('ADR-0027 Sprint 2.1 — admin.kill_switches (split read/write policies
 })
 
 describe('ADR-0027 Sprint 2.1 — customer-facing helper functions', () => {
-  it('public.list_sectoral_templates_for_sector returns 0 rows when no templates are published', async () => {
+  it('public.list_sectoral_templates_for_sector returns 0 rows for an unused sector code', async () => {
+    // Use a sector string deliberately chosen to be outside any other
+    // test's published catalogue (Sprint 3.1 RPC tests publish a 'saas'
+    // sector template); a never-used code guarantees zero rows.
     const { data, error } = await customer.client.rpc('list_sectoral_templates_for_sector', {
-      p_sector: 'saas',
+      p_sector: 'sector_rls_test_unused',
     })
     expect(error).toBeNull()
     expect(data).toEqual([])
