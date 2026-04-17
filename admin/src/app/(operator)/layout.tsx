@@ -18,7 +18,7 @@ interface NavItem {
 
 const NAV_ITEMS: NavItem[] = [
   { label: 'Operations Dashboard', href: '/', adr: 'ADR-0028', live: true },
-  { label: 'Organisations', href: '#', adr: 'ADR-0029', live: false },
+  { label: 'Organisations', href: '/orgs', adr: 'ADR-0029', live: true },
   { label: 'Support Tickets', href: '#', adr: 'ADR-0032', live: false },
   { label: 'Sectoral Templates', href: '#', adr: 'ADR-0030', live: false },
   { label: 'Connector Catalogue', href: '#', adr: 'ADR-0031', live: false },
