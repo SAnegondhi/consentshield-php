@@ -2,6 +2,18 @@
 
 Documentation changes.
 
+## [ADR-0024 charter + closeout] — 2026-04-17
+
+**ADR:** ADR-0024 (DEPA Customer UI Rollup — W2 + W3 + W6 + W7 + W10)
+
+### Added
+- `docs/ADRs/ADR-0024-depa-customer-ui.md` — drafted and shipped Completed same-session. Bundles five wireframe-defined customer UI items (Consent Artefacts panel, Purpose Definitions catalogue + Connector mappings, Dashboard tile, Rights Centre impact preview, Settings sector template).
+
+### Changed
+- `docs/design/screen designs and ux/ARCHITECTURE-ALIGNMENT-2026-04-16.md` tracker — W2/W3/W6/W7/W10 code columns flipped from `☐` to `✅ 2026-04-17`. Responsible ADR attribution corrected to ADR-0024 (rollup) for W2/W6/W7 (previously tagged to 0021/0022/0025 which shipped backend-only).
+- `docs/V2-BACKLOG.md` — new entries V2-D2 (per-requestor artefact binding in Rights Centre) and V2-D3 (CSV export for Consent Artefacts list).
+- `docs/ADRs/ADR-index.md` — ADR-0024 added as Completed.
+
 ## [ADR-0025 charter + closeout] — 2026-04-17
 
 **ADR:** ADR-0025 (DEPA Score Dimension — nightly refresh + API + dashboard gauge)

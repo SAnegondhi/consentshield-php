@@ -1535,3 +1535,39 @@
 | 16:15 | Edited docs/changelogs/CHANGELOG-docs.md | expanded (+12 lines) | ~253 |
 | 16:15 | ADR-0025 drafted + shipped to Completed same session (DEPA score nightly refresh + API + dashboard gauge) | docs/ADRs/ADR-0025, migration, route, page, tests | 154/154 | ~6500 |
 | 16:15 | Wireframe + alignment-doc §W5 amended: 3 sub-labels → 4 (Coverage/Expiry/Freshness/Revocation) | consentshield-screens.html, ARCHITECTURE-ALIGNMENT | aligned | ~350 |
+| 16:15 | Session end: 183 writes across 66 files (check-no-admin-imports-in-app.ts, check-no-customer-imports-in-admin.ts, check-env-isolation.ts, monorepo-isolation.yml, package.json) | 54 reads | ~324192 tok |
+| 16:26 | Session end: 183 writes across 66 files (check-no-admin-imports-in-app.ts, check-no-customer-imports-in-admin.ts, check-env-isolation.ts, monorepo-isolation.yml, package.json) | 54 reads | ~324192 tok |
+| 16:29 | Session end: 183 writes across 66 files (check-no-admin-imports-in-app.ts, check-no-customer-imports-in-admin.ts, check-env-isolation.ts, monorepo-isolation.yml, package.json) | 54 reads | ~324299 tok |
+| 16:33 | Session end: 183 writes across 66 files (check-no-admin-imports-in-app.ts, check-no-customer-imports-in-admin.ts, check-env-isolation.ts, monorepo-isolation.yml, package.json) | 54 reads | ~324331 tok |
+| 16:35 | Created docs/ADRs/ADR-0024-depa-customer-ui.md | — | ~3002 |
+| 16:35 | Edited docs/ADRs/ADR-index.md | 1→2 lines | ~74 |
+| 16:36 | Created app/src/app/(dashboard)/dashboard/purposes/actions.ts | — | ~1793 |
+| 16:36 | Created app/vercel.json | — | ~33 |
+| 16:36 | Created admin/vercel.json | — | ~33 |
+| 16:36 | Created app/src/app/(dashboard)/dashboard/purposes/page.tsx | — | ~782 |
+| 16:37 | Created app/src/app/(dashboard)/dashboard/purposes/purposes-view.tsx | — | ~6706 |
+| 16:37 | Edited app/src/components/dashboard-nav.tsx | 13→15 lines | ~225 |
+| 16:39 | Created app/src/app/(dashboard)/dashboard/artefacts/page.tsx | — | ~2684 |
+| 16:39 | Created app/src/app/(dashboard)/dashboard/artefacts/filters.tsx | — | ~902 |
+| 16:40 | Created app/src/app/(dashboard)/dashboard/artefacts/[artefactId]/page.tsx | — | ~2896 |
+| 16:40 | Edited app/src/app/(dashboard)/dashboard/page.tsx | expanded (+14 lines) | ~210 |
+| 16:40 | Edited app/src/app/(dashboard)/dashboard/page.tsx | 3→6 lines | ~40 |
+| 16:40 | Edited app/src/app/(dashboard)/dashboard/page.tsx | CSS: hover | ~341 |
+| 16:40 | Edited app/src/app/(dashboard)/dashboard/page.tsx | added 1 import(s) | ~84 |
+| 16:41 | Edited app/src/app/(dashboard)/dashboard/rights/[id]/page.tsx | modified loadImpactPreview() | ~185 |
+| 16:41 | Edited app/src/app/(dashboard)/dashboard/rights/[id]/page.tsx | 10→12 lines | ~109 |
+| 16:41 | Edited app/src/app/(dashboard)/dashboard/rights/[id]/page.tsx | added nullish coalescing | ~2158 |
+| 16:42 | Created tests/rls/depa-purpose-crud.test.ts | — | ~1430 |
+| 16:42 | Edited app/src/app/(dashboard)/dashboard/rights/[id]/page.tsx | modified for() | ~148 |
+| 16:42 | Edited app/src/app/(dashboard)/dashboard/rights/[id]/page.tsx | 10→10 lines | ~133 |
+| 16:45 | Edited docs/V2-BACKLOG.md | expanded (+26 lines) | ~361 |
+| 16:45 | Edited docs/design/screen designs and ux/ARCHITECTURE-ALIGNMENT-2026-04-16.md | 2→2 lines | ~48 |
+| 16:45 | Edited docs/design/screen designs and ux/ARCHITECTURE-ALIGNMENT-2026-04-16.md | 5→5 lines | ~142 |
+| 16:45 | Edited docs/ADRs/ADR-0024-depa-customer-ui.md | 2→3 lines | ~22 |
+| 16:46 | Edited docs/ADRs/ADR-0024-depa-customer-ui.md | modified catalogue() | ~543 |
+| 16:46 | Edited docs/ADRs/ADR-index.md | inline fix | ~39 |
+| 16:46 | Edited docs/changelogs/CHANGELOG-dashboard.md | expanded (+23 lines) | ~776 |
+| 16:46 | Edited docs/changelogs/CHANGELOG-docs.md | expanded (+12 lines) | ~258 |
+| 16:45 | ADR-0024 shipped — DEPA customer UI rollup (Purposes + Artefacts + Dashboard tile + Rights preview + Settings row) | 10+ files across app/ | 159/159; build clean | ~12000 |
+| 16:45 | V2-D2 logged (per-requestor artefact binding) + V2-D3 (CSV export) | docs/V2-BACKLOG.md | logged | ~800 |
+| 16:45 | Alignment tracker W2/W3/W6/W7/W10 code columns flipped to ✅ | ARCHITECTURE-ALIGNMENT-2026-04-16 | coded | ~250 |

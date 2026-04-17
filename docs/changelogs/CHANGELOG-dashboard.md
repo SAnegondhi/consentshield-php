@@ -2,6 +2,29 @@
 
 Next.js UI changes.
 
+## ADR-0024 — 2026-04-17
+
+**ADR:** ADR-0024 — DEPA Customer UI Rollup
+**Sprints:** 1.1 Purpose Definitions catalogue · 1.2 Connector mappings · 1.3 Consent Artefacts + dashboard tile · 1.4 Rights Centre + settings + RLS test
+
+### Added
+- `app/src/app/(dashboard)/dashboard/purposes/page.tsx` — server route fetching `purpose_definitions`, `purpose_connector_mappings`, `integration_connectors`, and the org's `settings.sectoral_template`. Header shows the active sector template badge.
+- `app/src/app/(dashboard)/dashboard/purposes/purposes-view.tsx` — client tab switcher: Catalogue + Connector mappings. Catalogue tab renders the 7-column table with inline Create form and per-row inline edit/archive. Connector mappings tab renders the purpose × connector × data_categories table with inline Create form (purpose picker, connector picker, comma-separated data_categories) and per-row Remove. Admin-only mutations per `organisation_members.role`.
+- `app/src/app/(dashboard)/dashboard/purposes/actions.ts` — server actions: `createPurpose`, `updatePurpose`, `togglePurposeActive`, `createMapping`, `deleteMapping`. All use the authenticated supabase client; RLS enforces the org boundary. `createMapping` additionally enforces `data_categories ⊆ purpose.data_scope` server-side.
+- `app/src/app/(dashboard)/dashboard/artefacts/page.tsx` — Consent Artefacts list. 4 KPI cards (active / expiring<30d / revoked 7d / replaced 7d). Filter component. Paginated table (50 rows). Link to detail.
+- `app/src/app/(dashboard)/dashboard/artefacts/filters.tsx` — client filter-chip component (status × framework × purpose × expiring<30d). Updates `?status=…&framework=…&purpose=…&expiring=30&page=N` via router.push.
+- `app/src/app/(dashboard)/dashboard/artefacts/[artefactId]/page.tsx` — detail with two info columns (Artefact / Context) and the 4-link chain-of-custody timeline (Event → Artefact → Revocations → Deletion receipts).
+- `app/src/components/dashboard-nav.tsx` — +2 items: "Purpose Definitions" and "Consent Artefacts" slotted between Banners and Enforcement.
+
+### Changed
+- `app/src/app/(dashboard)/dashboard/page.tsx` — Stat row expands to 5 columns. New "Consent Artefacts" tile links to `/dashboard/artefacts` with active count + "X expiring 30d · Y revoked 7d" sub-label.
+- `app/src/app/(dashboard)/dashboard/rights/[id]/page.tsx` — erasure requests gain an "Artefact-scoped impact preview" section showing org's active purposes + mapped connectors + aggregate fan-out count. Purposes without connector mappings render highlighted. Informational — per-requestor binding deferred to V2-D2.
+
+### Tested
+- [x] `cd app && bun run build` — success, zero errors / zero warnings. 3 new server-rendered routes in the manifest.
+- [x] `bunx tsc --noEmit` — clean.
+- [x] `bun run test:rls` — 14 files, **159/159** — PASS (154 baseline + 5 new in `depa-purpose-crud.test.ts`).
+
 ## ADR-0025 Sprint 1.2 — 2026-04-17
 
 **ADR:** ADR-0025 — DEPA Score Dimension

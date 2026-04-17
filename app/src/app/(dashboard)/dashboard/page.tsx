@@ -1,5 +1,6 @@
 import { createServerClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
+import Link from 'next/link'
 import {
   computeComplianceScore,
   daysUntilEnforcement,
@@ -48,6 +49,9 @@ export default async function DashboardPage() {
     trackerViolationsRes,
     recentEventsRes,
     depaCachedRes,
+    activeArtefactsRes,
+    expiringArtefactsRes,
+    revokedArtefactsRes,
   ] = await Promise.all([
     supabase
       .from('web_properties')
@@ -85,6 +89,20 @@ export default async function DashboardPage() {
       .select('total_score, coverage_score, expiry_score, freshness_score, revocation_score, computed_at')
       .eq('org_id', membership.org_id)
       .maybeSingle(),
+    supabase
+      .from('consent_artefacts')
+      .select('id', { count: 'exact', head: true })
+      .eq('status', 'active'),
+    supabase
+      .from('consent_artefacts')
+      .select('id', { count: 'exact', head: true })
+      .eq('status', 'active')
+      .lt('expires_at', new Date(Date.now() + 30 * 86_400_000).toISOString()),
+    supabase
+      .from('consent_artefacts')
+      .select('id', { count: 'exact', head: true })
+      .eq('status', 'revoked')
+      .gte('updated_at', isoSinceHours(168)),
   ])
 
   const properties = propertiesRes.data ?? []
@@ -208,7 +226,7 @@ export default async function DashboardPage() {
         </section>
       </div>
 
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
         <Stat label="Active properties" value={activeProperties} />
         <Stat label="Snippets verified" value={verifiedProperties} />
         <Stat
@@ -220,6 +238,23 @@ export default async function DashboardPage() {
           value={rightsRes.count ?? 0}
           highlight={(overdueRightsRes.count ?? 0) > 0 ? 'red' : undefined}
         />
+        <Link
+          href="/dashboard/artefacts"
+          className="rounded border border-gray-200 p-4 hover:bg-gray-50"
+        >
+          <p className="text-xs text-gray-600">
+            Consent Artefacts{' '}
+            <span className="rounded bg-indigo-50 px-1.5 py-0.5 text-[10px] font-medium text-indigo-700">
+              DEPA
+            </span>
+          </p>
+          <p className="mt-1 text-2xl font-bold tabular-nums text-green-700">
+            {activeArtefactsRes.count ?? 0}
+          </p>
+          <p className="text-[10px] text-gray-500">
+            {expiringArtefactsRes.count ?? 0} expiring 30d · {revokedArtefactsRes.count ?? 0} revoked 7d
+          </p>
+        </Link>
       </div>
 
       <section className="rounded border border-gray-200">

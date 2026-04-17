@@ -208,6 +208,32 @@ following the pattern established by the Razorpay webhook flow.
 
 ## DEPA
 
+### V2-D2. Per-requestor artefact binding in Rights Centre  *(origin: ADR-0024 W7)*
+
+The Rights Centre detail page currently renders an **informational**
+impact-preview that lists the org's active purposes + connector fan-out.
+It does **not** filter to artefacts owned by the specific requestor.
+
+Filtering requires a stable anchor between `rights_requests.requestor_email`
+and `consent_artefacts.session_fingerprint`. The two don't share a column
+today. Options for the v2 fix:
+
+1. `rights_requests.session_fingerprints text[]` — collect fingerprints at
+   rights-request submit time (from cookies / a challenge) and filter
+   artefacts against that array.
+2. A hash-based join: write `sha256(lowercase(email))` into both
+   `consent_events.identifier_hash` (new column) and the rights-request
+   row; filter artefacts via the matching consent_events.
+
+Option 1 is lighter but requires UX work at the rights-request portal.
+
+### V2-D3. CSV export for Consent Artefacts list  *(origin: ADR-0024 W2)*
+
+The wireframe Consent Artefacts topbar has "Export CSV" — deferred because
+the current list is server-rendered and paginated. Needs a dedicated
+streaming response endpoint that bypasses pagination, honours the active
+filters, and returns a CSV Content-Type with appropriate headers.
+
 ### V2-D1. Expiry-triggered connector fan-out  *(origin: ADR-0023)*
 
 `enforce_artefact_expiry()` currently stages only a `delivery_buffer`

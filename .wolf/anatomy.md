@@ -1,7 +1,7 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-04-17T10:45:20.945Z
-> Files: 432 tracked | Anatomy hits: 0 | Misses: 0
+> Auto-maintained by OpenWolf. Last scanned: 2026-04-17T11:16:42.708Z
+> Files: 443 tracked | Anatomy hits: 0 | Misses: 0
 
 ## ../../../../../tmp/
 
@@ -72,6 +72,7 @@
 - `sentry.client.config.ts` (~170 tok)
 - `sentry.server.config.ts` (~170 tok)
 - `tsconfig.json` — TypeScript configuration (~102 tok)
+- `vercel.json` (~33 tok)
 - `vitest.config.ts` — /*.test.ts'], (~106 tok)
 
 ## admin/scripts/
@@ -220,6 +221,7 @@
 - `next.config.ts` — Declares NOINDEX_VALUE (~148 tok)
 - `package.json` — Node.js package manifest (~310 tok)
 - `tsconfig.json` — TypeScript configuration (~117 tok)
+- `vercel.json` (~33 tok)
 
 ## app/scripts/
 
@@ -236,7 +238,16 @@
 
 ## app/src/app/(dashboard)/dashboard/
 
-- `page.tsx` — DashboardPage — renders table (~3359 tok)
+- `page.tsx` — DashboardPage — renders table (~3736 tok)
+
+## app/src/app/(dashboard)/dashboard/artefacts/
+
+- `filters.tsx` — ArtefactFilters (~902 tok)
+- `page.tsx` — PAGE_SIZE — renders table (~2684 tok)
+
+## app/src/app/(dashboard)/dashboard/artefacts/[artefactId]/
+
+- `page.tsx` — ArtefactDetailPage (~2896 tok)
 
 ## app/src/app/(dashboard)/dashboard/billing/
 
@@ -246,9 +257,19 @@
 
 - `page.tsx` — EnforcementPage — renders table (~4844 tok)
 
+## app/src/app/(dashboard)/dashboard/purposes/
+
+- `actions.ts` — API routes: GET (15 endpoints) (~1793 tok)
+- `page.tsx` — PurposesPage (~782 tok)
+- `purposes-view.tsx` — PurposesView — renders form, table (~6706 tok)
+
 ## app/src/app/(dashboard)/dashboard/rights/
 
 - `page.tsx` — RightsInboxPage — renders table (~1435 tok)
+
+## app/src/app/(dashboard)/dashboard/rights/[id]/
+
+- `page.tsx` — RightsRequestDetailPage — renders table (~3573 tok)
 
 ## app/src/app/(dashboard)/dashboard/support-sessions/
 
@@ -286,7 +307,7 @@
 
 ## app/src/components/
 
-- `dashboard-nav.tsx` — navItems (~628 tok)
+- `dashboard-nav.tsx` — navItems (~665 tok)
 - `otp-boxes.tsx` — OtpBoxes (~345 tok)
 - `suspended-banner.tsx` — ADR-0029 Sprint 4.1 — customer-side suspension banner. (~537 tok)
 
@@ -315,7 +336,7 @@
 
 - `ROADMAP-phase2.md` — ConsentShield — Phase 2 Roadmap (~3150 tok)
 - `STATUS.md` — ConsentShield Status (~2363 tok)
-- `V2-BACKLOG.md` — V2 Backlog — Deferred Items for Post-Phase-2 Review (~2580 tok)
+- `V2-BACKLOG.md` — V2 Backlog — Deferred Items for Post-Phase-2 Review (~2901 tok)
 
 ## docs/ADRs/
 
@@ -342,6 +363,7 @@
 - `ADR-0021-process-consent-event.md` — ADR-0021: `process-consent-event` Edge Function + Dispatch Trigger + Safety-Net Cron (~3927 tok)
 - `ADR-0022-artefact-revocation-pipeline.md` — ADR-0022: `process-artefact-revocation` Edge Function + Revocation Dispatch (~4937 tok)
 - `ADR-0023-expiry-pipeline.md` — ADR-0023: DEPA Expiry Pipeline — `send_expiry_alerts` + `enforce_artefact_expiry` + pg_cron (~2972 tok)
+- `ADR-0024-depa-customer-ui.md` — ADR-0024: DEPA Customer UI Rollup — Purpose Definitions, Consent Artefacts, Dashboard Tile, Rights C (~3320 tok)
 - `ADR-0025-depa-score.md` — ADR-0025: DEPA Score Dimension — nightly refresh + API + dashboard gauge (~3155 tok)
 - `ADR-0026-monorepo-restructure.md` — ADR-0026: Monorepo Restructure (Bun Workspace — `app/` + `admin/` + `packages/*`) (~9348 tok)
 - `ADR-0027-admin-schema.md` — ADR-0027: Admin Platform Schema (cs_admin Role + `admin.*` Tables + Audit Log + Impersonation) (~14644 tok)
@@ -350,7 +372,7 @@
 - `ADR-0030-sectoral-templates.md` — ADR-0030: Sectoral Templates (Admin Panel + Customer-Side Read) (~2724 tok)
 - `ADR-0032-support-tickets.md` — ADR-0032: Support Tickets (Admin Panel + Customer-Side Submit) (~2749 tok)
 - `ADR-0036-feature-flags-kill-switches.md` — ADR-0036: Feature Flags & Kill Switches (Admin Panel) (~2282 tok)
-- `ADR-index.md` — ADR Index (~1075 tok)
+- `ADR-index.md` — ADR Index (~1111 tok)
 - `ADR-template.md` — ADR-NNNN: Title (~423 tok)
 - `adr-workflow.md` — ADR Workflow Rules (~557 tok)
 
@@ -375,8 +397,8 @@
 ## docs/changelogs/
 
 - `CHANGELOG-api.md` — Changelog — API (~2126 tok)
-- `CHANGELOG-dashboard.md` — Changelog — Dashboard (~5420 tok)
-- `CHANGELOG-docs.md` — Changelog — Documentation (~1218 tok)
+- `CHANGELOG-dashboard.md` — Changelog — Dashboard (~6138 tok)
+- `CHANGELOG-docs.md` — Changelog — Documentation (~1448 tok)
 - `CHANGELOG-edge-functions.md` — Changelog — Edge Functions (~2405 tok)
 - `CHANGELOG-infra.md` — Changelog — Infrastructure (~3667 tok)
 - `CHANGELOG-schema.md` — Changelog — Schema (~11496 tok)
@@ -392,7 +414,7 @@
 
 ## docs/design/screen designs and ux/
 
-- `ARCHITECTURE-ALIGNMENT-2026-04-16.md` — Screen Designs — Architecture Alignment (~5463 tok)
+- `ARCHITECTURE-ALIGNMENT-2026-04-16.md` — Screen Designs — Architecture Alignment (~5508 tok)
 - `consentshield-mobile.html` — iOS wireframes spec, 3 flows (rights monitor, breach trigger, clinic ABDM Month 6+). M1/M2/M3 drift items deferred to ABDM/mobile/BFSI ADRs. (~17068 tok)
 - `consentshield-next-steps.md` — Strategic decisions log April 2026 + 2026-04-16 addendum noting DEPA architecture has moved on. (~2784 tok)
 - `consentshield-screens.html` — ConsentShield — Screen Designs & UX Flows (~28280 tok)
@@ -845,6 +867,7 @@
 ## tests/rls/
 
 - `depa-isolation.test.ts` — ADR-0020 Sprint 1.1 — DEPA RLS isolation tests. (~3131 tok)
+- `depa-purpose-crud.test.ts` — ADR-0024 Sprint 1.4 — RLS cross-tenant isolation for Purpose Definitions (~1430 tok)
 - `helpers.ts` — Exports getServiceClient, getAnonClient, TestOrg, createTestOrg + 3 more (~951 tok)
 - `isolation.test.ts` — Declares admin (~2328 tok)
 - `sectoral-template-apply.test.ts` — ADR-0030 Sprint 3.1 — customer-side sectoral-template application. (~1521 tok)
