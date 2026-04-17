@@ -71,6 +71,7 @@ export async function proxy(request: NextRequest) {
 
   // 5. Rule 21 — AAL2 hardware key required (unless stub mode)
   const hardwareKeyEnforced = process.env.ADMIN_HARDWARE_KEY_ENFORCED !== 'false'
+  console.log('[admin-proxy] ADMIN_HARDWARE_KEY_ENFORCED=', JSON.stringify(process.env.ADMIN_HARDWARE_KEY_ENFORCED), 'enforced=', hardwareKeyEnforced)
   if (hardwareKeyEnforced) {
     const {
       data: { session },
