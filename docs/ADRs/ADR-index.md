@@ -22,6 +22,7 @@ All Architecture Decision Records for ConsentShield, in chronological order.
 | ADR-0016 | Consent Probes v1 (static HTML analysis; run-consent-probes Edge Function + dashboard) | Completed | 2026-04-16 | 1 | 1 |
 | ADR-0017 | Audit Export Package (Phase 1: direct-download ZIP; R2 upload → V2-X3) | Completed | 2026-04-16 | 1 | 1 |
 | ADR-0018 | Pre-built Deletion Connectors (Mailchimp + HubSpot via API key; OAuth → V2-C1) | Completed | 2026-04-16 | 1 | 1 |
+| ADR-0019 | DEPA Roadmap — Charter & Sequencing of ADR-0020..0025 (meta-ADR, no code) | Proposed | 2026-04-17 | — | — |
 | ADR-0026 | Monorepo Restructure (Bun workspace — `app/` + `admin/` + `packages/*`) | In Progress | 2026-04-16 | 4 | 4 |
 | ADR-0027 | Admin Platform Schema (`cs_admin` role + `admin.*` tables + audit log + impersonation) | In Progress | 2026-04-16 | 4 | 5 |
 
@@ -31,10 +32,10 @@ When adding a new ADR:
 2. Add a row to this table
 3. Keep status updated as work progresses
 
-ADR-0019..0025 are reserved for the DEPA roadmap (charter, schema skeleton,
-process-consent-event, process-artefact-revocation, expiry pipeline,
-purpose-definition admin UI, DEPA score). See project_status_2026-04-16
-memory + docs/admin/architecture/consentshield-admin-platform.md §12.
+ADR-0019 is the DEPA roadmap charter (authored 2026-04-17, Proposed).
+ADR-0020..0025 execute the charter: schema skeleton, process-consent-event,
+process-artefact-revocation, expiry pipeline, purpose-definition admin UI,
+DEPA score. Pending.
 ADR-0026..0036 are reserved for the admin platform roadmap (monorepo,
 admin schema, then per-panel admin ADRs).
 -->
