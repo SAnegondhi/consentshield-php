@@ -1,7 +1,7 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-04-17T13:24:19.399Z
-> Files: 461 tracked | Anatomy hits: 0 | Misses: 0
+> Auto-maintained by OpenWolf. Last scanned: 2026-04-17T13:35:41.151Z
+> Files: 471 tracked | Anatomy hits: 0 | Misses: 0
 
 ## ../../../../../tmp/
 
@@ -265,6 +265,17 @@
 
 - `page.tsx` — EnforcementPage — renders table (~4844 tok)
 
+## app/src/app/(dashboard)/dashboard/exports/
+
+- `actions.ts` — API routes: GET (6 endpoints) (~1660 tok)
+- `export-button.tsx` — ExportButton (~579 tok)
+- `page.tsx` — ExportsPage — renders table (~1837 tok)
+
+## app/src/app/(dashboard)/dashboard/exports/settings/
+
+- `page.tsx` — ExportStorageSettingsPage (~875 tok)
+- `r2-settings-form.tsx` — R2SettingsForm — renders form (~2069 tok)
+
 ## app/src/app/(dashboard)/dashboard/purposes/
 
 - `actions.ts` — API routes: GET (15 endpoints) (~1793 tok)
@@ -311,7 +322,7 @@
 
 ## app/src/app/api/orgs/[orgId]/audit-export/
 
-- `route.ts` — ADR-0017 Phase 1: authenticated users in an org can download an (~1912 tok)
+- `route.ts` — ADR-0017 Phase 1: authenticated users in an org can download an (~2755 tok)
 
 ## app/src/app/api/orgs/[orgId]/depa-score/
 
@@ -345,9 +356,18 @@
 - `deletion-dispatch.ts` — Deletion orchestration — dispatches erasure to connectors and records (~3008 tok)
 - `fingerprint.ts` — ADR-0037 V2-D2 — session fingerprint derivation at rights-request submit time. (~526 tok)
 
+## app/src/lib/storage/
+
+- `sigv4.test.ts` — ADR-0040 Sprint 1.1 — sigv4 primitive tests. (~1062 tok)
+- `sigv4.ts` — ADR-0040 — hand-rolled AWS sigv4 for Cloudflare R2 S3 compatibility. (~1895 tok)
+
 ## app/tests/buffer/
 
 - `lifecycle.test.ts` — Migration 011 (20260413000011) revokes UPDATE and DELETE on all buffer (~1002 tok)
+
+## app/tests/storage/
+
+- `sigv4.test.ts` — ADR-0040 Sprint 1.1 — sigv4 primitive tests. (~1066 tok)
 
 ## app/tests/worker/
 
@@ -357,7 +377,7 @@
 
 - `ROADMAP-phase2.md` — ConsentShield — Phase 2 Roadmap (~3150 tok)
 - `STATUS.md` — ConsentShield Status (~2363 tok)
-- `V2-BACKLOG.md` — V2 Backlog — Deferred Items for Post-Phase-2 Review (~2146 tok)
+- `V2-BACKLOG.md` — V2 Backlog — Deferred Items for Post-Phase-2 Review (~1917 tok)
 
 ## docs/ADRs/
 
@@ -395,7 +415,8 @@
 - `ADR-0036-feature-flags-kill-switches.md` — ADR-0036: Feature Flags & Kill Switches (Admin Panel) (~2282 tok)
 - `ADR-0037-depa-completion.md` — ADR-0037: DEPA Completion — Expiry Fan-out, Per-Requestor Binding, CSV Export, Audit DEPA Section, O (~3945 tok)
 - `ADR-0038-operational-observability.md` — ADR-0038: Operational Observability — Cron Failure Watchdog + Stuck-Buffer Alerting (~2095 tok)
-- `ADR-index.md` — ADR Index (~1180 tok)
+- `ADR-0040-audit-r2-upload.md` — ADR-0040: Audit R2 Upload Pipeline — sigv4, `export_configurations` UI, delivery-target branch (~2243 tok)
+- `ADR-index.md` — ADR Index (~1213 tok)
 - `ADR-template.md` — ADR-NNNN: Title (~423 tok)
 - `adr-workflow.md` — ADR Workflow Rules (~557 tok)
 
@@ -419,12 +440,12 @@
 
 ## docs/changelogs/
 
-- `CHANGELOG-api.md` — Changelog — API (~2452 tok)
-- `CHANGELOG-dashboard.md` — Changelog — Dashboard (~6394 tok)
-- `CHANGELOG-docs.md` — Changelog — Documentation (~1755 tok)
+- `CHANGELOG-api.md` — Changelog — API (~2759 tok)
+- `CHANGELOG-dashboard.md` — Changelog — Dashboard (~6793 tok)
+- `CHANGELOG-docs.md` — Changelog — Documentation (~1841 tok)
 - `CHANGELOG-edge-functions.md` — Changelog — Edge Functions (~2734 tok)
 - `CHANGELOG-infra.md` — Changelog — Infrastructure (~3667 tok)
-- `CHANGELOG-schema.md` — Changelog — Schema (~12204 tok)
+- `CHANGELOG-schema.md` — Changelog — Schema (~12320 tok)
 - `CHANGELOG-worker.md` — Changelog — Worker (~1514 tok)
 
 ## docs/design/
@@ -837,6 +858,7 @@
 - `20260424000003_rights_rpc_fingerprint.sql` — ADR-0037 Sprint 1.2 — extend rpc_rights_request_create with session_fingerprint. (~587 tok)
 - `20260424000004_apply_template_materialise.sql` — ADR-0037 Sprint 1.5 — W9 onboarding seed pack materialisation. (~1275 tok)
 - `20260425000001_operational_crons.sql` — ADR-0038 Sprint 1.2 — cron health snapshot + stuck-buffer + cron-health crons. (~1292 tok)
+- `20260425000002_export_configurations_delete.sql` — ADR-0040 Sprint 1.2 — add DELETE policy on export_configurations. (~146 tok)
 
 ## supabase/seed/
 

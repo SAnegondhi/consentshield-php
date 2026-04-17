@@ -62,28 +62,7 @@ to iterate through each feature branch, or flip the Marketplace
 integrations to "all environments" via the Vercel Dashboard once
 per integration.
 
-### V2-X3. Audit-export R2 upload pipeline  *(origin: ADR-0017)*
-
-Phase 1 of ADR-0017 returns the export ZIP as an HTTP download.
-The roadmap's goal of uploading to the customer's own R2 bucket and
-returning a signed URL requires:
-
-1. A delivery pipeline that continuously writes buffer data to the
-   customer's R2 (Phase 3 work).
-2. Decryption of `export_configurations.write_credential_enc` inside
-   the export route.
-3. An S3-compatible PutObject call (aws4fetch or hand-rolled sigv4,
-   ~200 LoC — no AWS SDK, per rule #14).
-
-**Why deferred.** Direct download is sufficient for dev and early
-customers. The customer R2 path only pays off once the delivery
-pipeline exists and is actually preserving full history in customer
-storage.
-
-**Shape of the v2 fix.** Add a `delivery_target: 'r2'` branch in the
-export route that, when `export_configurations` exists and is
-verified, uploads instead of streaming; record `r2_bucket` +
-`r2_object_key` in `audit_export_manifests`.
+### V2-X3. Audit-export R2 upload pipeline  → see ADR-0040
 
 ### V2-X2. End-to-end billing checkout UX smoke  *(origin: ADR-0014)*
 

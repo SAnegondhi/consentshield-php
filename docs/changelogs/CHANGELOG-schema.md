@@ -16,6 +16,14 @@ Database migrations, RLS policies, roles.
 - [x] `tests/depa/score.test.ts` — 7/7 — PASS (10.8 arithmetic 5 cases + 10.8b refresh round-trip 2 cases).
 - [x] `bun run test:rls` — 13 files, **154/154** — PASS.
 
+## [ADR-0040 Sprint 1.2] — 2026-04-17
+
+**ADR:** ADR-0040 — Audit R2 Upload Pipeline
+**Sprint:** 1.2 — export_configurations DELETE policy
+
+### Added
+- `20260425000002_export_configurations_delete.sql` — adds `org_delete` RLS policy on `export_configurations` (`using (org_id = current_org_id())`). Required by the new `deleteR2Config` server action; admin/owner gating is enforced in the action itself for consistency with other dashboard admin-only mutations.
+
 ## [ADR-0038 Sprint 1.2] — 2026-04-17
 
 **ADR:** ADR-0038 — Operational Observability

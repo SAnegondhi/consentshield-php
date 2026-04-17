@@ -1673,3 +1673,32 @@
 | 18:54 | Edited docs/changelogs/CHANGELOG-docs.md | expanded (+11 lines) | ~163 |
 | 18:45 | ADR-0038 shipped — cron-health-daily + stuck-buffer-hourly watchdogs live | 2 Edge Functions + 1 migration + 2 crons | smoke passes; alert fired for 8 stuck buffers (dev expected) | ~8500 |
 | 18:45 | V2-O3 closed; V2-O1 check-stuck-buffers closed; check-retention-rules stays (feature prerequisite) | V2-BACKLOG | closed | ~300 |
+| 18:56 | Session end: 9 writes across 6 files (ADR-0038-operational-observability.md, ADR-index.md, V2-BACKLOG.md, CHANGELOG-schema.md, CHANGELOG-edge-functions.md) | 10 reads | ~29467 tok |
+| 18:56 | Created docs/ADRs/ADR-0040-audit-r2-upload.md | — | ~2111 |
+| 18:56 | Edited docs/ADRs/ADR-index.md | 1→2 lines | ~70 |
+| 18:57 | Created app/src/lib/storage/sigv4.ts | — | ~1895 |
+| 18:57 | Created app/src/lib/storage/sigv4.test.ts | — | ~1062 |
+| 18:58 | Edited app/tests/storage/sigv4.test.ts | "./sigv4" → "@/lib/storage/sigv4" | ~8 |
+| 18:58 | Session end: 14 writes across 9 files (ADR-0038-operational-observability.md, ADR-index.md, V2-BACKLOG.md, CHANGELOG-schema.md, CHANGELOG-edge-functions.md) | 14 reads | ~36555 tok |
+| 18:58 | Created app/src/app/(dashboard)/dashboard/exports/actions.ts | — | ~1660 |
+| 18:59 | Created supabase/migrations/20260425000002_export_configurations_delete.sql | — | ~146 |
+| 18:59 | Edited app/src/app/(dashboard)/dashboard/exports/page.tsx | added 1 import(s) | ~51 |
+| 18:59 | Edited app/src/app/(dashboard)/dashboard/exports/page.tsx | expanded (+7 lines) | ~155 |
+| 18:59 | Edited app/src/app/(dashboard)/dashboard/exports/page.tsx | added optional chaining | ~581 |
+| 18:59 | Edited app/src/app/(dashboard)/dashboard/exports/page.tsx | CSS: r2_bucket, r2_object_key | ~73 |
+| 19:00 | Edited app/src/app/(dashboard)/dashboard/exports/page.tsx | CSS: r2 | ~117 |
+| 19:00 | Created app/src/app/(dashboard)/dashboard/exports/settings/page.tsx | — | ~875 |
+| 19:00 | Created app/src/app/(dashboard)/dashboard/exports/settings/r2-settings-form.tsx | — | ~2069 |
+| 19:00 | Edited app/src/app/api/orgs/[orgId]/audit-export/route.ts | added 2 import(s) | ~70 |
+| 19:01 | Edited app/src/app/api/orgs/[orgId]/audit-export/route.ts | added error handling | ~1154 |
+| 19:01 | Edited app/src/app/(dashboard)/dashboard/exports/export-button.tsx | CSS: delivery, bucket, object_key | ~395 |
+| 19:04 | Edited docs/ADRs/ADR-0040-audit-r2-upload.md | 2→3 lines | ~22 |
+| 19:04 | Edited docs/ADRs/ADR-0040-audit-r2-upload.md | "[ ] planned" → "[x] complete" | ~11 |
+| 19:04 | Edited docs/ADRs/ADR-0040-audit-r2-upload.md | expanded (+24 lines) | ~268 |
+| 19:04 | Edited docs/ADRs/ADR-index.md | inline fix | ~36 |
+| 19:04 | Edited docs/V2-BACKLOG.md | removed 22 lines | ~16 |
+| 19:05 | Edited docs/changelogs/CHANGELOG-schema.md | expanded (+8 lines) | ~134 |
+| 19:05 | Edited docs/changelogs/CHANGELOG-api.md | expanded (+11 lines) | ~335 |
+| 19:05 | Edited docs/changelogs/CHANGELOG-dashboard.md | expanded (+17 lines) | ~432 |
+| 19:05 | Edited docs/changelogs/CHANGELOG-docs.md | expanded (+11 lines) | ~104 |
+| 19:10 | ADR-0040 shipped — sigv4 + R2 upload branch + /dashboard/exports/settings UI | 7 files; 160/160 + 7/7 sigv4; build clean | V2-X3 closed | ~12000 |

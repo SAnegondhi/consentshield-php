@@ -1,6 +1,8 @@
 import JSZip from 'jszip'
 import { NextResponse } from 'next/server'
 import { createServerClient } from '@/lib/supabase/server'
+import { decryptForOrg } from '@consentshield/encryption'
+import { putObject, presignGet } from '@/lib/storage/sigv4'
 
 // ADR-0017 Phase 1: authenticated users in an org can download an
 // audit-export ZIP. Aggregation happens server-side via the
@@ -155,10 +157,103 @@ export async function POST(
   )
 
   const archive = await zip.generateAsync({ type: 'uint8array', compression: 'DEFLATE' })
+  const filename = `audit-export-${orgId}-${m.generated_at.replace(/[:.]/g, '-')}.zip`
 
-  // Record a manifest row (pointer only — never the bytes).
-  // N-S2: fail loudly. A silent insert failure would ship a ZIP with no
-  // audit-trail row, breaking rule #4's customer-owned-record guarantee.
+  // ADR-0040 — delivery-target branch. When export_configurations.is_verified
+  // is true, upload to the customer's R2 bucket and return JSON with the
+  // object key + presigned GET URL. Otherwise the ADR-0017 direct-download
+  // path stays in place.
+  const { data: exportCfg } = await supabase
+    .from('export_configurations')
+    .select('bucket_name, path_prefix, region, write_credential_enc, is_verified')
+    .eq('org_id', orgId)
+    .maybeSingle()
+
+  if (exportCfg?.is_verified && exportCfg.write_credential_enc) {
+    try {
+      const plaintext = await decryptForOrg(
+        supabase,
+        orgId,
+        exportCfg.write_credential_enc as Buffer,
+      )
+      const creds = JSON.parse(plaintext) as {
+        endpoint: string
+        access_key_id: string
+        secret_access_key: string
+      }
+
+      const objectKey =
+        (exportCfg.path_prefix ?? '') +
+        `audit-exports/${orgId}/${filename}`
+      const region = (exportCfg.region as string) ?? 'auto'
+
+      await putObject({
+        endpoint: creds.endpoint,
+        region,
+        bucket: exportCfg.bucket_name as string,
+        key: objectKey,
+        accessKeyId: creds.access_key_id,
+        secretAccessKey: creds.secret_access_key,
+        body: Buffer.from(archive),
+        contentType: 'application/zip',
+      })
+
+      const downloadUrl = presignGet({
+        endpoint: creds.endpoint,
+        region,
+        bucket: exportCfg.bucket_name as string,
+        key: objectKey,
+        accessKeyId: creds.access_key_id,
+        secretAccessKey: creds.secret_access_key,
+        expiresIn: 3600,
+      })
+
+      const { error: manifestError } = await supabase
+        .from('audit_export_manifests')
+        .insert({
+          org_id: orgId,
+          requested_by: user.id,
+          format_version: m.format_version,
+          section_counts: sectionCountsWithDepa,
+          content_bytes: archive.byteLength,
+          delivery_target: 'r2',
+          r2_bucket: exportCfg.bucket_name,
+          r2_object_key: objectKey,
+        })
+      if (manifestError) {
+        return NextResponse.json(
+          {
+            error: 'Uploaded to R2 but failed to record manifest',
+            detail: manifestError.message,
+          },
+          { status: 500 },
+        )
+      }
+
+      await supabase
+        .from('export_configurations')
+        .update({ last_export_at: new Date().toISOString() })
+        .eq('org_id', orgId)
+
+      return NextResponse.json(
+        {
+          delivery: 'r2',
+          bucket: exportCfg.bucket_name,
+          object_key: objectKey,
+          size_bytes: archive.byteLength,
+          download_url: downloadUrl,
+          expires_in: 3600,
+        },
+        { status: 200 },
+      )
+    } catch (e) {
+      // Fall through to direct-download path with an error flag so the
+      // customer still gets the export even if their R2 creds broke.
+      console.error('[audit-export] R2 upload failed; falling back to direct download', e)
+    }
+  }
+
+  // Direct download path (ADR-0017 Phase 1 behaviour).
   const { error: manifestError } = await supabase
     .from('audit_export_manifests')
     .insert({
@@ -179,7 +274,6 @@ export async function POST(
     )
   }
 
-  const filename = `audit-export-${orgId}-${m.generated_at.replace(/[:.]/g, '-')}.zip`
   return new NextResponse(archive as unknown as BodyInit, {
     status: 200,
     headers: {

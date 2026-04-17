@@ -2,6 +2,17 @@
 
 Documentation changes.
 
+## [ADR-0040 charter + closeout] — 2026-04-17
+
+**ADR:** ADR-0040 (Audit R2 Upload Pipeline)
+
+### Added
+- `docs/ADRs/ADR-0040-audit-r2-upload.md` — drafted and shipped Completed. Four sprints. Closes V2-X3.
+
+### Changed
+- `docs/V2-BACKLOG.md` — V2-X3 replaced with pointer to ADR-0040.
+- `docs/ADRs/ADR-index.md` — ADR-0040 added as Completed.
+
 ## [ADR-0038 charter + closeout] — 2026-04-17
 
 **ADR:** ADR-0038 (Operational Observability — cron watchdog + stuck-buffer alerting)

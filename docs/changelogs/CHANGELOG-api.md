@@ -2,6 +2,17 @@
 
 API route changes.
 
+## [ADR-0040] — 2026-04-17
+
+**ADR:** ADR-0040 — Audit R2 Upload Pipeline
+**Sprints:** 1.1 sigv4 · 1.4 delivery-target branch
+
+### Added
+- `app/src/lib/storage/sigv4.ts` — hand-rolled AWS sigv4 signer. Exports `putObject({ endpoint, region, bucket, key, body, accessKeyId, secretAccessKey, contentType? })` and `presignGet({...expiresIn?})`. Built on Node `crypto` built-ins only (no new npm dep per Rule #14). Unit-tested in `app/tests/storage/sigv4.test.ts` against AWS-documented constants + deterministic signing-key chain + presigned URL shape (7/7 PASS).
+
+### Changed
+- `app/src/app/api/orgs/[orgId]/audit-export/route.ts` — after building the ZIP, checks `export_configurations.is_verified`. When true: decrypts credentials via `decryptForOrg`, sigv4-PUTs the archive to `s3://<bucket>/<path_prefix>audit-exports/<org_id>/audit-export-<ts>.zip`, records `delivery_target='r2'` + `r2_bucket` + `r2_object_key` on `audit_export_manifests`, bumps `export_configurations.last_export_at`, and returns JSON `{ delivery, bucket, object_key, size_bytes, download_url, expires_in }` with a 1-hour presigned GET URL. Falls back to the ADR-0017 direct-download path on R2 upload failure (logged) or when no verified config exists.
+
 ## [ADR-0037] — 2026-04-17
 
 **ADR:** ADR-0037 — DEPA Completion

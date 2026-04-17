@@ -2,6 +2,23 @@
 
 Next.js UI changes.
 
+## ADR-0040 — 2026-04-17
+
+**ADR:** ADR-0040 — Audit R2 Upload Pipeline
+**Sprints:** 1.2 server actions · 1.3 storage settings UI
+
+### Added
+- `app/src/app/(dashboard)/dashboard/exports/actions.ts` — `saveR2Config`, `verifyR2Config`, `deleteR2Config`. `saveR2Config` encrypts credentials via `encryptForOrg` and upserts `export_configurations`. `verifyR2Config` decrypts, sigv4-PUTs a tiny verification marker to the bucket, flips `is_verified` on success. Admin/owner gated on the server side.
+- `app/src/app/(dashboard)/dashboard/exports/settings/page.tsx` + `r2-settings-form.tsx` — server page + client form. Shows current config (bucket / path prefix / region / verified status / last export), exposes Save + Verify + Delete actions. Endpoint-reference block documents the Cloudflare R2 URL shape.
+
+### Changed
+- `app/src/app/(dashboard)/dashboard/exports/page.tsx` — headline restructured as a two-column flex with a "Storage settings" link. New "Delivery target" section surfaces whether exports upload to R2 (verified / unverified) or fall back to direct download. History table renders `r2_bucket/r2_object_key` for R2-delivered manifests.
+- `app/src/app/(dashboard)/dashboard/exports/export-button.tsx` — response handling branches on Content-Type. For `application/json` (R2 delivery), opens the presigned URL in a new tab. For binary ZIP, preserves the existing blob download flow.
+
+### Tested
+- [x] `cd app && bunx vitest run tests/storage/sigv4.test.ts` — 7/7 PASS.
+- [x] `cd app && bun run build` — zero errors / zero warnings; `/dashboard/exports/settings` in the route manifest.
+
 ## ADR-0037 — 2026-04-17
 
 **ADR:** ADR-0037 — DEPA Completion
