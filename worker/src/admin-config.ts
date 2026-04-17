@@ -46,6 +46,7 @@ export interface AdminConfigSnapshot {
   kill_switches: Record<string, boolean>
   active_tracker_signatures: AdminTrackerSignature[]
   published_sectoral_templates: AdminSectoralTemplate[]
+  suspended_org_ids: string[]
   refreshed_at: string
 }
 
@@ -53,6 +54,7 @@ const EMPTY_SNAPSHOT: AdminConfigSnapshot = {
   kill_switches: {},
   active_tracker_signatures: [],
   published_sectoral_templates: [],
+  suspended_org_ids: [],
   refreshed_at: '1970-01-01T00:00:00Z',
 }
 
@@ -69,6 +71,14 @@ export function isKillSwitchEngaged(
   switchKey: 'banner_delivery' | 'depa_processing' | 'deletion_dispatch' | 'rights_request_intake',
 ): boolean {
   return config.kill_switches[switchKey] === true
+}
+
+export function isOrgSuspended(
+  config: AdminConfigSnapshot,
+  orgId: string,
+): boolean {
+  if (!config.suspended_org_ids || config.suspended_org_ids.length === 0) return false
+  return config.suspended_org_ids.includes(orgId)
 }
 
 export function adminConfigTtlSeconds(): number {

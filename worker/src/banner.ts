@@ -1,7 +1,7 @@
 import type { Env } from './index'
 import { getPropertyConfig } from './origin'
 import { getTrackerSignatures, compactSignatures } from './signatures'
-import { getAdminConfig, isKillSwitchEngaged } from './admin-config'
+import { getAdminConfig, isKillSwitchEngaged, isOrgSuspended } from './admin-config'
 
 interface Purpose {
   id: string
@@ -22,6 +22,16 @@ interface BannerConfig {
   monitoring_enabled: boolean
 }
 
+function noopBannerResponse(reason: string): Response {
+  return new Response(`// ConsentShield: ${reason}\n`, {
+    headers: {
+      'Content-Type': 'application/javascript; charset=utf-8',
+      'Cache-Control': 'public, max-age=30',
+      'Access-Control-Allow-Origin': '*',
+    },
+  })
+}
+
 export async function handleBannerScript(request: Request, env: Env): Promise<Response> {
   const url = new URL(request.url)
   const propertyId = url.searchParams.get('prop')
@@ -37,15 +47,16 @@ export async function handleBannerScript(request: Request, env: Env): Promise<Re
   // but performs no UI work. Customers see their site as if the banner
   // were not installed — intentional behaviour when we need to pause
   // delivery in an incident.
+  //
+  // Per-org suspension (ADR-0029 Sprint 4.1): the same no-op path fires
+  // when the requesting org is in the synced suspended_org_ids list.
+  // Suspension takes effect within one admin-config-to-kv cycle (2 min).
   const adminConfig = await getAdminConfig(env)
   if (isKillSwitchEngaged(adminConfig, 'banner_delivery')) {
-    return new Response('// ConsentShield: banner delivery paused by operator\n', {
-      headers: {
-        'Content-Type': 'application/javascript; charset=utf-8',
-        'Cache-Control': 'public, max-age=30',
-        'Access-Control-Allow-Origin': '*',
-      },
-    })
+    return noopBannerResponse('banner delivery paused by operator')
+  }
+  if (isOrgSuspended(adminConfig, orgId)) {
+    return noopBannerResponse('organisation is suspended — contact support')
   }
 
   // Fetch banner config (KV cache + Supabase fallback)

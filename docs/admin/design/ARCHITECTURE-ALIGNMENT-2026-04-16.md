@@ -116,7 +116,7 @@ A live checklist of each panel against the ADR that ports it into code. Tick whe
 | Panel | Owner ADR (proposed) | Wireframe done | Code shipped |
 |---|---|---|---|
 | Operations Dashboard | ADR-0028 (admin app skeleton) | ✅ 2026-04-16 | ✅ 2026-04-17 |
-| Organisations + Org detail + Impersonation drawer | ADR-0029 (admin org management) | ✅ 2026-04-16 | ☐ |
+| Organisations + Org detail + Impersonation drawer | ADR-0029 (admin org management) | ✅ 2026-04-16 | ✅ 2026-04-17 |
 | Sectoral Templates | ADR-0030 (admin sectoral templates) | ✅ 2026-04-16 | ☐ |
 | Connector Catalogue | ADR-0031 (admin connector catalogue) | ✅ 2026-04-16 | ☐ |
 | Tracker Signatures | ADR-0031 (folded into connector catalogue ADR) | ✅ 2026-04-16 | ☐ |
@@ -126,8 +126,8 @@ A live checklist of each panel against the ADR that ports it into code. Tick whe
 | Abuse & Security | ADR-0035 (admin abuse & security) | ✅ 2026-04-16 | ☐ |
 | Feature Flags & Kill Switches | ADR-0036 (admin feature flags + kill switches) | ✅ 2026-04-16 | ☐ |
 | Audit Log | ADR-0028 (folded into admin app skeleton ADR) | ✅ 2026-04-16 | ✅ 2026-04-17 |
-| Customer-side "Support sessions" tab (W-Admin-CustomerVisibility) | ADR-0029 customer follow-up | ☐ awaiting customer wireframe update | ☐ |
-| Customer-side org suspension banner state (W-Admin-OrgSuspension) | ADR-0029 customer follow-up | ☐ awaiting customer wireframe update | ☐ |
+| Customer-side "Support sessions" tab (W-Admin-CustomerVisibility) | ADR-0029 Sprint 4.1 | ⚠️ HTML wireframe update deferred; implementation preceded formal wireframe | ✅ 2026-04-17 |
+| Customer-side org suspension banner state (W-Admin-OrgSuspension) | ADR-0029 Sprint 4.1 | ⚠️ HTML wireframe update deferred; implementation preceded formal wireframe | ✅ 2026-04-17 |
 
 Prerequisite ADRs (must ship before any of the above):
 

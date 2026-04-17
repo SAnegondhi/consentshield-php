@@ -2,6 +2,19 @@
 
 Database migrations, RLS policies, roles.
 
+## [ADR-0029 Sprint 1.1 + 4.1] — 2026-04-17
+
+**ADR:** ADR-0029 — Admin Organisations
+**Sprints:** 1.1 (admin SELECT policies) + 4.1 (suspended_org_ids in snapshot)
+
+### Added
+- `20260417000020_admin_select_customer_tables.sql` — adds `admins_select_all` RLS policy (gated on `admin.is_admin()`) to 15 public operational tables: organisations, organisation_members, web_properties, consent_banners, data_inventory, breach_notifications, rights_requests, export_configurations, tracker_signatures, tracker_overrides, integration_connectors, retention_rules, notification_channels, purpose_definitions, purpose_connector_mappings. Buffer tables deliberately excluded — admin reads those via SECURITY DEFINER RPCs (Rule 1). Customer RLS preserved via policy OR (customer JWTs don't carry is_admin=true).
+- `20260417000021_admin_config_snapshot_v2.sql` — extends `public.admin_config_snapshot()` with `suspended_org_ids` (jsonb array of uuids where `public.organisations.status='suspended'`). Consumed by the Cloudflare Worker's per-org suspension check.
+
+### Tested
+- [x] `bun run test:rls` — 8 files, 135/135 — PASS (customer isolation unchanged; admin gains SELECT-all on 15 tables)
+- [x] Snapshot RPC keys — 5 now (kill_switches, active_tracker_signatures, published_sectoral_templates, suspended_org_ids, refreshed_at)
+
 ## [Sprint 3.2] — 2026-04-17
 
 **ADR:** ADR-0027 — Admin Platform Schema

@@ -2,6 +2,18 @@
 
 Cloudflare Worker changes.
 
+## ADR-0029 Sprint 4.1 — 2026-04-17
+
+**ADR:** ADR-0029 — Admin Organisations
+**Sprint:** Phase 4, Sprint 4.1 — per-org suspension
+
+### Changed
+- `worker/src/admin-config.ts` — `AdminConfigSnapshot` gains `suspended_org_ids: string[]`. New helper `isOrgSuspended(config, orgId)` does an O(n) scan (expected n < 20 in practice).
+- `worker/src/banner.ts` — after the global `banner_delivery` kill switch check, also checks per-org suspension via `isOrgSuspended`. Both paths return the same no-op JS through a new `noopBannerResponse(reason)` helper. Suspension takes effect within one `admin-sync-config-to-kv` cron cycle (2 min).
+
+### Deployed
+- `bunx wrangler deploy` — `consentshield-cdn` Version ID `58b0e6e7-a159-4e58-bb75-4f1fa6adfa90`.
+
 ## ADR-0027 Sprint 3.2 — 2026-04-17
 
 **ADR:** ADR-0027 — Admin Platform Schema

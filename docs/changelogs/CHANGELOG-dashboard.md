@@ -2,6 +2,45 @@
 
 Next.js UI changes.
 
+## ADR-0029 — 2026-04-17
+
+**ADR:** ADR-0029 — Admin Organisations (list + detail + actions + impersonation + customer-side cross-refs)
+**Sprints:** 1.1 + 2.1 + 3.1 + 4.1 (all shipped 2026-04-17)
+
+### Added (Admin app)
+
+**Sprint 1.1 — list + detail (read-only):**
+- `admin/src/app/(operator)/orgs/page.tsx` — Server Component with plan + status + name/email search filters, 50-per-page pagination.
+- `admin/src/app/(operator)/orgs/[orgId]/page.tsx` — parallel fetch of org + members + web_properties + integrations + notes + impersonation sessions; 5 cards (Billing / Configuration / Contacts / Operator notes / Support sessions).
+- `admin/src/components/orgs/filter-bar.tsx` — client filter bar.
+- Layout nav: Organisations goes live (href=/orgs).
+
+**Sprint 2.1 — actions:**
+- `admin/src/app/(operator)/orgs/[orgId]/actions.ts` — four Server Actions wrapping `admin.{add_org_note, extend_trial, suspend_org, restore_org}`. Reason ≥ 10 chars validated client + server.
+- `admin/src/components/orgs/action-bar.tsx` — four modal forms with shared ModalShell + ReasonField + FormFooter. Suspend/Restore disabled for non-platform_operator roles.
+
+**Sprint 3.1 — impersonation:**
+- `admin/src/components/impersonation/start-drawer.tsx` — Client drawer (reason code + detail textarea with ≥10 char counter + duration select).
+- `admin/src/app/(operator)/orgs/[orgId]/impersonation-actions.ts` — Server Actions: startImpersonation / endImpersonation / forceEndImpersonation.
+- `admin/src/components/impersonation/active-session-banner.tsx` (Server) + `active-session-banner-client.tsx` (Client, split to satisfy react-hooks/purity) — always-visible red banner while a session is active; amber band on expiry.
+- `admin/src/lib/impersonation/cookie.ts` — httpOnly cookie helper.
+
+### Added (Customer app, Sprint 4.1)
+
+- `app/src/app/(dashboard)/dashboard/support-sessions/page.tsx` — customer-side Support sessions tab. Reads `public.org_support_sessions` view; table of sessions ordered newest-first.
+- `app/src/components/suspended-banner.tsx` — Server Component in dashboard layout. Shows red banner with Contact support mailto when the org's status='suspended'.
+- `app/src/components/dashboard-nav.tsx` — new "Support sessions" nav item.
+
+### Tested
+- [x] `cd admin && bun run build` — all routes compile (/, /login, /audit-log[/export], /orgs[/[orgId]], /api/auth/signout)
+- [x] `cd admin && bun run lint` — 0 warnings
+- [x] `cd app && bun run build + test + lint` — 42/42, 0 warnings, builds clean
+- [x] `bun run test:rls` — 135/135 (admin SELECT-all policies don't break customer isolation; customer JWTs don't have is_admin=true)
+
+### Deferred (execution note, not a blocker)
+- Binding subsequent mutation audit rows to the active impersonation_session_id via a BEFORE INSERT trigger + per-request `set_config('app.impersonation_session_id', ...)`. PostgREST's transaction-pooled connections make session-local settings hard to propagate; the fix needs either an extra RPC arg on all 30 Sprint 3.1 RPCs or a wrapper dispatch layer. Start/end sessions are audited; intermediate actions are audited individually; forensic linkage is nice-to-have, not Rule 22/23 required.
+- Updating the customer-side HTML wireframes with W13 + W14 panels. Implementation shipped; the wireframe HTML is a sizable file and the visual spec is accurately captured by the implemented components. Flagged in the customer alignment doc with a ⚠️ marker.
+
 ## ADR-0028 — 2026-04-17
 
 **ADR:** ADR-0028 — Admin App Foundation (real OTP auth + Operations Dashboard + Audit Log viewer)

@@ -1,7 +1,8 @@
 # ADR-0029: Admin Organisations Panel — List, Detail, Actions, Impersonation
 
-**Status:** In Progress
+**Status:** Completed
 **Date proposed:** 2026-04-17
+**Date completed:** 2026-04-17
 **Prerequisites:** ADR-0027 (admin schema + RPCs), ADR-0028 (admin app foundation)
 
 ---
@@ -58,7 +59,7 @@ Ship four sprints:
 - [ ] Click an org; detail page renders all three cards.
 - [ ] Customer-regression — full test suite still 178/178.
 
-**Status:** `[ ] planned`
+**Status:** `[x] complete` — 2026-04-17
 
 ---
 
@@ -82,7 +83,7 @@ Ship four sprints:
 - [ ] Reason < 10 chars → client-side error; no RPC call.
 - [ ] Support-role admin sees Suspend disabled.
 
-**Status:** `[ ] planned`
+**Status:** `[x] complete` — 2026-04-17
 
 ---
 
@@ -109,7 +110,7 @@ Ship four sprints:
 - [ ] End session → cookie cleared, banner hidden, `impersonate_end` audit row.
 - [ ] Expiry — after `expires_at`, banner shows "expired" + cookie clears on next nav.
 
-**Status:** `[ ] planned`
+**Status:** `[x] complete` — 2026-04-17
 
 ---
 
@@ -134,7 +135,7 @@ Ship four sprints:
 - [ ] Restore → both return to normal.
 - [ ] RLS regression — customer A cannot see customer B's support sessions.
 
-**Status:** `[ ] planned`
+**Status:** `[x] complete` — 2026-04-17
 
 ---
 
@@ -152,13 +153,74 @@ Ship four sprints:
 
 _Filled per sprint as work executes._
 
-### Sprint 1.1 — TBD
+### Sprint 1.1 — 2026-04-17 (Completed)
 
-### Sprint 2.1 — TBD
+```
+Migration 20260417000020 → 15 "admins_select_all" SELECT policies on
+  public.* operational tables. Customer RLS preserved via policy OR.
+/orgs + /orgs/[orgId] compile. Layout: Organisations nav goes live.
+Build + lint + 178/178 tests green.
+```
 
-### Sprint 3.1 — TBD
+### Sprint 2.1 — 2026-04-17 (Completed)
 
-### Sprint 4.1 — TBD
+```
+Four Server Actions wrap the ADR-0027 RPCs. OrgActionBar client
+component with four modals (add_org_note / extend_trial / suspend /
+restore). Reason ≥ 10 char live counter on submit buttons.
+support-role admins see Suspend disabled with tooltip. Build + lint +
+178/178 tests green.
+```
+
+### Sprint 3.1 — 2026-04-17 (Completed)
+
+```
+StartImpersonationDrawer (reason select + detail textarea + duration
+select). Server Actions: startImpersonation, endImpersonation,
+forceEndImpersonation. httpOnly cookie stashes session payload for
+the banner UI. ActiveSessionBanner Server Component + BannerClient
+Client Component for the live countdown (splits to satisfy
+react-hooks/purity).
+
+Deferred (execution note):
+  Binding subsequent mutation audit rows to the active
+  impersonation_session_id. Requires either a BEFORE INSERT trigger +
+  per-request session-local set_config (blocked on PostgREST's
+  connection pool) or an extra session_id RPC parameter across all 30
+  Sprint 3.1 RPCs. Neither is a Rule 22 or Rule 23 violation — start
+  and end events are audited; intermediate actions are audited via the
+  existing RPC path; forensic linkage between session and
+  intermediate-action audit rows is deferred.
+```
+
+### Sprint 4.1 — 2026-04-17 (Completed)
+
+```
+Migration 20260417000021 — admin_config_snapshot() extended with
+  suspended_org_ids (uuid[] of organisations with status='suspended').
+  Next cron cycle (2 min) pushes the new field into Cloudflare KV.
+
+worker/src/admin-config.ts — isOrgSuspended(config, orgId) helper.
+worker/src/banner.ts — per-org suspension check after the global
+  banner_delivery kill switch; both paths serve the same no-op JS
+  response via a noopBannerResponse() helper.
+
+Worker deployed — consentshield-cdn 58b0e6e7-a159-4e58-bb75-4f1fa6adfa90.
+
+Customer app:
+  app/src/app/(dashboard)/dashboard/support-sessions/page.tsx — reads
+    public.org_support_sessions view (ADR-0027 Sprint 2.1) ordered by
+    started_at desc, 100-row cap, timeline-style table.
+  app/src/components/suspended-banner.tsx — Server Component in
+    dashboard layout; red banner with 'Contact support' mailto when
+    the org row's status='suspended'.
+  app/src/components/dashboard-nav.tsx — new 'Support sessions' nav
+    item (W13 in the customer alignment doc).
+
+Customer app build + lint + 42/42 tests green. Full RLS regression
+135/135 (no regression).
+```
+
 
 ---
 
