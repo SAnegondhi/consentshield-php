@@ -2,6 +2,20 @@
 
 Database migrations, RLS policies, roles.
 
+## [ADR-0033 Sprint 2.1] — 2026-04-17
+
+**ADR:** ADR-0033 — Admin Ops + Security (Phase 2: Abuse & Security)
+**Sprint:** 2.1 — security schema + RPCs (KV-sync + Worker enforcement deferred to Sprint 2.3)
+
+### Added
+- `20260427000001_ops_and_security_phase2.sql`:
+  - `public.blocked_ips` table (`ip_cidr cidr not null`, `reason text not null check (length>=10)`, `blocked_by`/`unblocked_by` FKs into `admin.admin_users`, `blocked_at`/`expires_at`/`unblocked_at` timestamps). Partial unique index on `ip_cidr where unblocked_at is null` keeps per-CIDR history clean.
+  - 5 SECURITY DEFINER RPCs on `admin.*`: `security_worker_reasons_list` (ILIKE filter over `worker_errors.upstream_error`), `security_rate_limit_triggers` (stub — returns 0 rows until V2-S2 adds persistence), `security_blocked_ips_list`, `security_block_ip`, `security_unblock_ip`. Writes gate on `admin.require_admin('platform_operator')` and insert an `admin.admin_audit_log` row in the same transaction (Rule 22).
+
+### Deferred to Sprint 2.3
+- Edge Function `sync-blocked-ips-to-kv` + pg_cron `blocked-ips-kv-sync` — no consumer yet without Worker middleware.
+- `worker/src/middleware/check-blocked-ip.ts` + Worker unit tests + end-to-end smoke-test transcript.
+
 ## [ADR-0025 Sprint 1.1] — 2026-04-17
 
 **ADR:** ADR-0025 — DEPA Score Dimension

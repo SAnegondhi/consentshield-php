@@ -35,9 +35,9 @@ const NAV_ITEMS: NavItem[] = [
   { label: 'Sectoral Templates', href: '/templates', adr: 'ADR-0030', live: true },
   { label: 'Connector Catalogue', href: '/connectors', adr: 'ADR-0031', live: true },
   { label: 'Tracker Signatures', href: '/signatures', adr: 'ADR-0031', live: true },
-  { label: 'Pipeline Operations', href: '#', adr: 'ADR-0033', live: false },
+  { label: 'Pipeline Operations', href: '/pipeline', adr: 'ADR-0033', live: true },
   { label: 'Billing Operations', href: '#', adr: 'ADR-0034', live: false },
-  { label: 'Abuse & Security', href: '#', adr: 'ADR-0035', live: false },
+  { label: 'Abuse & Security', href: '/security', adr: 'ADR-0033', live: true },
   { label: 'Feature Flags & Kill Switches', href: '/flags', adr: 'ADR-0036', live: true },
   { label: 'Audit Log', href: '/audit-log', adr: 'ADR-0028', live: true },
 ]

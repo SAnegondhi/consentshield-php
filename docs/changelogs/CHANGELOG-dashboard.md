@@ -2,6 +2,23 @@
 
 Next.js UI changes.
 
+## ADR-0033 Sprints 1.2 + 2.2 — 2026-04-17
+
+**ADR:** ADR-0033 — Admin Ops + Security (Pipeline Operations + Abuse & Security panels)
+**Sprints:** 1.2 (Pipeline UI) + 2.2 (Security UI). Sprint 2.3 (Worker enforcement + smoke-tests) deferred to next session.
+
+### Added
+- `admin/src/app/(operator)/pipeline/page.tsx` + `pipeline-tabs.tsx` — 4-tab panel (Worker errors · Stuck buffers · DEPA expiry queue · Delivery health) consuming the 4 admin.pipeline_* RPCs. Server component fetches all 4 in parallel; client component re-fetches every 30s via `router.refresh()`. Empty states explain zero-row cases (e.g. HMAC/origin failures don't yet log to worker_errors).
+- `admin/src/app/(operator)/security/page.tsx` + `security-tabs.tsx` + `actions.ts` — 5-tab panel (Rate-limit triggers · HMAC failures · Origin failures · Sentry escalations · Blocked IPs). Block-IP and Unblock-IP Server Actions wrap `admin.security_block_ip` / `admin.security_unblock_ip`. Sentry tab is link-out only to consentshield-app / consentshield-admin Sentry projects. Rate-limit tab carries an inline amber banner explaining that ingestion is pending (V2-S2). The Blocked-IP footer is explicit that Worker enforcement ships in Sprint 2.3.
+
+### Changed
+- `admin/src/app/(operator)/layout.tsx` — `Pipeline Operations` + `Abuse & Security` nav items live (soon pills gone; adr pointer updated to `ADR-0033` for both, reflecting the fold-in of ADR-0035).
+
+### Tested
+- [x] `cd admin && bun run build` — 27 routes (up from 25 after ADR-0031). Zero errors / zero warnings.
+- [x] `cd admin && bun run lint` — zero warnings.
+- [x] `bun run test:rls` — 170/170 across 15 files (up from 160/160 after Phase 1's RPC test file).
+
 ## ADR-0031 — 2026-04-17
 
 **ADR:** ADR-0031 — Connector Catalogue + Tracker Signature Catalogue (admin panels)
