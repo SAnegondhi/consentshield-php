@@ -45,7 +45,7 @@ export function AuditLogFilterBar({
 
   return (
     <form
-      className="flex flex-wrap items-end gap-3 rounded-md border border-zinc-200 bg-white p-4 shadow-sm"
+      className="flex flex-wrap items-end gap-3 rounded-md border border-[color:var(--border)] bg-white p-4 shadow-sm"
       onSubmit={(e) => {
         e.preventDefault()
         const fd = new FormData(e.currentTarget)
@@ -62,7 +62,7 @@ export function AuditLogFilterBar({
         <select
           name="admin_user_id"
           defaultValue={initialAdminId}
-          className="rounded border border-zinc-300 px-2 py-1 text-xs"
+          className="rounded border border-[color:var(--border-mid)] px-2 py-1 text-xs"
         >
           <option value="">All admins</option>
           {admins.map((a) => (
@@ -77,7 +77,7 @@ export function AuditLogFilterBar({
         <select
           name="action"
           defaultValue={initialAction}
-          className="rounded border border-zinc-300 px-2 py-1 text-xs"
+          className="rounded border border-[color:var(--border-mid)] px-2 py-1 text-xs"
         >
           <option value="">All actions</option>
           {actions.map((a) => (
@@ -93,7 +93,7 @@ export function AuditLogFilterBar({
           name="org_id"
           defaultValue={initialOrgId}
           placeholder="e.g. 1f9f1e70"
-          className="rounded border border-zinc-300 px-2 py-1 text-xs"
+          className="rounded border border-[color:var(--border-mid)] px-2 py-1 text-xs"
         />
       </Field>
 
@@ -102,7 +102,7 @@ export function AuditLogFilterBar({
           type="date"
           name="from"
           defaultValue={initialFrom}
-          className="rounded border border-zinc-300 px-2 py-1 text-xs"
+          className="rounded border border-[color:var(--border-mid)] px-2 py-1 text-xs"
         />
       </Field>
 
@@ -111,7 +111,7 @@ export function AuditLogFilterBar({
           type="date"
           name="to"
           defaultValue={initialTo}
-          className="rounded border border-zinc-300 px-2 py-1 text-xs"
+          className="rounded border border-[color:var(--border-mid)] px-2 py-1 text-xs"
         />
       </Field>
 
@@ -125,7 +125,7 @@ export function AuditLogFilterBar({
       <button
         type="button"
         onClick={() => push({ admin_user_id: '', action: '', org_id: '', from: '', to: '' })}
-        className="rounded border border-zinc-300 bg-white px-3 py-1.5 text-xs text-zinc-700 hover:bg-zinc-50"
+        className="rounded border border-[color:var(--border-mid)] bg-white px-3 py-1.5 text-xs text-text-2 hover:bg-bg"
       >
         Reset
       </button>
@@ -136,7 +136,7 @@ export function AuditLogFilterBar({
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <label className="flex flex-col gap-1">
-      <span className="text-xs font-medium uppercase tracking-wider text-zinc-500">
+      <span className="text-xs font-medium uppercase tracking-wider text-text-3">
         {label}
       </span>
       {children}

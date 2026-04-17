@@ -12,8 +12,8 @@ export function CronStatusCard({ jobs }: { jobs: CronJob[] }) {
   const healthy = jobs.length - failed
 
   return (
-    <section className="rounded-md border border-zinc-200 bg-white shadow-sm">
-      <header className="flex items-center justify-between border-b border-zinc-200 p-4">
+    <section className="rounded-md border border-[color:var(--border)] bg-white shadow-sm">
+      <header className="flex items-center justify-between border-b border-[color:var(--border)] p-4">
         <h3 className="text-sm font-semibold">Cron job status</h3>
         <span
           className={
@@ -27,7 +27,7 @@ export function CronStatusCard({ jobs }: { jobs: CronJob[] }) {
       </header>
       <table className="w-full text-sm">
         <thead>
-          <tr className="bg-zinc-50 text-left text-xs uppercase tracking-wider text-zinc-500">
+          <tr className="bg-bg text-left text-xs uppercase tracking-wider text-text-3">
             <th className="px-4 py-2">Job</th>
             <th className="px-4 py-2">Schedule</th>
             <th className="px-4 py-2">Last run</th>
@@ -36,14 +36,14 @@ export function CronStatusCard({ jobs }: { jobs: CronJob[] }) {
         </thead>
         <tbody>
           {jobs.map((job) => (
-            <tr key={job.jobname} className="border-t border-zinc-200">
+            <tr key={job.jobname} className="border-t border-[color:var(--border)]">
               <td className="px-4 py-2">
                 <code className="font-mono text-xs">{job.jobname}</code>
               </td>
-              <td className="px-4 py-2 font-mono text-xs text-zinc-600">
+              <td className="px-4 py-2 font-mono text-xs text-text-2">
                 {job.schedule}
               </td>
-              <td className="px-4 py-2 font-mono text-xs text-zinc-600">
+              <td className="px-4 py-2 font-mono text-xs text-text-2">
                 {job.last_run_ago_seconds == null
                   ? 'never'
                   : humanAgo(job.last_run_ago_seconds)}
@@ -62,13 +62,13 @@ export function CronStatusCard({ jobs }: { jobs: CronJob[] }) {
 function statusPill(status: string | null, active: boolean) {
   if (!active)
     return (
-      <span className="rounded-full bg-zinc-100 px-2 py-0.5 font-medium text-zinc-600">
+      <span className="rounded-full bg-bg px-2 py-0.5 font-medium text-text-2">
         Paused
       </span>
     )
   if (!status)
     return (
-      <span className="rounded-full bg-zinc-100 px-2 py-0.5 font-medium text-zinc-600">
+      <span className="rounded-full bg-bg px-2 py-0.5 font-medium text-text-2">
         Pending
       </span>
     )

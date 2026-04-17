@@ -33,8 +33,8 @@ export function KillSwitchesTab({
   const engagedCount = switches.filter((s) => s.enabled).length
 
   return (
-    <div className="rounded-md border border-zinc-200 bg-white shadow-sm">
-      <header className="flex items-center justify-between border-b border-zinc-200 p-4">
+    <div className="rounded-md border border-[color:var(--border)] bg-white shadow-sm">
+      <header className="flex items-center justify-between border-b border-[color:var(--border)] p-4">
         <h3 className="text-sm font-semibold">Kill switches</h3>
         {engagedCount === 0 ? (
           <span className="rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-700">
@@ -54,7 +54,7 @@ export function KillSwitchesTab({
             className={
               sw.enabled
                 ? 'rounded border-2 border-red-300 bg-red-50 p-3'
-                : 'rounded border border-zinc-200 bg-white p-3'
+                : 'rounded border border-[color:var(--border)] bg-white p-3'
             }
           >
             <div className="flex items-start justify-between gap-4">
@@ -62,13 +62,13 @@ export function KillSwitchesTab({
                 <div className="font-mono text-sm font-semibold">
                   {sw.switch_key}
                 </div>
-                <div className="text-sm text-zinc-700">{sw.display_name}</div>
-                <div className="mt-1 text-xs text-zinc-600">{sw.description}</div>
+                <div className="text-sm text-text-2">{sw.display_name}</div>
+                <div className="mt-1 text-xs text-text-2">{sw.description}</div>
                 {sw.enabled && sw.reason ? (
                   <div className="mt-2 rounded bg-white p-2 text-xs text-red-900">
                     <strong>Reason:</strong> {sw.reason}
                     {sw.set_by_name ? (
-                      <span className="ml-2 text-zinc-600">
+                      <span className="ml-2 text-text-2">
                         · by {sw.set_by_name}
                       </span>
                     ) : null}
@@ -110,7 +110,7 @@ export function KillSwitchesTab({
           </div>
         ))}
 
-        <p className="border-t border-zinc-200 pt-3 text-xs text-zinc-500">
+        <p className="border-t border-[color:var(--border)] pt-3 text-xs text-text-3">
           Engaging a kill switch requires reason ≥ 10 chars (audit-logged).
           Confirmation prompt asks the operator to type the switch_key to
           confirm. Worker and Edge Functions read state from Cloudflare KV;
@@ -177,7 +177,7 @@ function EngageModal({ sw, onClose }: { sw: KillSwitch; onClose: () => void }) {
             onChange={(e) => setConfirmation(e.target.value)}
             required
             placeholder={sw.switch_key}
-            className="rounded border border-zinc-300 px-3 py-2 font-mono text-sm"
+            className="rounded border border-[color:var(--border-mid)] px-3 py-2 font-mono text-sm"
           />
         </Field>
 

@@ -80,7 +80,7 @@ export default async function NewTemplatePage({ searchParams }: PageProps) {
   return (
     <div className="mx-auto max-w-4xl space-y-4">
       <header>
-        <p className="text-xs text-zinc-500">
+        <p className="text-xs text-text-3">
           <Link href="/templates" className="hover:underline">
             ← Sectoral Templates
           </Link>
@@ -88,7 +88,7 @@ export default async function NewTemplatePage({ searchParams }: PageProps) {
         <h1 className="mt-1 text-xl font-semibold">
           {params.from ? 'Clone as new version' : 'New sectoral template (draft)'}
         </h1>
-        <p className="mt-1 text-sm text-zinc-600">
+        <p className="mt-1 text-sm text-text-2">
           {params.from
             ? 'Submitting creates a new draft with the same template_code — the version number auto-increments.'
             : 'Creates a draft with version 1. Publish later via the detail page.'}

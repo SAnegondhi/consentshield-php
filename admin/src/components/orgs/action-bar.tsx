@@ -35,14 +35,14 @@ export function OrgActionBar({ orgId, orgName, status, currentAdminRole }: Props
         <button
           type="button"
           onClick={() => setModal('note')}
-          className="rounded border border-zinc-300 bg-white px-3 py-1.5 text-xs text-zinc-800 hover:bg-zinc-50"
+          className="rounded border border-[color:var(--border-mid)] bg-white px-3 py-1.5 text-xs text-text hover:bg-bg"
         >
           Add note
         </button>
         <button
           type="button"
           onClick={() => setModal('trial')}
-          className="rounded border border-zinc-300 bg-white px-3 py-1.5 text-xs text-zinc-800 hover:bg-zinc-50"
+          className="rounded border border-[color:var(--border-mid)] bg-white px-3 py-1.5 text-xs text-text hover:bg-bg"
         >
           Extend trial
         </button>
@@ -56,7 +56,7 @@ export function OrgActionBar({ orgId, orgName, status, currentAdminRole }: Props
                 ? undefined
                 : 'platform_operator role required'
             }
-            className="rounded border border-red-300 bg-white px-3 py-1.5 text-xs text-red-700 hover:bg-red-50 disabled:cursor-not-allowed disabled:border-zinc-200 disabled:text-zinc-400"
+            className="rounded border border-red-300 bg-white px-3 py-1.5 text-xs text-red-700 hover:bg-red-50 disabled:cursor-not-allowed disabled:border-[color:var(--border)] disabled:text-text-3"
           >
             Suspend
           </button>
@@ -70,7 +70,7 @@ export function OrgActionBar({ orgId, orgName, status, currentAdminRole }: Props
                 ? undefined
                 : 'platform_operator role required'
             }
-            className="rounded border border-green-600 bg-white px-3 py-1.5 text-xs text-green-700 hover:bg-green-50 disabled:cursor-not-allowed disabled:border-zinc-200 disabled:text-zinc-400"
+            className="rounded border border-green-600 bg-white px-3 py-1.5 text-xs text-green-700 hover:bg-green-50 disabled:cursor-not-allowed disabled:border-[color:var(--border)] disabled:text-text-3"
           >
             Restore
           </button>
@@ -147,9 +147,9 @@ function AddNoteModal({
           required
           placeholder="Note body — visible to all operators"
           rows={4}
-          className="w-full rounded border border-zinc-300 px-3 py-2 text-sm"
+          className="w-full rounded border border-[color:var(--border-mid)] px-3 py-2 text-sm"
         />
-        <label className="flex items-center gap-2 text-sm text-zinc-700">
+        <label className="flex items-center gap-2 text-sm text-text-2">
           <input
             type="checkbox"
             checked={pinned}
@@ -205,7 +205,7 @@ function ExtendTrialModal({
             value={date}
             onChange={(e) => setDate(e.target.value)}
             required
-            className="rounded border border-zinc-300 px-3 py-2 text-sm"
+            className="rounded border border-[color:var(--border-mid)] px-3 py-2 text-sm"
           />
         </Field>
         <ReasonField reason={reason} onChange={setReason} />

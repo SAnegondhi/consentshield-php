@@ -44,28 +44,28 @@ export function FeatureFlagsTab({
   const canWrite = adminRole === 'platform_operator'
 
   return (
-    <div className="rounded-md border border-zinc-200 bg-white shadow-sm">
-      <header className="flex items-center justify-between border-b border-zinc-200 p-4">
+    <div className="rounded-md border border-[color:var(--border)] bg-white shadow-sm">
+      <header className="flex items-center justify-between border-b border-[color:var(--border)] p-4">
         <h3 className="text-sm font-semibold">Feature flags</h3>
         <button
           type="button"
           onClick={() => setModal({ kind: 'create' })}
           disabled={!canWrite}
           title={canWrite ? undefined : 'platform_operator role required'}
-          className="rounded bg-zinc-900 px-3 py-1.5 text-xs font-medium text-white hover:bg-zinc-800 disabled:cursor-not-allowed disabled:opacity-50"
+          className="rounded bg-teal px-3 py-1.5 text-xs font-medium text-white hover:bg-teal-mid disabled:cursor-not-allowed disabled:opacity-50"
         >
           + New flag
         </button>
       </header>
 
       {flags.length === 0 ? (
-        <p className="p-8 text-center text-sm text-zinc-500">
+        <p className="p-8 text-center text-sm text-text-3">
           No feature flags yet. Create one with the button above.
         </p>
       ) : (
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
-            <thead className="bg-zinc-50 text-left text-xs uppercase tracking-wider text-zinc-500">
+            <thead className="bg-bg text-left text-xs uppercase tracking-wider text-text-3">
               <tr>
                 <th className="px-4 py-2">Flag key</th>
                 <th className="px-4 py-2">Scope</th>
@@ -78,17 +78,17 @@ export function FeatureFlagsTab({
             </thead>
             <tbody>
               {flags.map((f) => (
-                <tr key={f.id} className="border-t border-zinc-200">
+                <tr key={f.id} className="border-t border-[color:var(--border)]">
                   <td className="px-4 py-2 font-mono text-xs">{f.flag_key}</td>
                   <td className="px-4 py-2">{f.scope}</td>
-                  <td className="px-4 py-2 text-xs text-zinc-600">
+                  <td className="px-4 py-2 text-xs text-text-2">
                     {f.scope === 'global' ? '—' : f.org_name ?? f.org_id}
                   </td>
                   <td className="px-4 py-2">
                     <ValuePill value={f.value} />
                   </td>
-                  <td className="px-4 py-2 text-xs text-zinc-600">{f.description}</td>
-                  <td className="px-4 py-2 text-xs text-zinc-600">
+                  <td className="px-4 py-2 text-xs text-text-2">{f.description}</td>
+                  <td className="px-4 py-2 text-xs text-text-2">
                     {f.set_by_name ?? f.set_by.slice(0, 8)} ·{' '}
                     {new Date(f.set_at).toLocaleDateString()}
                   </td>
@@ -98,7 +98,7 @@ export function FeatureFlagsTab({
                         type="button"
                         onClick={() => setModal({ kind: 'edit', flag: f })}
                         disabled={!canWrite}
-                        className="rounded border border-zinc-300 bg-white px-2 py-1 text-xs text-zinc-700 hover:bg-zinc-50 disabled:cursor-not-allowed disabled:opacity-50"
+                        className="rounded border border-[color:var(--border-mid)] bg-white px-2 py-1 text-xs text-text-2 hover:bg-bg disabled:cursor-not-allowed disabled:opacity-50"
                       >
                         Edit
                       </button>
@@ -148,7 +148,7 @@ function ValuePill({ value }: { value: unknown }) {
         className={
           value
             ? 'rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-700'
-            : 'rounded-full bg-zinc-200 px-2 py-0.5 text-xs font-medium text-zinc-700'
+            : 'rounded-full bg-[color:var(--border)] px-2 py-0.5 text-xs font-medium text-text-2'
         }
       >
         {value ? 'true' : 'false'}
@@ -156,7 +156,7 @@ function ValuePill({ value }: { value: unknown }) {
     )
   }
   return (
-    <code className="rounded bg-zinc-100 px-2 py-0.5 text-xs">
+    <code className="rounded bg-bg px-2 py-0.5 text-xs">
       {JSON.stringify(value)}
     </code>
   )
@@ -249,7 +249,7 @@ function FlagFormModal({
             disabled={mode === 'edit'}
             required
             placeholder="depa_dashboard_enabled"
-            className="rounded border border-zinc-300 px-3 py-2 font-mono text-sm disabled:bg-zinc-50 disabled:text-zinc-500"
+            className="rounded border border-[color:var(--border-mid)] px-3 py-2 font-mono text-sm disabled:bg-bg disabled:text-text-3"
           />
         </Field>
 
@@ -263,7 +263,7 @@ function FlagFormModal({
                 if (next === 'global') setOrgId('')
               }}
               disabled={mode === 'edit'}
-              className="rounded border border-zinc-300 px-3 py-2 text-sm disabled:bg-zinc-50 disabled:text-zinc-500"
+              className="rounded border border-[color:var(--border-mid)] px-3 py-2 text-sm disabled:bg-bg disabled:text-text-3"
             >
               <option value="global">global</option>
               <option value="org">org</option>
@@ -277,7 +277,7 @@ function FlagFormModal({
                 onChange={(e) => setOrgId(e.target.value)}
                 disabled={mode === 'edit'}
                 required
-                className="rounded border border-zinc-300 px-3 py-2 text-sm disabled:bg-zinc-50 disabled:text-zinc-500"
+                className="rounded border border-[color:var(--border-mid)] px-3 py-2 text-sm disabled:bg-bg disabled:text-text-3"
               >
                 <option value="">— pick —</option>
                 {orgs.map((o) => (
@@ -302,7 +302,7 @@ function FlagFormModal({
                 className={
                   valueType === t
                     ? 'rounded border-2 border-red-700 bg-red-50 px-3 py-1.5 text-xs font-medium text-red-800'
-                    : 'rounded border border-zinc-300 bg-white px-3 py-1.5 text-xs text-zinc-700 hover:bg-zinc-50'
+                    : 'rounded border border-[color:var(--border-mid)] bg-white px-3 py-1.5 text-xs text-text-2 hover:bg-bg'
                 }
               >
                 {t}
@@ -338,7 +338,7 @@ function FlagFormModal({
               value={stringValue}
               onChange={(e) => setStringValue(e.target.value)}
               required
-              className="rounded border border-zinc-300 px-3 py-2 text-sm"
+              className="rounded border border-[color:var(--border-mid)] px-3 py-2 text-sm"
             />
           </Field>
         ) : (
@@ -348,7 +348,7 @@ function FlagFormModal({
               value={numberValue}
               onChange={(e) => setNumberValue(e.target.value)}
               required
-              className="rounded border border-zinc-300 px-3 py-2 text-sm"
+              className="rounded border border-[color:var(--border-mid)] px-3 py-2 text-sm"
             />
           </Field>
         )}
@@ -360,7 +360,7 @@ function FlagFormModal({
             rows={2}
             required
             placeholder="What does this flag control?"
-            className="rounded border border-zinc-300 px-3 py-2 text-sm"
+            className="rounded border border-[color:var(--border-mid)] px-3 py-2 text-sm"
           />
         </Field>
 

@@ -79,7 +79,7 @@ export default async function OrganisationsListPage({ searchParams }: PageProps)
       <header className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-semibold">Organisations</h1>
-          <p className="text-xs text-zinc-500">
+          <p className="text-xs text-text-3">
             {total.toLocaleString()} {total === 1 ? 'organisation' : 'organisations'} · page {page + 1} of {totalPages}
           </p>
         </div>
@@ -92,14 +92,14 @@ export default async function OrganisationsListPage({ searchParams }: PageProps)
       />
 
       {orgs.length === 0 ? (
-        <div className="rounded-md border border-zinc-200 bg-white p-8 text-center text-sm text-zinc-500 shadow-sm">
+        <div className="rounded-md border border-[color:var(--border)] bg-white p-8 text-center text-sm text-text-3 shadow-sm">
           No organisations match the current filters.
         </div>
       ) : (
-        <div className="overflow-hidden rounded-md border border-zinc-200 bg-white shadow-sm">
+        <div className="overflow-hidden rounded-md border border-[color:var(--border)] bg-white shadow-sm">
           <table className="w-full text-sm">
             <thead>
-              <tr className="bg-zinc-50 text-left text-xs uppercase tracking-wider text-zinc-500">
+              <tr className="bg-bg text-left text-xs uppercase tracking-wider text-text-3">
                 <th className="px-4 py-2">Org</th>
                 <th className="px-4 py-2">Plan</th>
                 <th className="px-4 py-2">Status</th>
@@ -110,26 +110,26 @@ export default async function OrganisationsListPage({ searchParams }: PageProps)
             </thead>
             <tbody>
               {orgs.map((org) => (
-                <tr key={org.id} className="border-t border-zinc-200 hover:bg-red-50">
+                <tr key={org.id} className="border-t border-[color:var(--border)] hover:bg-red-50">
                   <td className="px-4 py-2">
-                    <div className="font-semibold text-zinc-900">{org.name}</div>
-                    <div className="text-xs text-zinc-500">
+                    <div className="font-semibold text-text">{org.name}</div>
+                    <div className="text-xs text-text-3">
                       <code className="font-mono">{org.id.slice(0, 8)}</code>
                       {org.compliance_contact_email ? ` · ${org.compliance_contact_email}` : ''}
                     </div>
                   </td>
                   <td className="px-4 py-2 text-xs">{org.plan ?? '—'}</td>
                   <td className="px-4 py-2">{statusPill(org.status)}</td>
-                  <td className="px-4 py-2 text-xs text-zinc-600">
+                  <td className="px-4 py-2 text-xs text-text-2">
                     {org.trial_ends_at ? formatDate(org.trial_ends_at) : '—'}
                   </td>
-                  <td className="px-4 py-2 text-xs text-zinc-600">
+                  <td className="px-4 py-2 text-xs text-text-2">
                     {formatDate(org.created_at)}
                   </td>
                   <td className="px-4 py-2 text-right">
                     <Link
                       href={`/orgs/${org.id}`}
-                      className="rounded border border-zinc-300 bg-white px-3 py-1 text-xs text-zinc-800 hover:bg-zinc-50"
+                      className="rounded border border-[color:var(--border-mid)] bg-white px-3 py-1 text-xs text-text hover:bg-bg"
                     >
                       Open →
                     </Link>
@@ -165,12 +165,12 @@ function statusPill(status: string) {
     )
   if (status === 'archived')
     return (
-      <span className="rounded-full bg-zinc-100 px-2 py-0.5 text-xs font-medium text-zinc-600">
+      <span className="rounded-full bg-bg px-2 py-0.5 text-xs font-medium text-text-2">
         Archived
       </span>
     )
   return (
-    <span className="rounded-full bg-zinc-100 px-2 py-0.5 text-xs font-medium text-zinc-600">
+    <span className="rounded-full bg-bg px-2 py-0.5 text-xs font-medium text-text-2">
       {status}
     </span>
   )
@@ -197,11 +197,11 @@ function PaginationNav({
   const prevHref = page > 0 ? hrefWithPage(params, page - 1) : null
   const nextHref = page + 1 < totalPages ? hrefWithPage(params, page + 1) : null
   return (
-    <nav className="flex items-center justify-between text-xs text-zinc-600">
+    <nav className="flex items-center justify-between text-xs text-text-2">
       {prevHref ? (
         <Link
           href={prevHref}
-          className="rounded border border-zinc-300 bg-white px-3 py-1 hover:bg-zinc-50"
+          className="rounded border border-[color:var(--border-mid)] bg-white px-3 py-1 hover:bg-bg"
         >
           ← Previous
         </Link>
@@ -211,7 +211,7 @@ function PaginationNav({
       {nextHref ? (
         <Link
           href={nextHref}
-          className="rounded border border-zinc-300 bg-white px-3 py-1 hover:bg-zinc-50"
+          className="rounded border border-[color:var(--border-mid)] bg-white px-3 py-1 hover:bg-bg"
         >
           Next →
         </Link>

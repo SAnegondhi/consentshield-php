@@ -27,7 +27,7 @@ export function AuditTable({ rows }: { rows: Row[] }) {
 
   if (rows.length === 0) {
     return (
-      <div className="rounded-md border border-zinc-200 bg-white p-8 text-center text-sm text-zinc-500 shadow-sm">
+      <div className="rounded-md border border-[color:var(--border)] bg-white p-8 text-center text-sm text-text-3 shadow-sm">
         No audit entries match the current filters.
       </div>
     )
@@ -35,10 +35,10 @@ export function AuditTable({ rows }: { rows: Row[] }) {
 
   return (
     <>
-      <div className="overflow-hidden rounded-md border border-zinc-200 bg-white shadow-sm">
+      <div className="overflow-hidden rounded-md border border-[color:var(--border)] bg-white shadow-sm">
         <table className="w-full text-sm">
           <thead>
-            <tr className="bg-zinc-50 text-left text-xs uppercase tracking-wider text-zinc-500">
+            <tr className="bg-bg text-left text-xs uppercase tracking-wider text-text-3">
               <th className="px-4 py-2">When</th>
               <th className="px-4 py-2">Action</th>
               <th className="px-4 py-2">Admin</th>
@@ -50,10 +50,10 @@ export function AuditTable({ rows }: { rows: Row[] }) {
             {rows.map((row) => (
               <tr
                 key={row.id}
-                className="cursor-pointer border-t border-zinc-200 hover:bg-red-50"
+                className="cursor-pointer border-t border-[color:var(--border)] hover:bg-red-50"
                 onClick={() => setSelected(row)}
               >
-                <td className="px-4 py-2 font-mono text-xs text-zinc-600">
+                <td className="px-4 py-2 font-mono text-xs text-text-2">
                   {new Date(row.occurred_at).toLocaleString('en-IN', {
                     dateStyle: 'short',
                     timeStyle: 'medium',
@@ -61,18 +61,18 @@ export function AuditTable({ rows }: { rows: Row[] }) {
                 </td>
                 <td className="px-4 py-2">
                   <code className="font-mono text-xs text-red-700">{row.action}</code>
-                  <div className="text-xs text-zinc-600" title={row.reason}>
+                  <div className="text-xs text-text-2" title={row.reason}>
                     {truncate(row.reason, 60)}
                   </div>
                 </td>
                 <td className="px-4 py-2 text-xs">
                   {row.display_name ?? row.admin_user_id.slice(0, 8)}
                 </td>
-                <td className="px-4 py-2 font-mono text-xs text-zinc-600">
+                <td className="px-4 py-2 font-mono text-xs text-text-2">
                   {row.target_table ?? '—'}
                   {row.target_pk ? ` · ${row.target_pk}` : ''}
                 </td>
-                <td className="px-4 py-2 font-mono text-xs text-zinc-600">
+                <td className="px-4 py-2 font-mono text-xs text-text-2">
                   {row.org_id ? row.org_id.slice(0, 8) : '—'}
                 </td>
               </tr>

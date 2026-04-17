@@ -114,33 +114,33 @@ export default async function TemplateDetailPage({ params }: PageProps) {
     <div className="mx-auto max-w-5xl space-y-4">
       <header className="flex items-start justify-between">
         <div>
-          <p className="text-xs text-zinc-500">
+          <p className="text-xs text-text-3">
             <Link href="/templates" className="hover:underline">
               ← Sectoral Templates
             </Link>
           </p>
           <h1 className="mt-1 text-xl font-semibold">
             {template.display_name}{' '}
-            <span className="text-sm font-normal text-zinc-500">
+            <span className="text-sm font-normal text-text-3">
               v{template.version}
             </span>
           </h1>
-          <p className="mt-1 font-mono text-xs text-zinc-500">
+          <p className="mt-1 font-mono text-xs text-text-3">
             {template.template_code} · {template.sector}
           </p>
         </div>
         <StatusPill status={template.status} />
       </header>
 
-      <section className="rounded-md border border-zinc-200 bg-white p-4 shadow-sm">
+      <section className="rounded-md border border-[color:var(--border)] bg-white p-4 shadow-sm">
         <h2 className="text-sm font-semibold">Description</h2>
-        <p className="mt-2 text-sm text-zinc-700">{template.description}</p>
+        <p className="mt-2 text-sm text-text-2">{template.description}</p>
         {template.notes ? (
           <>
-            <h3 className="mt-4 text-xs font-semibold uppercase tracking-wider text-zinc-500">
+            <h3 className="mt-4 text-xs font-semibold uppercase tracking-wider text-text-3">
               Notes
             </h3>
-            <p className="mt-1 whitespace-pre-wrap text-sm text-zinc-700">
+            <p className="mt-1 whitespace-pre-wrap text-sm text-text-2">
               {template.notes}
             </p>
           </>
@@ -151,7 +151,7 @@ export default async function TemplateDetailPage({ params }: PageProps) {
         <InfoTile label="Created">
           {formatDate(template.created_at)}
           <br />
-          <span className="text-xs text-zinc-500">
+          <span className="text-xs text-text-3">
             {adminName.get(template.created_by) ?? template.created_by.slice(0, 8)}
           </span>
         </InfoTile>
@@ -160,7 +160,7 @@ export default async function TemplateDetailPage({ params }: PageProps) {
             <>
               {formatDate(template.published_at)}
               <br />
-              <span className="text-xs text-zinc-500">
+              <span className="text-xs text-text-3">
                 {template.published_by
                   ? adminName.get(template.published_by) ??
                     template.published_by.slice(0, 8)
@@ -168,7 +168,7 @@ export default async function TemplateDetailPage({ params }: PageProps) {
               </span>
             </>
           ) : (
-            <span className="text-zinc-400">—</span>
+            <span className="text-text-3">—</span>
           )}
         </InfoTile>
         <InfoTile label="Deprecated">
@@ -188,28 +188,28 @@ export default async function TemplateDetailPage({ params }: PageProps) {
               ) : null}
             </>
           ) : (
-            <span className="text-zinc-400">—</span>
+            <span className="text-text-3">—</span>
           )}
         </InfoTile>
       </section>
 
-      <section className="rounded-md border border-zinc-200 bg-white shadow-sm">
-        <header className="border-b border-zinc-200 p-4">
+      <section className="rounded-md border border-[color:var(--border)] bg-white shadow-sm">
+        <header className="border-b border-[color:var(--border)] p-4">
           <h2 className="text-sm font-semibold">
             Purpose definitions
-            <span className="ml-2 text-xs font-normal text-zinc-500">
+            <span className="ml-2 text-xs font-normal text-text-3">
               {purposes.length} purpose{purposes.length === 1 ? '' : 's'}
             </span>
           </h2>
         </header>
         {purposes.length === 0 ? (
-          <p className="p-8 text-center text-sm text-zinc-500">
+          <p className="p-8 text-center text-sm text-text-3">
             No purposes defined.
           </p>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
-              <thead className="bg-zinc-50 text-left text-xs uppercase tracking-wider text-zinc-500">
+              <thead className="bg-bg text-left text-xs uppercase tracking-wider text-text-3">
                 <tr>
                   <th className="px-4 py-2">Code</th>
                   <th className="px-4 py-2">Display</th>
@@ -221,7 +221,7 @@ export default async function TemplateDetailPage({ params }: PageProps) {
               </thead>
               <tbody>
                 {purposes.map((p, i) => (
-                  <tr key={p.purpose_code ?? i} className="border-t border-zinc-200">
+                  <tr key={p.purpose_code ?? i} className="border-t border-[color:var(--border)]">
                     <td className="px-4 py-2 font-mono text-xs">
                       {p.purpose_code ?? '—'}
                     </td>
@@ -246,13 +246,13 @@ export default async function TemplateDetailPage({ params }: PageProps) {
             </table>
           </div>
         )}
-        <footer className="border-t border-zinc-200 p-3 text-xs text-zinc-500">
+        <footer className="border-t border-[color:var(--border)] p-3 text-xs text-text-3">
           data_scope values are <strong>category declarations only</strong>, never actual
           personal data values (Rule 3).
         </footer>
       </section>
 
-      <section className="rounded-md border border-zinc-200 bg-white p-4 shadow-sm">
+      <section className="rounded-md border border-[color:var(--border)] bg-white p-4 shadow-sm">
         <h2 className="mb-3 text-sm font-semibold">Actions</h2>
         <TemplateDetailActions
           templateId={template.id}
@@ -270,7 +270,7 @@ function StatusPill({ status }: { status: 'draft' | 'published' | 'deprecated' }
       ? 'rounded-full bg-green-100 px-3 py-1 text-xs font-medium text-green-700'
       : status === 'draft'
         ? 'rounded-full bg-amber-100 px-3 py-1 text-xs font-medium text-amber-800'
-        : 'rounded-full bg-zinc-200 px-3 py-1 text-xs font-medium text-zinc-700'
+        : 'rounded-full bg-[color:var(--border)] px-3 py-1 text-xs font-medium text-text-2'
   return <span className={classes}>{status}</span>
 }
 
@@ -282,11 +282,11 @@ function InfoTile({
   children: React.ReactNode
 }) {
   return (
-    <div className="rounded-md border border-zinc-200 bg-white p-3 shadow-sm">
-      <p className="text-xs font-medium uppercase tracking-wider text-zinc-500">
+    <div className="rounded-md border border-[color:var(--border)] bg-white p-3 shadow-sm">
+      <p className="text-xs font-medium uppercase tracking-wider text-text-3">
         {label}
       </p>
-      <p className="mt-1 text-sm text-zinc-800">{children}</p>
+      <p className="mt-1 text-sm text-text">{children}</p>
     </div>
   )
 }
@@ -297,13 +297,13 @@ function DataScopePills({ scope }: { scope?: string[] | string }) {
     : typeof scope === 'string' && scope
       ? [scope]
       : []
-  if (items.length === 0) return <span className="text-xs text-zinc-400">—</span>
+  if (items.length === 0) return <span className="text-xs text-text-3">—</span>
   return (
     <div className="flex flex-wrap gap-1">
       {items.map((item) => (
         <span
           key={item}
-          className="rounded bg-zinc-100 px-1.5 py-0.5 font-mono text-xs text-zinc-700"
+          className="rounded bg-bg px-1.5 py-0.5 font-mono text-xs text-text-2"
         >
           {item}
         </span>

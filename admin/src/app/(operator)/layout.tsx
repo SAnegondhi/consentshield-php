@@ -3,12 +3,22 @@ import { redirect } from 'next/navigation'
 import { createServerClient } from '@/lib/supabase/server'
 import { ActiveSessionBanner } from '@/components/impersonation/active-session-banner'
 
-// Operator shell. Red admin-mode strip + red sidebar border per the
-// admin wireframe (docs/admin/design/consentshield-admin-screens.html).
+// Operator shell — visual spec: docs/admin/design/consentshield-admin-screens.html.
 //
-// ADR-0026 Sprint 3.1 — layout skeleton.
-// ADR-0028 Sprint 1.1 — session-aware chip + sign-out + live nav links
-// for panels that have shipped.
+// Wireframe design tokens (navy sidebar + teal primary + red admin-accent,
+// DM Sans body) live in admin/src/app/globals.css @theme.
+//
+// Layout structure matches wireframe:
+//   - Fixed admin-mode strip at top (24px, red, uppercase)
+//   - Body offset below the strip
+//   - Left sidebar: navy-dark + 3px red border-right
+//       · Logo mark (red square icon + "ConsentShield" + "ADMIN" subtitle)
+//       · Session chip (translucent outline, AAL indicator)
+//       · Nav (translucent white with red active state + 3px left border)
+//       · User row at bottom + sign-out
+//   - Main area: white surface topbar + content
+//
+// ADR-0028 Sprint 1.1 — session-aware chip + sign-out + live nav links.
 
 interface NavItem {
   label: string
@@ -36,24 +46,16 @@ export default async function OperatorLayout({
 }: {
   children: React.ReactNode
 }) {
-  // The proxy has already enforced is_admin + AAL2 (or bypassed AAL2 in
-  // dev). We read the session purely for display purposes here — the
-  // security gate is upstream.
   const supabase = await createServerClient()
   const {
     data: { user },
   } = await supabase.auth.getUser()
 
-  if (!user) {
-    // Defence-in-depth; the proxy should have redirected already.
-    redirect('/login')
-  }
+  if (!user) redirect('/login')
 
-  const adminRole = (user.app_metadata?.admin_role as string | undefined) ?? 'platform_operator'
+  const adminRole =
+    (user.app_metadata?.admin_role as string | undefined) ?? 'platform_operator'
 
-  // Resolve display_name via admin.admin_users. Falls back to the email
-  // local-part if the row is missing (pre-bootstrap state — should not
-  // happen in normal flow but keeps the layout resilient).
   const { data: adminRow } = await supabase
     .schema('admin')
     .from('admin_users')
@@ -63,74 +65,136 @@ export default async function OperatorLayout({
 
   const displayName =
     adminRow?.display_name ?? user.email?.split('@')[0] ?? 'operator'
+  const avatarInitials = displayName
+    .split(/\s+/)
+    .filter((p: string) => p.length > 0)
+    .map((p: string) => p.charAt(0))
+    .join('')
+    .slice(0, 2)
+    .toUpperCase()
 
   return (
-    <div className="min-h-screen">
-      {/* Impersonation banner — renders nothing when no session is active */}
-      <ActiveSessionBanner />
-
-      {/* Admin-mode strip (Rule 25 visual cue) */}
-      <div className="bg-red-700 py-1 text-center text-xs font-mono uppercase tracking-wider text-white">
-        ConsentShield — Operator Console (Admin Mode)
+    <>
+      {/* Admin-mode strip — fixed top banner, red, uppercase (Rule 25 visual) */}
+      <div
+        className="fixed top-0 left-0 right-0 z-50 flex h-6 items-center justify-center bg-admin-accent text-[11px] font-semibold uppercase tracking-[.04em] text-white"
+      >
+        ConsentShield · Operator Console
       </div>
 
-      <div className="flex min-h-[calc(100vh-28px)]">
-        <aside className="flex w-64 flex-col border-r-2 border-red-700 bg-white">
-          <div className="border-b border-zinc-200 p-4">
-            <p className="text-xs font-mono uppercase tracking-wider text-red-700">
-              Admin
-            </p>
-            <p className="mt-1 text-sm font-semibold">ConsentShield</p>
-          </div>
+      {/* Impersonation banner (renders null when inactive) */}
+      <ActiveSessionBanner />
 
-          {/* Session chip */}
-          <div className="border-b border-zinc-200 p-3">
-            <div className="rounded border border-red-200 bg-red-50 p-2">
-              <p className="truncate text-sm font-semibold text-zinc-900">
-                {displayName}
-              </p>
-              <p className="truncate text-xs text-red-800">
-                {adminRole} · AAL2 verified
-              </p>
+      <div className="flex h-[calc(100vh-24px)] pt-6">
+        <aside
+          className="flex w-60 flex-col border-r-[3px] border-admin-accent"
+          style={{ background: 'var(--navy-dark)' }}
+        >
+          {/* Logo */}
+          <div className="border-b border-white/[.08] px-[18px] pb-[14px] pt-[18px]">
+            <div className="flex items-center gap-2">
+              <div className="flex h-7 w-7 items-center justify-center rounded-md bg-admin-accent">
+                <svg viewBox="0 0 24 24" fill="white" className="h-4 w-4">
+                  <path d="M12 2L2 7v10l10 5 10-5V7l-10-5zm0 2.18L19.82 8 12 11.82 4.18 8 12 4.18zM4 9.82l7 3.5v6.36l-7-3.5V9.82zm9 9.86v-6.36l7-3.5v6.36l-7 3.5z" />
+                </svg>
+              </div>
+              <div>
+                <div className="text-[15px] font-semibold tracking-[-.01em] text-white">
+                  ConsentShield
+                </div>
+                <div className="mt-0.5 text-[10px] font-semibold uppercase tracking-[.04em] text-admin-accent-soft">
+                  Admin Console
+                </div>
+              </div>
             </div>
           </div>
 
-          <nav className="flex-1 p-2">
-            <ul className="space-y-1">
+          {/* Session chip */}
+          <div
+            className="mx-[18px] mt-3 rounded-md border border-admin-accent/40 px-[10px] py-2 text-[11px]"
+            style={{ background: 'rgba(255,255,255,.06)' }}
+          >
+            <div className="flex items-center justify-between text-white/50">
+              <span>Role</span>
+              <span className="font-medium text-white">{adminRole}</span>
+            </div>
+            <div className="mt-1 flex items-center gap-1 text-[10px] text-[#86EFAC]">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-3 w-3">
+                <path d="M9 12l2 2 4-4" />
+                <circle cx="12" cy="12" r="10" />
+              </svg>
+              AAL2 verified
+            </div>
+          </div>
+
+          {/* Nav */}
+          <nav className="flex-1 overflow-y-auto py-3">
+            <ul className="space-y-0.5 px-[10px]">
               {NAV_ITEMS.map((item) => (
                 <li key={item.label}>
-                  <Link
-                    href={item.href}
-                    className={
-                      item.live
-                        ? 'block rounded px-3 py-2 text-sm text-zinc-800 hover:bg-zinc-100'
-                        : 'pointer-events-none block rounded px-3 py-2 text-sm text-zinc-400'
-                    }
-                    title={`Ships in ${item.adr}`}
-                  >
-                    {item.label}
-                    {!item.live && (
-                      <span className="ml-2 text-xs text-zinc-400">· soon</span>
-                    )}
-                  </Link>
+                  <NavLink item={item} />
                 </li>
               ))}
             </ul>
           </nav>
 
-          {/* Footer: sign out */}
-          <form action="/api/auth/signout" method="post" className="border-t border-zinc-200 p-3">
-            <button
-              type="submit"
-              className="w-full rounded border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-700 hover:bg-zinc-100"
-            >
-              Sign out
-            </button>
-          </form>
+          {/* Footer: user row + sign out */}
+          <div className="border-t border-white/[.08] px-[18px] py-[14px]">
+            <div className="flex items-center gap-2">
+              <div className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full bg-admin-accent text-[11px] font-semibold text-white">
+                {avatarInitials || 'OP'}
+              </div>
+              <div className="min-w-0 flex-1">
+                <div className="truncate text-[12px] font-medium text-white">
+                  {displayName}
+                </div>
+                <div className="truncate text-[10px] text-admin-accent-soft">
+                  {user.email}
+                </div>
+              </div>
+            </div>
+            <form action="/api/auth/signout" method="post" className="mt-3">
+              <button
+                type="submit"
+                className="w-full rounded-md border border-white/10 bg-white/[.04] px-3 py-1.5 text-[12px] text-white/80 transition-colors hover:bg-white/10 hover:text-white"
+              >
+                Sign out
+              </button>
+            </form>
+          </div>
         </aside>
 
-        <main className="flex-1 p-8">{children}</main>
+        <main className="flex min-w-0 flex-1 flex-col overflow-hidden">
+          <div className="flex-1 overflow-y-auto px-6 py-6">{children}</div>
+        </main>
       </div>
-    </div>
+    </>
+  )
+}
+
+function NavLink({ item }: { item: NavItem }) {
+  if (!item.live) {
+    return (
+      <span
+        className="flex cursor-not-allowed items-center gap-2 rounded-md px-[10px] py-2 text-[13px] text-white/30"
+        title={`Ships in ${item.adr}`}
+      >
+        <span className="flex-1">{item.label}</span>
+        <span
+          className="rounded-[10px] px-1.5 py-px text-[10px] font-semibold text-white/60"
+          style={{ background: 'rgba(255,255,255,.15)' }}
+        >
+          soon
+        </span>
+      </span>
+    )
+  }
+  return (
+    <Link
+      href={item.href}
+      className="flex items-center gap-2 rounded-md px-[10px] py-2 text-[13px] text-white/55 transition-colors hover:bg-white/[.07] hover:text-white/90"
+    >
+      {item.label}
+    </Link>
   )
 }

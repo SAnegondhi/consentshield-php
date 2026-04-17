@@ -31,7 +31,7 @@ export function OrgsFilterBar({ initialPlan, initialStatus, initialQ }: Props) {
 
   return (
     <form
-      className="flex flex-wrap items-end gap-3 rounded-md border border-zinc-200 bg-white p-4 shadow-sm"
+      className="flex flex-wrap items-end gap-3 rounded-md border border-[color:var(--border)] bg-white p-4 shadow-sm"
       onSubmit={(e) => {
         e.preventDefault()
         const fd = new FormData(e.currentTarget)
@@ -46,7 +46,7 @@ export function OrgsFilterBar({ initialPlan, initialStatus, initialQ }: Props) {
         <select
           name="plan"
           defaultValue={initialPlan}
-          className="rounded border border-zinc-300 px-2 py-1 text-xs"
+          className="rounded border border-[color:var(--border-mid)] px-2 py-1 text-xs"
         >
           <option value="">All plans</option>
           {PLANS.map((p) => (
@@ -61,7 +61,7 @@ export function OrgsFilterBar({ initialPlan, initialStatus, initialQ }: Props) {
         <select
           name="status"
           defaultValue={initialStatus}
-          className="rounded border border-zinc-300 px-2 py-1 text-xs"
+          className="rounded border border-[color:var(--border-mid)] px-2 py-1 text-xs"
         >
           <option value="">Any</option>
           {STATUSES.map((s) => (
@@ -77,7 +77,7 @@ export function OrgsFilterBar({ initialPlan, initialStatus, initialQ }: Props) {
           name="q"
           defaultValue={initialQ}
           placeholder="e.g. acme"
-          className="w-64 rounded border border-zinc-300 px-2 py-1 text-xs"
+          className="w-64 rounded border border-[color:var(--border-mid)] px-2 py-1 text-xs"
         />
       </Field>
 
@@ -91,7 +91,7 @@ export function OrgsFilterBar({ initialPlan, initialStatus, initialQ }: Props) {
       <button
         type="button"
         onClick={() => push({ plan: '', status: '', q: '' })}
-        className="rounded border border-zinc-300 bg-white px-3 py-1.5 text-xs text-zinc-700 hover:bg-zinc-50"
+        className="rounded border border-[color:var(--border-mid)] bg-white px-3 py-1.5 text-xs text-text-2 hover:bg-bg"
       >
         Reset
       </button>
@@ -102,7 +102,7 @@ export function OrgsFilterBar({ initialPlan, initialStatus, initialQ }: Props) {
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <label className="flex flex-col gap-1">
-      <span className="text-xs font-medium uppercase tracking-wider text-zinc-500">
+      <span className="text-xs font-medium uppercase tracking-wider text-text-3">
         {label}
       </span>
       {children}

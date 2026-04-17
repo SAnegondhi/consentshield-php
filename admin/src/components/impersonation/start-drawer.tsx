@@ -61,14 +61,14 @@ export function StartImpersonationDrawer({
           }}
         >
           <div className="ml-auto flex h-full w-full max-w-md flex-col overflow-hidden bg-white shadow-xl">
-            <header className="border-b border-zinc-200 bg-red-50 p-4">
+            <header className="border-b border-[color:var(--border)] bg-red-50 p-4">
               <p className="text-xs font-mono uppercase tracking-wider text-red-700">
                 Privileged action
               </p>
               <h3 className="mt-1 text-base font-semibold">
                 Start impersonation — {orgName}
               </h3>
-              <p className="mt-1 text-xs text-zinc-700">
+              <p className="mt-1 text-xs text-text-2">
                 The customer&rsquo;s compliance contact is notified within 5
                 minutes. Rule 23: every page and every action during this
                 session is audit-logged with the session ID.
@@ -77,13 +77,13 @@ export function StartImpersonationDrawer({
 
             <form onSubmit={onSubmit} className="flex-1 space-y-4 overflow-y-auto p-4">
               <label className="flex flex-col gap-1">
-                <span className="text-xs font-medium uppercase tracking-wider text-zinc-500">
+                <span className="text-xs font-medium uppercase tracking-wider text-text-3">
                   Reason
                 </span>
                 <select
                   value={reason}
                   onChange={(e) => setReason(e.target.value)}
-                  className="rounded border border-zinc-300 px-3 py-2 text-sm"
+                  className="rounded border border-[color:var(--border-mid)] px-3 py-2 text-sm"
                 >
                   {REASONS.map((r) => (
                     <option key={r.value} value={r.value}>
@@ -94,7 +94,7 @@ export function StartImpersonationDrawer({
               </label>
 
               <label className="flex flex-col gap-1">
-                <span className="text-xs font-medium uppercase tracking-wider text-zinc-500">
+                <span className="text-xs font-medium uppercase tracking-wider text-text-3">
                   Reason detail (≥ 10 chars — {remaining} more needed)
                 </span>
                 <textarea
@@ -103,18 +103,18 @@ export function StartImpersonationDrawer({
                   rows={4}
                   required
                   placeholder="Specific ticket / bug / invoice reference and what you'll do."
-                  className="rounded border border-zinc-300 px-3 py-2 text-sm"
+                  className="rounded border border-[color:var(--border-mid)] px-3 py-2 text-sm"
                 />
               </label>
 
               <label className="flex flex-col gap-1">
-                <span className="text-xs font-medium uppercase tracking-wider text-zinc-500">
+                <span className="text-xs font-medium uppercase tracking-wider text-text-3">
                   Session duration
                 </span>
                 <select
                   value={duration}
                   onChange={(e) => setDuration(Number(e.target.value))}
-                  className="rounded border border-zinc-300 px-3 py-2 text-sm"
+                  className="rounded border border-[color:var(--border-mid)] px-3 py-2 text-sm"
                 >
                   {DURATIONS.map((d) => (
                     <option key={d} value={d}>
@@ -130,18 +130,18 @@ export function StartImpersonationDrawer({
                 </p>
               ) : null}
 
-              <p className="text-xs text-zinc-500">
+              <p className="text-xs text-text-3">
                 By starting this session, you confirm you have a legitimate
                 operational reason aligned with customer support and incident
                 response policies.
               </p>
             </form>
 
-            <footer className="flex items-center justify-end gap-2 border-t border-zinc-200 p-4">
+            <footer className="flex items-center justify-end gap-2 border-t border-[color:var(--border)] p-4">
               <button
                 type="button"
                 onClick={() => setOpen(false)}
-                className="rounded border border-zinc-300 bg-white px-3 py-1.5 text-xs text-zinc-700 hover:bg-zinc-50"
+                className="rounded border border-[color:var(--border-mid)] bg-white px-3 py-1.5 text-xs text-text-2 hover:bg-bg"
               >
                 Cancel
               </button>

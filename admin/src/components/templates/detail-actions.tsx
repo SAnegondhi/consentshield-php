@@ -38,7 +38,7 @@ export function TemplateDetailActions({
 
   if (status === 'deprecated') {
     return (
-      <p className="rounded border border-zinc-200 bg-zinc-50 p-3 text-xs text-zinc-600">
+      <p className="rounded border border-[color:var(--border)] bg-bg p-3 text-xs text-text-2">
         Deprecated templates are read-only. To ship an updated version, use{' '}
         <strong>Clone as new version</strong> from the most recent published
         version of this template_code (if any).
@@ -53,7 +53,7 @@ export function TemplateDetailActions({
           <>
             <Link
               href={`/templates/${templateId}/edit`}
-              className="rounded border border-zinc-300 bg-white px-3 py-1.5 text-xs text-zinc-800 hover:bg-zinc-50"
+              className="rounded border border-[color:var(--border-mid)] bg-white px-3 py-1.5 text-xs text-text hover:bg-bg"
             >
               Edit
             </Link>
@@ -62,7 +62,7 @@ export function TemplateDetailActions({
               onClick={() => setModal({ kind: 'publish' })}
               disabled={!canPublish}
               title={canPublish ? undefined : 'platform_operator role required'}
-              className="rounded bg-zinc-900 px-3 py-1.5 text-xs font-medium text-white hover:bg-zinc-800 disabled:cursor-not-allowed disabled:opacity-50"
+              className="rounded bg-teal px-3 py-1.5 text-xs font-medium text-white hover:bg-teal-mid disabled:cursor-not-allowed disabled:opacity-50"
             >
               Publish
             </button>
@@ -72,7 +72,7 @@ export function TemplateDetailActions({
           <>
             <Link
               href={`/templates/new?from=${templateId}`}
-              className="rounded border border-zinc-300 bg-white px-3 py-1.5 text-xs text-zinc-800 hover:bg-zinc-50"
+              className="rounded border border-[color:var(--border-mid)] bg-white px-3 py-1.5 text-xs text-text hover:bg-bg"
             >
               Clone as new version
             </Link>

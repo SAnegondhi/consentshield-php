@@ -23,7 +23,7 @@ export function FlagsTabs({
 
   return (
     <>
-      <div className="flex items-center gap-1 border-b border-zinc-200">
+      <div className="flex items-center gap-1 border-b border-[color:var(--border)]">
         <TabButton active={tab === 'flags'} onClick={() => setTab('flags')}>
           Feature flags
         </TabButton>
@@ -60,7 +60,7 @@ function TabButton({
       className={
         active
           ? 'border-b-2 border-red-700 px-4 py-2 text-sm font-semibold text-red-800'
-          : 'border-b-2 border-transparent px-4 py-2 text-sm text-zinc-600 hover:text-zinc-900'
+          : 'border-b-2 border-transparent px-4 py-2 text-sm text-text-2 hover:text-text'
       }
     >
       {children}

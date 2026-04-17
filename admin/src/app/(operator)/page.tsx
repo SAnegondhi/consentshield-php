@@ -111,7 +111,7 @@ export default async function OperationsDashboard() {
       <header className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-semibold">Operations Dashboard</h1>
-          <p className="text-xs text-zinc-500">
+          <p className="text-xs text-text-3">
             {metrics
               ? `Refreshed ${new Date(metrics.refreshed_at).toLocaleString('en-IN', {
                   dateStyle: 'short',

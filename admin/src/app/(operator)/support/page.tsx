@@ -95,7 +95,7 @@ export default async function SupportPage() {
     <div className="mx-auto max-w-6xl space-y-4">
       <header>
         <h1 className="text-xl font-semibold">Support Tickets</h1>
-        <p className="text-sm text-zinc-600">
+        <p className="text-sm text-text-2">
           Customer support queue. Replies require the support or platform_operator role.
         </p>
       </header>
@@ -107,25 +107,25 @@ export default async function SupportPage() {
         <MetricTile label="Median first response" value={'—'} delta="target: 1h · ships in V2" tone="normal" />
       </section>
 
-      <div className="rounded-md border border-zinc-200 bg-white shadow-sm">
-        <header className="flex items-center justify-between border-b border-zinc-200 p-4">
+      <div className="rounded-md border border-[color:var(--border)] bg-white shadow-sm">
+        <header className="flex items-center justify-between border-b border-[color:var(--border)] p-4">
           <h2 className="text-sm font-semibold">
             Tickets
-            <span className="ml-2 text-xs font-normal text-zinc-500">
+            <span className="ml-2 text-xs font-normal text-text-3">
               {tickets.length} total · showing latest 200
             </span>
           </h2>
         </header>
 
         {tickets.length === 0 ? (
-          <p className="p-8 text-center text-sm text-zinc-500">
+          <p className="p-8 text-center text-sm text-text-3">
             No tickets yet. Customer tickets appear here once the customer-side
             Contact Support surface ships in Sprint 2.1.
           </p>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
-              <thead className="bg-zinc-50 text-left text-xs uppercase tracking-wider text-zinc-500">
+              <thead className="bg-bg text-left text-xs uppercase tracking-wider text-text-3">
                 <tr>
                   <th className="px-4 py-2">ID</th>
                   <th className="px-4 py-2">Subject</th>
@@ -140,7 +140,7 @@ export default async function SupportPage() {
                 {tickets.map((t) => (
                   <tr
                     key={t.id}
-                    className="border-t border-zinc-200 hover:bg-zinc-50"
+                    className="border-t border-[color:var(--border)] hover:bg-bg"
                   >
                     <td className="px-4 py-2">
                       <Link
@@ -151,7 +151,7 @@ export default async function SupportPage() {
                       </Link>
                     </td>
                     <td className="px-4 py-2">{t.subject}</td>
-                    <td className="px-4 py-2 text-xs text-zinc-600">
+                    <td className="px-4 py-2 text-xs text-text-2">
                       {t.org_name ?? (t.org_id ? t.org_id.slice(0, 8) : '—')}
                     </td>
                     <td className="px-4 py-2">
@@ -160,10 +160,10 @@ export default async function SupportPage() {
                     <td className="px-4 py-2">
                       <StatusPill status={t.status} />
                     </td>
-                    <td className="px-4 py-2 text-xs text-zinc-600">
+                    <td className="px-4 py-2 text-xs text-text-2">
                       {t.assignee_name ?? '—'}
                     </td>
-                    <td className="px-4 py-2 text-xs text-zinc-600">
+                    <td className="px-4 py-2 text-xs text-text-2">
                       {new Date(t.created_at).toLocaleDateString()}
                     </td>
                   </tr>
@@ -193,15 +193,15 @@ function MetricTile({
       ? 'text-red-700'
       : tone === 'amber'
         ? 'text-amber-700'
-        : 'text-zinc-900'
+        : 'text-text'
   return (
-    <div className="rounded-md border border-zinc-200 bg-white p-4 shadow-sm">
-      <p className="text-xs font-medium uppercase tracking-wider text-zinc-500">
+    <div className="rounded-md border border-[color:var(--border)] bg-white p-4 shadow-sm">
+      <p className="text-xs font-medium uppercase tracking-wider text-text-3">
         {label}
       </p>
       <p className={`mt-1 text-2xl font-semibold ${valueColor}`}>{value}</p>
       {delta ? (
-        <p className="mt-1 truncate text-xs text-zinc-600">{delta}</p>
+        <p className="mt-1 truncate text-xs text-text-2">{delta}</p>
       ) : null}
     </div>
   )
@@ -214,8 +214,8 @@ function PriorityPill({ priority }: { priority: string }) {
       : priority === 'high'
         ? 'rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-800'
         : priority === 'normal'
-          ? 'rounded-full bg-zinc-100 px-2 py-0.5 text-xs font-medium text-zinc-700'
-          : 'rounded-full bg-zinc-100 px-2 py-0.5 text-xs font-medium text-zinc-500'
+          ? 'rounded-full bg-bg px-2 py-0.5 text-xs font-medium text-text-2'
+          : 'rounded-full bg-bg px-2 py-0.5 text-xs font-medium text-text-3'
   return <span className={classes}>{priority}</span>
 }
 
@@ -227,6 +227,6 @@ function StatusPill({ status }: { status: string }) {
         ? 'rounded-full bg-blue-100 px-2 py-0.5 text-xs font-medium text-blue-800'
         : status === 'resolved'
           ? 'rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-700'
-          : 'rounded-full bg-zinc-200 px-2 py-0.5 text-xs font-medium text-zinc-700'
+          : 'rounded-full bg-[color:var(--border)] px-2 py-0.5 text-xs font-medium text-text-2'
   return <span className={classes}>{status.replace(/_/g, ' ')}</span>
 }

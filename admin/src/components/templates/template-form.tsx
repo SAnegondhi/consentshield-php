@@ -121,7 +121,7 @@ export function TemplateForm(props: Props) {
 
   return (
     <form onSubmit={onSubmit} className="space-y-4">
-      <section className="rounded-md border border-zinc-200 bg-white p-4 shadow-sm">
+      <section className="rounded-md border border-[color:var(--border)] bg-white p-4 shadow-sm">
         <h2 className="mb-3 text-sm font-semibold">Metadata</h2>
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           <LabeledInput
@@ -155,7 +155,7 @@ export function TemplateForm(props: Props) {
             ))}
           </datalist>
           <div className="sm:col-span-2">
-            <label className="block text-xs font-medium uppercase tracking-wider text-zinc-500">
+            <label className="block text-xs font-medium uppercase tracking-wider text-text-3">
               Description
             </label>
             <textarea
@@ -163,36 +163,36 @@ export function TemplateForm(props: Props) {
               onChange={(e) => setDescription(e.target.value)}
               rows={2}
               required
-              className="mt-1 w-full rounded border border-zinc-300 px-3 py-2 text-sm"
+              className="mt-1 w-full rounded border border-[color:var(--border-mid)] px-3 py-2 text-sm"
               placeholder="What is this template for? Which regulators are addressed?"
             />
           </div>
         </div>
       </section>
 
-      <section className="rounded-md border border-zinc-200 bg-white shadow-sm">
-        <header className="flex items-center justify-between border-b border-zinc-200 p-4">
+      <section className="rounded-md border border-[color:var(--border)] bg-white shadow-sm">
+        <header className="flex items-center justify-between border-b border-[color:var(--border)] p-4">
           <h2 className="text-sm font-semibold">
             Purpose definitions
-            <span className="ml-2 text-xs font-normal text-zinc-500">
+            <span className="ml-2 text-xs font-normal text-text-3">
               {purposes.length} purpose{purposes.length === 1 ? '' : 's'}
             </span>
           </h2>
           <button
             type="button"
             onClick={addPurpose}
-            className="rounded border border-zinc-300 bg-white px-3 py-1 text-xs text-zinc-700 hover:bg-zinc-50"
+            className="rounded border border-[color:var(--border-mid)] bg-white px-3 py-1 text-xs text-text-2 hover:bg-bg"
           >
             + Add purpose
           </button>
         </header>
 
         {purposes.length === 0 ? (
-          <p className="p-6 text-center text-sm text-zinc-500">
+          <p className="p-6 text-center text-sm text-text-3">
             At least one purpose is required before the draft can be saved.
           </p>
         ) : (
-          <ul className="divide-y divide-zinc-200">
+          <ul className="divide-y divide-[color:var(--border)]">
             {purposes.map((p, i) => (
               <li key={i} className="p-4">
                 <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
@@ -212,7 +212,7 @@ export function TemplateForm(props: Props) {
                     required
                   />
                   <label className="block">
-                    <span className="block text-xs font-medium uppercase tracking-wider text-zinc-500">
+                    <span className="block text-xs font-medium uppercase tracking-wider text-text-3">
                       Framework
                     </span>
                     <select
@@ -220,7 +220,7 @@ export function TemplateForm(props: Props) {
                       onChange={(e) =>
                         patchPurpose(i, { framework: e.target.value })
                       }
-                      className="mt-1 w-full rounded border border-zinc-300 px-3 py-2 text-sm"
+                      className="mt-1 w-full rounded border border-[color:var(--border-mid)] px-3 py-2 text-sm"
                     >
                       {FRAMEWORKS.map((f) => (
                         <option key={f} value={f}>
@@ -241,7 +241,7 @@ export function TemplateForm(props: Props) {
                       onChange={(next) => patchPurpose(i, { data_scope: next })}
                     />
                   </div>
-                  <label className="flex items-center gap-2 text-sm text-zinc-700">
+                  <label className="flex items-center gap-2 text-sm text-text-2">
                     <input
                       type="checkbox"
                       checked={p.auto_delete}
@@ -266,14 +266,14 @@ export function TemplateForm(props: Props) {
           </ul>
         )}
 
-        <footer className="border-t border-zinc-200 p-3 text-xs text-zinc-500">
+        <footer className="border-t border-[color:var(--border)] p-3 text-xs text-text-3">
           data_scope values are <strong>category declarations only</strong>,
           never actual personal data values (Rule 3).
         </footer>
       </section>
 
-      <section className="rounded-md border border-zinc-200 bg-white p-4 shadow-sm">
-        <label className="block text-xs font-medium uppercase tracking-wider text-zinc-500">
+      <section className="rounded-md border border-[color:var(--border)] bg-white p-4 shadow-sm">
+        <label className="block text-xs font-medium uppercase tracking-wider text-text-3">
           Reason (≥ 10 chars · appears in audit log)
         </label>
         <textarea
@@ -286,7 +286,7 @@ export function TemplateForm(props: Props) {
               ? 'Why create this draft?'
               : 'What changed in this edit?'
           }
-          className="mt-1 w-full rounded border border-zinc-300 px-3 py-2 text-sm"
+          className="mt-1 w-full rounded border border-[color:var(--border-mid)] px-3 py-2 text-sm"
         />
       </section>
 
@@ -300,14 +300,14 @@ export function TemplateForm(props: Props) {
         <button
           type="button"
           onClick={() => router.back()}
-          className="rounded border border-zinc-300 bg-white px-4 py-2 text-sm text-zinc-700 hover:bg-zinc-50"
+          className="rounded border border-[color:var(--border-mid)] bg-white px-4 py-2 text-sm text-text-2 hover:bg-bg"
         >
           Cancel
         </button>
         <button
           type="submit"
           disabled={pending || !saveOk}
-          className="rounded bg-zinc-900 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-800 disabled:opacity-50"
+          className="rounded bg-teal px-4 py-2 text-sm font-medium text-white hover:bg-teal-mid disabled:opacity-50"
         >
           {pending ? 'Saving…' : props.mode === 'new' ? 'Create draft' : 'Save draft'}
         </button>
@@ -337,7 +337,7 @@ function LabeledInput({
 }) {
   return (
     <label className="block">
-      <span className="block text-xs font-medium uppercase tracking-wider text-zinc-500">
+      <span className="block text-xs font-medium uppercase tracking-wider text-text-3">
         {label}
       </span>
       <input
@@ -349,9 +349,9 @@ function LabeledInput({
         list={list}
         className={
           (mono
-            ? 'mt-1 w-full rounded border border-zinc-300 px-3 py-2 font-mono text-sm'
-            : 'mt-1 w-full rounded border border-zinc-300 px-3 py-2 text-sm') +
-          ' disabled:bg-zinc-50 disabled:text-zinc-500'
+            ? 'mt-1 w-full rounded border border-[color:var(--border-mid)] px-3 py-2 font-mono text-sm'
+            : 'mt-1 w-full rounded border border-[color:var(--border-mid)] px-3 py-2 text-sm') +
+          ' disabled:bg-bg disabled:text-text-3'
         }
       />
     </label>
@@ -376,20 +376,20 @@ function DataScopeEditor({
 
   return (
     <div>
-      <span className="block text-xs font-medium uppercase tracking-wider text-zinc-500">
+      <span className="block text-xs font-medium uppercase tracking-wider text-text-3">
         Data scope (categories only — not actual values)
       </span>
       <div className="mt-1 flex flex-wrap gap-1">
         {categories.map((c) => (
           <span
             key={c}
-            className="inline-flex items-center gap-1 rounded bg-zinc-100 px-2 py-0.5 font-mono text-xs text-zinc-700"
+            className="inline-flex items-center gap-1 rounded bg-bg px-2 py-0.5 font-mono text-xs text-text-2"
           >
             {c}
             <button
               type="button"
               onClick={() => onChange(categories.filter((x) => x !== c))}
-              className="text-zinc-500 hover:text-red-700"
+              className="text-text-3 hover:text-red-700"
               aria-label={`Remove ${c}`}
             >
               ×
@@ -408,12 +408,12 @@ function DataScopeEditor({
             }
           }}
           placeholder="email_address"
-          className="flex-1 rounded border border-zinc-300 px-3 py-1.5 font-mono text-xs"
+          className="flex-1 rounded border border-[color:var(--border-mid)] px-3 py-1.5 font-mono text-xs"
         />
         <button
           type="button"
           onClick={add}
-          className="rounded border border-zinc-300 bg-white px-3 py-1.5 text-xs text-zinc-700 hover:bg-zinc-50"
+          className="rounded border border-[color:var(--border-mid)] bg-white px-3 py-1.5 text-xs text-text-2 hover:bg-bg"
         >
           Add
         </button>

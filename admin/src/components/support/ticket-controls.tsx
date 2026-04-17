@@ -57,7 +57,7 @@ export function TicketControls({
             value={currentStatus}
             disabled={!canWrite}
             onChange={(e) => setModal({ kind: 'status', next: e.target.value })}
-            className="w-full rounded border border-zinc-300 px-2 py-1.5 text-sm disabled:bg-zinc-50 disabled:text-zinc-500"
+            className="w-full rounded border border-[color:var(--border-mid)] px-2 py-1.5 text-sm disabled:bg-bg disabled:text-text-3"
           >
             {STATUSES.map((s) => (
               <option key={s} value={s}>
@@ -74,7 +74,7 @@ export function TicketControls({
             onChange={(e) =>
               setModal({ kind: 'priority', next: e.target.value })
             }
-            className="w-full rounded border border-zinc-300 px-2 py-1.5 text-sm disabled:bg-zinc-50 disabled:text-zinc-500"
+            className="w-full rounded border border-[color:var(--border-mid)] px-2 py-1.5 text-sm disabled:bg-bg disabled:text-text-3"
           >
             {PRIORITIES.map((p) => (
               <option key={p} value={p}>
@@ -86,14 +86,14 @@ export function TicketControls({
 
         <ControlCard label="Assignee">
           <div className="flex items-center gap-2">
-            <span className="flex-1 truncate text-sm text-zinc-800">
-              {currentAssigneeName ?? <span className="text-zinc-400">—</span>}
+            <span className="flex-1 truncate text-sm text-text">
+              {currentAssigneeName ?? <span className="text-text-3">—</span>}
             </span>
             <button
               type="button"
               disabled={!canWrite}
               onClick={() => setModal({ kind: 'assign' })}
-              className="rounded border border-zinc-300 bg-white px-2 py-1 text-xs text-zinc-700 hover:bg-zinc-50 disabled:cursor-not-allowed disabled:opacity-50"
+              className="rounded border border-[color:var(--border-mid)] bg-white px-2 py-1 text-xs text-text-2 hover:bg-bg disabled:cursor-not-allowed disabled:opacity-50"
             >
               Change
             </button>
@@ -137,8 +137,8 @@ function ControlCard({
   children: React.ReactNode
 }) {
   return (
-    <div className="rounded-md border border-zinc-200 bg-white p-3 shadow-sm">
-      <p className="text-xs font-medium uppercase tracking-wider text-zinc-500">
+    <div className="rounded-md border border-[color:var(--border)] bg-white p-3 shadow-sm">
+      <p className="text-xs font-medium uppercase tracking-wider text-text-3">
         {label}
       </p>
       <div className="mt-1">{children}</div>
@@ -282,7 +282,7 @@ function AssignModal({
             value={assignee}
             onChange={(e) => setAssignee(e.target.value)}
             required
-            className="rounded border border-zinc-300 px-3 py-2 text-sm"
+            className="rounded border border-[color:var(--border-mid)] px-3 py-2 text-sm"
           >
             <option value="">— pick —</option>
             {admins.map((a) => (

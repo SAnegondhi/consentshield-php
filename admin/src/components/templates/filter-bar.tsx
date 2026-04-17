@@ -16,13 +16,13 @@ export function TemplatesFilterBar({ sectors }: { sectors: string[] }) {
   }
 
   return (
-    <div className="flex flex-wrap items-center gap-3 rounded-md border border-zinc-200 bg-white p-3 shadow-sm">
-      <label className="flex items-center gap-2 text-xs text-zinc-600">
+    <div className="flex flex-wrap items-center gap-3 rounded-md border border-[color:var(--border)] bg-white p-3 shadow-sm">
+      <label className="flex items-center gap-2 text-xs text-text-2">
         <span className="font-medium uppercase tracking-wider">Status</span>
         <select
           value={currentStatus}
           onChange={(e) => setParam('status', e.target.value)}
-          className="rounded border border-zinc-300 px-2 py-1 text-sm"
+          className="rounded border border-[color:var(--border-mid)] px-2 py-1 text-sm"
         >
           <option value="">All</option>
           <option value="published">Published</option>
@@ -31,12 +31,12 @@ export function TemplatesFilterBar({ sectors }: { sectors: string[] }) {
         </select>
       </label>
 
-      <label className="flex items-center gap-2 text-xs text-zinc-600">
+      <label className="flex items-center gap-2 text-xs text-text-2">
         <span className="font-medium uppercase tracking-wider">Sector</span>
         <select
           value={currentSector}
           onChange={(e) => setParam('sector', e.target.value)}
-          className="rounded border border-zinc-300 px-2 py-1 text-sm"
+          className="rounded border border-[color:var(--border-mid)] px-2 py-1 text-sm"
         >
           <option value="">All</option>
           {sectors.map((s) => (
@@ -51,7 +51,7 @@ export function TemplatesFilterBar({ sectors }: { sectors: string[] }) {
         <button
           type="button"
           onClick={() => router.push('/templates')}
-          className="text-xs text-zinc-500 hover:underline"
+          className="text-xs text-text-3 hover:underline"
         >
           Clear filters
         </button>

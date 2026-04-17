@@ -93,13 +93,13 @@ export default async function TicketDetailPage({ params }: PageProps) {
   return (
     <div className="mx-auto max-w-4xl space-y-4">
       <header>
-        <p className="text-xs text-zinc-500">
+        <p className="text-xs text-text-3">
           <Link href="/support" className="hover:underline">
             ← Support Tickets
           </Link>
         </p>
         <h1 className="mt-1 text-xl font-semibold">{ticket.subject}</h1>
-        <p className="mt-1 text-xs text-zinc-600">
+        <p className="mt-1 text-xs text-text-2">
           <span className="font-mono">{ticket.id}</span>
           {' · '}
           Reporter: {ticket.reporter_email}
@@ -119,10 +119,10 @@ export default async function TicketDetailPage({ params }: PageProps) {
         canWrite={canWrite}
       />
 
-      <section className="rounded-md border border-zinc-200 bg-white p-4 shadow-sm">
+      <section className="rounded-md border border-[color:var(--border)] bg-white p-4 shadow-sm">
         <h2 className="mb-3 text-sm font-semibold">Thread</h2>
         {messages.length === 0 ? (
-          <p className="text-sm text-zinc-500">
+          <p className="text-sm text-text-3">
             No messages yet. Post the first reply below.
           </p>
         ) : (
@@ -168,16 +168,16 @@ function Message({
     : isAdmin
       ? 'ml-auto max-w-[85%] rounded-lg bg-teal-50 p-3 shadow-sm'
       : isSystem
-        ? 'mx-auto max-w-[85%] rounded-lg bg-zinc-100 p-3 text-zinc-700'
-        : 'mr-auto max-w-[85%] rounded-lg bg-zinc-50 p-3 shadow-sm'
+        ? 'mx-auto max-w-[85%] rounded-lg bg-bg p-3 text-text-2'
+        : 'mr-auto max-w-[85%] rounded-lg bg-bg p-3 shadow-sm'
 
   const labelClasses = isInternal
     ? 'text-xs font-semibold text-amber-800'
     : isAdmin
       ? 'text-xs font-semibold text-teal-800'
       : isSystem
-        ? 'text-xs font-semibold text-zinc-600'
-        : 'text-xs font-semibold text-zinc-700'
+        ? 'text-xs font-semibold text-text-2'
+        : 'text-xs font-semibold text-text-2'
 
   return (
     <li className={wrapperClasses}>
@@ -185,11 +185,11 @@ function Message({
         <span className={labelClasses}>
           {isInternal ? `${authorLabel} · 🔒 Internal note` : authorLabel}
         </span>
-        <span className="text-xs text-zinc-500">
+        <span className="text-xs text-text-3">
           {new Date(message.created_at).toLocaleString()}
         </span>
       </div>
-      <p className="mt-1 whitespace-pre-wrap text-sm text-zinc-800">
+      <p className="mt-1 whitespace-pre-wrap text-sm text-text">
         {message.body}
       </p>
     </li>

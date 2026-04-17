@@ -157,13 +157,13 @@ export default async function AuditLogPage({ searchParams }: PageProps) {
       <header className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-semibold">Audit Log</h1>
-          <p className="text-xs text-zinc-500">
+          <p className="text-xs text-text-3">
             Append-only · Rule 22 · CSV export itself is audit-logged
           </p>
         </div>
         <Link
           href={exportUrl}
-          className="rounded border border-zinc-300 bg-white px-3 py-1.5 text-xs font-medium text-zinc-800 hover:bg-zinc-50"
+          className="rounded border border-[color:var(--border-mid)] bg-white px-3 py-1.5 text-xs font-medium text-text hover:bg-bg"
         >
           Export CSV
         </Link>
@@ -179,18 +179,18 @@ export default async function AuditLogPage({ searchParams }: PageProps) {
         initialTo={params.to ?? ''}
       />
 
-      <p className="text-xs text-zinc-500">
+      <p className="text-xs text-text-3">
         {total.toLocaleString()} {total === 1 ? 'entry' : 'entries'} · page{' '}
         {page + 1} of {totalPages}
       </p>
 
       <AuditTable rows={rowsWithNames} />
 
-      <nav className="flex items-center justify-between text-xs text-zinc-600">
+      <nav className="flex items-center justify-between text-xs text-text-2">
         {prevHref ? (
           <Link
             href={prevHref}
-            className="rounded border border-zinc-300 bg-white px-3 py-1 hover:bg-zinc-50"
+            className="rounded border border-[color:var(--border-mid)] bg-white px-3 py-1 hover:bg-bg"
           >
             ← Previous
           </Link>
@@ -200,7 +200,7 @@ export default async function AuditLogPage({ searchParams }: PageProps) {
         {nextHref ? (
           <Link
             href={nextHref}
-            className="rounded border border-zinc-300 bg-white px-3 py-1 hover:bg-zinc-50"
+            className="rounded border border-[color:var(--border-mid)] bg-white px-3 py-1 hover:bg-bg"
           >
             Next →
           </Link>

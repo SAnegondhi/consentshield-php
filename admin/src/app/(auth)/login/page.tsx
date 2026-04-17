@@ -92,7 +92,7 @@ function AdminLoginForm() {
       <Shell>
         <div className="space-y-2">
           <h1 className="text-xl font-semibold">Enter your code</h1>
-          <p className="text-sm text-zinc-600">
+          <p className="text-sm text-text-2">
             We sent a verification code to <strong>{email}</strong>.
           </p>
         </div>
@@ -111,7 +111,7 @@ function AdminLoginForm() {
           </button>
         </form>
 
-        <p className="text-center text-sm text-zinc-600">
+        <p className="text-center text-sm text-text-2">
           <button
             type="button"
             onClick={() => {
@@ -135,7 +135,7 @@ function AdminLoginForm() {
           ConsentShield — Operator Console
         </p>
         <h1 className="text-xl font-semibold">Sign in</h1>
-        <p className="text-sm text-zinc-600">
+        <p className="text-sm text-text-2">
           No password. We&rsquo;ll email you a one-time code. Operator
           access only.
         </p>
@@ -155,7 +155,7 @@ function AdminLoginForm() {
             onChange={(e) => setEmail(e.target.value)}
             required
             autoFocus
-            className="mt-1 block w-full rounded border border-zinc-300 px-3 py-2 text-sm focus:border-red-700 focus:outline-none focus:ring-1 focus:ring-red-700"
+            className="mt-1 block w-full rounded border border-[color:var(--border-mid)] px-3 py-2 text-sm focus:border-red-700 focus:outline-none focus:ring-1 focus:ring-red-700"
           />
         </div>
 
@@ -170,7 +170,7 @@ function AdminLoginForm() {
         </button>
       </form>
 
-      <p className="text-center text-xs text-zinc-500">
+      <p className="text-center text-xs text-text-3">
         Not an operator? You are in the wrong place.
       </p>
     </Shell>
@@ -180,7 +180,7 @@ function AdminLoginForm() {
 function Shell({ children }: { children: React.ReactNode }) {
   return (
     <main className="flex min-h-screen items-center justify-center px-6">
-      <div className="w-full max-w-sm space-y-6 rounded-lg border border-zinc-200 bg-white p-8 shadow-sm">
+      <div className="w-full max-w-sm space-y-6 rounded-lg border border-[color:var(--border)] bg-white p-8 shadow-sm">
         {children}
       </div>
     </main>

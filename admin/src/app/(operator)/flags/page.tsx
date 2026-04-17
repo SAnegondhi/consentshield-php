@@ -115,7 +115,7 @@ export default async function FlagsPage({ searchParams }: PageProps) {
       <header className="flex items-center justify-between">
         <div>
           <h1 className="text-xl font-semibold">Feature Flags &amp; Kill Switches</h1>
-          <p className="text-sm text-zinc-600">
+          <p className="text-sm text-text-2">
             platform_operator role required for all writes · reason ≥ 10 chars
           </p>
         </div>

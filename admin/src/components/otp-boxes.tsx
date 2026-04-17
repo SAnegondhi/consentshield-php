@@ -38,7 +38,7 @@ function Slot({ char, hasFakeCaret, isActive }: SlotProps) {
     'relative w-10 h-12 text-xl font-semibold flex items-center justify-center rounded border transition-colors'
   const state = isActive
     ? 'border-red-700 shadow-[0_0_0_1px_#B91C1C]'
-    : 'border-zinc-300'
+    : 'border-[color:var(--border-mid)]'
   return (
     <div className={`${base} ${state}`}>
       {char}

@@ -19,12 +19,12 @@ export function RefreshButton() {
           })
         }
         disabled={pending}
-        className="rounded border border-zinc-300 bg-white px-3 py-1.5 text-xs font-medium text-zinc-800 hover:bg-zinc-50 disabled:opacity-50"
+        className="rounded border border-[color:var(--border-mid)] bg-white px-3 py-1.5 text-xs font-medium text-text hover:bg-bg disabled:opacity-50"
       >
         {pending ? 'Refreshing…' : 'Refresh now'}
       </button>
       {result ? (
-        <span className="text-xs text-zinc-600">{result}</span>
+        <span className="text-xs text-text-2">{result}</span>
       ) : null}
     </div>
   )

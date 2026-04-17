@@ -26,11 +26,11 @@ export function ModalShell({
         if (e.target === e.currentTarget) onClose()
       }}
     >
-      <div className="w-full max-w-lg rounded-lg bg-white shadow-xl">
-        <header className="border-b border-zinc-200 p-4">
-          <h3 className="text-base font-semibold">{title}</h3>
+      <div className="w-full max-w-lg rounded-[12px] bg-surface shadow-xl">
+        <header className="border-b border-[color:var(--border)] p-4">
+          <h3 className="text-base font-semibold text-text">{title}</h3>
           {subtitle ? (
-            <p className="mt-0.5 text-xs text-zinc-600">{subtitle}</p>
+            <p className="mt-0.5 text-xs text-text-2">{subtitle}</p>
           ) : null}
         </header>
         {children}
@@ -48,7 +48,7 @@ export function Field({
 }) {
   return (
     <label className="flex flex-col gap-1">
-      <span className="text-xs font-medium uppercase tracking-wider text-zinc-500">
+      <span className="text-xs font-medium uppercase tracking-wider text-text-3">
         {label}
       </span>
       {children}
@@ -72,7 +72,7 @@ export function ReasonField({
         rows={3}
         required
         placeholder="Why this action? Appears verbatim in the audit log."
-        className="rounded border border-zinc-300 px-3 py-2 text-sm"
+        className="rounded-[8px] border border-[color:var(--border)] px-3 py-2 text-sm focus:border-transparent focus:outline-2 focus:outline-teal"
       />
     </Field>
   )
@@ -92,11 +92,11 @@ export function FormFooter({
   disabled?: boolean
 }) {
   return (
-    <div className="flex items-center justify-end gap-2 border-t border-zinc-200 pt-4">
+    <div className="flex items-center justify-end gap-2 border-t border-[color:var(--border)] pt-4">
       <button
         type="button"
         onClick={onClose}
-        className="rounded border border-zinc-300 bg-white px-3 py-1.5 text-xs text-zinc-700 hover:bg-zinc-50"
+        className="rounded-[8px] border border-[color:var(--border)] bg-surface px-3 py-1.5 text-xs text-text-2 hover:bg-bg"
       >
         Cancel
       </button>
@@ -105,8 +105,8 @@ export function FormFooter({
         disabled={pending || disabled}
         className={
           submitDanger
-            ? 'rounded bg-red-700 px-3 py-1.5 text-xs font-medium text-white hover:bg-red-800 disabled:opacity-50'
-            : 'rounded bg-zinc-900 px-3 py-1.5 text-xs font-medium text-white hover:bg-zinc-800 disabled:opacity-50'
+            ? 'rounded-[8px] bg-admin-accent px-3 py-1.5 text-xs font-medium text-white hover:bg-red-dark disabled:opacity-50'
+            : 'rounded-[8px] bg-teal px-3 py-1.5 text-xs font-medium text-white hover:bg-teal-mid disabled:opacity-50'
         }
       >
         {pending ? 'Submitting…' : submit}

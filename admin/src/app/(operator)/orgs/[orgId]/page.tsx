@@ -101,12 +101,12 @@ export default async function OrganisationDetailPage({ params }: PageProps) {
         <div>
           <Link
             href="/orgs"
-            className="text-xs text-zinc-500 hover:text-zinc-800"
+            className="text-xs text-text-3 hover:text-text"
           >
             ← All organisations
           </Link>
           <h1 className="mt-1 text-2xl font-semibold">{org.name}</h1>
-          <p className="text-xs text-zinc-500">
+          <p className="text-xs text-text-3">
             <code className="font-mono">{org.id}</code>
             {' · '}
             {org.compliance_contact_email ?? 'no contact email'}
@@ -155,7 +155,7 @@ export default async function OrganisationDetailPage({ params }: PageProps) {
             {org.compliance_contact_email ?? '—'}
           </KV>
           <KV label="Encryption salt">
-            <code className="font-mono text-xs text-zinc-500">
+            <code className="font-mono text-xs text-text-3">
               {org.encryption_salt ? 'set' : 'missing'}
             </code>
           </KV>
@@ -169,7 +169,7 @@ export default async function OrganisationDetailPage({ params }: PageProps) {
       <section className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         <Card title="Operator notes">
           {notes.length === 0 ? (
-            <p className="text-xs text-zinc-500">
+            <p className="text-xs text-text-3">
               No notes yet. Add one from Sprint 2.1 (pending).
             </p>
           ) : (
@@ -180,12 +180,12 @@ export default async function OrganisationDetailPage({ params }: PageProps) {
                   className={
                     note.pinned
                       ? 'rounded border border-amber-200 bg-amber-50 p-3'
-                      : 'rounded border border-zinc-200 p-3'
+                      : 'rounded border border-[color:var(--border)] p-3'
                   }
                 >
                   <div className="flex items-start justify-between">
-                    <div className="text-xs text-zinc-500">
-                      <span className="font-medium text-zinc-700">
+                    <div className="text-xs text-text-3">
+                      <span className="font-medium text-text-2">
                         {adminNameById.get(note.admin_user_id) ??
                           note.admin_user_id.slice(0, 8)}
                       </span>{' '}
@@ -202,16 +202,16 @@ export default async function OrganisationDetailPage({ params }: PageProps) {
 
         <Card title="Support sessions">
           {sessions.length === 0 ? (
-            <p className="text-xs text-zinc-500">
+            <p className="text-xs text-text-3">
               No impersonation sessions on record.
             </p>
           ) : (
             <ul className="space-y-3">
               {sessions.map((s) => (
-                <li key={s.id} className="rounded border border-zinc-200 p-3">
-                  <div className="flex items-center justify-between text-xs text-zinc-500">
+                <li key={s.id} className="rounded border border-[color:var(--border)] p-3">
+                  <div className="flex items-center justify-between text-xs text-text-3">
                     <span>
-                      <span className="font-medium text-zinc-700">
+                      <span className="font-medium text-text-2">
                         {adminNameById.get(s.admin_user_id) ??
                           s.admin_user_id.slice(0, 8)}
                       </span>{' '}
@@ -219,11 +219,11 @@ export default async function OrganisationDetailPage({ params }: PageProps) {
                     </span>
                     {sessionStatusPill(s.status)}
                   </div>
-                  <div className="mt-1 text-xs text-zinc-600">
+                  <div className="mt-1 text-xs text-text-2">
                     <code className="font-mono">{s.reason}</code> — {s.reason_detail}
                   </div>
                   {s.ended_at ? (
-                    <div className="mt-0.5 text-xs text-zinc-500">
+                    <div className="mt-0.5 text-xs text-text-3">
                       ended {formatDate(s.ended_at)}
                     </div>
                   ) : null}
@@ -239,8 +239,8 @@ export default async function OrganisationDetailPage({ params }: PageProps) {
 
 function Card({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <section className="rounded-md border border-zinc-200 bg-white shadow-sm">
-      <header className="border-b border-zinc-200 px-4 py-2">
+    <section className="rounded-md border border-[color:var(--border)] bg-white shadow-sm">
+      <header className="border-b border-[color:var(--border)] px-4 py-2">
         <h3 className="text-sm font-semibold">{title}</h3>
       </header>
       <div className="space-y-2 p-4">{children}</div>
@@ -250,8 +250,8 @@ function Card({ title, children }: { title: string; children: React.ReactNode })
 
 function KV({ label, children }: { label: string; children: React.ReactNode }) {
   return (
-    <div className="flex items-center justify-between gap-2 border-b border-zinc-100 py-1 text-sm last:border-b-0">
-      <span className="text-xs text-zinc-500">{label}</span>
+    <div className="flex items-center justify-between gap-2 border-b border-[color:var(--border)] py-1 text-sm last:border-b-0">
+      <span className="text-xs text-text-3">{label}</span>
       <span className="truncate text-right">{children}</span>
     </div>
   )
@@ -271,7 +271,7 @@ function statusBadge(status: string) {
       </span>
     )
   return (
-    <span className="rounded-full bg-zinc-100 px-2 py-0.5 text-xs font-medium text-zinc-600">
+    <span className="rounded-full bg-bg px-2 py-0.5 text-xs font-medium text-text-2">
       {status}
     </span>
   )
@@ -285,7 +285,7 @@ function sessionStatusPill(status: string) {
         ? 'bg-amber-100 text-amber-700'
         : status === 'force_ended'
           ? 'bg-amber-100 text-amber-700'
-          : 'bg-zinc-100 text-zinc-700'
+          : 'bg-bg text-text-2'
   return (
     <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${cls}`}>
       {status}

@@ -33,7 +33,7 @@ export default async function EditTemplatePage({ params }: PageProps) {
   if (data.status !== 'draft') {
     return (
       <div className="mx-auto max-w-4xl space-y-4">
-        <p className="text-xs text-zinc-500">
+        <p className="text-xs text-text-3">
           <Link href={`/templates/${templateId}`} className="hover:underline">
             ← {data.template_code} v{data.version}
           </Link>
@@ -79,14 +79,14 @@ export default async function EditTemplatePage({ params }: PageProps) {
   return (
     <div className="mx-auto max-w-4xl space-y-4">
       <header>
-        <p className="text-xs text-zinc-500">
+        <p className="text-xs text-text-3">
           <Link href={`/templates/${templateId}`} className="hover:underline">
             ← {data.template_code} v{data.version}
           </Link>
         </p>
         <h1 className="mt-1 text-xl font-semibold">
           Edit draft: {data.display_name}{' '}
-          <span className="text-sm font-normal text-zinc-500">
+          <span className="text-sm font-normal text-text-3">
             v{data.version}
           </span>
         </h1>

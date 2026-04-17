@@ -76,7 +76,7 @@ export default async function TemplatesPage({ searchParams }: PageProps) {
       <header className="flex items-center justify-between">
         <div>
           <h1 className="text-xl font-semibold">Sectoral Templates</h1>
-          <p className="text-sm text-zinc-600">
+          <p className="text-sm text-text-2">
             Pre-composed purpose-definition packs for customer onboarding.
             Versioned; published templates are immutable.
           </p>
@@ -88,12 +88,12 @@ export default async function TemplatesPage({ searchParams }: PageProps) {
           <span className="rounded-full bg-amber-100 px-3 py-1 text-xs font-medium text-amber-800">
             {counts.draft} drafts
           </span>
-          <span className="rounded-full bg-zinc-200 px-3 py-1 text-xs font-medium text-zinc-700">
+          <span className="rounded-full bg-[color:var(--border)] px-3 py-1 text-xs font-medium text-text-2">
             {counts.deprecated} deprecated
           </span>
           <Link
             href="/templates/new"
-            className="ml-2 rounded bg-zinc-900 px-3 py-1.5 text-xs font-medium text-white hover:bg-zinc-800"
+            className="ml-2 rounded bg-teal px-3 py-1.5 text-xs font-medium text-white hover:bg-teal-mid"
           >
             + New draft
           </Link>
@@ -102,15 +102,15 @@ export default async function TemplatesPage({ searchParams }: PageProps) {
 
       <TemplatesFilterBar sectors={sectors} />
 
-      <div className="rounded-md border border-zinc-200 bg-white shadow-sm">
+      <div className="rounded-md border border-[color:var(--border)] bg-white shadow-sm">
         {templates.length === 0 ? (
-          <p className="p-8 text-center text-sm text-zinc-500">
+          <p className="p-8 text-center text-sm text-text-3">
             No templates match the current filters.
           </p>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
-              <thead className="bg-zinc-50 text-left text-xs uppercase tracking-wider text-zinc-500">
+              <thead className="bg-bg text-left text-xs uppercase tracking-wider text-text-3">
                 <tr>
                   <th className="px-4 py-2">Template code</th>
                   <th className="px-4 py-2">Display name</th>
@@ -125,7 +125,7 @@ export default async function TemplatesPage({ searchParams }: PageProps) {
                 {templates.map((t) => (
                   <tr
                     key={t.id}
-                    className="border-t border-zinc-200 hover:bg-zinc-50"
+                    className="border-t border-[color:var(--border)] hover:bg-bg"
                   >
                     <td className="px-4 py-2">
                       <Link
@@ -141,12 +141,12 @@ export default async function TemplatesPage({ searchParams }: PageProps) {
                     <td className="px-4 py-2">
                       <StatusPill status={t.status} />
                     </td>
-                    <td className="px-4 py-2 text-xs text-zinc-600">
+                    <td className="px-4 py-2 text-xs text-text-2">
                       {Array.isArray(t.purpose_definitions)
                         ? t.purpose_definitions.length
                         : 0}
                     </td>
-                    <td className="px-4 py-2 text-xs text-zinc-600">
+                    <td className="px-4 py-2 text-xs text-text-2">
                       {formatDate(
                         t.deprecated_at ?? t.published_at ?? t.created_at,
                       )}
@@ -168,7 +168,7 @@ function StatusPill({ status }: { status: 'draft' | 'published' | 'deprecated' }
       ? 'rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-700'
       : status === 'draft'
         ? 'rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-800'
-        : 'rounded-full bg-zinc-200 px-2 py-0.5 text-xs font-medium text-zinc-700'
+        : 'rounded-full bg-[color:var(--border)] px-2 py-0.5 text-xs font-medium text-text-2'
   return <span className={classes}>{status}</span>
 }
 
