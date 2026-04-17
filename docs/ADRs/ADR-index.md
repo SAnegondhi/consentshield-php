@@ -37,6 +37,7 @@ All Architecture Decision Records for ConsentShield, in chronological order.
 | ADR-0032 | Support Tickets (admin panel + customer-side submit) | Completed | 2026-04-17 | 2 | 2 |
 | ADR-0036 | Feature Flags & Kill Switches (admin panel) | Completed | 2026-04-17 | 1 | 1 |
 | ADR-0037 | DEPA Completion (expiry fan-out + per-requestor binding + CSV + Audit DEPA + Onboarding seed pack) | Completed | 2026-04-17 | 1 | 5 |
+| ADR-0038 | Operational Observability (cron failure watchdog + stuck-buffer Edge Function) | Completed | 2026-04-17 | 1 | 3 |
 
 <!--
 When adding a new ADR:

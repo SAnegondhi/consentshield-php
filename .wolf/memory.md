@@ -1637,3 +1637,39 @@
 | 18:05 | Edited admin/src/components/common/modal-form.tsx | CSS: color, color | ~290 |
 | 18:05 | Edited admin/src/components/common/modal-form.tsx | CSS: color | ~171 |
 | 18:05 | Edited admin/src/components/common/modal-form.tsx | modified Field() | ~265 |
+| 18:09 | Created docs/ADRs/ADR-0038-operational-observability.md | — | ~1889 |
+| 18:09 | Edited docs/ADRs/ADR-index.md | 1→2 lines | ~74 |
+| 18:10 | Session end: 266 writes across 82 files (check-no-admin-imports-in-app.ts, check-no-customer-imports-in-admin.ts, check-env-isolation.ts, monorepo-isolation.yml, package.json) | 73 reads | ~395910 tok |
+| 18:10 | Created supabase/migrations/20260425000001_operational_crons.sql | — | ~1292 |
+| 18:11 | Created supabase/functions/check-cron-health/index.ts | — | ~1685 |
+| 18:11 | Created supabase/functions/check-stuck-buffers/index.ts | — | ~1463 |
+| 18:27 | Session end: 269 writes across 83 files (check-no-admin-imports-in-app.ts, check-no-customer-imports-in-admin.ts, check-env-isolation.ts, monorepo-isolation.yml, package.json) | 73 reads | ~400442 tok |
+| 18:34 | Edited admin/src/app/globals.css | CSS: --color-teal-bright | ~44 |
+| 18:34 | Edited admin/src/app/globals.css | CSS: --teal-bright | ~27 |
+| 18:34 | Edited admin/src/app/globals.css | CSS: --font-brand | ~150 |
+| 18:35 | Edited admin/src/app/layout.tsx | CSS: spec, https, https | ~216 |
+| 18:35 | Created admin/src/components/brand/logo.tsx | — | ~1672 |
+| 18:35 | Edited admin/src/app/(operator)/layout.tsx | added 1 import(s) | ~80 |
+| 18:35 | Edited admin/src/app/(operator)/layout.tsx | CSS: spec | ~162 |
+| 18:36 | Edited admin/src/app/(auth)/login/page.tsx | added 1 import(s) | ~46 |
+| 18:36 | Edited admin/src/app/(auth)/login/page.tsx | 12→15 lines | ~162 |
+| 18:36 | Edited admin/src/app/(auth)/login/page.tsx | modified if() | ~274 |
+| 18:36 | Edited admin/src/app/(auth)/login/page.tsx | 7→7 lines | ~78 |
+| 18:36 | Created admin/src/app/icon.svg | — | ~114 |
+| 18:37 | Created app/src/app/icon.svg | — | ~114 |
+
+## Session: 2026-04-17 18:43
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+| 18:52 | Edited docs/ADRs/ADR-0038-operational-observability.md | 2→3 lines | ~22 |
+| 18:52 | Edited docs/ADRs/ADR-0038-operational-observability.md | "[ ] planned" → "[x] complete" | ~11 |
+| 18:53 | Edited docs/ADRs/ADR-0038-operational-observability.md | expanded (+21 lines) | ~336 |
+| 18:53 | Edited docs/ADRs/ADR-index.md | inline fix | ~34 |
+| 18:53 | Edited docs/V2-BACKLOG.md | done() → feature() | ~101 |
+| 18:53 | Edited docs/V2-BACKLOG.md | removed 14 lines | ~17 |
+| 18:53 | Edited docs/changelogs/CHANGELOG-schema.md | expanded (+15 lines) | ~259 |
+| 18:54 | Edited docs/changelogs/CHANGELOG-edge-functions.md | expanded (+14 lines) | ~361 |
+| 18:54 | Edited docs/changelogs/CHANGELOG-docs.md | expanded (+11 lines) | ~163 |
+| 18:45 | ADR-0038 shipped — cron-health-daily + stuck-buffer-hourly watchdogs live | 2 Edge Functions + 1 migration + 2 crons | smoke passes; alert fired for 8 stuck buffers (dev expected) | ~8500 |
+| 18:45 | V2-O3 closed; V2-O1 check-stuck-buffers closed; check-retention-rules stays (feature prerequisite) | V2-BACKLOG | closed | ~300 |

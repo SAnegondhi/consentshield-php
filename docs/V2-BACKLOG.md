@@ -141,20 +141,9 @@ a property selector, a consent-state editor, and schedule picker.
 
 ### V2-O1. Unbuilt Edge Functions (cron slots reserved)  *(origin: ADR-0011 cleanup)*
 
-Three cron jobs were dropped in migration
-`20260416000004_unschedule_orphan_crons.sql` because their target
-Edge Functions were never written:
-
-- `check-stuck-buffers` — buffer-pipeline stuck-row alerting
-- `run-security-scans` (implemented in ADR-0015)
-- `check-retention-rules` — Phase-3 retention enforcement
-
-One is now done (ADR-0015). The remaining two are Phase-3 features.
-
-**Why deferred.** No feature calls for them yet.
-
-**Shape of the v2 fix.** Each gets its own ADR alongside the
-feature sprint that needs it. Re-register the cron at that time.
+- `check-stuck-buffers` — **→ see ADR-0038 Sprint 1.1** (done 2026-04-17).
+- `run-security-scans` — **done** in ADR-0015.
+- `check-retention-rules` — still deferred. Retention-rule enforcement is a Phase-3 feature (no target rules exist today). Re-evaluate when retention enforcement ships.
 
 ### V2-O2. Vercel Deployment Protection  *(origin: session handoff)*
 
@@ -163,20 +152,7 @@ no real traffic — but flip on before any real-customer onboarding.
 
 **Why deferred.** Single-dev project with no live customers.
 
-### V2-O3. pg_cron failure detection  *(origin: ADR-0011 discovery)*
-
-The 2026-04-16 discovery: `pg_net` had been missing for weeks and
-all HTTP cron jobs were silently failing. Today's protection is
-inspecting `cron.job_run_details` manually. A scheduled watchdog
-that emails / Slacks the operator when cron runs fail would close
-this loop.
-
-**Why deferred.** Dev-only right now; noise not worth automating.
-
-**Shape of the v2 fix.** A tiny Edge Function `check-cron-health`
-on a daily schedule that scans the last 24 h of
-`cron.job_run_details` and emits an incident audit + email if any
-job failed more than N times.
+### V2-O3. pg_cron failure detection  → see ADR-0038 Sprint 1.1
 
 ---
 

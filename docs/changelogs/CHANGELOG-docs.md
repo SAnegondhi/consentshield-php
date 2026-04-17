@@ -2,6 +2,17 @@
 
 Documentation changes.
 
+## [ADR-0038 charter + closeout] — 2026-04-17
+
+**ADR:** ADR-0038 (Operational Observability — cron watchdog + stuck-buffer alerting)
+
+### Added
+- `docs/ADRs/ADR-0038-operational-observability.md` — drafted and shipped Completed. Three sprints. Closes V2-O3 and V2-O1.a (`check-stuck-buffers`).
+
+### Changed
+- `docs/V2-BACKLOG.md` — V2-O3 replaced with pointer to ADR-0038 Sprint 1.1. V2-O1 entry rewritten: `check-stuck-buffers` pointer added; `check-retention-rules` stays (Phase-3 feature prerequisite).
+- `docs/ADRs/ADR-index.md` — ADR-0038 added as Completed.
+
 ## [ADR-0037 charter + closeout] — 2026-04-17
 
 **ADR:** ADR-0037 (DEPA Completion — V2-D1 + V2-D2 + V2-D3 + W8 + W9)

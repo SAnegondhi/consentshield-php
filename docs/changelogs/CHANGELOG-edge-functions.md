@@ -2,6 +2,20 @@
 
 Supabase Edge Function changes.
 
+## ADR-0038 Sprint 1.1 — 2026-04-17
+
+**ADR:** ADR-0038 — Operational Observability
+**Sprint:** 1.1 — watchdog + stuck-buffer Edge Functions
+
+### Added
+- `supabase/functions/check-cron-health/index.ts` — reads `public.cron_health_snapshot(24)`, flags jobs with ≥3 failures in 24h. For each qualifying job: one `audit_log` row with `event_type='operational_alert_emitted'` + one aggregated email via Resend. 20-hour dedup guard checks `audit_log.payload.alert_key='cron-health:daily'`. Deployed with `--no-verify-jwt`. Returns `{status: 'healthy'|'alerted'|'deduped', ...}`.
+- `supabase/functions/check-stuck-buffers/index.ts` — calls `detect_stuck_buffers()` RPC; for any buffer table with `stuck_count > 0` older than 1h, writes one aggregated `audit_log` row + email. Same 20-hour dedup with `alert_key='stuck-buffers:hourly'`. Deployed with `--no-verify-jwt`.
+- New optional Supabase secret `OPERATOR_ALERT_EMAIL`; falls back to `RESEND_FROM` when unset.
+
+### Tested
+- [x] `check-cron-health` smoke via `curl`: returns `{"status":"healthy","jobs_inspected":13}` (no job ≥3 failures).
+- [x] `check-stuck-buffers` smoke: first call `{"status":"alerted","stuck_tables":8}` + writes `audit_log` row + sends email; second call within 20h `{"status":"deduped","stuck_tables":8}` (dedup guard honoured, no duplicate row).
+
 ## ADR-0022 Sprint 1.3 — 2026-04-17
 
 **ADR:** ADR-0022 — `process-artefact-revocation` Edge Function + Revocation Dispatch

@@ -1,7 +1,7 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-04-17T12:35:55.144Z
-> Files: 454 tracked | Anatomy hits: 0 | Misses: 0
+> Auto-maintained by OpenWolf. Last scanned: 2026-04-17T13:24:19.399Z
+> Files: 461 tracked | Anatomy hits: 0 | Misses: 0
 
 ## ../../../../../tmp/
 
@@ -87,18 +87,19 @@
 
 ## admin/src/app/
 
-- `globals.css` — Styles: 2 rules, 60 vars (~886 tok)
-- `layout.tsx` — Wireframe spec (docs/admin/design/consentshield-admin-screens.html :root) uses (~398 tok)
+- `globals.css` — Styles: 2 rules, 63 vars (~968 tok)
+- `icon.svg` (~114 tok)
+- `layout.tsx` — Wireframe spec (docs/admin/design/consentshield-admin-screens.html :root) uses (~529 tok)
 - `robots.ts` — Admin console is always private — never indexed, never ingested by AI. (~326 tok)
 
 ## admin/src/app/(auth)/login/
 
-- `page.tsx` — AdminLoginPage — renders form (~1546 tok)
+- `page.tsx` — AdminLoginPage — renders form (~1653 tok)
 
 ## admin/src/app/(operator)/
 
 - `actions.ts` — Exports refreshPlatformMetrics (~167 tok)
-- `layout.tsx` — Operator shell — visual spec: docs/admin/design/consentshield-admin-screens.html. (~2179 tok)
+- `layout.tsx` — Operator shell — visual spec: docs/admin/design/consentshield-admin-screens.html. (~2089 tok)
 - `page.tsx` — ADR-0028 Sprint 2.1 — Operations Dashboard. (~1660 tok)
 
 ## admin/src/app/(operator)/audit-log/
@@ -163,6 +164,10 @@
 - `audit-table.tsx` — AuditTable — renders table (~877 tok)
 - `detail-drawer.tsx` — AuditDetailDrawer (~1394 tok)
 - `filter-bar.tsx` — AuditLogFilterBar — renders form (~1110 tok)
+
+## admin/src/components/brand/
+
+- `logo.tsx` — ConsentShield brand assets — ADR-0026 Sprint 4.1 design-foundation. (~1672 tok)
 
 ## admin/src/components/common/
 
@@ -231,6 +236,7 @@
 
 ## app/src/app/
 
+- `icon.svg` (~114 tok)
 - `layout.tsx` — geistSans (~270 tok)
 - `robots.ts` — Pre-launch: customer app URLs are private. Disallow every crawler, (~326 tok)
 
@@ -351,7 +357,7 @@
 
 - `ROADMAP-phase2.md` — ConsentShield — Phase 2 Roadmap (~3150 tok)
 - `STATUS.md` — ConsentShield Status (~2363 tok)
-- `V2-BACKLOG.md` — V2 Backlog — Deferred Items for Post-Phase-2 Review (~2352 tok)
+- `V2-BACKLOG.md` — V2 Backlog — Deferred Items for Post-Phase-2 Review (~2146 tok)
 
 ## docs/ADRs/
 
@@ -388,7 +394,8 @@
 - `ADR-0032-support-tickets.md` — ADR-0032: Support Tickets (Admin Panel + Customer-Side Submit) (~2749 tok)
 - `ADR-0036-feature-flags-kill-switches.md` — ADR-0036: Feature Flags & Kill Switches (Admin Panel) (~2282 tok)
 - `ADR-0037-depa-completion.md` — ADR-0037: DEPA Completion — Expiry Fan-out, Per-Requestor Binding, CSV Export, Audit DEPA Section, O (~3945 tok)
-- `ADR-index.md` — ADR Index (~1148 tok)
+- `ADR-0038-operational-observability.md` — ADR-0038: Operational Observability — Cron Failure Watchdog + Stuck-Buffer Alerting (~2095 tok)
+- `ADR-index.md` — ADR Index (~1180 tok)
 - `ADR-template.md` — ADR-NNNN: Title (~423 tok)
 - `adr-workflow.md` — ADR Workflow Rules (~557 tok)
 
@@ -414,10 +421,10 @@
 
 - `CHANGELOG-api.md` — Changelog — API (~2452 tok)
 - `CHANGELOG-dashboard.md` — Changelog — Dashboard (~6394 tok)
-- `CHANGELOG-docs.md` — Changelog — Documentation (~1614 tok)
-- `CHANGELOG-edge-functions.md` — Changelog — Edge Functions (~2405 tok)
+- `CHANGELOG-docs.md` — Changelog — Documentation (~1755 tok)
+- `CHANGELOG-edge-functions.md` — Changelog — Edge Functions (~2734 tok)
 - `CHANGELOG-infra.md` — Changelog — Infrastructure (~3667 tok)
-- `CHANGELOG-schema.md` — Changelog — Schema (~11969 tok)
+- `CHANGELOG-schema.md` — Changelog — Schema (~12204 tok)
 - `CHANGELOG-worker.md` — Changelog — Worker (~1514 tok)
 
 ## docs/design/
@@ -705,6 +712,14 @@
 
 - `config.toml` — For detailed configuration reference documentation, visit: (~3910 tok)
 
+## supabase/functions/check-cron-health/
+
+- `index.ts` — Supabase Edge Function: check-cron-health (~1685 tok)
+
+## supabase/functions/check-stuck-buffers/
+
+- `index.ts` — Supabase Edge Function: check-stuck-buffers (~1463 tok)
+
 ## supabase/functions/check-stuck-deletions/
 
 - `index.ts` — Supabase Edge Function: check-stuck-deletions (~2134 tok)
@@ -821,6 +836,7 @@
 - `20260424000002_rights_session_fingerprint.sql` — ADR-0037 Sprint 1.2 — V2-D2 per-requestor artefact binding. (~384 tok)
 - `20260424000003_rights_rpc_fingerprint.sql` — ADR-0037 Sprint 1.2 — extend rpc_rights_request_create with session_fingerprint. (~587 tok)
 - `20260424000004_apply_template_materialise.sql` — ADR-0037 Sprint 1.5 — W9 onboarding seed pack materialisation. (~1275 tok)
+- `20260425000001_operational_crons.sql` — ADR-0038 Sprint 1.2 — cron health snapshot + stuck-buffer + cron-health crons. (~1292 tok)
 
 ## supabase/seed/
 

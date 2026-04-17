@@ -16,6 +16,21 @@ Database migrations, RLS policies, roles.
 - [x] `tests/depa/score.test.ts` — 7/7 — PASS (10.8 arithmetic 5 cases + 10.8b refresh round-trip 2 cases).
 - [x] `bun run test:rls` — 13 files, **154/154** — PASS.
 
+## [ADR-0038 Sprint 1.2] — 2026-04-17
+
+**ADR:** ADR-0038 — Operational Observability
+**Sprint:** 1.2 — cron_health_snapshot RPC + stuck-buffer + cron-health crons
+
+### Added
+- `20260425000001_operational_crons.sql`:
+  - `public.cron_health_snapshot(p_lookback_hours int default 24)` — SECURITY DEFINER wrapper over `cron.job_run_details` returning per-job `(total_runs, failed_runs, last_failure_at)`. Lookback clamped to `[1,168]`. Granted EXECUTE to `authenticated` + `cs_orchestrator`.
+  - pg_cron `stuck-buffer-detection-hourly` at `7 * * * *` — re-schedules the orphan cron unscheduled in `20260416000004`. Target Edge Function `check-stuck-buffers` (this ADR).
+  - pg_cron `cron-health-daily` at `15 2 * * *` (07:45 IST). Target Edge Function `check-cron-health` (this ADR).
+
+### Tested
+- [x] Migration applied on dev.
+- [x] RPC smoke: `select * from public.cron_health_snapshot(24)` returns 13 jobs with healthy (zero-failure) counts.
+
 ## [ADR-0037] — 2026-04-17
 
 **ADR:** ADR-0037 — DEPA Completion
