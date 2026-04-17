@@ -206,6 +206,35 @@ following the pattern established by the Razorpay webhook flow.
 
 ---
 
+## DEPA
+
+### V2-D1. Expiry-triggered connector fan-out  *(origin: ADR-0023)*
+
+`enforce_artefact_expiry()` currently stages only a `delivery_buffer`
+row with `event_type='artefact_expiry_deletion'` when a purpose has
+`auto_delete_on_expiry=true`. This covers the customer-side R2 audit
+trail but does **not** instruct third-party connectors (Mailchimp,
+HubSpot, webhook) to actually delete the data — symmetrically with
+what ADR-0022 does for revocation via `deletion_receipts`.
+
+A user who relies on TTL-lapse expiry (not explicit revocation) to
+clean up third-party systems will find those systems still hold the
+data. Workaround: revoke explicitly.
+
+**Shape of the v2 fix.** One of:
+
+1. Extend `enforce_artefact_expiry()` to also call the existing
+   `process-artefact-revocation` Edge Function (or a thin sibling)
+   with a `consent_expired` trigger_type, so the same fan-out logic
+   produces `deletion_receipts` per connector mapping.
+2. Add a new `process-artefact-expiry` Edge Function + dispatch
+   trigger on the `status='expired'` transition, mirroring ADR-0022's
+   pattern.
+
+Option 1 is cheaper (~2h) and reuses ADR-0022's idempotency contract.
+
+---
+
 ## API key format
 
 ### V2-K1. Edge Functions require `--no-verify-jwt`  *(origin: Edge Function gateway)*

@@ -2,6 +2,26 @@
 
 Database migrations, RLS policies, roles.
 
+## [ADR-0023 Sprint 1.1 + closeout] — 2026-04-17
+
+**ADR:** ADR-0023 — DEPA Expiry Pipeline
+**Sprint:** 1.1 (helpers + cron) + 1.2 (tests)
+
+### Added
+- `20260422000001_depa_expiry_pipeline.sql` — two SQL helpers + two pg_cron jobs per schema-design §11.2 / §11.10:
+  - `enforce_artefact_expiry()` — transitions active artefacts past their `expires_at` to `status='expired'`, removes them from `consent_artefact_index`, writes `audit_log` with `event_type='consent_artefact_expired'`, stages a `delivery_buffer` row with `event_type='artefact_expiry_deletion'` if the purpose has `auto_delete_on_expiry=true`, marks `consent_expiry_queue.processed_at`.
+  - `send_expiry_alerts()` — picks `consent_expiry_queue` rows whose `notify_at` has lapsed (and which are not notified/processed/superseded), marks `notified_at`, stages a `delivery_buffer` row with `event_type='consent_expiry_alert'`.
+  - Both granted EXECUTE to `authenticated` + `cs_orchestrator`.
+  - `expiry-enforcement-daily` pg_cron at `0 19 * * *` (00:30 IST).
+  - `expiry-alerts-daily` pg_cron at `30 2 * * *` (08:00 IST).
+
+### Tested
+- [x] `tests/depa/expiry-pipeline.test.ts` — 2/2 — PASS (10.6 enforcement; 10.6b alert staging + idempotent second call).
+- [x] `bun run test:rls` — 11 files, **144/144** — PASS.
+
+### Deferred
+- Expiry-triggered connector fan-out logged to `docs/V2-BACKLOG.md` as **V2-D1** (auto-delete currently stages only the R2 export; third-party connectors are not automatically notified at TTL lapse).
+
 ## [ADR-0032 post-review follow-up] — 2026-04-17
 
 **ADR:** ADR-0032 — Support Tickets

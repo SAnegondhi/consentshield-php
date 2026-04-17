@@ -1,7 +1,7 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-04-17T09:10:25.039Z
-> Files: 412 tracked | Anatomy hits: 0 | Misses: 0
+> Auto-maintained by OpenWolf. Last scanned: 2026-04-17T09:25:24.991Z
+> Files: 421 tracked | Anatomy hits: 0 | Misses: 0
 
 ## ../../../../../tmp/
 
@@ -117,12 +117,12 @@
 
 ## admin/src/app/(operator)/support/
 
-- `actions.ts` — Exports sendMessage, changeStatus, changePriority, assignTicket (~960 tok)
+- `actions.ts` — Exports sendMessage, changeStatus, changePriority, assignTicket (~986 tok)
 - `page.tsx` — ADR-0032 Sprint 1.1 — Support tickets list + metric tiles. (~2467 tok)
 
 ## admin/src/app/(operator)/support/[ticketId]/
 
-- `page.tsx` — ADR-0032 Sprint 1.1 — Support ticket detail + thread + reply. (~1590 tok)
+- `page.tsx` — ADR-0032 Sprint 1.1 — Support ticket detail + thread + reply. (~1688 tok)
 
 ## admin/src/app/(operator)/templates/
 
@@ -163,7 +163,7 @@
 
 - `feature-flags-tab.tsx` — FeatureFlagsTab — renders form, table, modal (~4012 tok)
 - `flags-tabs.tsx` — FlagsTabs (~469 tok)
-- `kill-switches-tab.tsx` — KillSwitchesTab — renders form, modal (~2212 tok)
+- `kill-switches-tab.tsx` — KillSwitchesTab — renders form, modal (~2289 tok)
 
 ## admin/src/components/impersonation/
 
@@ -187,7 +187,7 @@
 
 ## admin/src/components/support/
 
-- `reply-form.tsx` — ReplyForm — renders form (~578 tok)
+- `reply-form.tsx` — ReplyForm — renders form (~889 tok)
 - `ticket-controls.tsx` — STATUSES — renders form, modal (~2278 tok)
 
 ## admin/src/components/templates/
@@ -251,6 +251,11 @@
 
 - `page.tsx` — ADR-0032 Sprint 2.1 — Contact Support form (customer side). (~330 tok)
 
+## app/src/app/(dashboard)/dashboard/template/
+
+- `actions.ts` — Exports applyTemplate (~260 tok)
+- `page.tsx` — ADR-0030 Sprint 3.1 — customer-side template picker. (~1156 tok)
+
 ## app/src/app/(public)/privacy/[orgId]/
 
 - `page.tsx` — Public privacy notice page — no auth required. Backed by rpc_get_privacy_notice (~705 tok)
@@ -261,7 +266,7 @@
 
 ## app/src/components/
 
-- `dashboard-nav.tsx` — navItems (~611 tok)
+- `dashboard-nav.tsx` — navItems (~628 tok)
 - `otp-boxes.tsx` — OtpBoxes (~345 tok)
 - `suspended-banner.tsx` — ADR-0029 Sprint 4.1 — customer-side suspension banner. (~537 tok)
 
@@ -269,6 +274,10 @@
 
 - `customer-reply-form.tsx` — CustomerReplyForm — renders form (~476 tok)
 - `new-ticket-form.tsx` — NewTicketForm — renders form (~1400 tok)
+
+## app/src/components/templates/
+
+- `template-picker.tsx` — TemplatePicker (~898 tok)
 
 ## app/src/lib/rights/
 
@@ -286,7 +295,7 @@
 
 - `ROADMAP-phase2.md` — ConsentShield — Phase 2 Roadmap (~3150 tok)
 - `STATUS.md` — ConsentShield Status (~2363 tok)
-- `V2-BACKLOG.md` — V2 Backlog — Deferred Items for Post-Phase-2 Review (~2289 tok)
+- `V2-BACKLOG.md` — V2 Backlog — Deferred Items for Post-Phase-2 Review (~2580 tok)
 
 ## docs/ADRs/
 
@@ -312,14 +321,15 @@
 - `ADR-0020-depa-schema-skeleton.md` — ADR-0020: DEPA Schema Skeleton (~5670 tok)
 - `ADR-0021-process-consent-event.md` — ADR-0021: `process-consent-event` Edge Function + Dispatch Trigger + Safety-Net Cron (~3927 tok)
 - `ADR-0022-artefact-revocation-pipeline.md` — ADR-0022: `process-artefact-revocation` Edge Function + Revocation Dispatch (~4937 tok)
+- `ADR-0023-expiry-pipeline.md` — ADR-0023: DEPA Expiry Pipeline — `send_expiry_alerts` + `enforce_artefact_expiry` + pg_cron (~2972 tok)
 - `ADR-0026-monorepo-restructure.md` — ADR-0026: Monorepo Restructure (Bun Workspace — `app/` + `admin/` + `packages/*`) (~8747 tok)
 - `ADR-0027-admin-schema.md` — ADR-0027: Admin Platform Schema (cs_admin Role + `admin.*` Tables + Audit Log + Impersonation) (~14644 tok)
 - `ADR-0028-admin-app-foundation.md` — ADR-0028: Admin App Foundation — Real Auth, Operations Dashboard, Audit Log (~4047 tok)
 - `ADR-0029-admin-organisations.md` — ADR-0029: Admin Organisations Panel — List, Detail, Actions, Impersonation (~3387 tok)
 - `ADR-0030-sectoral-templates.md` — ADR-0030: Sectoral Templates (Admin Panel + Customer-Side Read) (~2410 tok)
-- `ADR-0032-support-tickets.md` — ADR-0032: Support Tickets (Admin Panel + Customer-Side Submit) (~2605 tok)
+- `ADR-0032-support-tickets.md` — ADR-0032: Support Tickets (Admin Panel + Customer-Side Submit) (~2749 tok)
 - `ADR-0036-feature-flags-kill-switches.md` — ADR-0036: Feature Flags & Kill Switches (Admin Panel) (~2282 tok)
-- `ADR-index.md` — ADR Index (~1015 tok)
+- `ADR-index.md` — ADR Index (~1048 tok)
 - `ADR-template.md` — ADR-NNNN: Title (~423 tok)
 - `adr-workflow.md` — ADR Workflow Rules (~557 tok)
 
@@ -344,11 +354,11 @@
 ## docs/changelogs/
 
 - `CHANGELOG-api.md` — Changelog — API (~1976 tok)
-- `CHANGELOG-dashboard.md` — Changelog — Dashboard (~4628 tok)
-- `CHANGELOG-docs.md` — Changelog — Documentation (~843 tok)
+- `CHANGELOG-dashboard.md` — Changelog — Dashboard (~4905 tok)
+- `CHANGELOG-docs.md` — Changelog — Documentation (~992 tok)
 - `CHANGELOG-edge-functions.md` — Changelog — Edge Functions (~2405 tok)
 - `CHANGELOG-infra.md` — Changelog — Infrastructure (~3183 tok)
-- `CHANGELOG-schema.md` — Changelog — Schema (~10410 tok)
+- `CHANGELOG-schema.md` — Changelog — Schema (~11091 tok)
 - `CHANGELOG-worker.md` — Changelog — Worker (~1514 tok)
 
 ## docs/design/
@@ -744,6 +754,9 @@
 - `20260420000001_depa_revocation_dispatch.sql` — ADR-0022 Sprint 1.2 — artefact-revocation dispatch trigger + safety-net cron. (~2320 tok)
 - `20260420000002_revocation_dispatch_grants.sql` — ADR-0022 Sprint 1.3 — cs_orchestrator grants for process-artefact-revocation. (~150 tok)
 - `20260421000001_customer_support_access.sql` — ADR-0032 Sprint 2.1 — customer-side access to admin.support_tickets. (~1190 tok)
+- `20260421000002_support_internal_notes.sql` — ADR-0032 deviation follow-up — internal operator-to-operator notes on support tickets. (~1201 tok)
+- `20260421000003_apply_sectoral_template.sql` — ADR-0030 Sprint 3.1 — customer-side sectoral-template application. (~629 tok)
+- `20260422000001_depa_expiry_pipeline.sql` — ADR-0023 Sprint 1.1 — DEPA expiry pipeline. (~1803 tok)
 
 ## supabase/seed/
 
@@ -794,6 +807,7 @@
 ## tests/depa/
 
 - `consent-event-pipeline.test.ts` — ADR-0021 Sprint 1.1 — process-consent-event pipeline integration tests. (~3428 tok)
+- `expiry-pipeline.test.ts` — ADR-0023 Sprint 1.2 — expiry pipeline integration tests. (~3448 tok)
 - `revocation-pipeline.test.ts` — ADR-0022 Sprint 1.4 — process-artefact-revocation pipeline integration tests. (~4831 tok)
 
 ## tests/fixtures/
@@ -810,7 +824,8 @@
 - `depa-isolation.test.ts` — ADR-0020 Sprint 1.1 — DEPA RLS isolation tests. (~3131 tok)
 - `helpers.ts` — Exports getServiceClient, getAnonClient, TestOrg, createTestOrg + 3 more (~951 tok)
 - `isolation.test.ts` — Declares admin (~2328 tok)
-- `support-tickets.test.ts` — ADR-0032 Sprint 2.1 — customer-side support access isolation. (~1167 tok)
+- `sectoral-template-apply.test.ts` — ADR-0030 Sprint 3.1 — customer-side sectoral-template application. (~1521 tok)
+- `support-tickets.test.ts` — ADR-0032 Sprint 2.1 — customer-side support access isolation. (~1536 tok)
 - `url-path.test.ts` — S-2 from the 2026-04-14 codebase review: authenticated API routes (~856 tok)
 
 ## tests/worker/

@@ -1456,3 +1456,40 @@
 | 14:40 | Edited docs/ADRs/ADR-index.md | inline fix | ~31 |
 | 14:40 | Edited docs/changelogs/CHANGELOG-edge-functions.md | modified reachable() | ~113 |
 | 15:40 | Sprint 1.4 ADR-0022 — wrote + passed revocation pipeline tests 10.4/10.7/10.10; ADR-0022 Completed | tests/depa/revocation-pipeline.test.ts | 3/3 + 141/141 full suite | ~3200 |
+| 14:41 | Session end: 116 writes across 48 files (check-no-admin-imports-in-app.ts, check-no-customer-imports-in-admin.ts, check-env-isolation.ts, monorepo-isolation.yml, package.json) | 45 reads | ~241972 tok |
+| 14:43 | Created supabase/migrations/20260421000002_support_internal_notes.sql | — | ~1201 |
+| 14:44 | Edited admin/src/app/(operator)/support/actions.ts | added optional chaining | ~195 |
+| 14:44 | Created admin/src/components/support/reply-form.tsx | — | ~889 |
+| 14:44 | Session end: 119 writes across 49 files (check-no-admin-imports-in-app.ts, check-no-customer-imports-in-admin.ts, check-env-isolation.ts, monorepo-isolation.yml, package.json) | 45 reads | ~244342 tok |
+| 14:44 | Edited admin/src/app/(operator)/support/[ticketId]/page.tsx | CSS: is_internal | ~56 |
+| 14:44 | Edited admin/src/app/(operator)/support/[ticketId]/page.tsx | 6→6 lines | ~64 |
+| 14:44 | Edited admin/src/app/(operator)/support/[ticketId]/page.tsx | expanded (+8 lines) | ~394 |
+| 14:45 | Edited docs/ADRs/ADR-0032-support-tickets.md | 7→8 lines | ~209 |
+| 14:45 | Edited admin/src/components/flags/kill-switches-tab.tsx | 7→9 lines | ~168 |
+| 14:45 | Edited admin/src/components/flags/kill-switches-tab.tsx | 6→7 lines | ~106 |
+| 14:45 | Edited tests/rls/support-tickets.test.ts | expanded (+36 lines) | ~541 |
+| 14:48 | Edited docs/ADRs/ADR-0032-support-tickets.md | 4→4 lines | ~259 |
+| 14:48 | Edited docs/changelogs/CHANGELOG-schema.md | expanded (+15 lines) | ~340 |
+| 14:48 | Edited docs/changelogs/CHANGELOG-dashboard.md | expanded (+16 lines) | ~305 |
+| 14:48 | Created docs/ADRs/ADR-0023-expiry-pipeline.md | — | ~2954 |
+| 14:48 | Edited docs/ADRs/ADR-index.md | 1→2 lines | ~66 |
+| 14:49 | Created supabase/migrations/20260422000001_depa_expiry_pipeline.sql | — | ~1803 |
+| 14:51 | Created tests/depa/expiry-pipeline.test.ts | — | ~3448 |
+| 14:51 | Session end: 133 writes across 52 files (check-no-admin-imports-in-app.ts, check-no-customer-imports-in-admin.ts, check-env-isolation.ts, monorepo-isolation.yml, package.json) | 45 reads | ~255504 tok |
+| 14:52 | Created supabase/migrations/20260421000003_apply_sectoral_template.sql | — | ~629 |
+| 14:53 | Created app/src/app/(dashboard)/dashboard/template/actions.ts | — | ~260 |
+| 14:53 | Created app/src/app/(dashboard)/dashboard/template/page.tsx | — | ~1156 |
+| 14:53 | Edited docs/ADRs/ADR-0023-expiry-pipeline.md | 2→3 lines | ~22 |
+| 14:53 | Edited docs/ADRs/ADR-0023-expiry-pipeline.md | 5→5 lines | ~104 |
+| 14:53 | Created app/src/components/templates/template-picker.tsx | — | ~898 |
+| 14:53 | Edited app/src/components/dashboard-nav.tsx | 1→2 lines | ~35 |
+| 14:53 | Edited docs/ADRs/ADR-0023-expiry-pipeline.md | 6→6 lines | ~212 |
+| 14:53 | Edited docs/ADRs/ADR-0023-expiry-pipeline.md | expanded (+19 lines) | ~174 |
+| 14:54 | Edited docs/ADRs/ADR-index.md | inline fix | ~35 |
+| 14:54 | Created tests/rls/sectoral-template-apply.test.ts | — | ~1521 |
+| 14:54 | Edited docs/V2-BACKLOG.md | expanded (+29 lines) | ~339 |
+| 14:55 | Edited docs/changelogs/CHANGELOG-schema.md | expanded (+20 lines) | ~411 |
+| 14:55 | Edited docs/changelogs/CHANGELOG-docs.md | expanded (+9 lines) | ~173 |
+| 15:55 | ADR-0023 drafted + implemented same session (expiry pipeline: enforce_artefact_expiry + send_expiry_alerts + 2 pg_cron) | docs/ADRs/ADR-0023, migration, tests | Completed | ~6000 |
+| 15:55 | V2-D1 logged — expiry-triggered connector fan-out deferred (currently stages delivery_buffer R2 export only) | docs/V2-BACKLOG.md | logged | ~450 |
+| 15:55 | Full test:rls 144/144 across 11 files (after ADR-0023 added 2) | — | PASS | — |

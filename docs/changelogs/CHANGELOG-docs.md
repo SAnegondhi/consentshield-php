@@ -2,6 +2,15 @@
 
 Documentation changes.
 
+## [ADR-0023 charter + closeout] — 2026-04-17
+
+**ADR:** ADR-0023 (DEPA Expiry Pipeline — `send_expiry_alerts` + `enforce_artefact_expiry` + pg_cron)
+
+### Added
+- `docs/ADRs/ADR-0023-expiry-pipeline.md` — drafted as Completed (same-session ship). Single phase / two sprints. Decision captures the "auto-delete stages delivery_buffer, not deletion_receipts" stance and pins connector fan-out to V2-D1.
+- `docs/V2-BACKLOG.md` — new `## DEPA` section + `V2-D1. Expiry-triggered connector fan-out` entry with two proposed shapes for the v2 fix.
+- `docs/ADRs/ADR-index.md` — ADR-0023 added as Completed.
+
 ## [ADR-0022 charter + sprint 1.1] — 2026-04-17
 
 **ADR:** ADR-0022 (`process-artefact-revocation` Edge Function + Revocation Dispatch)
