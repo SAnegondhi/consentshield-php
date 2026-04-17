@@ -2,6 +2,27 @@
 
 Next.js UI changes.
 
+## ADR-0031 — 2026-04-17
+
+**ADR:** ADR-0031 — Connector Catalogue + Tracker Signature Catalogue (admin panels)
+**Sprints:** 1.1 + 1.2 (connectors list / detail / editor / deprecate) · 2.1 + 2.2 (signatures list / detail / editor / import pack)
+
+### Added
+- `admin/src/app/(operator)/connectors/page.tsx` + `[connectorId]/page.tsx` + `new/page.tsx` + `[connectorId]/edit/page.tsx` — list (filterable by status + vendor) + detail (metadata, webhook endpoint template, required-credentials schema) + create/edit form + Deprecate modal with replacement picker + cutover deadline.
+- `admin/src/components/connectors/{filter-bar,connector-form,detail-actions}.tsx` — shared UI primitives. JSON schema textarea is parse-validated server-side before calling `admin.add_connector` / `admin.update_connector` / `admin.deprecate_connector`.
+- `admin/src/app/(operator)/signatures/page.tsx` + `[signatureId]/page.tsx` + `new/page.tsx` + `[signatureId]/edit/page.tsx` + `import/page.tsx` — list with category pill filter + critical-severity pill + status select + detail with pattern preview + create/edit form (regex pattern compile-checked) + bulk import pack form.
+- `admin/src/components/signatures/{filter-bar,signature-form,detail-actions,import-form}.tsx`.
+- `admin/src/app/(operator)/connectors/actions.ts` + `signatures/actions.ts` — Server Actions wrapping the seven ADR-0027 RPCs (`add_connector`, `update_connector`, `deprecate_connector`, `add_tracker_signature`, `update_tracker_signature`, `deprecate_tracker_signature`, `import_tracker_signature_pack`). All enforce reason ≥ 10 chars client-side in addition to the RPC's check.
+
+### Changed
+- `admin/src/app/(operator)/layout.tsx` — `Connector Catalogue` and `Tracker Signatures` nav items now live; the "soon" pills are gone for ADR-0031.
+
+### Tested
+- [x] `cd admin && bun run build` — 25 routes compile (up from 15).
+- [x] `cd admin && bun run lint` — zero warnings.
+- [x] `cd admin && bun run test` — 1/1 smoke.
+- [x] `bun run test:rls` — 160/160, no regression.
+
 ## ADR-0039 — 2026-04-17
 
 **ADR:** ADR-0039 — Connector OAuth (Mailchimp + HubSpot)
