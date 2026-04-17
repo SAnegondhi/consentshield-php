@@ -2,6 +2,25 @@
 
 Database migrations, RLS policies, roles.
 
+## [ADR-0021 Sprint 1.1] — 2026-04-17
+
+**ADR:** ADR-0021 — `process-consent-event` Edge Function + Dispatch Trigger + Safety-Net Cron
+**Sprint:** Phase 1, Sprint 1.1
+
+### Added
+- `20260419000001_depa_consent_event_dispatch.sql` — idempotency guard + dispatch + safety net:
+  - `alter table consent_artefacts add constraint consent_artefacts_event_purpose_uq unique (consent_event_id, purpose_code)` — guard S-7, enforces "exactly one artefact per (event, purpose)".
+  - `trigger_process_consent_event()` + AFTER INSERT trigger `trg_consent_event_artefact_dispatch` on `consent_events`. Fires `net.http_post` to `process-consent-event`; EXCEPTION WHEN OTHERS swallows trigger failures so the Worker's INSERT never rolls back.
+  - `safety_net_process_consent_events()` — 100-row batch cap, 24-hour lookback window, re-fires the Edge Function for `consent_events` rows with empty `artefact_ids` older than 5 minutes. Granted EXECUTE to authenticated + cs_orchestrator (tests invoke it).
+  - pg_cron job `consent-events-artefact-safety-net` at `*/5 * * * *`.
+
+### Changed
+- `public.consent_artefacts` — now carries the S-7 idempotency constraint. Duplicate inserts from a trigger+cron race collide at the DB level (ON CONFLICT DO NOTHING in the Edge Function handles).
+
+### Tested
+- [x] `tests/depa/consent-event-pipeline.test.ts` — 2/2 — PASS (Tests 10.1 + 10.2 from testing-strategy §10)
+- [x] `bun run test:rls` full suite — 135/135 across 8 files — PASS
+
 ## [Sprint 3.1] — 2026-04-17
 
 **ADR:** ADR-0027 — Admin Platform Schema

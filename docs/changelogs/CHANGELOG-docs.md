@@ -2,6 +2,16 @@
 
 Documentation changes.
 
+## [ADR-0021 sprint 1.1] — 2026-04-17
+
+**ADR:** ADR-0021 (`process-consent-event` Edge Function + Dispatch Trigger + Safety-Net Cron)
+
+### Added
+- `docs/ADRs/ADR-0021-process-consent-event.md` — full ADR with execution notes. Two architecture observations documented: (a) Edge Functions using the `sb_secret_*` Vault token need `--no-verify-jwt` at deploy time; (b) idempotency guard S-7 moved from "enforced by code review" to "enforced by UNIQUE constraint + ON CONFLICT DO NOTHING" (stronger guarantee; schema-design doc §11.12 amendment noted for later).
+
+### Changed
+- `docs/ADRs/ADR-index.md` — ADR-0021 added as Completed.
+
 ## [ADR-0019 charter + ADR-0020 sprint 1.1] — 2026-04-17
 
 **ADRs:** ADR-0019 (DEPA Roadmap charter), ADR-0020 (DEPA Schema Skeleton)

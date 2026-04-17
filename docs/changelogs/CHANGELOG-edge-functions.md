@@ -2,6 +2,22 @@
 
 Supabase Edge Function changes.
 
+## ADR-0021 Sprint 1.1 — 2026-04-17
+
+**ADR:** ADR-0021 — `process-consent-event` Edge Function + Dispatch Trigger + Safety-Net Cron
+**Sprint:** Phase 1, Sprint 1.1
+
+### Added
+- `supabase/functions/process-consent-event/index.ts` — DEPA artefact fan-out. Reads a `consent_events` row, looks up the banner's purposes JSONB + matching `purpose_definitions`, inserts one `consent_artefacts` row per accepted purpose with `ON CONFLICT (consent_event_id, purpose_code) DO NOTHING`, populates `consent_artefact_index`, and updates `consent_events.artefact_ids` with a guarded update. Runs as `cs_orchestrator`. Deployed with `--no-verify-jwt` to accept the `sb_secret_*` Vault token used by the trigger + cron.
+
+### Deployed
+- `bunx supabase functions deploy process-consent-event --no-verify-jwt` — hosted dev.
+
+### Tested
+- [x] Direct smoke (`curl -X POST` with nonexistent event_id) — returns 200 `{skipped: true, reason: event_not_found}` — PASS
+- [x] `tests/depa/consent-event-pipeline.test.ts` — 2/2 (artefact creation + idempotency under race) — PASS
+- [x] Full `bun run test:rls` — 135/135 across 8 files — PASS
+
 ## ADR-0016 Sprint 1 — 2026-04-16
 
 **ADR:** ADR-0016 — Consent Probes (static HTML analysis v1)
