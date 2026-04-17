@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { createServerClient } from '@/lib/supabase/server'
+import { ActiveSessionBanner } from '@/components/impersonation/active-session-banner'
 
 // Operator shell. Red admin-mode strip + red sidebar border per the
 // admin wireframe (docs/admin/design/consentshield-admin-screens.html).
@@ -65,6 +66,9 @@ export default async function OperatorLayout({
 
   return (
     <div className="min-h-screen">
+      {/* Impersonation banner — renders nothing when no session is active */}
+      <ActiveSessionBanner />
+
       {/* Admin-mode strip (Rule 25 visual cue) */}
       <div className="bg-red-700 py-1 text-center text-xs font-mono uppercase tracking-wider text-white">
         ConsentShield — Operator Console (Admin Mode)

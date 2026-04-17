@@ -7,6 +7,7 @@ import {
   suspendOrg,
   restoreOrg,
 } from '../../app/(operator)/orgs/[orgId]/actions'
+import { StartImpersonationDrawer } from '../impersonation/start-drawer'
 
 interface Props {
   orgId: string
@@ -68,6 +69,7 @@ export function OrgActionBar({ orgId, orgName, status, currentAdminRole }: Props
             Restore
           </button>
         ) : null}
+        <StartImpersonationDrawer orgId={orgId} orgName={orgName} />
       </div>
 
       {modal === 'note' ? (
