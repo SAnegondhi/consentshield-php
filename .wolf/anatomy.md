@@ -1,7 +1,7 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-04-17T09:04:18.021Z
-> Files: 411 tracked | Anatomy hits: 0 | Misses: 0
+> Auto-maintained by OpenWolf. Last scanned: 2026-04-17T09:10:25.039Z
+> Files: 412 tracked | Anatomy hits: 0 | Misses: 0
 
 ## ../../../../../tmp/
 
@@ -311,7 +311,7 @@
 - `ADR-0019-depa-roadmap.md` — ADR-0019: DEPA Roadmap — Charter & Sequencing of ADR-0020..0025 (~3286 tok)
 - `ADR-0020-depa-schema-skeleton.md` — ADR-0020: DEPA Schema Skeleton (~5670 tok)
 - `ADR-0021-process-consent-event.md` — ADR-0021: `process-consent-event` Edge Function + Dispatch Trigger + Safety-Net Cron (~3927 tok)
-- `ADR-0022-artefact-revocation-pipeline.md` — ADR-0022: `process-artefact-revocation` Edge Function + Revocation Dispatch (~4536 tok)
+- `ADR-0022-artefact-revocation-pipeline.md` — ADR-0022: `process-artefact-revocation` Edge Function + Revocation Dispatch (~4937 tok)
 - `ADR-0026-monorepo-restructure.md` — ADR-0026: Monorepo Restructure (Bun Workspace — `app/` + `admin/` + `packages/*`) (~8747 tok)
 - `ADR-0027-admin-schema.md` — ADR-0027: Admin Platform Schema (cs_admin Role + `admin.*` Tables + Audit Log + Impersonation) (~14644 tok)
 - `ADR-0028-admin-app-foundation.md` — ADR-0028: Admin App Foundation — Real Auth, Operations Dashboard, Audit Log (~4047 tok)
@@ -319,7 +319,7 @@
 - `ADR-0030-sectoral-templates.md` — ADR-0030: Sectoral Templates (Admin Panel + Customer-Side Read) (~2410 tok)
 - `ADR-0032-support-tickets.md` — ADR-0032: Support Tickets (Admin Panel + Customer-Side Submit) (~2605 tok)
 - `ADR-0036-feature-flags-kill-switches.md` — ADR-0036: Feature Flags & Kill Switches (Admin Panel) (~2282 tok)
-- `ADR-index.md` — ADR Index (~1016 tok)
+- `ADR-index.md` — ADR Index (~1015 tok)
 - `ADR-template.md` — ADR-NNNN: Title (~423 tok)
 - `adr-workflow.md` — ADR Workflow Rules (~557 tok)
 
@@ -346,7 +346,7 @@
 - `CHANGELOG-api.md` — Changelog — API (~1976 tok)
 - `CHANGELOG-dashboard.md` — Changelog — Dashboard (~4628 tok)
 - `CHANGELOG-docs.md` — Changelog — Documentation (~843 tok)
-- `CHANGELOG-edge-functions.md` — Changelog — Edge Functions (~2363 tok)
+- `CHANGELOG-edge-functions.md` — Changelog — Edge Functions (~2405 tok)
 - `CHANGELOG-infra.md` — Changelog — Infrastructure (~3183 tok)
 - `CHANGELOG-schema.md` — Changelog — Schema (~10410 tok)
 - `CHANGELOG-worker.md` — Changelog — Worker (~1514 tok)
@@ -794,6 +794,7 @@
 ## tests/depa/
 
 - `consent-event-pipeline.test.ts` — ADR-0021 Sprint 1.1 — process-consent-event pipeline integration tests. (~3428 tok)
+- `revocation-pipeline.test.ts` — ADR-0022 Sprint 1.4 — process-artefact-revocation pipeline integration tests. (~4831 tok)
 
 ## tests/fixtures/
 

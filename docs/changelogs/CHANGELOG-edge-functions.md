@@ -18,7 +18,8 @@ Supabase Edge Function changes.
 
 ### Tested
 - [x] Smoke test via `curl` with fabricated IDs returns `200 { reason: 'revocation_not_found' }` — function reachable, auth chain intact, no crash.
-- [ ] Full integration coverage by ADR-0022 Sprint 1.4 (`tests/depa/revocation-pipeline.test.ts`).
+- [x] `tests/depa/revocation-pipeline.test.ts` — 3/3 — PASS (10.4 cascade precision; 10.7 frozen chain raises; 10.10 sibling isolation). Duration 15.1s.
+- [x] `bun run test:rls` — 10 files, **141/141** — PASS (baseline 138 post-ADR-0032 + 3 new). Duration 105.5s.
 
 ## ADR-0027 Sprint 3.2 — 2026-04-17
 

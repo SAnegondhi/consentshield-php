@@ -1447,3 +1447,12 @@
 | 14:34 | Edited docs/ADRs/ADR-0022-artefact-revocation-pipeline.md | 6→7 lines | ~373 |
 | 15:20 | Sprint 1.3 ADR-0022 — wrote Edge Function process-artefact-revocation; deployed to dev | supabase/functions/process-artefact-revocation/index.ts | smoke 200 revocation_not_found | ~2400 |
 | 15:20 | Grants follow-up migration 20260420000002 (cs_orchestrator SELECT + UPDATE(dispatched_at) on artefact_revocations) | migration | applied | ~400 |
+| 14:37 | Session end: 110 writes across 47 files (check-no-admin-imports-in-app.ts, check-no-customer-imports-in-admin.ts, check-env-isolation.ts, monorepo-isolation.yml, package.json) | 44 reads | ~234194 tok |
+| 14:37 | Created tests/depa/revocation-pipeline.test.ts | — | ~4831 |
+| 14:39 | Session end: 111 writes across 48 files (check-no-admin-imports-in-app.ts, check-no-customer-imports-in-admin.ts, check-env-isolation.ts, monorepo-isolation.yml, package.json) | 44 reads | ~239025 tok |
+| 14:39 | Edited docs/ADRs/ADR-0022-artefact-revocation-pipeline.md | 2→3 lines | ~22 |
+| 14:39 | Edited docs/ADRs/ADR-0022-artefact-revocation-pipeline.md | 9→8 lines | ~369 |
+| 14:40 | Edited docs/ADRs/ADR-0022-artefact-revocation-pipeline.md | modified coverage() | ~372 |
+| 14:40 | Edited docs/ADRs/ADR-index.md | inline fix | ~31 |
+| 14:40 | Edited docs/changelogs/CHANGELOG-edge-functions.md | modified reachable() | ~113 |
+| 15:40 | Sprint 1.4 ADR-0022 — wrote + passed revocation pipeline tests 10.4/10.7/10.10; ADR-0022 Completed | tests/depa/revocation-pipeline.test.ts | 3/3 + 141/141 full suite | ~3200 |
