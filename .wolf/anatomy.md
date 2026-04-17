@@ -1,7 +1,12 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-04-16T15:46:42.120Z
-> Files: 252 tracked | Anatomy hits: 0 | Misses: 0
+> Auto-maintained by OpenWolf. Last scanned: 2026-04-17T04:34:55.638Z
+> Files: 371 tracked | Anatomy hits: 0 | Misses: 0
+
+## ../../../../../tmp/
+
+- `create-bootstrap-test-user.ts` — Declares main (~214 tok)
+- `depa_verify.sql` — §11.11 DEPA verification queries — ADR-0020 Sprint 1.1 (~643 tok)
 
 ## ../../../.claude/plans/
 
@@ -9,6 +14,9 @@
 
 ## ../../../.claude/projects/-Users-sudhindra-projects-aiSpirit-consent-sheild/memory/
 
+- `feedback_bun_workspace_quirks.md` — Don't list non-existent dirs in root `package.json` `workspaces` (~517 tok)
+- `feedback_docs_vs_code_drift.md` (~534 tok)
+- `feedback_explicit_git_staging.md` (~479 tok)
 - `feedback_hybrid_trigger_over_polling.md` (~654 tok)
 - `feedback_latest_versions.md` (~311 tok)
 - `feedback_no_ai_authorship.md` (~263 tok)
@@ -19,16 +27,19 @@
 - `feedback_parallel_adrs.md` (~378 tok)
 - `feedback_share_narrowly_not_broadly.md` (~1004 tok)
 - `feedback_v2_backlog_pattern.md` (~479 tok)
+- `feedback_vitest_serial_for_supabase_auth.md` (~502 tok)
 - `feedback_wireframes_before_adrs.md` (~784 tok)
-- `MEMORY.md` (~875 tok)
-- `project_admin_platform_2026-04-16.md` — Key decisions locked in (these are NOT to be re-litigated without an ADR) (~1619 tok)
+- `MEMORY.md` (~1105 tok)
+- `project_admin_platform_2026-04-16.md` — What IS implemented as of 2026-04-16 (~1994 tok)
+- `project_admin_platform_2026-04-17.md` — What IS implemented as of 2026-04-17 (~1805 tok)
 - `project_dev_only_no_prod.md` (~347 tok)
 - `project_status_2026-04-14.md` — ADR status (~693 tok)
 - `project_status_2026-04-15.md` — Live deployments (~680 tok)
-- `project_status_2026-04-16.md` — ADR state (~1731 tok)
+- `project_status_2026-04-16.md` — ADR state (~2188 tok)
+- `project_status_2026-04-17.md` — ADR state at EOD (~3004 tok)
 - `reference_email_deliverability.md` — Resend account (~907 tok)
 - `reference_infrastructure.md` (~628 tok)
-- `reference_supabase_platform_gotchas.md` — PG 16 GRANT ROLE split (migration role needs `WITH SET TRUE`) (~1219 tok)
+- `reference_supabase_platform_gotchas.md` — PG 16 GRANT ROLE split (migration role needs `WITH SET TRUE`) (~1631 tok)
 - `reference_vercel_setup.md` — Projects (~665 tok)
 - `user_role.md` (~306 tok)
 
@@ -37,21 +48,118 @@
 - `.gitignore` — Git ignore rules (~182 tok)
 - `.prettierrc` (~29 tok)
 - `CLAUDE.md` — OpenWolf (~4938 tok)
-- `package.json` — Node.js package manifest (~108 tok)
+- `package.json` — Node.js package manifest (~110 tok)
 - `sentry.client.config.ts` (~166 tok)
 - `sentry.server.config.ts` (~166 tok)
 - `tsconfig.base.json` (~110 tok)
 - `tsconfig.json` — TypeScript configuration (~206 tok)
-- `vitest.config.ts` — /*.test.ts'], (~77 tok)
+- `vitest.config.ts` — /*.test.ts', (~217 tok)
 
 ## .claude/
 
-- `session-handoff.md` — Session Handoff (~2448 tok)
+- `session-handoff.md` — Session Handoff (~1131 tok)
+
+## admin/
+
+- `eslint.config.mjs` — Declares eslintConfig (~98 tok)
+- `package.json` — Node.js package manifest (~243 tok)
+- `sentry.client.config.ts` (~170 tok)
+- `sentry.server.config.ts` (~170 tok)
+- `tsconfig.json` — TypeScript configuration (~102 tok)
+- `vitest.config.ts` — /*.test.ts'], (~106 tok)
+
+## admin/src/
+
+- `proxy.ts` — Admin proxy gate — runs on every admin-app request. (~845 tok)
+
+## admin/src/app/
+
+- `globals.css` — Styles: 1 rules, 4 vars (~87 tok)
+- `layout.tsx` — metadata (~138 tok)
+
+## admin/src/app/(auth)/login/
+
+- `page.tsx` — AdminLoginPage — renders form (~1546 tok)
+
+## admin/src/app/(operator)/
+
+- `actions.ts` — Exports refreshPlatformMetrics (~167 tok)
+- `layout.tsx` — Operator shell. Red admin-mode strip + red sidebar border per the (~1451 tok)
+- `page.tsx` — ADR-0028 Sprint 2.1 — Operations Dashboard. (~1660 tok)
+
+## admin/src/app/(operator)/audit-log/
+
+- `page.tsx` — ADR-0028 Sprint 3.1 — Audit Log viewer. (~2104 tok)
+
+## admin/src/app/(operator)/audit-log/export/
+
+- `route.ts` — ADR-0028 Sprint 3.1 — CSV export of filtered audit log. (~1147 tok)
+
+## admin/src/app/(operator)/orgs/
+
+- `page.tsx` — ADR-0029 Sprint 1.1 — Organisations list. (~2110 tok)
+
+## admin/src/app/(operator)/orgs/[orgId]/
+
+- `actions.ts` — Exports addOrgNote, extendTrial, suspendOrg, restoreOrg (~822 tok)
+- `impersonation-actions.ts` — Exports startImpersonation, endImpersonation, forceEndImpersonation (~1296 tok)
+- `page.tsx` — ADR-0029 Sprint 1.1 — Organisation detail page (read-only). (~2946 tok)
+
+## admin/src/app/api/auth/signout/
+
+- `route.ts` — ADR-0028 Sprint 1.1 — admin sign-out. (~141 tok)
+
+## admin/src/components/
+
+- `otp-boxes.tsx` — OtpBoxes (~421 tok)
+
+## admin/src/components/audit-log/
+
+- `audit-table.tsx` — AuditTable — renders table (~877 tok)
+- `detail-drawer.tsx` — AuditDetailDrawer (~1394 tok)
+- `filter-bar.tsx` — AuditLogFilterBar — renders form (~1110 tok)
+
+## admin/src/components/impersonation/
+
+- `active-session-banner-client.tsx` — BannerClient (~610 tok)
+- `active-session-banner.tsx` — ADR-0029 Sprint 3.1 — always-visible banner while an impersonation (~274 tok)
+- `end-session-button.tsx` — EndSessionButton (~184 tok)
+- `start-drawer.tsx` — REASONS — renders form (~1686 tok)
+
+## admin/src/components/ops-dashboard/
+
+- `cron-status-card.tsx` — CronStatusCard — renders table (~898 tok)
+- `kill-switches-card.tsx` — KillSwitchesCard (~632 tok)
+- `metric-tile.tsx` — Pure presentational tile. Server Component. (~256 tok)
+- `recent-activity-card.tsx` — RecentActivityCard (~650 tok)
+- `refresh-button.tsx` — RefreshButton (~289 tok)
+
+## admin/src/components/orgs/
+
+- `action-bar.tsx` — OrgActionBar — renders form, modal (~3196 tok)
+- `filter-bar.tsx` — PLANS — renders form (~898 tok)
+
+## admin/src/lib/impersonation/
+
+- `cookie.ts` — ADR-0029 Sprint 3.1 — impersonation cookie lifecycle. (~439 tok)
+
+## admin/src/lib/supabase/
+
+- `browser.ts` — Admin Supabase browser client. Functionally identical to the customer (~153 tok)
+- `server.ts` — Admin Supabase server client. Uses the same auth.users pool as the (~328 tok)
+
+## admin/tests/
+
+- `smoke.test.ts` — Smoke test — proves `bun --filter @consentshield/admin run test` finds (~94 tok)
 
 ## app/
 
-- `package.json` — Node.js package manifest (~258 tok)
+- `package.json` — Node.js package manifest (~286 tok)
 - `tsconfig.json` — TypeScript configuration (~117 tok)
+
+## app/src/app/(dashboard)/
+
+- `layout.tsx` — DashboardLayout (~128 tok)
 
 ## app/src/app/(dashboard)/dashboard/
 
@@ -69,9 +177,26 @@
 
 - `page.tsx` — RightsInboxPage — renders table (~1435 tok)
 
+## app/src/app/(dashboard)/dashboard/support-sessions/
+
+- `page.tsx` — ADR-0029 Sprint 4.1 — customer-side Support sessions tab. (~1208 tok)
+
 ## app/src/app/(public)/privacy/[orgId]/
 
 - `page.tsx` — Public privacy notice page — no auth required. Backed by rpc_get_privacy_notice (~705 tok)
+
+## app/src/app/api/orgs/[orgId]/integrations/
+
+- `route.ts` — Next.js API route: GET, POST (~1445 tok)
+
+## app/src/components/
+
+- `dashboard-nav.tsx` — navItems (~596 tok)
+- `suspended-banner.tsx` — ADR-0029 Sprint 4.1 — customer-side suspension banner. (~537 tok)
+
+## app/src/lib/rights/
+
+- `deletion-dispatch.ts` — Deletion orchestration — dispatches erasure to connectors and records (~3008 tok)
 
 ## app/tests/buffer/
 
@@ -107,21 +232,26 @@
 - `ADR-0016-consent-probes.md` — ADR-0016: Consent Probes (Synthetic Compliance Testing) (~1518 tok)
 - `ADR-0017-audit-export-package.md` — ADR-0017: Audit Export Package (~1578 tok)
 - `ADR-0018-prebuilt-deletion-connectors.md` — ADR-0018: Pre-built Deletion Connectors (Mailchimp, HubSpot) (~1457 tok)
-- `ADR-0026-monorepo-restructure.md` — ADR-0026: Monorepo Restructure (Bun Workspace — `app/` + `admin/` + `packages/*`) (~6882 tok)
-- `ADR-0027-admin-schema.md` — ADR-0027: Admin Platform Schema (cs_admin Role + `admin.*` Tables + Audit Log + Impersonation) (~7272 tok)
-- `ADR-index.md` — ADR Index (~760 tok)
+- `ADR-0019-depa-roadmap.md` — ADR-0019: DEPA Roadmap — Charter & Sequencing of ADR-0020..0025 (~3286 tok)
+- `ADR-0020-depa-schema-skeleton.md` — ADR-0020: DEPA Schema Skeleton (~5670 tok)
+- `ADR-0021-process-consent-event.md` — ADR-0021: `process-consent-event` Edge Function + Dispatch Trigger + Safety-Net Cron (~3927 tok)
+- `ADR-0026-monorepo-restructure.md` — ADR-0026: Monorepo Restructure (Bun Workspace — `app/` + `admin/` + `packages/*`) (~8274 tok)
+- `ADR-0027-admin-schema.md` — ADR-0027: Admin Platform Schema (cs_admin Role + `admin.*` Tables + Audit Log + Impersonation) (~14644 tok)
+- `ADR-0028-admin-app-foundation.md` — ADR-0028: Admin App Foundation — Real Auth, Operations Dashboard, Audit Log (~4047 tok)
+- `ADR-0029-admin-organisations.md` — ADR-0029: Admin Organisations Panel — List, Detail, Actions, Impersonation (~3387 tok)
+- `ADR-index.md` — ADR Index (~913 tok)
 - `ADR-template.md` — ADR-NNNN: Title (~423 tok)
 - `adr-workflow.md` — ADR Workflow Rules (~557 tok)
 
 ## docs/admin/architecture/
 
 - `consentshield-admin-monorepo-migration.md` — ConsentShield — Monorepo Migration Plan (~5512 tok)
-- `consentshield-admin-platform.md` — ConsentShield — Admin Platform Architecture Reference (~9403 tok)
+- `consentshield-admin-platform.md` — ConsentShield — Admin Platform Architecture Reference (~9801 tok)
 - `consentshield-admin-schema.md` — Admin Postgres schema. cs_admin role with BYPASSRLS for SELECT only, writes via security-definer RPCs that audit-log in same transaction. 11 admin tables + 5 example RPCs + 14-step migration order. (~10213 tok)
 
 ## docs/admin/design/
 
-- `ARCHITECTURE-ALIGNMENT-2026-04-16.md` — Coverage matrix (architecture concept → wireframe panel) — initial pass starts at zero drift. 2 customer cross-refs (W13 Support sessions tab, W14 suspended-org banner). 8 deliberate gaps deferred to future ADRs. Per-panel reconciliation tracker keyed to ADR-0028..0036. (~3394 tok)
+- `ARCHITECTURE-ALIGNMENT-2026-04-16.md` — Admin Platform — Architecture Alignment (~3423 tok)
 - `consentshield-admin-screens.html` — Admin wireframe spec: 11 panels (Operations Dashboard, Organisations, Support Tickets, Sectoral Templates, Connector Catalogue, Tracker Signatures, Pipeline Operations, Billing Operations, Abuse & Security, Feature Flags & Kill Switches, Audit Log) + Impersonation drawer. Red admin-mode strip + sidebar accent visually distinguish from customer app. (~26762 tok)
 
 ## docs/architecture/
@@ -134,12 +264,12 @@
 ## docs/changelogs/
 
 - `CHANGELOG-api.md` — Changelog — API (~1976 tok)
-- `CHANGELOG-dashboard.md` — Changelog — Dashboard (~852 tok)
-- `CHANGELOG-docs.md` — Changelog — Documentation (~13 tok)
-- `CHANGELOG-edge-functions.md` — Changelog — Edge Functions (~1242 tok)
-- `CHANGELOG-infra.md` — Changelog — Infrastructure (~951 tok)
-- `CHANGELOG-schema.md` — Changelog — Schema (~3448 tok)
-- `CHANGELOG-worker.md` — Changelog — Worker (~926 tok)
+- `CHANGELOG-dashboard.md` — Changelog — Dashboard (~2576 tok)
+- `CHANGELOG-docs.md` — Changelog — Documentation (~383 tok)
+- `CHANGELOG-edge-functions.md` — Changelog — Edge Functions (~1816 tok)
+- `CHANGELOG-infra.md` — Changelog — Infrastructure (~2605 tok)
+- `CHANGELOG-schema.md` — Changelog — Schema (~9793 tok)
+- `CHANGELOG-worker.md` — Changelog — Worker (~1514 tok)
 
 ## docs/design/
 
@@ -177,8 +307,29 @@
 
 - `index.ts` (~82 tok)
 
+## packages/encryption/
+
+- `package.json` — Node.js package manifest (~73 tok)
+- `tsconfig.json` — TypeScript configuration (~22 tok)
+
+## packages/encryption/src/
+
+- `index.ts` (~16 tok)
+
+## packages/shared-types/
+
+- `package.json` — Node.js package manifest (~54 tok)
+- `tsconfig.json` — TypeScript configuration (~22 tok)
+
+## packages/shared-types/src/
+
+- `depa.ts` — DEPA schema-derived types shared by the customer app (app/) and the (~1577 tok)
+- `index.ts` — customer app (app/) and the operator app (admin/). (~199 tok)
+
 ## scripts/
 
+- `.tmp-cleanup-rehearsal.ts` — Declares main (~297 tok)
+- `bootstrap-admin.ts` — ADR-0027 Sprint 4.1 — admin bootstrap one-shot. (~1746 tok)
 - `smoke-test-rate-limit.ts` — Declares main (~242 tok)
 
 ## session-context/
@@ -189,6 +340,9 @@
 - `context-2026-04-16-12-08-11.md` — Session Context — 2026-04-16 12:08:11 (~3965 tok)
 - `context-2026-04-16-18-12-48.md` — Session Context — 2026-04-16 18:12:48 (~4550 tok)
 - `context-2026-04-16-20-48-13.md` — Session Context — 2026-04-16 20:48:13 (~5237 tok)
+- `context-2026-04-16-21-55-13.md` — Session Context — 2026-04-16 21:55:13 (~7153 tok)
+- `context-2026-04-17-08-34-12.md` — Session Context — 2026-04-17 08:34:12 (Terminal B) (~3780 tok)
+- `context-2026-04-17-09-55-08.md` — Session Context — 2026-04-17 09:55:08 (Terminal A) (~5515 tok)
 
 ## src/
 
@@ -395,9 +549,17 @@
 - `browser.ts` — Exports createBrowserClient (~72 tok)
 - `server.ts` — Exports createServerClient (~204 tok)
 
+## supabase/
+
+- `config.toml` — For detailed configuration reference documentation, visit: (~3910 tok)
+
 ## supabase/functions/check-stuck-deletions/
 
 - `index.ts` — Supabase Edge Function: check-stuck-deletions (~2134 tok)
+
+## supabase/functions/process-consent-event/
+
+- `index.ts` — Supabase Edge Function: process-consent-event (~2459 tok)
 
 ## supabase/functions/run-consent-probes/
 
@@ -410,6 +572,10 @@
 ## supabase/functions/send-sla-reminders/
 
 - `index.ts` — Supabase Edge Function: send-sla-reminders (~1532 tok)
+
+## supabase/functions/sync-admin-config-to-kv/
+
+- `index.ts` — Supabase Edge Function: sync-admin-config-to-kv (~1104 tok)
 
 ## supabase/migrations/
 
@@ -450,6 +616,44 @@
 - `20260416000008_worker_errors_table.sql` — N-S1 fix from docs/reviews/2026-04-16-phase2-completion-review.md. (~536 tok)
 - `20260416000009_cron_url_via_vault.sql` — N-S3 fix from docs/reviews/2026-04-16-phase2-completion-review.md. (~755 tok)
 - `20260416000010_seed_supabase_url_vault.sql` — N-S3 follow-on: seed the `supabase_url` Vault secret that migration (~200 tok)
+- `20260416000011_admin_schema.sql` — ADR-0027 Sprint 1.1 — Admin schema bootstrap. (~295 tok)
+- `20260416000012_cs_admin_role.sql` — ADR-0027 Sprint 1.1 — cs_admin scoped role. (~559 tok)
+- `20260416000013_admin_helpers.sql` — ADR-0027 Sprint 1.1 — Admin helper functions. (~790 tok)
+- `20260416000014_admin_users.sql` — ADR-0027 Sprint 1.1 — admin.admin_users (ordered before admin_audit_log (~825 tok)
+- `20260416000015_admin_audit_log.sql` — ADR-0027 Sprint 1.1 — admin.admin_audit_log (partitioned, append-only). (~1051 tok)
+- `20260416000016_expose_admin_schema_postgrest.sql` — ADR-0027 Sprint 1.1 — expose the admin schema via PostgREST. (~244 tok)
+- `20260416000017_reload_postgrest_schema.sql` — ADR-0027 Sprint 1.1 follow-up — nudge PostgREST to reload its schema cache. (~146 tok)
+- `20260416000018_grant_admin_schema_usage_to_authenticated.sql` — ADR-0027 Sprint 1.1 follow-up — grant USAGE on schema admin to authenticated. (~211 tok)
+- `20260417000001_admin_impersonation.sql` — ADR-0027 Sprint 2.1 — admin.impersonation_sessions + public.org_support_sessions. (~1065 tok)
+- `20260417000002_admin_sectoral_templates.sql` — ADR-0027 Sprint 2.1 — admin.sectoral_templates + public.list_sectoral_templates_for_sector. (~792 tok)
+- `20260417000003_admin_connector_catalogue.sql` — ADR-0027 Sprint 2.1 — admin.connector_catalogue + FK on public.integration_connectors. (~802 tok)
+- `20260417000004_admin_tracker_signatures.sql` — ADR-0027 Sprint 2.1 — admin.tracker_signature_catalogue. (~905 tok)
+- `20260417000005_admin_support_tickets.sql` — ADR-0027 Sprint 2.1 — admin.support_tickets + admin.support_ticket_messages. (~788 tok)
+- `20260417000006_admin_org_notes.sql` — ADR-0027 Sprint 2.1 — admin.org_notes. (~337 tok)
+- `20260417000007_admin_feature_flags.sql` — ADR-0027 Sprint 2.1 — admin.feature_flags + public.get_feature_flag. (~823 tok)
+- `20260417000008_admin_kill_switches.sql` — ADR-0027 Sprint 2.1 — admin.kill_switches + 4 seed switches. (~732 tok)
+- `20260417000009_admin_platform_metrics.sql` — ADR-0027 Sprint 2.1 — admin.platform_metrics_daily. (~395 tok)
+- `20260417000010_admin_audit_log_impersonation_fk.sql` — ADR-0027 Sprint 2.1 — retrofit FK from admin.admin_audit_log.impersonation_session_id (~193 tok)
+- `20260417000011_admin_rpcs.sql` — ADR-0027 Sprint 3.1 — admin RPCs (the audit-logging write surface). (~12753 tok)
+- `20260417000011_public_orgs_status_settings.sql` — ADR-0027 Sprint 3.1 prerequisite — add public.organisations.status + settings. (~415 tok)
+- `20260417000013_admin_pg_cron.sql` — ADR-0027 Sprint 3.1 — admin pg_cron jobs. (~906 tok)
+- `20260417000015_admin_grants_service_role.sql` — ADR-0027 Sprint 3.1 follow-up — grant admin schema access to service_role. (~435 tok)
+- `20260417000016_fix_add_org_note_return.sql` — ADR-0027 Sprint 3.1 follow-up — fix admin.add_org_note return path. (~343 tok)
+- `20260417000017_admin_config_snapshot_rpc.sql` — ADR-0027 Sprint 3.2 — public.admin_config_snapshot() RPC. (~623 tok)
+- `20260417000018_fix_admin_sync_cron.sql` — ADR-0027 Sprint 3.2 — fix admin-sync-config-to-kv bearer token. (~386 tok)
+- `20260417000019_admin_cron_snapshot_rpc.sql` — ADR-0028 Sprint 2.1 — public.admin_cron_snapshot() RPC. (~476 tok)
+- `20260417000020_admin_select_customer_tables.sql` — ADR-0029 Sprint 1.1 — admin SELECT-all RLS policies on public tables. (~792 tok)
+- `20260417000021_admin_config_snapshot_v2.sql` — ADR-0029 Sprint 4.1 — extend public.admin_config_snapshot() with (~554 tok)
+- `20260418000001_depa_helpers.sql` — ADR-0020 Sprint 1.1 — DEPA helper functions. (~1590 tok)
+- `20260418000002_depa_purpose_definitions.sql` — ADR-0020 Sprint 1.1 — DEPA purpose_definitions table. (~986 tok)
+- `20260418000003_depa_purpose_connector_mappings.sql` — ADR-0020 Sprint 1.1 — DEPA purpose_connector_mappings table. (~683 tok)
+- `20260418000004_depa_consent_artefacts.sql` — ADR-0020 Sprint 1.1 — DEPA consent_artefacts table. (~1340 tok)
+- `20260418000005_depa_artefact_revocations.sql` — ADR-0020 Sprint 1.1 — DEPA artefact_revocations table. (~1728 tok)
+- `20260418000006_depa_consent_expiry_queue.sql` — ADR-0020 Sprint 1.1 — DEPA consent_expiry_queue table. (~1117 tok)
+- `20260418000007_depa_compliance_metrics.sql` — ADR-0020 Sprint 1.1 — DEPA depa_compliance_metrics table. (~550 tok)
+- `20260418000008_depa_alter_existing.sql` — ADR-0020 Sprint 1.1 — §11.3 ALTER TABLE amendments to existing tables. (~1206 tok)
+- `20260418000009_depa_buffer_lifecycle.sql` — ADR-0020 Sprint 1.1 — DEPA buffer lifecycle additions. (~1124 tok)
+- `20260419000001_depa_consent_event_dispatch.sql` — ADR-0021 Sprint 1.1 — consent-event dispatch trigger + safety-net cron. (~1768 tok)
 
 ## supabase/seed/
 
@@ -484,10 +688,22 @@
 
 - `index.html` — Tracker Times — ConsentShield demo (~1016 tok)
 
+## tests/admin/
+
+- `audit_log.test.ts` — service: countAuditRows (~1832 tok)
+- `foundation.test.ts` — Declares anon (~1516 tok)
+- `helpers.ts` — Helpers for admin-side tests. Reuses the Supabase project + env vars (~969 tok)
+- `rls.test.ts` — Declares adminOnlyTables (~1952 tok)
+- `rpcs.test.ts` — service: rpc (~4104 tok)
+
 ## tests/buffer/
 
 - `delivery.test.ts` — SUPABASE_URL: seedAuditRow (~1188 tok)
 - `lifecycle.test.ts` — Migration 011 (20260413000011) revokes UPDATE and DELETE on all buffer (~999 tok)
+
+## tests/depa/
+
+- `consent-event-pipeline.test.ts` — ADR-0021 Sprint 1.1 — process-consent-event pipeline integration tests. (~3428 tok)
 
 ## tests/fixtures/
 
@@ -500,6 +716,7 @@
 
 ## tests/rls/
 
+- `depa-isolation.test.ts` — ADR-0020 Sprint 1.1 — DEPA RLS isolation tests. (~3131 tok)
 - `helpers.ts` — Exports getServiceClient, getAnonClient, TestOrg, createTestOrg + 3 more (~951 tok)
 - `isolation.test.ts` — Declares admin (~2328 tok)
 - `url-path.test.ts` — S-2 from the 2026-04-14 codebase review: authenticated API routes (~856 tok)
@@ -522,11 +739,12 @@
 
 ## worker/src/
 
-- `banner.ts` — API routes: GET (2 endpoints) (~3734 tok)
+- `admin-config.ts` — Typed accessors over the admin config snapshot materialised to KV by (~1363 tok)
+- `banner.ts` — API routes: GET (2 endpoints) (~4104 tok)
 - `events.ts` — API routes: GET (2 endpoints) (~1421 tok)
 - `hmac.ts` — HMAC-SHA256 utilities — Web Crypto API only, zero dependencies (~457 tok)
 - `index.ts` — Exports Env (~414 tok)
 - `observations.ts` — Exports handleObservation (~1123 tok)
 - `origin.ts` — API routes: GET (3 endpoints) (~761 tok)
-- `signatures.ts` — Exports TrackerSignature, getTrackerSignatures, compactSignatures (~555 tok)
+- `signatures.ts` — Exports TrackerSignature, getTrackerSignatures, compactSignatures (~751 tok)
 - `worker-errors.ts` — N-S1 fix: persist Worker → Supabase write failures to the worker_errors (~422 tok)

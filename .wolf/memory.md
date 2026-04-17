@@ -988,3 +988,326 @@
 | 21:16 | Edited app/src/app/(dashboard)/dashboard/rights/page.tsx | "@/lib/compliance/score" → "@consentshield/compliance" | ~18 |
 | 21:16 | Edited app/src/app/(dashboard)/dashboard/enforcement/page.tsx | "@/lib/compliance/score" → "@consentshield/compliance" | ~17 |
 | 21:16 | Edited app/src/app/(public)/privacy/[orgId]/page.tsx | "@/lib/compliance/privacy-" → "@consentshield/compliance" | ~19 |
+| 21:18 | Created packages/encryption/package.json | — | ~73 |
+| 21:18 | Created packages/encryption/tsconfig.json | — | ~22 |
+| 21:18 | Created packages/encryption/src/index.ts | — | ~16 |
+| 21:18 | Edited app/package.json | 3→4 lines | ~43 |
+| 21:18 | Edited app/src/lib/rights/deletion-dispatch.ts | "@/lib/encryption/crypto" → "@consentshield/encryption" | ~17 |
+| 21:18 | Edited app/src/app/api/orgs/[orgId]/integrations/route.ts | "@/lib/encryption/crypto" → "@consentshield/encryption" | ~17 |
+| 21:21 | Created packages/shared-types/package.json | — | ~54 |
+| 21:21 | Created packages/shared-types/tsconfig.json | — | ~22 |
+| 21:21 | Created packages/shared-types/src/index.ts | — | ~178 |
+| 21:21 | Edited app/package.json | 3→4 lines | ~51 |
+| 21:23 | Edited docs/ADRs/ADR-0026-monorepo-restructure.md | modified notes() | ~323 |
+| 21:23 | Edited docs/ADRs/ADR-0026-monorepo-restructure.md | modified commits() | ~233 |
+| 21:23 | Edited docs/changelogs/CHANGELOG-infra.md | expanded (+25 lines) | ~647 |
+| 21:25 | Created admin/package.json | — | ~263 |
+| 21:25 | Created admin/tsconfig.json | — | ~102 |
+| 21:25 | Created admin/eslint.config.mjs | — | ~98 |
+| 21:25 | Created admin/vitest.config.ts | — | ~106 |
+| 21:25 | Created admin/sentry.client.config.ts | — | ~170 |
+| 21:25 | Created admin/sentry.server.config.ts | — | ~170 |
+| 21:26 | Created admin/src/lib/supabase/server.ts | — | ~328 |
+| 21:26 | Created admin/src/lib/supabase/browser.ts | — | ~153 |
+| 21:26 | Created admin/src/proxy.ts | — | ~845 |
+| 21:26 | Created admin/src/app/layout.tsx | — | ~138 |
+| 21:26 | Created admin/src/app/globals.css | — | ~87 |
+| 21:26 | Created admin/src/app/(auth)/login/page.tsx | — | ~778 |
+| 21:27 | Created admin/src/app/(operator)/layout.tsx | — | ~638 |
+| 21:27 | Created admin/src/app/(operator)/page.tsx | — | ~713 |
+| 21:27 | Created admin/tests/smoke.test.ts | — | ~94 |
+| 21:27 | Edited package.json | inline fix | ~17 |
+| 21:28 | Edited admin/package.json | 5→3 lines | ~30 |
+| 21:29 | Edited docs/ADRs/ADR-0026-monorepo-restructure.md | modified notes() | ~717 |
+| 21:29 | Edited docs/ADRs/ADR-0026-monorepo-restructure.md | modified verification() | ~261 |
+| 21:29 | Edited docs/changelogs/CHANGELOG-infra.md | expanded (+35 lines) | ~940 |
+| 21:32 | Session end: 67 writes across 27 files (tsconfig.base.json, package.json, vitest.config.ts, tsconfig.json, .gitignore) | 48 reads | ~112386 tok |
+| 21:36 | Created supabase/migrations/20260416000011_admin_schema.sql | — | ~295 |
+| 21:36 | Created supabase/migrations/20260416000012_cs_admin_role.sql | — | ~559 |
+| 21:36 | Created supabase/migrations/20260416000013_admin_helpers.sql | — | ~790 |
+| 21:37 | Created supabase/migrations/20260416000014_admin_users.sql | — | ~825 |
+| 21:37 | Created supabase/migrations/20260416000015_admin_audit_log.sql | — | ~1051 |
+| 21:38 | Created tests/admin/helpers.ts | — | ~802 |
+| 21:38 | Created tests/admin/foundation.test.ts | — | ~1773 |
+| 21:38 | Edited vitest.config.ts | inline fix | ~20 |
+| 21:46 | Edited supabase/config.toml | inline fix | ~13 |
+| 21:46 | Created supabase/migrations/20260416000016_expose_admin_schema_postgrest.sql | — | ~244 |
+| 21:47 | Created supabase/migrations/20260416000017_reload_postgrest_schema.sql | — | ~146 |
+| 21:48 | Created supabase/migrations/20260416000018_grant_admin_schema_usage_to_authenticated.sql | — | ~211 |
+| 21:48 | Edited tests/admin/foundation.test.ts | modified if() | ~148 |
+| 21:48 | Edited tests/admin/foundation.test.ts | modified if() | ~98 |
+| 21:49 | Edited tests/admin/foundation.test.ts | reduced (-15 lines) | ~152 |
+| 21:50 | Edited docs/changelogs/CHANGELOG-schema.md | modified 11() | ~1081 |
+| 21:50 | Edited docs/ADRs/ADR-0027-admin-schema.md | 4→4 lines | ~106 |
+| 21:50 | Edited docs/ADRs/ADR-0027-admin-schema.md | modified notes() | ~761 |
+| 21:50 | Edited docs/ADRs/ADR-0027-admin-schema.md | modified assertions() | ~313 |
+| 21:50 | Edited docs/ADRs/ADR-index.md | inline fix | ~37 |
+| 21:53 | Session end: 87 writes across 40 files (tsconfig.base.json, package.json, vitest.config.ts, tsconfig.json, .gitignore) | 53 reads | ~143738 tok |
+| 21:55 | Edited ../../../.claude/projects/-Users-sudhindra-projects-aiSpirit-consent-sheild/memory/reference_supabase_platform_gotchas.md | expanded (+32 lines) | ~454 |
+| 21:55 | Created ../../../.claude/projects/-Users-sudhindra-projects-aiSpirit-consent-sheild/memory/feedback_bun_workspace_quirks.md | — | ~537 |
+| 21:56 | Created ../../../.claude/projects/-Users-sudhindra-projects-aiSpirit-consent-sheild/memory/feedback_explicit_git_staging.md | — | ~496 |
+| 21:57 | Created ../../../.claude/projects/-Users-sudhindra-projects-aiSpirit-consent-sheild/memory/project_status_2026-04-16.md | — | ~2320 |
+| 21:58 | Created ../../../.claude/projects/-Users-sudhindra-projects-aiSpirit-consent-sheild/memory/project_admin_platform_2026-04-16.md | — | ~2113 |
+| 21:58 | Edited ../../../.claude/projects/-Users-sudhindra-projects-aiSpirit-consent-sheild/memory/MEMORY.md | 1→3 lines | ~162 |
+| 22:01 | Created session-context/context-2026-04-16-21-55-13.md | — | ~7630 |
+| 22:02 | Created .claude/session-handoff.md | — | ~1010 |
+| 22:03 | Session end: 95 writes across 48 files (tsconfig.base.json, package.json, vitest.config.ts, tsconfig.json, .gitignore) | 55 reads | ~161960 tok |
+
+## Session: 2026-04-17 06:19
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+
+## Session: 2026-04-17 06:24
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+| 06:27 | Created docs/ADRs/ADR-0019-depa-roadmap.md | — | ~3506 |
+| 06:28 | Created supabase/migrations/20260417000001_admin_impersonation.sql | — | ~1065 |
+| 06:28 | Edited docs/ADRs/ADR-index.md | 17→18 lines | ~267 |
+| 06:28 | Session end: 3 writes across 3 files (ADR-0019-depa-roadmap.md, 20260417000001_admin_impersonation.sql, ADR-index.md) | 12 reads | ~75394 tok |
+| 06:30 | Created supabase/migrations/20260417000002_admin_sectoral_templates.sql | — | ~792 |
+| 06:31 | Created supabase/migrations/20260417000003_admin_connector_catalogue.sql | — | ~802 |
+| 06:32 | Created supabase/migrations/20260417000004_admin_tracker_signatures.sql | — | ~905 |
+| 06:32 | Created supabase/migrations/20260417000005_admin_support_tickets.sql | — | ~788 |
+| 06:32 | Created supabase/migrations/20260417000006_admin_org_notes.sql | — | ~337 |
+| 06:32 | Created supabase/migrations/20260417000007_admin_feature_flags.sql | — | ~639 |
+| 06:33 | Created supabase/migrations/20260417000008_admin_kill_switches.sql | — | ~732 |
+| 06:33 | Created supabase/migrations/20260417000009_admin_platform_metrics.sql | — | ~395 |
+| 06:33 | Created supabase/migrations/20260417000010_admin_audit_log_impersonation_fk.sql | — | ~193 |
+| 06:34 | Edited supabase/migrations/20260417000007_admin_feature_flags.sql | key() → gen_random_uuid() | ~375 |
+| 06:35 | Created tests/admin/rls.test.ts | — | ~1902 |
+| 06:35 | Created docs/ADRs/ADR-0020-depa-schema-skeleton.md | — | ~4822 |
+| 06:36 | Edited docs/ADRs/ADR-index.md | 2→3 lines | ~104 |
+| 06:37 | Edited tests/admin/rls.test.ts | reduced (-10 lines) | ~246 |
+| 06:37 | Edited tests/admin/rls.test.ts | 7→12 lines | ~131 |
+| 06:37 | Edited tests/admin/rls.test.ts | 15→12 lines | ~98 |
+| 06:37 | Created supabase/migrations/20260418000001_depa_helpers.sql | — | ~1590 |
+| 06:37 | Created supabase/migrations/20260418000002_depa_purpose_definitions.sql | — | ~986 |
+| 06:38 | Created supabase/migrations/20260418000003_depa_purpose_connector_mappings.sql | — | ~683 |
+| 06:38 | Created supabase/migrations/20260418000004_depa_consent_artefacts.sql | — | ~1340 |
+| 06:38 | Edited docs/ADRs/ADR-0027-admin-schema.md | modified owner() | ~957 |
+| 06:39 | Edited docs/ADRs/ADR-0027-admin-schema.md | expanded (+38 lines) | ~512 |
+| 06:39 | Created supabase/migrations/20260418000005_depa_artefact_revocations.sql | — | ~1728 |
+| 06:39 | Edited docs/ADRs/ADR-0027-admin-schema.md | expanded (+8 lines) | ~679 |
+| 06:39 | Created supabase/migrations/20260418000006_depa_consent_expiry_queue.sql | — | ~1117 |
+| 06:39 | Created supabase/migrations/20260418000007_depa_compliance_metrics.sql | — | ~550 |
+| 06:40 | Created supabase/migrations/20260418000008_depa_alter_existing.sql | — | ~1206 |
+| 06:40 | Created supabase/migrations/20260418000009_depa_buffer_lifecycle.sql | — | ~1015 |
+| 06:41 | Created supabase/migrations/20260418000009_depa_buffer_lifecycle.sql | — | ~1124 |
+| 06:41 | Created packages/shared-types/src/depa.ts | — | ~1577 |
+| 06:41 | Created packages/shared-types/src/index.ts | — | ~199 |
+| 06:42 | Created tests/rls/depa-isolation.test.ts | — | ~2576 |
+| 06:42 | Edited tests/rls/depa-isolation.test.ts | added optional chaining | ~974 |
+| 06:43 | Session end: 36 writes across 27 files (ADR-0019-depa-roadmap.md, 20260417000001_admin_impersonation.sql, ADR-index.md, 20260417000002_admin_sectoral_templates.sql, 20260417000003_admin_connector_catalogue.sql) | 19 reads | ~134814 tok |
+| 06:44 | Edited docs/ADRs/ADR-0027-admin-schema.md | "<ts>_admin_impersonation." → "20260417000001_admin_impe" | ~16 |
+| 06:44 | Edited docs/ADRs/ADR-0027-admin-schema.md | "<ts>_admin_sectoral_templ" → "20260417000002_admin_sect" | ~18 |
+| 06:44 | Edited docs/ADRs/ADR-0027-admin-schema.md | "<ts>_admin_connector_cata" → "20260417000003_admin_conn" | ~18 |
+| 06:44 | Edited docs/ADRs/ADR-0027-admin-schema.md | "<ts>_admin_tracker_signat" → "20260417000004_admin_trac" | ~18 |
+| 06:44 | Edited docs/ADRs/ADR-0027-admin-schema.md | "<ts>_admin_support_ticket" → "20260417000005_admin_supp" | ~17 |
+| 06:44 | Edited docs/ADRs/ADR-0027-admin-schema.md | "<ts>_admin_org_notes.sql" → "20260417000006_admin_org_" | ~15 |
+| 06:44 | Edited docs/ADRs/ADR-0027-admin-schema.md | "<ts>_admin_feature_flags." → "20260417000007_admin_feat" | ~16 |
+| 06:44 | Edited docs/ADRs/ADR-0027-admin-schema.md | "<ts>_admin_kill_switches." → "20260417000008_admin_kill" | ~16 |
+| 06:44 | Edited docs/ADRs/ADR-0027-admin-schema.md | "<ts>_admin_platform_metri" → "20260417000009_admin_plat" | ~32 |
+| 06:45 | Edited docs/changelogs/CHANGELOG-schema.md | modified 33() | ~1667 |
+| 06:46 | Created ../../../../../tmp/depa_verify.sql | — | ~643 |
+| 06:47 | Session end: 47 writes across 29 files (ADR-0019-depa-roadmap.md, 20260417000001_admin_impersonation.sql, ADR-index.md, 20260417000002_admin_sectoral_templates.sql, 20260417000003_admin_connector_catalogue.sql) | 20 reads | ~141961 tok |
+| 06:52 | Created supabase/migrations/20260417000011_admin_rpcs.sql | — | ~12753 |
+| 06:52 | Edited docs/ADRs/ADR-0020-depa-schema-skeleton.md | 3→3 lines | ~20 |
+| 06:52 | Created supabase/migrations/20260417000011_public_orgs_status_settings.sql | — | ~415 |
+| 06:53 | Created supabase/migrations/20260417000013_admin_pg_cron.sql | — | ~906 |
+| 06:53 | Edited docs/ADRs/ADR-0020-depa-schema-skeleton.md | modified comment() | ~1415 |
+| 06:53 | Edited docs/ADRs/ADR-0020-depa-schema-skeleton.md | 3→3 lines | ~22 |
+| 06:53 | Created supabase/migrations/20260417000014_admin_rpc_grants.sql | — | ~483 |
+| 06:53 | Edited docs/ADRs/ADR-index.md | inline fix | ~40 |
+| 06:53 | Edited docs/changelogs/CHANGELOG-schema.md | modified body() | ~1404 |
+| 06:54 | Edited tests/admin/helpers.ts | added 2 condition(s) | ~518 |
+| 06:54 | Edited docs/changelogs/CHANGELOG-docs.md | expanded (+11 lines) | ~240 |
+| 06:54 | Edited docs/ADRs/ADR-index.md | 3→2 lines | ~65 |
+| 06:55 | Edited docs/ADRs/ADR-index.md | 2→3 lines | ~104 |
+| 06:55 | Created tests/admin/rpcs.test.ts | — | ~4104 |
+| 06:55 | Created tests/admin/audit_log.test.ts | — | ~1832 |
+| 06:56 | Created ../../../.claude/projects/-Users-sudhindra-projects-aiSpirit-consent-sheild/memory/project_status_2026-04-17.md | — | ~1922 |
+| 06:56 | Created supabase/migrations/20260417000015_admin_grants_service_role.sql | — | ~435 |
+| 06:56 | Edited ../../../.claude/projects/-Users-sudhindra-projects-aiSpirit-consent-sheild/memory/MEMORY.md | inline fix | ~79 |
+| 06:57 | Edited tests/admin/helpers.ts | 6→7 lines | ~80 |
+| 06:57 | Session end: 66 writes across 40 files (ADR-0019-depa-roadmap.md, 20260417000001_admin_impersonation.sql, ADR-index.md, 20260417000002_admin_sectoral_templates.sql, 20260417000003_admin_connector_catalogue.sql) | 21 reads | ~171803 tok |
+| 06:57 | Created supabase/migrations/20260417000016_fix_add_org_note_return.sql | — | ~343 |
+| 07:00 | Edited tests/admin/rls.test.ts | 7→10 lines | ~149 |
+| 07:00 | Created docs/ADRs/ADR-0021-process-consent-event.md | — | ~3291 |
+| 07:01 | Created supabase/functions/process-consent-event/index.ts | — | ~2459 |
+| 07:02 | Created supabase/migrations/20260419000001_depa_consent_event_dispatch.sql | — | ~1768 |
+| 07:02 | Edited vitest.config.ts | 1→5 lines | ~35 |
+| 07:02 | Edited vitest.config.ts | expanded (+7 lines) | ~185 |
+| 07:03 | Created tests/depa/consent-event-pipeline.test.ts | — | ~3428 |
+| 07:04 | Edited docs/ADRs/ADR-0027-admin-schema.md | "<ts>_admin_rpcs.sql" → "20260417000012_admin_rpcs" | ~34 |
+| 07:04 | Edited docs/ADRs/ADR-0027-admin-schema.md | "<ts>_admin_pg_cron.sql" → "20260417000013_admin_pg_c" | ~27 |
+| 07:04 | Edited docs/ADRs/ADR-0027-admin-schema.md | "<ts>_grant_admin_rpc_exec" → "20260417000014_admin_rpc_" | ~87 |
+| 07:05 | Edited docs/ADRs/ADR-0027-admin-schema.md | modified body() | ~1114 |
+| 07:05 | Edited docs/ADRs/ADR-0027-admin-schema.md | inline fix | ~5 |
+| 07:05 | Edited docs/ADRs/ADR-0027-admin-schema.md | expanded (+60 lines) | ~830 |
+| 07:06 | Edited docs/ADRs/ADR-0027-admin-schema.md | modified that() | ~429 |
+| 07:06 | Edited docs/changelogs/CHANGELOG-schema.md | modified access() | ~1497 |
+| 07:08 | Session end: 82 writes across 45 files (ADR-0019-depa-roadmap.md, 20260417000001_admin_impersonation.sql, ADR-index.md, 20260417000002_admin_sectoral_templates.sql, 20260417000003_admin_connector_catalogue.sql) | 23 reads | ~190246 tok |
+| 07:11 | Created supabase/migrations/20260417000017_admin_config_snapshot_rpc.sql | — | ~623 |
+| 07:11 | Created supabase/migrations/20260417000018_fix_admin_sync_cron.sql | — | ~386 |
+| 07:11 | Created supabase/functions/sync-admin-config-to-kv/index.ts | — | ~1104 |
+| 07:12 | Created worker/src/admin-config.ts | — | ~1281 |
+| 07:12 | Edited worker/src/banner.ts | added 1 import(s) | ~63 |
+| 07:12 | Edited worker/src/banner.ts | added 1 condition(s) | ~374 |
+| 07:12 | Edited worker/src/signatures.ts | added 1 condition(s) | ~536 |
+| 07:14 | Edited docs/ADRs/ADR-0021-process-consent-event.md | 3→3 lines | ~22 |
+| 07:14 | Edited docs/ADRs/ADR-0021-process-consent-event.md | modified body() | ~1042 |
+| 07:15 | Edited docs/ADRs/ADR-index.md | 2→3 lines | ~105 |
+| 07:15 | Edited docs/changelogs/CHANGELOG-edge-functions.md | expanded (+16 lines) | ~323 |
+| 07:15 | Edited docs/changelogs/CHANGELOG-schema.md | expanded (+19 lines) | ~413 |
+| 07:15 | Edited docs/changelogs/CHANGELOG-docs.md | expanded (+10 lines) | ~184 |
+| 07:15 | Edited docs/ADRs/ADR-0027-admin-schema.md | modified with() | ~1226 |
+| 07:16 | Edited docs/changelogs/CHANGELOG-schema.md | expanded (+22 lines) | ~555 |
+| 07:16 | Edited docs/changelogs/CHANGELOG-edge-functions.md | expanded (+14 lines) | ~343 |
+| 07:16 | Edited docs/changelogs/CHANGELOG-worker.md | expanded (+16 lines) | ~452 |
+| 07:17 | Edited ../../../.claude/projects/-Users-sudhindra-projects-aiSpirit-consent-sheild/memory/project_status_2026-04-17.md | 7→7 lines | ~187 |
+| 07:17 | Edited ../../../.claude/projects/-Users-sudhindra-projects-aiSpirit-consent-sheild/memory/project_status_2026-04-17.md | modified docs() | ~67 |
+| 07:17 | Edited ../../../.claude/projects/-Users-sudhindra-projects-aiSpirit-consent-sheild/memory/project_status_2026-04-17.md | modified explicitly() | ~351 |
+| 07:17 | Edited ../../../.claude/projects/-Users-sudhindra-projects-aiSpirit-consent-sheild/memory/project_status_2026-04-17.md | inline fix | ~15 |
+| 07:17 | Session end: 103 writes across 52 files (ADR-0019-depa-roadmap.md, 20260417000001_admin_impersonation.sql, ADR-index.md, 20260417000002_admin_sectoral_templates.sql, 20260417000003_admin_connector_catalogue.sql) | 30 reads | ~211554 tok |
+| 07:17 | Edited ../../../.claude/projects/-Users-sudhindra-projects-aiSpirit-consent-sheild/memory/project_status_2026-04-17.md | modified feat() | ~147 |
+| 07:17 | Edited ../../../.claude/projects/-Users-sudhindra-projects-aiSpirit-consent-sheild/memory/project_status_2026-04-17.md | expanded (+7 lines) | ~159 |
+| 07:17 | Edited ../../../.claude/projects/-Users-sudhindra-projects-aiSpirit-consent-sheild/memory/project_status_2026-04-17.md | 6→8 lines | ~238 |
+| 07:18 | Edited ../../../.claude/projects/-Users-sudhindra-projects-aiSpirit-consent-sheild/memory/project_status_2026-04-17.md | 9→13 lines | ~424 |
+| 07:18 | Session end: 107 writes across 52 files (ADR-0019-depa-roadmap.md, 20260417000001_admin_impersonation.sql, ADR-index.md, 20260417000002_admin_sectoral_templates.sql, 20260417000003_admin_connector_catalogue.sql) | 30 reads | ~212592 tok |
+| 08:29 | Created scripts/bootstrap-admin.ts | — | ~1746 |
+| 08:30 | Session end: 108 writes across 53 files (ADR-0019-depa-roadmap.md, 20260417000001_admin_impersonation.sql, ADR-index.md, 20260417000002_admin_sectoral_templates.sql, 20260417000003_admin_connector_catalogue.sql) | 31 reads | ~214580 tok |
+| 08:31 | Created ../../../../../tmp/create-bootstrap-test-user.ts | — | ~214 |
+| 08:32 | Created scripts/.tmp-cleanup-rehearsal.ts | — | ~297 |
+| 08:32 | Session end: 110 writes across 55 files (ADR-0019-depa-roadmap.md, 20260417000001_admin_impersonation.sql, ADR-index.md, 20260417000002_admin_sectoral_templates.sql, 20260417000003_admin_connector_catalogue.sql) | 32 reads | ~218099 tok |
+| 08:34 | Created ../../../.claude/projects/-Users-sudhindra-projects-aiSpirit-consent-sheild/memory/feedback_docs_vs_code_drift.md | — | ~556 |
+| 08:34 | Edited ../../../.claude/projects/-Users-sudhindra-projects-aiSpirit-consent-sheild/memory/MEMORY.md | 1→2 lines | ~114 |
+| 08:35 | Edited ../../../.claude/projects/-Users-sudhindra-projects-aiSpirit-consent-sheild/memory/project_status_2026-04-17.md | modified frozen() | ~628 |
+| 08:35 | Edited docs/admin/architecture/consentshield-admin-platform.md | modified Recovery() | ~487 |
+| 08:35 | Edited docs/ADRs/ADR-0027-admin-schema.md | inline fix | ~15 |
+| 08:35 | Edited docs/ADRs/ADR-0027-admin-schema.md | inline fix | ~32 |
+| 08:35 | Edited docs/ADRs/ADR-0027-admin-schema.md | inline fix | ~15 |
+| 08:35 | Edited docs/ADRs/ADR-0027-admin-schema.md | inline fix | ~19 |
+| 08:35 | Edited docs/ADRs/ADR-0027-admin-schema.md | inline fix | ~30 |
+| 08:35 | Edited docs/ADRs/ADR-0027-admin-schema.md | inline fix | ~19 |
+| 08:35 | Edited docs/ADRs/ADR-0027-admin-schema.md | inline fix | ~41 |
+| 08:35 | Edited docs/ADRs/ADR-0027-admin-schema.md | modified notes() | ~560 |
+| 08:36 | Edited docs/ADRs/ADR-0027-admin-schema.md | keys() → snapshot() | ~235 |
+| 08:36 | Edited docs/ADRs/ADR-0027-admin-schema.md | inline fix | ~10 |
+| 08:36 | Edited docs/ADRs/ADR-0027-admin-schema.md | modified Rehearsal() | ~717 |
+| 08:36 | Created session-context/context-2026-04-17-08-34-12.md | — | ~4032 |
+| 08:37 | Edited docs/changelogs/CHANGELOG-infra.md | expanded (+19 lines) | ~449 |
+| 08:37 | Edited docs/ADRs/ADR-index.md | inline fix | ~36 |
+| 08:37 | Session end: 128 writes across 59 files (ADR-0019-depa-roadmap.md, 20260417000001_admin_impersonation.sql, ADR-index.md, 20260417000002_admin_sectoral_templates.sql, 20260417000003_admin_connector_catalogue.sql) | 35 reads | ~243035 tok |
+| 08:42 | Created .claude/session-handoff.md | — | ~903 |
+| 08:43 | Edited .claude/session-handoff.md | inline fix | ~56 |
+| 08:43 | Edited .claude/session-handoff.md | — | ~0 |
+| 08:43 | Session end: 131 writes across 60 files (ADR-0019-depa-roadmap.md, 20260417000001_admin_impersonation.sql, ADR-index.md, 20260417000002_admin_sectoral_templates.sql, 20260417000003_admin_connector_catalogue.sql) | 35 reads | ~244062 tok |
+
+## Session: 2026-04-17 08:44
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+| 08:50 | Created docs/ADRs/ADR-0028-admin-app-foundation.md | — | ~3098 |
+| 08:50 | Edited docs/ADRs/ADR-index.md | 1→2 lines | ~71 |
+| 08:50 | Edited admin/package.json | 2→3 lines | ~25 |
+| 08:50 | Created admin/src/components/otp-boxes.tsx | — | ~421 |
+| 08:50 | Created admin/src/app/(auth)/login/page.tsx | — | ~1546 |
+| 08:51 | Created admin/src/app/api/auth/signout/route.ts | — | ~141 |
+| 08:51 | Created admin/src/app/(operator)/layout.tsx | — | ~1394 |
+| 08:51 | Created supabase/migrations/20260417000019_admin_cron_snapshot_rpc.sql | — | ~479 |
+| 08:52 | Edited supabase/migrations/20260417000019_admin_cron_snapshot_rpc.sql | 28→28 lines | ~184 |
+| 08:53 | Created admin/src/components/ops-dashboard/metric-tile.tsx | — | ~256 |
+| 08:53 | Created admin/src/components/ops-dashboard/kill-switches-card.tsx | — | ~632 |
+| 08:53 | Created admin/src/components/ops-dashboard/cron-status-card.tsx | — | ~898 |
+| 08:53 | Created admin/src/components/ops-dashboard/recent-activity-card.tsx | — | ~650 |
+| 08:53 | Created admin/src/app/(operator)/actions.ts | — | ~167 |
+| 08:53 | Created admin/src/components/ops-dashboard/refresh-button.tsx | — | ~289 |
+| 08:54 | Created admin/src/app/(operator)/page.tsx | — | ~1660 |
+| 09:14 | Created admin/src/components/audit-log/filter-bar.tsx | — | ~1110 |
+| 09:15 | Created admin/src/components/audit-log/detail-drawer.tsx | — | ~1394 |
+| 09:15 | Created admin/src/components/audit-log/audit-table.tsx | — | ~877 |
+| 09:15 | Created admin/src/app/(operator)/audit-log/page.tsx | — | ~2104 |
+| 09:16 | Created admin/src/app/(operator)/audit-log/export/route.ts | — | ~1147 |
+| 09:18 | Edited docs/ADRs/ADR-0028-admin-app-foundation.md | "[ ] planned" → "[x] complete" | ~11 |
+| 09:18 | Edited docs/ADRs/ADR-0028-admin-app-foundation.md | 3→3 lines | ~22 |
+| 09:18 | Edited docs/ADRs/ADR-0028-admin-app-foundation.md | modified deviation() | ~1223 |
+| 09:18 | Edited docs/ADRs/ADR-index.md | inline fix | ~34 |
+| 09:18 | Edited docs/admin/design/ARCHITECTURE-ALIGNMENT-2026-04-16.md | inline fix | ~23 |
+| 09:18 | Edited docs/admin/design/ARCHITECTURE-ALIGNMENT-2026-04-16.md | inline fix | ~25 |
+| 09:19 | Edited docs/changelogs/CHANGELOG-dashboard.md | expanded (+43 lines) | ~947 |
+| 09:20 | Session end: 28 writes across 19 files (ADR-0028-admin-app-foundation.md, ADR-index.md, package.json, otp-boxes.tsx, page.tsx) | 14 reads | ~58754 tok |
+| 09:21 | Session end: 28 writes across 19 files (ADR-0028-admin-app-foundation.md, ADR-index.md, package.json, otp-boxes.tsx, page.tsx) | 14 reads | ~58754 tok |
+| 09:29 | Created docs/ADRs/ADR-0029-admin-organisations.md | — | ~2891 |
+| 09:30 | Edited docs/ADRs/ADR-index.md | 1→2 lines | ~71 |
+| 09:30 | Created supabase/migrations/20260417000020_admin_select_customer_tables.sql | — | ~792 |
+| 09:32 | Created admin/src/components/orgs/filter-bar.tsx | — | ~898 |
+| 09:32 | Created admin/src/app/(operator)/orgs/page.tsx | — | ~2110 |
+| 09:33 | Created admin/src/app/(operator)/orgs/[orgId]/page.tsx | — | ~3237 |
+| 09:33 | Edited admin/src/app/(operator)/layout.tsx | 2→2 lines | ~43 |
+| 09:35 | Created admin/src/app/(operator)/orgs/[orgId]/actions.ts | — | ~822 |
+| 09:36 | Created admin/src/components/orgs/action-bar.tsx | — | ~3156 |
+| 09:36 | Edited admin/src/app/(operator)/orgs/[orgId]/page.tsx | added 1 import(s) | ~55 |
+| 09:36 | Edited admin/src/app/(operator)/orgs/[orgId]/page.tsx | added optional chaining | ~400 |
+| 09:36 | Edited admin/src/app/(operator)/orgs/[orgId]/page.tsx | 1→6 lines | ~45 |
+| 09:36 | Edited admin/src/app/(operator)/orgs/[orgId]/page.tsx | removed 46 lines | ~11 |
+| 09:38 | Created admin/src/lib/impersonation/cookie.ts | — | ~439 |
+| 09:38 | Created admin/src/app/(operator)/orgs/[orgId]/impersonation-actions.ts | — | ~1296 |
+| 09:39 | Created admin/src/components/impersonation/start-drawer.tsx | — | ~1686 |
+| 09:39 | Created admin/src/components/impersonation/active-session-banner.tsx | — | ~545 |
+| 09:39 | Created admin/src/components/impersonation/end-session-button.tsx | — | ~184 |
+| 09:39 | Edited admin/src/app/(operator)/layout.tsx | added 1 import(s) | ~62 |
+| 09:39 | Edited admin/src/app/(operator)/layout.tsx | 6→9 lines | ~109 |
+| 09:39 | Edited admin/src/components/orgs/action-bar.tsx | added 1 import(s) | ~68 |
+| 09:39 | Edited admin/src/components/orgs/action-bar.tsx | 30→31 lines | ~349 |
+| 09:40 | Edited admin/src/components/impersonation/active-session-banner.tsx | modified ActiveSessionBanner() | ~274 |
+| 09:40 | Created admin/src/components/impersonation/active-session-banner-client.tsx | — | ~610 |
+| 09:44 | Created supabase/migrations/20260417000021_admin_config_snapshot_v2.sql | — | ~554 |
+| 09:44 | Edited worker/src/admin-config.ts | 13→15 lines | ~128 |
+| 09:44 | Edited worker/src/admin-config.ts | added 1 condition(s) | ~133 |
+| 09:44 | Edited worker/src/banner.ts | inline fix | ~24 |
+| 09:44 | Edited worker/src/banner.ts | added 1 condition(s) | ~262 |
+| 09:44 | Edited worker/src/banner.ts | modified noopBannerResponse() | ~110 |
+| 09:45 | Created app/src/app/(dashboard)/dashboard/support-sessions/page.tsx | — | ~1208 |
+| 09:45 | Edited app/src/components/dashboard-nav.tsx | 10→11 lines | ~156 |
+| 09:45 | Created app/src/components/suspended-banner.tsx | — | ~537 |
+| 09:45 | Edited app/src/app/(dashboard)/layout.tsx | modified DashboardLayout() | ~144 |
+| 09:45 | Edited app/src/app/(dashboard)/layout.tsx | 5→4 lines | ~40 |
+| 09:47 | Edited docs/ADRs/ADR-0029-admin-organisations.md | 2→3 lines | ~22 |
+| 09:48 | Edited docs/ADRs/ADR-0029-admin-organisations.md | "[ ] planned" → "[x] complete" | ~11 |
+| 09:48 | Edited docs/ADRs/ADR-0029-admin-organisations.md | modified Deferred() | ~723 |
+| 09:48 | Edited docs/ADRs/ADR-index.md | inline fix | ~37 |
+| 09:48 | Edited docs/admin/design/ARCHITECTURE-ALIGNMENT-2026-04-16.md | inline fix | ~32 |
+| 09:48 | Edited docs/admin/design/ARCHITECTURE-ALIGNMENT-2026-04-16.md | 2→2 lines | ~99 |
+| 09:49 | Edited docs/changelogs/CHANGELOG-dashboard.md | modified detail() | ~933 |
+| 09:49 | Edited docs/changelogs/CHANGELOG-worker.md | expanded (+12 lines) | ~221 |
+| 09:49 | Edited docs/changelogs/CHANGELOG-schema.md | expanded (+13 lines) | ~377 |
+| 09:50 | Session end: 72 writes across 35 files (ADR-0028-admin-app-foundation.md, ADR-index.md, package.json, otp-boxes.tsx, page.tsx) | 18 reads | ~97460 tok |
+| 09:56 | Edited ../../../.claude/projects/-Users-sudhindra-projects-aiSpirit-consent-sheild/memory/project_status_2026-04-17.md | 7→7 lines | ~186 |
+| 09:56 | Edited ../../../.claude/projects/-Users-sudhindra-projects-aiSpirit-consent-sheild/memory/project_status_2026-04-17.md | 6→7 lines | ~145 |
+| 09:56 | Edited ../../../.claude/projects/-Users-sudhindra-projects-aiSpirit-consent-sheild/memory/project_status_2026-04-17.md | modified Commits() | ~643 |
+| 09:56 | Edited ../../../.claude/projects/-Users-sudhindra-projects-aiSpirit-consent-sheild/memory/project_status_2026-04-17.md | 14→19 lines | ~230 |
+| 09:57 | Edited ../../../.claude/projects/-Users-sudhindra-projects-aiSpirit-consent-sheild/memory/project_status_2026-04-17.md | 8→10 lines | ~318 |
+| 09:58 | Created ../../../.claude/projects/-Users-sudhindra-projects-aiSpirit-consent-sheild/memory/project_admin_platform_2026-04-17.md | — | ~1926 |
+| 09:58 | Created ../../../.claude/projects/-Users-sudhindra-projects-aiSpirit-consent-sheild/memory/feedback_vitest_serial_for_supabase_auth.md | — | ~521 |
+| 09:58 | Edited ../../../.claude/projects/-Users-sudhindra-projects-aiSpirit-consent-sheild/memory/MEMORY.md | 2→2 lines | ~156 |
+| 09:58 | Edited ../../../.claude/projects/-Users-sudhindra-projects-aiSpirit-consent-sheild/memory/MEMORY.md | 1→2 lines | ~131 |
+| 10:01 | Created session-context/context-2026-04-17-09-55-08.md | — | ~5883 |
+| 10:04 | Created .claude/session-handoff.md | — | ~1206 |
+| 10:05 | Session end: 83 writes across 41 files (ADR-0028-admin-app-foundation.md, ADR-index.md, package.json, otp-boxes.tsx, page.tsx) | 22 reads | ~109614 tok |
+
+## Session: 2026-04-17 10:33
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+
+## Session: 2026-04-17 10:34
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+
+## Session: 2026-04-17 10:34
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|

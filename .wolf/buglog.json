@@ -2112,6 +2112,518 @@
       "related_bugs": [],
       "occurrences": 5,
       "last_seen": "2026-04-16T15:46:42.129Z"
+    },
+    {
+      "id": "bug-133",
+      "timestamp": "2026-04-16T15:48:23.556Z",
+      "error_message": "Incorrect value in code",
+      "file": "app/src/lib/rights/deletion-dispatch.ts",
+      "root_cause": "Had '@/lib/encryption/crypto'",
+      "fix": "Changed to '@consentshield/encryption'",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-16T15:48:23.556Z"
+    },
+    {
+      "id": "bug-134",
+      "timestamp": "2026-04-16T15:48:25.079Z",
+      "error_message": "Incorrect value in code",
+      "file": "app/src/app/api/orgs/[orgId]/integrations/route.ts",
+      "root_cause": "Had '@/lib/encryption/crypto'",
+      "fix": "Changed to '@consentshield/encryption'",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-16T15:48:25.079Z"
+    },
+    {
+      "id": "bug-135",
+      "timestamp": "2026-04-16T15:57:28.488Z",
+      "error_message": "Incorrect value in code",
+      "file": "package.json",
+      "root_cause": "Had \"worker\"",
+      "fix": "Changed to \"admin\"",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "json"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-16T15:57:28.488Z"
+    },
+    {
+      "id": "bug-136",
+      "timestamp": "2026-04-16T15:58:33.368Z",
+      "error_message": "Significant refactor of ",
+      "file": "admin/package.json",
+      "root_cause": "2 lines replaced/restructured",
+      "fix": "Rewrote 5→3 lines (2 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "json"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-16T15:58:33.368Z"
+    },
+    {
+      "id": "bug-137",
+      "timestamp": "2026-04-16T16:19:12.535Z",
+      "error_message": "Significant refactor of ",
+      "file": "tests/admin/foundation.test.ts",
+      "root_cause": "22 lines replaced/restructured",
+      "fix": "Rewrote 28→13 lines (22 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-16T16:19:12.535Z"
+    },
+    {
+      "id": "bug-138",
+      "timestamp": "2026-04-16T16:20:24.777Z",
+      "error_message": "Significant refactor of ",
+      "file": "docs/ADRs/ADR-0027-admin-schema.md",
+      "root_cause": "2 lines replaced/restructured",
+      "fix": "Rewrote 4→4 lines (2 removed) | Also: ### Sprint 1.1 — TBD; Test: [pending]",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 2,
+      "last_seen": "2026-04-16T16:20:46.814Z"
+    },
+    {
+      "id": "bug-139",
+      "timestamp": "2026-04-17T01:04:03.042Z",
+      "error_message": "Significant refactor of ",
+      "file": "supabase/migrations/20260417000007_admin_feature_flags.sql",
+      "root_cause": "2 lines replaced/restructured",
+      "fix": "Rewrote 15→27 lines (2 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "sql"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-17T01:04:03.042Z"
+    },
+    {
+      "id": "bug-140",
+      "timestamp": "2026-04-17T01:07:15.031Z",
+      "error_message": "Significant refactor of ",
+      "file": "tests/admin/rls.test.ts",
+      "root_cause": "3 lines replaced/restructured",
+      "fix": "Rewrote 15→12 lines (3 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-17T01:07:15.031Z"
+    },
+    {
+      "id": "bug-141",
+      "timestamp": "2026-04-17T01:12:45.378Z",
+      "error_message": "Null/undefined access in ",
+      "file": "tests/rls/depa-isolation.test.ts",
+      "root_cause": "Property access on potentially null/undefined value",
+      "fix": "Added null safety (optional chaining or null check)",
+      "tags": [
+        "auto-detected",
+        "null-safety",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-17T01:12:45.378Z"
+    },
+    {
+      "id": "bug-142",
+      "timestamp": "2026-04-17T01:14:45.811Z",
+      "error_message": "Incorrect value in code",
+      "file": "docs/ADRs/ADR-0027-admin-schema.md",
+      "root_cause": "Had `<ts>_admin_impersonation.sql`",
+      "fix": "Changed to `20260417000001_admin_impersonation.sql`",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 9,
+      "last_seen": "2026-04-17T01:14:56.379Z"
+    },
+    {
+      "id": "bug-143",
+      "timestamp": "2026-04-17T01:23:09.247Z",
+      "error_message": "Significant refactor of ",
+      "file": "docs/ADRs/ADR-0020-depa-schema-skeleton.md",
+      "root_cause": "5 lines replaced/restructured",
+      "fix": "Rewrote 22→91 lines (5 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-17T01:23:09.247Z"
+    },
+    {
+      "id": "bug-144",
+      "timestamp": "2026-04-17T01:23:20.996Z",
+      "error_message": "Wrong reference: Proposed should be Completed",
+      "file": "docs/ADRs/ADR-index.md",
+      "root_cause": "Used \"Proposed\" instead of \"Completed\"",
+      "fix": "Changed Proposed → Completed",
+      "tags": [
+        "auto-detected",
+        "wrong-reference",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-17T01:23:20.996Z"
+    },
+    {
+      "id": "bug-145",
+      "timestamp": "2026-04-17T01:30:25.952Z",
+      "error_message": "Significant refactor of ",
+      "file": "tests/admin/rls.test.ts",
+      "root_cause": "2 lines replaced/restructured",
+      "fix": "Rewrote 7→10 lines (2 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-17T01:30:25.952Z"
+    },
+    {
+      "id": "bug-146",
+      "timestamp": "2026-04-17T01:34:40.615Z",
+      "error_message": "Incorrect value in code",
+      "file": "docs/ADRs/ADR-0027-admin-schema.md",
+      "root_cause": "Had `<ts>_admin_rpcs.sql`",
+      "fix": "Changed to `20260417000012_admin_rpcs.sql`",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 3,
+      "last_seen": "2026-04-17T01:34:45.318Z"
+    },
+    {
+      "id": "bug-147",
+      "timestamp": "2026-04-17T01:42:32.665Z",
+      "error_message": "Type error",
+      "file": "worker/src/banner.ts",
+      "root_cause": "Missing or incorrect type annotation",
+      "fix": "Added type assertion/annotation",
+      "tags": [
+        "auto-detected",
+        "type-fix",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-17T01:42:32.665Z"
+    },
+    {
+      "id": "bug-148",
+      "timestamp": "2026-04-17T01:44:23.326Z",
+      "error_message": "Wrong reference: Proposed should be Completed",
+      "file": "docs/ADRs/ADR-0021-process-consent-event.md",
+      "root_cause": "Used \"Proposed\" instead of \"Completed\"",
+      "fix": "Changed Proposed → Completed",
+      "tags": [
+        "auto-detected",
+        "wrong-reference",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-17T01:44:23.326Z"
+    },
+    {
+      "id": "bug-149",
+      "timestamp": "2026-04-17T01:44:54.204Z",
+      "error_message": "Significant refactor of ",
+      "file": "docs/ADRs/ADR-0021-process-consent-event.md",
+      "root_cause": "4 lines replaced/restructured",
+      "fix": "Rewrote 25→58 lines (4 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-17T01:44:54.204Z"
+    },
+    {
+      "id": "bug-150",
+      "timestamp": "2026-04-17T01:45:02.406Z",
+      "error_message": "Incorrect value in code",
+      "file": "docs/ADRs/ADR-index.md",
+      "root_cause": "Had `app/`",
+      "fix": "Changed to `process-consent-event`",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-17T01:45:02.406Z"
+    },
+    {
+      "id": "bug-151",
+      "timestamp": "2026-04-17T01:48:08.221Z",
+      "error_message": "Significant refactor of ",
+      "file": "../../../.claude/projects/-Users-sudhindra-projects-aiSpirit-consent-sheild/memory/project_status_2026-04-17.md",
+      "root_cause": "6 lines replaced/restructured",
+      "fix": "Rewrote 9→13 lines (6 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-17T01:48:08.221Z"
+    },
+    {
+      "id": "bug-152",
+      "timestamp": "2026-04-17T03:05:04.492Z",
+      "error_message": "Significant refactor of ",
+      "file": "../../../.claude/projects/-Users-sudhindra-projects-aiSpirit-consent-sheild/memory/project_status_2026-04-17.md",
+      "root_cause": "6 lines replaced/restructured",
+      "fix": "Rewrote 13→17 lines (6 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-17T03:05:04.492Z"
+    },
+    {
+      "id": "bug-153",
+      "timestamp": "2026-04-17T03:06:22.841Z",
+      "error_message": "Significant refactor of ",
+      "file": "docs/ADRs/ADR-0027-admin-schema.md",
+      "root_cause": "3 lines replaced/restructured",
+      "fix": "Rewrote 4→4 lines (3 removed) | Also: ### Sprint 3.2 — TBD; ### Sprint 4.1 — TBD",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 2,
+      "last_seen": "2026-04-17T03:06:54.435Z"
+    },
+    {
+      "id": "bug-154",
+      "timestamp": "2026-04-17T03:20:28.995Z",
+      "error_message": "Incorrect value in code",
+      "file": "admin/package.json",
+      "root_cause": "Had \"next\"",
+      "fix": "Changed to \"input-otp\"",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "json"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-17T03:20:28.995Z"
+    },
+    {
+      "id": "bug-155",
+      "timestamp": "2026-04-17T03:48:04.118Z",
+      "error_message": "Incorrect value in code",
+      "file": "docs/ADRs/ADR-0028-admin-app-foundation.md",
+      "root_cause": "Had `[ ] planned`",
+      "fix": "Changed to `[x] complete`",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-17T03:48:04.118Z"
+    },
+    {
+      "id": "bug-156",
+      "timestamp": "2026-04-17T03:48:37.861Z",
+      "error_message": "Significant refactor of ",
+      "file": "docs/ADRs/ADR-0028-admin-app-foundation.md",
+      "root_cause": "3 lines replaced/restructured",
+      "fix": "Rewrote 5→97 lines (3 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-17T03:48:37.861Z"
+    },
+    {
+      "id": "bug-157",
+      "timestamp": "2026-04-17T04:03:38.506Z",
+      "error_message": "CSS fix: label",
+      "file": "admin/src/app/(operator)/layout.tsx",
+      "root_cause": "label: 'Organisations', href: '#', adr: 'ADR-0029', live: false → 'Organisations', href: '/orgs', adr: 'ADR-0029', live: true",
+      "fix": "Changed label: 'Organisations', href: '#', adr: 'ADR-0029', live: false → 'Organisations', href: '/orgs', adr: 'ADR-0029', live: true",
+      "tags": [
+        "auto-detected",
+        "style-fix",
+        "tsx"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-17T04:03:38.506Z"
+    },
+    {
+      "id": "bug-158",
+      "timestamp": "2026-04-17T04:06:41.859Z",
+      "error_message": "Null/undefined access in ",
+      "file": "admin/src/app/(operator)/orgs/[orgId]/page.tsx",
+      "root_cause": "Property access on potentially null/undefined value",
+      "fix": "Added null safety (optional chaining or null check)",
+      "tags": [
+        "auto-detected",
+        "null-safety",
+        "tsx"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-17T04:06:41.859Z"
+    },
+    {
+      "id": "bug-159",
+      "timestamp": "2026-04-17T04:10:10.998Z",
+      "error_message": "Significant refactor of ",
+      "file": "admin/src/components/impersonation/active-session-banner.tsx",
+      "root_cause": "32 lines replaced/restructured",
+      "fix": "Rewrote 48→25 lines (32 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "tsx"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-17T04:10:10.998Z"
+    },
+    {
+      "id": "bug-160",
+      "timestamp": "2026-04-17T04:14:40.474Z",
+      "error_message": "Missing guard clause",
+      "file": "worker/src/admin-config.ts",
+      "root_cause": "No early return/throw for edge case: !config.suspended_org_ids || config.suspended_org_ids.length",
+      "fix": "Added guard clause: if (!config.suspended_org_ids || config.susp)",
+      "tags": [
+        "auto-detected",
+        "guard-clause",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-17T04:14:40.474Z"
+    },
+    {
+      "id": "bug-161",
+      "timestamp": "2026-04-17T04:15:18.938Z",
+      "error_message": "CSS fix: href",
+      "file": "app/src/components/dashboard-nav.tsx",
+      "root_cause": "href: '/dashboard/billing', label: 'Billing' → '/dashboard/support-sessions', label: 'Support sessions'",
+      "fix": "Changed href: '/dashboard/billing', label: 'Billing' → '/dashboard/support-sessions', label: 'Support sessions'",
+      "tags": [
+        "auto-detected",
+        "style-fix",
+        "tsx"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-17T04:15:18.938Z"
+    },
+    {
+      "id": "bug-162",
+      "timestamp": "2026-04-17T04:18:00.279Z",
+      "error_message": "Incorrect value in code",
+      "file": "docs/ADRs/ADR-0029-admin-organisations.md",
+      "root_cause": "Had `[ ] planned`",
+      "fix": "Changed to `[x] complete`",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-17T04:18:00.279Z"
+    },
+    {
+      "id": "bug-163",
+      "timestamp": "2026-04-17T04:18:22.467Z",
+      "error_message": "Significant refactor of ",
+      "file": "docs/ADRs/ADR-0029-admin-organisations.md",
+      "root_cause": "4 lines replaced/restructured",
+      "fix": "Rewrote 7→68 lines (4 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-17T04:18:22.467Z"
+    },
+    {
+      "id": "bug-164",
+      "timestamp": "2026-04-17T04:26:30.139Z",
+      "error_message": "Significant refactor of ",
+      "file": "../../../.claude/projects/-Users-sudhindra-projects-aiSpirit-consent-sheild/memory/project_status_2026-04-17.md",
+      "root_cause": "6 lines replaced/restructured",
+      "fix": "Rewrote 8→40 lines (6 removed) | Also: - `cd app && bun run build` → all 38 routes compil; - `bun run test:rls` (serial mode after `fileParal | Also: - **`fileParallelism: false`** landed in `vitest.c; - **ADR-0026 Sprint 4.1 (Vercel split)** — still d",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 3,
+      "last_seen": "2026-04-17T04:27:00.318Z"
     }
   ]
 }
