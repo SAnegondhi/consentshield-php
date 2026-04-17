@@ -14,6 +14,7 @@ const navItems = [
   { href: '/dashboard/rights', label: 'Rights Requests' },
   { href: '/dashboard/integrations', label: 'Integrations' },
   { href: '/dashboard/billing', label: 'Billing' },
+  { href: '/dashboard/support', label: 'Support' },
   { href: '/dashboard/support-sessions', label: 'Support sessions' },
 ]
 

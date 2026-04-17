@@ -81,7 +81,7 @@ export default async function TemplatesPage({ searchParams }: PageProps) {
             Versioned; published templates are immutable.
           </p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex items-center gap-2">
           <span className="rounded-full bg-green-100 px-3 py-1 text-xs font-medium text-green-700">
             {counts.published} published
           </span>
@@ -91,6 +91,12 @@ export default async function TemplatesPage({ searchParams }: PageProps) {
           <span className="rounded-full bg-zinc-200 px-3 py-1 text-xs font-medium text-zinc-700">
             {counts.deprecated} deprecated
           </span>
+          <Link
+            href="/templates/new"
+            className="ml-2 rounded bg-zinc-900 px-3 py-1.5 text-xs font-medium text-white hover:bg-zinc-800"
+          >
+            + New draft
+          </Link>
         </div>
       </header>
 

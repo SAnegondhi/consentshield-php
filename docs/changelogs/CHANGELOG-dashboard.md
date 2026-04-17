@@ -2,6 +2,54 @@
 
 Next.js UI changes.
 
+## ADR-0030 Sprint 2.1 — 2026-04-17
+
+**ADR:** ADR-0030 — Sectoral Templates
+**Sprint:** 2.1 — Draft editor + publish/deprecate actions
+
+### Added
+- `admin/src/app/(operator)/templates/actions.ts` — Server Actions: `createDraft`, `updateDraft`, `publishTemplate`, `deprecateTemplate`, `goToCloneForm`.
+- `admin/src/app/(operator)/templates/new/page.tsx` — "+ New draft" form; accepts `?from=<templateId>` for Clone-as-new-version.
+- `admin/src/app/(operator)/templates/[templateId]/edit/page.tsx` — draft editor (refuses non-draft).
+- `admin/src/components/templates/template-form.tsx` — shared form for new + edit; purpose-definitions editor with add/remove/edit rows; data-scope category chip editor.
+- `admin/src/components/templates/detail-actions.tsx` — status-aware action bar on the detail page (Edit + Publish on drafts; Clone + Deprecate on published; read-only notice on deprecated).
+
+### Changed
+- `admin/src/app/(operator)/templates/page.tsx` — "+ New draft" button in the header.
+- `admin/src/app/(operator)/templates/[templateId]/page.tsx` — Actions card at the bottom. Resolves caller admin_role to gate publish/deprecate.
+
+### Tested
+- [x] `cd admin && bun run lint` — zero warnings
+- [x] `cd admin && bun run build` — 15 routes compile (+ /templates/new + /templates/[templateId]/edit)
+- [x] `cd admin && bun run test` — 1/1 smoke
+- [x] `bun run test:rls` (root, serial) — 135/135 (no regression at this point)
+
+## ADR-0032 Sprint 2.1 — 2026-04-17
+
+**ADR:** ADR-0032 — Support Tickets
+**Sprint:** 2.1 — Customer-side Contact Support + ticket inbox + reply
+
+### Added (schema)
+- Migration `20260421000001_customer_support_access.sql` — three SECURITY DEFINER helpers in `public`: `list_org_support_tickets()`, `list_support_ticket_messages(id)`, `add_customer_support_message(id, body)`. Each scoped via `public.current_org_id()`. Customer reply auto-transitions status to `awaiting_operator`.
+
+### Added (customer app)
+- `app/src/app/(dashboard)/dashboard/support/page.tsx` — customer inbox.
+- `app/src/app/(dashboard)/dashboard/support/[ticketId]/page.tsx` — detail + thread + reply.
+- `app/src/app/(dashboard)/dashboard/support/new/page.tsx` — Contact Support form.
+- `app/src/app/(dashboard)/dashboard/support/actions.ts` — `createTicket`, `replyToTicket` Server Actions.
+- `app/src/components/support/new-ticket-form.tsx` + `app/src/components/support/customer-reply-form.tsx`.
+- `app/src/components/dashboard-nav.tsx` — Support nav item.
+
+### Added (tests)
+- `tests/rls/support-tickets.test.ts` — 3 assertions for cross-tenant isolation on all three new RPCs.
+
+### Tested
+- [x] `cd app && bun run lint` — zero warnings
+- [x] `cd app && bun run build` — customer routes compile (+ /dashboard/support, /dashboard/support/[ticketId], /dashboard/support/new)
+- [x] `cd app && bun run test` — 42/42
+- [x] `cd admin && bun run test` — 1/1 smoke
+- [x] `bun run test:rls` (root, serial) — 138/138 (+3 new support-isolation tests)
+
 ## ADR-0032 Sprint 1.1 — 2026-04-17
 
 **ADR:** ADR-0032 — Support Tickets

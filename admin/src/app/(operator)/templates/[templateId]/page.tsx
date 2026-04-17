@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { createServerClient } from '@/lib/supabase/server'
+import { TemplateDetailActions } from '@/components/templates/detail-actions'
 
 // ADR-0030 Sprint 1.1 — Sectoral Template detail (read-only).
 //
@@ -68,6 +69,17 @@ export default async function TemplateDetailPage({ params }: PageProps) {
   if (!tpl) notFound()
 
   const template = tpl as Template
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+  const adminRole =
+    (user?.app_metadata?.admin_role as
+      | 'platform_operator'
+      | 'support'
+      | 'read_only'
+      | undefined) ?? 'read_only'
+  const canPublish = adminRole === 'platform_operator'
 
   // Resolve admin display names for created_by / published_by.
   const adminIds = [template.created_by, template.published_by].filter(
@@ -240,9 +252,14 @@ export default async function TemplateDetailPage({ params }: PageProps) {
         </footer>
       </section>
 
-      <p className="text-xs text-zinc-500">
-        Edit / Publish / Deprecate action bar ships in ADR-0030 Sprint 2.1.
-      </p>
+      <section className="rounded-md border border-zinc-200 bg-white p-4 shadow-sm">
+        <h2 className="mb-3 text-sm font-semibold">Actions</h2>
+        <TemplateDetailActions
+          templateId={template.id}
+          status={template.status}
+          canPublish={canPublish}
+        />
+      </section>
     </div>
   )
 }

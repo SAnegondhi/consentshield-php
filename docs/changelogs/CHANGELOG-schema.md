@@ -2,6 +2,22 @@
 
 Database migrations, RLS policies, roles.
 
+## [ADR-0032 Sprint 2.1] — 2026-04-17
+
+**ADR:** ADR-0032 — Support Tickets
+**Sprint:** 2.1 — customer-side support access
+
+### Added
+- `20260421000001_customer_support_access.sql` — three SECURITY DEFINER helpers in `public` so customer JWTs can interact with `admin.support_tickets` / `admin.support_ticket_messages` without widening the admin-side RLS boundary.
+  - `public.list_org_support_tickets()` — returns tickets where `org_id = public.current_org_id()`. Bonus computed column `message_count`.
+  - `public.list_support_ticket_messages(p_ticket_id)` — raises if caller's org doesn't own the ticket.
+  - `public.add_customer_support_message(p_ticket_id, p_body)` — customer-authored message; auto-transitions ticket status from `awaiting_customer`/`resolved`/`closed` → `awaiting_operator` so the operator queue surfaces it.
+- All three granted EXECUTE to `authenticated`.
+
+### Tested
+- [x] `tests/rls/support-tickets.test.ts` — 3 assertions covering cross-tenant blocks on list / read / write (+ positive own-tenant path).
+- [x] `bun run test:rls` (root, serial) — 138/138.
+
 ## [ADR-0022 Sprint 1.2] — 2026-04-17
 
 **ADR:** ADR-0022 — `process-artefact-revocation` Edge Function + Revocation Dispatch

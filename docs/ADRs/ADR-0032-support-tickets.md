@@ -2,9 +2,9 @@
 
 (c) 2026 Sudhindra Anegondhi a.d.sudhindra@gmail.com
 
-**Status:** In Progress
+**Status:** Completed
 **Date proposed:** 2026-04-17
-**Date completed:** —
+**Date completed:** 2026-04-17
 
 ---
 
@@ -70,18 +70,30 @@ Messages are append-only — there is no edit, delete, or redaction from the UI.
 **Estimated effort:** 2 hours.
 
 **Deliverables:**
-- [ ] `app/src/app/(dashboard)/dashboard/support/page.tsx` — customer's support inbox. Lists their org's tickets (filtered by `org_id`, their own + any where they're the reporter). Columns: ID, Subject, Status, Updated. Row click → detail.
-- [ ] `app/src/app/(dashboard)/dashboard/support/[ticketId]/page.tsx` — customer-facing ticket detail. Same thread widget as admin, but the reply form submits via `add_support_ticket_message` as a customer (author_user_id set, is_internal_note forced false).
-- [ ] `app/src/app/(dashboard)/dashboard/support/new/page.tsx` — Contact Support form. Subject + initial message + priority self-flag (normal / high — urgent is operator-only). Calls `admin.create_support_ticket`.
-- [ ] `app/src/components/dashboard-nav.tsx` — add "Support" nav item; badge with open-ticket count.
-- [ ] RLS verification: a customer can only see tickets where `ticket.org_id = current_org_id()` AND (they created it OR they are an org admin). Add the RLS policy if not already present; test in `tests/rls/isolation.test.ts`.
+- [x] Migration `20260421000001_customer_support_access.sql` — three SECURITY DEFINER helpers in `public`: `list_org_support_tickets()`, `list_support_ticket_messages(id)`, `add_customer_support_message(id, body)`. All scope via `public.current_org_id()` so a customer cannot see or write to another org's tickets. Customer-message insert auto-transitions status from `awaiting_customer`/`resolved`/`closed` → `awaiting_operator`.
+- [x] `app/src/app/(dashboard)/dashboard/support/page.tsx` — inbox via `list_org_support_tickets`. Columns: Subject, Priority, Status, Messages, Opened. Empty-state CTA.
+- [x] `app/src/app/(dashboard)/dashboard/support/[ticketId]/page.tsx` — detail + thread via `list_support_ticket_messages`; admin replies rendered teal-left, customer replies zinc-right, system messages centred.
+- [x] `app/src/app/(dashboard)/dashboard/support/new/page.tsx` — Contact Support form. Priorities limited to low / normal / high (urgent operator-only at the server action layer).
+- [x] `app/src/app/(dashboard)/dashboard/support/actions.ts` — two Server Actions: `createTicket` (wraps `admin.create_support_ticket`) + `replyToTicket` (wraps `public.add_customer_support_message`).
+- [x] `app/src/components/support/{new-ticket-form,customer-reply-form}.tsx` — client forms.
+- [x] `app/src/components/dashboard-nav.tsx` — "Support" nav item added between Billing and Support sessions.
+- [x] `tests/rls/support-tickets.test.ts` — 3 assertions covering cross-tenant read blocking on list_org_support_tickets, list_support_ticket_messages, and add_customer_support_message (+ positive own-tenant cases).
+
+**Note on ADR deviations:**
+- The ADR said the customer view "filters is_internal_note = false" — the schema has no is_internal_note column. Moot.
+- Instead of an RLS policy extension on `admin.support_tickets`, we chose the SECURITY DEFINER RPC route — matches the `public.org_support_sessions` precedent from ADR-0027 Sprint 2.1 and keeps the admin-table RLS boundary intact (only admins can SELECT `admin.*` directly; customers go through scoped public helpers).
+- Open-ticket count badge in the nav deferred — would require a client-side or per-request count that the `DashboardNav` is a pure Client Component and doesn't own a session to query from. Status pills on the list page make the count visible.
 
 **Testing plan:**
-- [ ] New RLS test: customer A cannot see customer B's tickets; customer A cannot see tickets in org X they're not a member of.
-- [ ] Manual: sign in as a customer → /dashboard/support/new → submit → verify /dashboard/support shows the ticket and a matching row appears in admin's /support.
-- [ ] Operator reply flow: operator replies via /support → customer refreshes /dashboard/support/[ticketId] → message visible.
+- [x] `tests/rls/support-tickets.test.ts` — 3 assertions covering cross-tenant read/write blocks + positive own-tenant path.
+- [x] `cd app && bun run lint` — zero warnings.
+- [x] `cd app && bun run build` — all customer routes compile (+ /dashboard/support + /dashboard/support/[ticketId] + /dashboard/support/new).
+- [x] `cd app && bun run test` — 42/42 (no regression).
+- [x] `cd admin && bun run test` — 1/1 smoke.
+- [x] `bun run test:rls` — 138/138 (+3 new support-isolation tests).
+- [ ] Manual end-to-end (deferred): sign in as a customer → /dashboard/support/new → submit → verify /dashboard/support shows it and admin /support reflects the same ticket; operator reply → customer sees it after refresh.
 
-**Status:** `[ ] planned`
+**Status:** `[x] complete` — 2026-04-17
 
 ---
 

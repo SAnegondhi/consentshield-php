@@ -63,18 +63,26 @@ Core invariant (from schema design): a template is immutable once published. Edi
 **Estimated effort:** 3 hours.
 
 **Deliverables:**
-- [ ] `admin/src/app/(operator)/templates/new/page.tsx` — "+ New draft" form. Fields: template_code, display_name, sector, initial description. Creates a `version=1` draft via `create_sectoral_template_draft`.
-- [ ] `admin/src/app/(operator)/templates/[templateId]/edit/page.tsx` — draft editor (only enabled when status=draft). Editable fields: display_name, description, purposes (purpose_code, display_name, framework pills, data_scope category list, default_expiry, auto_delete). "Add purpose" button appends a row; each row has delete. Save calls `update_sectoral_template_draft` with the full purposes jsonb.
-- [ ] `admin/src/app/(operator)/templates/[templateId]/actions.ts` — Server Actions: `createDraft`, `updateDraft`, `publishTemplate` (with reason ≥ 10 chars), `deprecateTemplate` (with reason + replacement template_code). All platform_operator only.
-- [ ] Detail page: when status=published, show "Clone as new version" button that creates a new draft based on the current purposes jsonb. When status=draft, show "Edit" and "Publish". When status=deprecated, show "View only" notice.
-- [ ] Confirmation modal for Publish (shows diff vs prior version in jsonb form) and Deprecate (requires reason + optional replacement).
+- [x] `admin/src/app/(operator)/templates/new/page.tsx` — "+ New draft" form. Accepts `?from=<templateId>` for Clone-as-new-version prefill. Version auto-increments via the RPC.
+- [x] `admin/src/app/(operator)/templates/[templateId]/edit/page.tsx` — draft editor (gracefully refuses when status ≠ draft).
+- [x] `admin/src/app/(operator)/templates/actions.ts` — Server Actions: `createDraft`, `updateDraft`, `publishTemplate`, `deprecateTemplate`, `goToCloneForm`.
+- [x] `admin/src/components/templates/template-form.tsx` — shared form used by both new and edit pages. Metadata + purposes editor (add/remove rows, per-row purpose_code / display_name / framework select / data_scope category editor / default_expiry / auto_delete / delete-row button). Reason capture at the bottom.
+- [x] `admin/src/components/templates/detail-actions.tsx` — status-aware action bar on the detail page. Draft → Edit + Publish. Published → Clone as new version + Deprecate. Deprecated → view-only notice. Publish-reason and Deprecate-reason captured via modal (`ModalShell / ReasonField / FormFooter` from `common/modal-form`).
+- [x] Detail page gains an Actions card rendering `TemplateDetailActions`. List page gains a "+ New draft" button.
+
+**Note on ADR deviations:**
+- `deprecate_sectoral_template` RPC takes only `(p_template_id, p_reason)` — there is no `p_replacement_template_code` parameter. The successor relationship is established automatically by `publish_sectoral_template`, which demotes the prior published version to deprecated with `superseded_by_id` pointing at the new one. Deprecate-without-successor is a distinct path (end-of-life without a replacement). The UI surfaces this clearly in the Deprecate modal copy.
+- The ADR originally said the publish confirmation modal "shows diff vs prior version in jsonb form". Diff view deferred — the Publish modal shows a clear "immutable after publish" warning + reason capture. On-demand diff stays out of scope per ADR Out-of-Scope.
 
 **Testing plan:**
-- [ ] Existing RPC tests in `tests/admin/rpcs.test.ts` cover the four RPCs — no new RPC tests needed.
-- [ ] Manual: create draft → edit purposes → publish → confirm prior published version auto-deprecates (`publish_sectoral_template` RPC handles this). Deprecate without replacement; deprecate with replacement — verify audit entries distinct.
-- [ ] Cross-role: support user sees read-only list + detail but no Edit / Publish / Deprecate buttons.
+- [x] Existing RPC tests in `tests/admin/rpcs.test.ts` cover the four RPCs — no new RPC tests added.
+- [x] `cd admin && bun run lint` — zero warnings.
+- [x] `cd admin && bun run build` — 15 routes compile (+ /templates/new + /templates/[templateId]/edit).
+- [x] `cd admin && bun run test` — 1/1 smoke.
+- [x] `bun run test:rls` — 135/135.
+- [ ] Manual (deferred until a real draft exists): create → edit → publish → verify prior published version auto-deprecates; deprecate without replacement. Will land with Sprint 3.1 when the customer-side picker needs a real template.
 
-**Status:** `[ ] planned`
+**Status:** `[x] complete` — 2026-04-17
 
 ### Sprint 3.1: Customer-side template picker (planning check in Sprint 2.1)
 
