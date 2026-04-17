@@ -2,6 +2,17 @@
 
 Documentation changes.
 
+## [ADR-0039 charter + closeout] — 2026-04-17
+
+**ADR:** ADR-0039 (Connector OAuth — Mailchimp + HubSpot)
+
+### Added
+- `docs/ADRs/ADR-0039-connector-oauth.md` — drafted and shipped Completed. Three sprints. Closes V2-C1.
+
+### Changed
+- `docs/V2-BACKLOG.md` — V2-C1 replaced with pointer.
+- `docs/ADRs/ADR-index.md` — ADR-0039 added as Completed.
+
 ## [ADR-0041 charter + closeout] — 2026-04-17
 
 **ADR:** ADR-0041 (Probes v2 — Vercel Sandbox runner + CRUD UI)

@@ -2,6 +2,13 @@
 
 Supabase Edge Function changes.
 
+## ADR-0039 Sprint 1.3 — 2026-04-17
+
+**ADR:** ADR-0039 — Connector OAuth (Mailchimp + HubSpot)
+
+### Added
+- `supabase/functions/oauth-token-refresh/index.ts` — daily cron. Walks `integration_connectors` rows with `config.auth_type='oauth2'` whose `expires_at` is within 7 days. Decrypts via the repo's `encrypt_secret` / `decrypt_secret` RPC pattern (derives the org key server-side from `MASTER_ENCRYPTION_KEY` + `organisations.encryption_salt` — same formula as `@consentshield/encryption`). Calls HubSpot's refresh endpoint, re-encrypts the bundle. Mailchimp rows are skipped (non-expiring tokens). Deployed with `--no-verify-jwt`.
+
 ## ADR-0041 deprecation note — 2026-04-17
 
 **ADR:** ADR-0041 — Probes v2 via Vercel Sandbox

@@ -2,6 +2,19 @@
 
 API route changes.
 
+## [ADR-0039] — 2026-04-17
+
+**ADR:** ADR-0039 — Connector OAuth (Mailchimp + HubSpot)
+**Sprint:** 1.2 — provider modules + connect/callback routes
+
+### Added
+- `app/src/lib/connectors/oauth/types.ts` — shared `OAuthProviderConfig` + `TokenBundle` contracts.
+- `app/src/lib/connectors/oauth/mailchimp.ts` — Mailchimp provider. Exchange-code handler fetches metadata endpoint to capture `server_prefix` alongside the long-lived access token. No refresh (Mailchimp tokens don't expire).
+- `app/src/lib/connectors/oauth/hubspot.ts` — HubSpot provider. Exchange + refresh share a common `exchangeOrRefresh()` helper. Captures `portal_id` from the account-info endpoint.
+- `app/src/lib/connectors/oauth/registry.ts` — dispatch by provider id; `listConfiguredOAuthProviders()` returns only providers with populated client_id/secret env vars.
+- `app/src/app/api/integrations/oauth/[provider]/connect/route.ts` — GET starts the handshake. Generates 48-char random state, writes `oauth_states`, redirects to the provider's authorize URL. Admin/owner gated.
+- `app/src/app/api/integrations/oauth/[provider]/callback/route.ts` — GET validates state (exists, not consumed, not expired, provider matches, initiator matches), consumes it, exchanges code for tokens, encrypts the bundle via `encryptForOrg`, upserts `integration_connectors` (distinguishes OAuth rows from API-key rows via `(OAuth)` display-name suffix). Redirects back to `/dashboard/integrations` with `?oauth_connected=<provider>` or `?oauth_error=<code>`.
+
 ## [ADR-0041] — 2026-04-17
 
 **ADR:** ADR-0041 — Probes v2 via Vercel Sandbox

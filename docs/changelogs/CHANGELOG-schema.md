@@ -16,6 +16,14 @@ Database migrations, RLS policies, roles.
 - [x] `tests/depa/score.test.ts` — 7/7 — PASS (10.8 arithmetic 5 cases + 10.8b refresh round-trip 2 cases).
 - [x] `bun run test:rls` — 13 files, **154/154** — PASS.
 
+## [ADR-0039 Sprint 1.1 + 1.3] — 2026-04-17
+
+**ADR:** ADR-0039 — Connector OAuth (Mailchimp + HubSpot)
+
+### Added
+- `20260425000004_oauth_states.sql` — `oauth_states` table for OAuth handshake CSRF tokens. Deny-all RLS; orchestrator-only writes. `oauth_states_cleanup()` helper + hourly pg_cron `oauth-states-cleanup-hourly` at `:23 past`.
+- `20260425000005_oauth_refresh_cron.sql` — daily pg_cron `oauth-token-refresh-daily` at `45 3 * * *` UTC targeting the new `oauth-token-refresh` Edge Function.
+
 ## [ADR-0041 Sprint 1.3] — 2026-04-17
 
 **ADR:** ADR-0041 — Probes v2 via Vercel Sandbox

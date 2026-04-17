@@ -1,8 +1,14 @@
 import { createServerClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { IntegrationsTable } from './integrations-table'
+import { OAuthBanner } from './oauth-banner'
 
-export default async function IntegrationsPage() {
+export default async function IntegrationsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ oauth_connected?: string; oauth_error?: string }>
+}) {
+  const sp = await searchParams
   const supabase = await createServerClient()
 
   const {
@@ -38,6 +44,35 @@ export default async function IntegrationsPage() {
           connector receives a signed payload; confirm completion via the signed callback URL.
         </p>
       </div>
+
+      {sp.oauth_connected || sp.oauth_error ? (
+        <OAuthBanner connected={sp.oauth_connected ?? null} error={sp.oauth_error ?? null} />
+      ) : null}
+
+      <section className="rounded border border-gray-200 p-4 space-y-3">
+        <div>
+          <h2 className="font-medium">Connect via OAuth</h2>
+          <p className="text-xs text-gray-500">
+            Preferred over pasted API keys — tokens refresh automatically. Requires the operator to
+            register an OAuth app at each provider and set the corresponding env vars on the
+            deployment.
+          </p>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          <a
+            href="/api/integrations/oauth/mailchimp/connect"
+            className="rounded border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50"
+          >
+            Connect Mailchimp
+          </a>
+          <a
+            href="/api/integrations/oauth/hubspot/connect"
+            className="rounded border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50"
+          >
+            Connect HubSpot
+          </a>
+        </div>
+      </section>
 
       <IntegrationsTable
         orgId={membership.org_id}

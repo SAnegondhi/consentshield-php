@@ -1757,3 +1757,28 @@
 | 20:13 | Edited docs/changelogs/CHANGELOG-edge-functions.md | expanded (+7 lines) | ~127 |
 | 20:13 | Edited docs/changelogs/CHANGELOG-docs.md | expanded (+11 lines) | ~111 |
 | 20:15 | ADR-0041 shipped — Vercel Sandbox probe runner + probe CRUD UI | 160/160 + 10/10 sig-match; deploy-smoke deferred | V2-P1 + V2-P2 closed | ~18000 |
+| 20:15 | Created docs/ADRs/ADR-0039-connector-oauth.md | — | ~1736 |
+| 20:15 | Edited docs/ADRs/ADR-index.md | 1→2 lines | ~50 |
+| 20:15 | Created supabase/migrations/20260425000004_oauth_states.sql | — | ~651 |
+| 20:16 | Created app/src/lib/connectors/oauth/types.ts | — | ~234 |
+| 20:16 | Created app/src/lib/connectors/oauth/mailchimp.ts | — | ~720 |
+| 20:16 | Created app/src/lib/connectors/oauth/hubspot.ts | — | ~800 |
+| 20:16 | Created app/src/lib/connectors/oauth/registry.ts | — | ~176 |
+| 20:17 | Created app/src/app/api/integrations/oauth/[provider]/connect/route.ts | — | ~536 |
+| 20:17 | Created app/src/app/api/integrations/oauth/[provider]/callback/route.ts | — | ~1066 |
+| 20:17 | Edited app/src/app/api/integrations/oauth/[provider]/callback/route.ts | modified if() | ~358 |
+| 20:18 | Created supabase/functions/oauth-token-refresh/index.ts | — | ~1936 |
+| 20:18 | Created supabase/migrations/20260425000005_oauth_refresh_cron.sql | — | ~195 |
+| 20:18 | Edited app/src/app/(dashboard)/dashboard/integrations/page.tsx | CSS: searchParams | ~124 |
+| 20:19 | Edited app/src/app/(dashboard)/dashboard/integrations/page.tsx | CSS: hover, hover | ~382 |
+| 20:19 | Created app/src/app/(dashboard)/dashboard/integrations/oauth-banner.tsx | — | ~460 |
+| 20:21 | Edited docs/ADRs/ADR-0039-connector-oauth.md | 2→3 lines | ~22 |
+| 20:21 | Edited docs/ADRs/ADR-0039-connector-oauth.md | "[ ] planned" → "[x] complete" | ~11 |
+| 20:22 | Edited docs/ADRs/ADR-index.md | inline fix | ~23 |
+| 20:22 | Edited docs/V2-BACKLOG.md | removed 21 lines | ~17 |
+| 20:22 | Edited docs/changelogs/CHANGELOG-schema.md | expanded (+8 lines) | ~144 |
+| 20:22 | Edited docs/changelogs/CHANGELOG-api.md | expanded (+13 lines) | ~410 |
+| 20:22 | Edited docs/changelogs/CHANGELOG-edge-functions.md | expanded (+7 lines) | ~181 |
+| 20:23 | Edited docs/changelogs/CHANGELOG-dashboard.md | expanded (+8 lines) | ~179 |
+| 20:23 | Edited docs/changelogs/CHANGELOG-docs.md | expanded (+11 lines) | ~105 |
+| 20:30 | ADR-0039 shipped — Mailchimp + HubSpot OAuth flow (connect + callback + refresh cron + UI) | V2-C1 closed; 160/160 | requires operator to register OAuth apps | ~9000 |

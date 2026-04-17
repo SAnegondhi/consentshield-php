@@ -2,6 +2,14 @@
 
 Next.js UI changes.
 
+## ADR-0039 — 2026-04-17
+
+**ADR:** ADR-0039 — Connector OAuth (Mailchimp + HubSpot)
+
+### Changed
+- `app/src/app/(dashboard)/dashboard/integrations/page.tsx` — new "Connect via OAuth" card with "Connect Mailchimp" and "Connect HubSpot" buttons pointing at `/api/integrations/oauth/<provider>/connect`. New `OAuthBanner` surfaces success / error after the callback redirect (`?oauth_connected=<provider>` or `?oauth_error=<code>`).
+- API-key connector form is preserved as the fallback for providers without OAuth configured or operators who prefer keys.
+
 ## ADR-0041 Sprint 1.4 — 2026-04-17
 
 **ADR:** ADR-0041 — Probes v2 via Vercel Sandbox
