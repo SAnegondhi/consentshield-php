@@ -1,71 +1,188 @@
-// Admin login — stub for ADR-0026 Sprint 3.1. Real Supabase Auth sign-in
-// + WebAuthn hardware-key enrolment ships in ADR-0028.
-//
-// When running with ADMIN_HARDWARE_KEY_ENFORCED=false (local dev only),
-// any admin user with is_admin=true in auth.users.raw_app_meta_data can
-// sign in with email/password via the customer app, and the admin
-// proxy.ts will accept the session without AAL2.
+'use client'
 
-export default function AdminLoginPage({
-  searchParams,
-}: {
-  searchParams: Promise<{ reason?: string }>
-}) {
+import { Suspense, useState } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
+import { createBrowserClient } from '@/lib/supabase/browser'
+import { OtpBoxes } from '@/components/otp-boxes'
+
+// ADR-0028 Sprint 1.1 — real admin sign-in.
+// OTP email flow (no password, no signup link — admin bootstrap is not
+// self-serve; operators are provisioned via scripts/bootstrap-admin.ts
+// or by a platform_operator). Mirrors the customer /login pattern but
+// with the red admin accent and no signup CTA.
+
+export default function AdminLoginPage() {
   return (
-    <main className="flex min-h-screen items-center justify-center px-6">
-      <div className="w-full max-w-sm space-y-6 rounded-lg border border-zinc-200 bg-white p-8 shadow-sm">
-        <header className="space-y-2">
-          <p className="text-xs font-mono uppercase tracking-wider text-red-700">
-            ConsentShield — Operator Console
-          </p>
-          <h1 className="text-xl font-semibold">Sign in</h1>
-          <p className="text-sm text-zinc-600">
-            Authentication with hardware-key second factor is required in
-            production. This skeleton ships auth wiring in a later ADR.
-          </p>
-        </header>
-
-        <ReasonNotice searchParams={searchParams} />
-
-        <div className="space-y-3 text-sm">
-          <p className="rounded border border-amber-200 bg-amber-50 p-3 text-amber-900">
-            <strong>Stub:</strong> real Supabase Auth login + WebAuthn flow
-            lands in ADR-0028. For local dev, set{' '}
-            <code className="font-mono">ADMIN_HARDWARE_KEY_ENFORCED=false</code>{' '}
-            and seed <code className="font-mono">is_admin=true</code> on your
-            user via the Supabase SQL editor:
-          </p>
-          <pre className="overflow-x-auto rounded bg-zinc-900 p-3 text-xs text-zinc-100">
-            {`UPDATE auth.users
-   SET raw_app_meta_data = raw_app_meta_data || '{"is_admin": true}'::jsonb
- WHERE email = 'a.d.sudhindra@gmail.com';`}
-          </pre>
-          <p className="text-zinc-600">
-            Then sign in via the customer app at{' '}
-            <code className="font-mono">app.consentshield.in</code> and
-            return here.
-          </p>
-        </div>
-      </div>
-    </main>
+    <Suspense>
+      <AdminLoginForm />
+    </Suspense>
   )
 }
 
-async function ReasonNotice({
-  searchParams,
-}: {
-  searchParams: Promise<{ reason?: string }>
-}) {
-  const { reason } = await searchParams
-  if (!reason) return null
-  const messages: Record<string, string> = {
-    mfa_required:
-      'Hardware-key second factor required. Enrol a passkey via the customer app, then return.',
+type Stage = 'form' | 'code'
+
+function AdminLoginForm() {
+  const [stage, setStage] = useState<Stage>('form')
+  const [email, setEmail] = useState('')
+  const [code, setCode] = useState('')
+  const [error, setError] = useState('')
+  const [loading, setLoading] = useState(false)
+  const router = useRouter()
+  const searchParams = useSearchParams()
+  const redirect = searchParams.get('redirect') || '/'
+  const reason = searchParams.get('reason')
+
+  async function handleRequestCode(e: React.FormEvent) {
+    e.preventDefault()
+    setLoading(true)
+    setError('')
+
+    const supabase = createBrowserClient()
+    const { error: otpError } = await supabase.auth.signInWithOtp({
+      email,
+      options: { shouldCreateUser: false },
+    })
+
+    if (otpError) {
+      setError(otpError.message)
+      setLoading(false)
+      return
+    }
+
+    setStage('code')
+    setLoading(false)
   }
-  const msg = messages[reason] ?? reason
+
+  async function handleVerify(e: React.FormEvent) {
+    e.preventDefault()
+    setLoading(true)
+    setError('')
+
+    const supabase = createBrowserClient()
+    const { error: verifyError } = await supabase.auth.verifyOtp({
+      email,
+      token: code.trim(),
+      type: 'email',
+    })
+
+    if (verifyError) {
+      setError(verifyError.message)
+      setLoading(false)
+      return
+    }
+
+    router.push(redirect)
+    router.refresh()
+  }
+
+  const reasonBanner =
+    reason === 'mfa_required' ? (
+      <p className="rounded border border-red-200 bg-red-50 p-3 text-sm text-red-900">
+        Hardware-key second factor required. Enrol a passkey first, then
+        sign in here.
+      </p>
+    ) : reason ? (
+      <p className="rounded border border-red-200 bg-red-50 p-3 text-sm text-red-900">
+        {reason}
+      </p>
+    ) : null
+
+  if (stage === 'code') {
+    return (
+      <Shell>
+        <div className="space-y-2">
+          <h1 className="text-xl font-semibold">Enter your code</h1>
+          <p className="text-sm text-zinc-600">
+            We sent a verification code to <strong>{email}</strong>.
+          </p>
+        </div>
+
+        <form onSubmit={handleVerify} className="space-y-4">
+          <OtpBoxes value={code} onChange={setCode} autoFocus />
+
+          {error && <p className="text-sm text-red-700">{error}</p>}
+
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full rounded bg-red-700 px-4 py-2 text-sm font-medium text-white hover:bg-red-800 disabled:opacity-50"
+          >
+            {loading ? 'Verifying…' : 'Sign in'}
+          </button>
+        </form>
+
+        <p className="text-center text-sm text-zinc-600">
+          <button
+            type="button"
+            onClick={() => {
+              setCode('')
+              setError('')
+              setStage('form')
+            }}
+            className="font-medium text-red-700 hover:underline"
+          >
+            Use a different email
+          </button>
+        </p>
+      </Shell>
+    )
+  }
+
   return (
-    <p className="rounded border border-red-200 bg-red-50 p-3 text-sm text-red-900">
-      {msg}
-    </p>
+    <Shell>
+      <header className="space-y-2">
+        <p className="text-xs font-mono uppercase tracking-wider text-red-700">
+          ConsentShield — Operator Console
+        </p>
+        <h1 className="text-xl font-semibold">Sign in</h1>
+        <p className="text-sm text-zinc-600">
+          No password. We&rsquo;ll email you a one-time code. Operator
+          access only.
+        </p>
+      </header>
+
+      {reasonBanner}
+
+      <form onSubmit={handleRequestCode} className="space-y-4">
+        <div>
+          <label htmlFor="email" className="block text-sm font-medium">
+            Email
+          </label>
+          <input
+            id="email"
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+            autoFocus
+            className="mt-1 block w-full rounded border border-zinc-300 px-3 py-2 text-sm focus:border-red-700 focus:outline-none focus:ring-1 focus:ring-red-700"
+          />
+        </div>
+
+        {error && <p className="text-sm text-red-700">{error}</p>}
+
+        <button
+          type="submit"
+          disabled={loading}
+          className="w-full rounded bg-red-700 px-4 py-2 text-sm font-medium text-white hover:bg-red-800 disabled:opacity-50"
+        >
+          {loading ? 'Sending code…' : 'Send code'}
+        </button>
+      </form>
+
+      <p className="text-center text-xs text-zinc-500">
+        Not an operator? You are in the wrong place.
+      </p>
+    </Shell>
+  )
+}
+
+function Shell({ children }: { children: React.ReactNode }) {
+  return (
+    <main className="flex min-h-screen items-center justify-center px-6">
+      <div className="w-full max-w-sm space-y-6 rounded-lg border border-zinc-200 bg-white p-8 shadow-sm">
+        {children}
+      </div>
+    </main>
   )
 }
