@@ -222,10 +222,10 @@ The migration is reversible until Phase 4 (Vercel project split). Up to that poi
   - `consentshield`: skip if no changes outside `admin/**`, `docs/**`, `session-context/**`, `.wolf/**`, `.claude/**`. (Customer app rebuilds on `app/**`, `packages/**`, `worker/**`, `supabase/**`, `tests/**`, root `package.json`, `bun.lock`.)
   - `consentshield-admin`: skip if no changes outside `app/**`, `docs/**`, `session-context/**`, `.wolf/**`, `.claude/**`. (Admin app rebuilds on `admin/**`, `packages/**`, `worker/**`, `supabase/**`, root `package.json`, `bun.lock`.)
 - [ ] Create separate Sentry project `consentshield-admin` under the existing org; populate `SENTRY_DSN_ADMIN`.
-- [ ] `scripts/check-env-isolation.ts` — pre-deploy script that lists env vars for the deploying project and fails if customer project carries any `ADMIN_*` var or admin project carries any customer-only secret. Wired into the Vercel build via `package.json` script.
-- [ ] `scripts/check-no-admin-imports-in-app.ts` — greps `app/src/` for any import from `admin/` or `packages/admin-*`. Fails if found.
-- [ ] `scripts/check-no-customer-imports-in-admin.ts` — greps `admin/src/` for any import from `app/`. Fails if found.
-- [ ] GitHub Actions workflow `monorepo-isolation.yml` — runs all three scripts on every PR. Required check.
+- [x] `scripts/check-env-isolation.ts` — pre-deploy script that detects the deploying project (via `VERCEL_PROJECT_NAME`, falls back to CWD) and fails if customer project carries any `ADMIN_*` var or admin project carries any customer-only secret. Wired into both `app/package.json` and `admin/package.json` as a `prebuild` hook (`bun ../scripts/check-env-isolation.ts`). Shipped 2026-04-17.
+- [x] `scripts/check-no-admin-imports-in-app.ts` — walks `app/src/`, resolves each import's target path (not a naive regex), flags any import that lands inside `admin/` or names an `@consentshield/admin-*` scoped package. Shipped 2026-04-17.
+- [x] `scripts/check-no-customer-imports-in-admin.ts` — walks `admin/src/`, flags any import whose resolved path lands inside `app/`. Path resolution correctly ignores admin's own Next.js `app/(operator)/` route group. Shipped 2026-04-17.
+- [x] GitHub Actions workflow `.github/workflows/monorepo-isolation.yml` — runs both import guards on every PR to main and every push to main. Ubuntu + Bun. The env-isolation script runs inside each Vercel build step, not here (needs the Vercel build environment to inspect). Shipped 2026-04-17.
 
 **Testing plan:**
 - [ ] Push to a feature branch with **only** an `admin/**` change. Verify only `consentshield-admin` builds; customer project shows "Skipped" in Vercel.
@@ -238,7 +238,7 @@ The migration is reversible until Phase 4 (Vercel project split). Up to that poi
 - [ ] Visit `https://consentshield-admin-xxx.vercel.app` (preview URL). Cloudflare Access NOT in front (preview domains aren't gated by free CF Access); Supabase Auth + AAL2 alone gates access.
 - [ ] Visit `https://consentshield.in` and `https://app.consentshield.in`. Customer app still works as before. Cloudflare Access NOT in front.
 
-**Status:** `[ ] planned`
+**Status:** `[~] in progress` — CI guard code + workflow shipped 2026-04-17; Vercel project split, Cloudflare Access, and Sentry project split still deferred (infra, owner-executed).
 
 ---
 
@@ -318,7 +318,32 @@ Dev-server verification (manual, not yet automated):
   Both run side-by-side without conflict.
 ```
 
-### Sprint 4.1 — TBD
+### Sprint 4.1 — 2026-04-17 (Partial — CI guard code shipped; infra deferred)
+
+```
+scripts/check-no-admin-imports-in-app.ts
+  clean scan              → OK — 69 files scanned under app/src; no admin imports. (exit 0)
+  injected violation      → FAIL — 1 admin import(s) found (exit 1)
+
+scripts/check-no-customer-imports-in-admin.ts
+  clean scan              → OK — 31 files scanned under admin/src; no customer imports. (exit 0)
+
+scripts/check-env-isolation.ts
+  VERCEL_PROJECT_NAME=consentshield                          → OK (exit 0)
+  VERCEL_PROJECT_NAME=consentshield ADMIN_FAKE_KEY=x         → FAIL, flagged ADMIN_FAKE_KEY (exit 1)
+
+Prebuild wiring verified:
+  cd app && bun run prebuild    → runs check-env-isolation.ts, OK.
+  cd admin && bun run prebuild  → would run identically (local admin workspace check).
+```
+
+Deferred to owner (Vercel dashboard + Cloudflare + Sentry):
+- Create `consentshield-admin` Vercel project, Root Directory = `admin/`
+- Add `admin.consentshield.in` domain + DNS CNAME
+- Cloudflare Access in front of `admin.consentshield.in`
+- Separate Sentry project + `SENTRY_DSN_ADMIN`
+- Vercel "Ignored Build Step" on both projects
+- GitHub Actions workflow green on first PR after merge (smoke)
 
 ---
 

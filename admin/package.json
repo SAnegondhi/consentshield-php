@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev --port 3001",
+    "prebuild": "bun ../scripts/check-env-isolation.ts",
     "build": "next build",
     "start": "next start --port 3001",
     "lint": "eslint src/",

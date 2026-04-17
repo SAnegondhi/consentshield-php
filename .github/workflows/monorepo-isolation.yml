@@ -1,0 +1,43 @@
+# ADR-0026 Sprint 4.1 — monorepo isolation guard.
+#
+# Runs on every pull request to main to enforce that the customer app
+# (app/) and the operator app (admin/) stay independent. Cross-imports
+# between the two break the blast-radius separation that the admin
+# platform relies on (Rule 25).
+#
+# Two checks:
+#   1. app/src/ must not import from admin/ or @consentshield/admin-*
+#   2. admin/src/ must not import from app/
+#
+# The env-var isolation script runs inside each Vercel project's build
+# step, not here — it needs the Vercel build environment to inspect.
+
+name: monorepo-isolation
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+
+jobs:
+  import-guards:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install tsx for script execution
+        run: bun add -g tsx
+
+      - name: app/ must not import from admin/
+        run: bunx tsx scripts/check-no-admin-imports-in-app.ts
+
+      - name: admin/ must not import from app/
+        run: bunx tsx scripts/check-no-customer-imports-in-admin.ts

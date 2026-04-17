@@ -2,6 +2,35 @@
 
 Vercel, Cloudflare, Supabase config changes.
 
+## [Sprint 4.1 — ADR-0026] — 2026-04-17
+
+**ADR:** ADR-0026 — Monorepo Restructure
+**Sprint:** Phase 4, Sprint 4.1 — Vercel split + CI isolation guards (code piece)
+
+### Added
+- `scripts/check-no-admin-imports-in-app.ts` — walks `app/src/`, resolves each import path, fails if any lands inside `admin/` or names an `@consentshield/admin-*` scoped package. Proper path resolution so `app/(operator)/` inside admin's Next.js route groups does not false-positive.
+- `scripts/check-no-customer-imports-in-admin.ts` — same pattern, inverse direction.
+- `scripts/check-env-isolation.ts` — detects the deploying Vercel project via `VERCEL_PROJECT_NAME` (fallback: CWD). Customer project must not carry any `ADMIN_*` var; admin project must not carry customer-only secrets (`MASTER_ENCRYPTION_KEY`, `DELETION_CALLBACK_SECRET`, `RAZORPAY_KEY_SECRET`, `RAZORPAY_WEBHOOK_SECRET`, `TURNSTILE_SECRET_KEY`). Secret values are never logged — only names.
+- `.github/workflows/monorepo-isolation.yml` — GitHub Actions workflow running both import guards on every PR to `main` and every push to `main`. Ubuntu + Bun; no deps beyond Node built-ins.
+
+### Changed
+- `app/package.json` + `admin/package.json` — added `prebuild` script `bun ../scripts/check-env-isolation.ts` so the env isolation check runs inside each Vercel build step automatically. Bun executes the TS script natively; no `tsx` dependency required in the build image.
+
+### Tested
+- [x] Clean scan of `app/src/` — OK, 69 files, exit 0
+- [x] Clean scan of `admin/src/` — OK, 31 files, exit 0
+- [x] Injected violation (`app/src/__violation-test.ts` importing from `admin/src/proxy`) — FAIL detected, exit 1
+- [x] `VERCEL_PROJECT_NAME=consentshield ADMIN_FAKE_KEY=x` — FAIL, ADMIN_FAKE_KEY flagged, exit 1
+- [x] `VERCEL_PROJECT_NAME=consentshield` clean — OK, exit 0
+- [x] `cd app && bun run prebuild` — OK, env isolation intact for customer project
+
+### Deferred to owner (infra, Vercel dashboard + Cloudflare + Sentry)
+- New Vercel project `consentshield-admin`, Root Directory = `admin/`, domain `admin.consentshield.in`
+- Cloudflare Access on `admin.consentshield.in` (GitHub-OAuth restricted)
+- Separate Sentry project + `SENTRY_DSN_ADMIN`
+- Vercel "Ignored Build Step" on both projects (skip cross-app churn)
+- First-PR smoke that the workflow runs green on CI
+
 ## [Sprint 4.1] — 2026-04-17
 
 **ADR:** ADR-0027 — Admin Platform Schema
