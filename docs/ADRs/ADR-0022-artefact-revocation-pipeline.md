@@ -161,12 +161,13 @@ The Edge Function does **not** use advisory locks or explicit transactions. The 
 
 **Deliverables:**
 
-- [ ] `supabase/functions/process-artefact-revocation/index.ts` per the data-flow spec. Uses `createClient(SUPABASE_URL, CS_ORCHESTRATOR_ROLE_KEY)`. ~200 lines including the purpose_connector_mappings join and data-scope intersection logic.
-- [ ] `callback_url` uses the same HMAC signature pattern as `app/src/lib/rights/callback-signing.ts` — import or re-derive; do not duplicate the secret logic in Deno.
-- [ ] Deploy: `bunx supabase functions deploy process-artefact-revocation --no-verify-jwt`.
-- [ ] Smoke: `curl` a fabricated `artefact_id` — expect 200 with `artefact_not_found` in the body, not a 500.
+- [x] `supabase/functions/process-artefact-revocation/index.ts` — implemented per data-flow spec. ~280 lines. `createClient(SUPABASE_URL, CS_ORCHESTRATOR_ROLE_KEY)`. Fetches revocation (fast-path on `dispatched_at`), artefact (guards `status='revoked'`), connector mappings, active connectors; inserts one `deletion_receipts` per active mapping with scoped-field intersection; handles `23505` as skipped; marks `dispatched_at` via guarded UPDATE.
+- [~] `callback_url` + HMAC signing **deferred to ADR-0023**. Sprint 1.3 narrowed to row creation only per the ADR §Decision section ("Dispatch of each pending deletion_receipts row to the connector webhook is out of scope"). `request_payload` carries `{ artefact_id, data_scope, reason, revocation_reason }` — callback_url is filled in when ADR-0023's unified dispatcher actually calls the connector.
+- [x] Supplementary migration `20260420000002_revocation_dispatch_grants.sql` — adds `grant select on artefact_revocations to cs_orchestrator` + `grant update (dispatched_at) on artefact_revocations to cs_orchestrator`. Not part of ADR-0020's migration because that only granted INSERT for the customer-initiated path.
+- [x] Deploy: `bunx supabase functions deploy process-artefact-revocation --no-verify-jwt` — success.
+- [x] Smoke: `curl` with fabricated IDs → `200 { reason: 'revocation_not_found' }` ✓.
 
-**Status:** `[ ] planned`
+**Status:** `[x] complete` — 2026-04-17
 
 #### Sprint 1.4: Tests
 

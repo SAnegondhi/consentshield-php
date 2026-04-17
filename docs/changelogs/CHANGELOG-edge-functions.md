@@ -2,6 +2,24 @@
 
 Supabase Edge Function changes.
 
+## ADR-0022 Sprint 1.3 — 2026-04-17
+
+**ADR:** ADR-0022 — `process-artefact-revocation` Edge Function + Revocation Dispatch
+**Sprint:** Phase 1, Sprint 1.3 — Edge Function
+
+### Added
+- `supabase/functions/process-artefact-revocation/index.ts` — Deno Edge Function running as `cs_orchestrator`. Fans out an artefact revocation into `deletion_receipts` rows: one per active connector in `purpose_connector_mappings` scoped to the artefact's `purpose_definition_id`. For each mapping, computes `scoped_fields = intersection(mapping.data_categories, artefact.data_scope)` and inserts a `deletion_receipts` row with `trigger_type='consent_revoked'`, `trigger_id=<revocation_id>`, `artefact_id` populated, `status='pending'`, and `request_payload = { artefact_id, data_scope=scoped_fields, reason='consent_revoked', revocation_reason }`. Guards: artefact must be in `revoked` status (cascade trigger ran), revocation's `dispatched_at` must be NULL (idempotency fast-path). On success, atomically marks `artefact_revocations.dispatched_at = now()` with an `is(null)` guard. Handles `23505` unique violations (sibling invocation already wrote the receipt) by counting as skipped, not an error.
+
+### Deployed
+- `bunx supabase functions deploy process-artefact-revocation --no-verify-jwt` — hosted dev. Same JWT-verify pattern as `process-consent-event` and `sync-admin-config-to-kv` (the cron Authorization header is `Bearer cs_orchestrator_key`, a Vault-stored opaque token, not a real project JWT).
+
+### Schema support
+- `supabase/migrations/20260420000002_revocation_dispatch_grants.sql` — grants `cs_orchestrator` the two missing privileges needed by the function: `SELECT on artefact_revocations` (to fetch the row being dispatched) and `UPDATE (dispatched_at) on artefact_revocations` (to close the idempotency gate). These were not covered by ADR-0020's 20260418000005 which only granted INSERT for customer-initiated revocations.
+
+### Tested
+- [x] Smoke test via `curl` with fabricated IDs returns `200 { reason: 'revocation_not_found' }` — function reachable, auth chain intact, no crash.
+- [ ] Full integration coverage by ADR-0022 Sprint 1.4 (`tests/depa/revocation-pipeline.test.ts`).
+
 ## ADR-0027 Sprint 3.2 — 2026-04-17
 
 **ADR:** ADR-0027 — Admin Platform Schema

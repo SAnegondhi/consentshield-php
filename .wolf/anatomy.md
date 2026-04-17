@@ -1,7 +1,7 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-04-17T08:59:12.703Z
-> Files: 409 tracked | Anatomy hits: 0 | Misses: 0
+> Auto-maintained by OpenWolf. Last scanned: 2026-04-17T09:04:18.021Z
+> Files: 411 tracked | Anatomy hits: 0 | Misses: 0
 
 ## ../../../../../tmp/
 
@@ -311,13 +311,13 @@
 - `ADR-0019-depa-roadmap.md` — ADR-0019: DEPA Roadmap — Charter & Sequencing of ADR-0020..0025 (~3286 tok)
 - `ADR-0020-depa-schema-skeleton.md` — ADR-0020: DEPA Schema Skeleton (~5670 tok)
 - `ADR-0021-process-consent-event.md` — ADR-0021: `process-consent-event` Edge Function + Dispatch Trigger + Safety-Net Cron (~3927 tok)
-- `ADR-0022-artefact-revocation-pipeline.md` — ADR-0022: `process-artefact-revocation` Edge Function + Revocation Dispatch (~4346 tok)
+- `ADR-0022-artefact-revocation-pipeline.md` — ADR-0022: `process-artefact-revocation` Edge Function + Revocation Dispatch (~4536 tok)
 - `ADR-0026-monorepo-restructure.md` — ADR-0026: Monorepo Restructure (Bun Workspace — `app/` + `admin/` + `packages/*`) (~8747 tok)
 - `ADR-0027-admin-schema.md` — ADR-0027: Admin Platform Schema (cs_admin Role + `admin.*` Tables + Audit Log + Impersonation) (~14644 tok)
 - `ADR-0028-admin-app-foundation.md` — ADR-0028: Admin App Foundation — Real Auth, Operations Dashboard, Audit Log (~4047 tok)
 - `ADR-0029-admin-organisations.md` — ADR-0029: Admin Organisations Panel — List, Detail, Actions, Impersonation (~3387 tok)
 - `ADR-0030-sectoral-templates.md` — ADR-0030: Sectoral Templates (Admin Panel + Customer-Side Read) (~2410 tok)
-- `ADR-0032-support-tickets.md` — ADR-0032: Support Tickets (Admin Panel + Customer-Side Submit) (~2207 tok)
+- `ADR-0032-support-tickets.md` — ADR-0032: Support Tickets (Admin Panel + Customer-Side Submit) (~2605 tok)
 - `ADR-0036-feature-flags-kill-switches.md` — ADR-0036: Feature Flags & Kill Switches (Admin Panel) (~2282 tok)
 - `ADR-index.md` — ADR Index (~1016 tok)
 - `ADR-template.md` — ADR-NNNN: Title (~423 tok)
@@ -344,11 +344,11 @@
 ## docs/changelogs/
 
 - `CHANGELOG-api.md` — Changelog — API (~1976 tok)
-- `CHANGELOG-dashboard.md` — Changelog — Dashboard (~3892 tok)
+- `CHANGELOG-dashboard.md` — Changelog — Dashboard (~4628 tok)
 - `CHANGELOG-docs.md` — Changelog — Documentation (~843 tok)
-- `CHANGELOG-edge-functions.md` — Changelog — Edge Functions (~1816 tok)
+- `CHANGELOG-edge-functions.md` — Changelog — Edge Functions (~2363 tok)
 - `CHANGELOG-infra.md` — Changelog — Infrastructure (~3183 tok)
-- `CHANGELOG-schema.md` — Changelog — Schema (~10139 tok)
+- `CHANGELOG-schema.md` — Changelog — Schema (~10410 tok)
 - `CHANGELOG-worker.md` — Changelog — Worker (~1514 tok)
 
 ## docs/design/
@@ -640,6 +640,10 @@
 
 - `index.ts` — Supabase Edge Function: check-stuck-deletions (~2134 tok)
 
+## supabase/functions/process-artefact-revocation/
+
+- `index.ts` — Supabase Edge Function: process-artefact-revocation (~2871 tok)
+
 ## supabase/functions/process-consent-event/
 
 - `index.ts` — Supabase Edge Function: process-consent-event (~2459 tok)
@@ -738,6 +742,7 @@
 - `20260418000009_depa_buffer_lifecycle.sql` — ADR-0020 Sprint 1.1 — DEPA buffer lifecycle additions. (~1124 tok)
 - `20260419000001_depa_consent_event_dispatch.sql` — ADR-0021 Sprint 1.1 — consent-event dispatch trigger + safety-net cron. (~1768 tok)
 - `20260420000001_depa_revocation_dispatch.sql` — ADR-0022 Sprint 1.2 — artefact-revocation dispatch trigger + safety-net cron. (~2320 tok)
+- `20260420000002_revocation_dispatch_grants.sql` — ADR-0022 Sprint 1.3 — cs_orchestrator grants for process-artefact-revocation. (~150 tok)
 - `20260421000001_customer_support_access.sql` — ADR-0032 Sprint 2.1 — customer-side access to admin.support_tickets. (~1190 tok)
 
 ## supabase/seed/

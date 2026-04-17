@@ -1435,3 +1435,15 @@
 | 14:29 | Edited docs/changelogs/CHANGELOG-schema.md | expanded (+18 lines) | ~381 |
 | 15:00 | Sprint 1.2 ADR-0022 — wrote dispatch migration (trigger + idempotency UNIQUE + safety-net cron) | supabase/migrations/20260420000001_depa_revocation_dispatch.sql | applied on dev | ~1900 |
 | 15:00 | CHANGELOG-schema: ADR-0022 Sprint 1.2 entry | docs/changelogs/CHANGELOG-schema.md | indexed | ~350 |
+| 14:31 | Created supabase/functions/process-artefact-revocation/index.ts | — | ~2871 |
+| 14:31 | Edited docs/ADRs/ADR-0032-support-tickets.md | 3→3 lines | ~22 |
+| 14:31 | Created supabase/migrations/20260420000002_revocation_dispatch_grants.sql | — | ~150 |
+| 14:31 | Edited docs/ADRs/ADR-0032-support-tickets.md | expanded (+8 lines) | ~624 |
+| 14:32 | Edited docs/ADRs/ADR-0032-support-tickets.md | modified end() | ~205 |
+| 14:32 | Edited docs/ADRs/ADR-index.md | 2→2 lines | ~55 |
+| 14:32 | Edited docs/changelogs/CHANGELOG-dashboard.md | expanded (+48 lines) | ~795 |
+| 14:33 | Edited docs/changelogs/CHANGELOG-schema.md | expanded (+16 lines) | ~316 |
+| 14:34 | Edited docs/changelogs/CHANGELOG-edge-functions.md | modified reachable() | ~593 |
+| 14:34 | Edited docs/ADRs/ADR-0022-artefact-revocation-pipeline.md | 6→7 lines | ~373 |
+| 15:20 | Sprint 1.3 ADR-0022 — wrote Edge Function process-artefact-revocation; deployed to dev | supabase/functions/process-artefact-revocation/index.ts | smoke 200 revocation_not_found | ~2400 |
+| 15:20 | Grants follow-up migration 20260420000002 (cs_orchestrator SELECT + UPDATE(dispatched_at) on artefact_revocations) | migration | applied | ~400 |
