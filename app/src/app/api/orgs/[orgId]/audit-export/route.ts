@@ -49,12 +49,6 @@ export async function POST(
   const m = manifest as ManifestShape
 
   const zip = new JSZip()
-  zip.file('manifest.json', JSON.stringify({
-    format_version: m.format_version,
-    org_id: m.org_id,
-    generated_at: m.generated_at,
-    section_counts: m.section_counts,
-  }, null, 2))
   zip.file('org.json', JSON.stringify(m.org, null, 2))
   zip.file('data_inventory.json', JSON.stringify(m.data_inventory, null, 2))
   zip.file('banners.json', JSON.stringify(m.banners, null, 2))
@@ -64,6 +58,101 @@ export async function POST(
   zip.file('deletion_receipts.json', JSON.stringify(m.deletion_receipts, null, 2))
   zip.file('security_scans_rollup.json', JSON.stringify(m.security_scans_rollup, null, 2))
   zip.file('probe_runs.json', JSON.stringify(m.probe_runs, null, 2))
+
+  // ADR-0037 W8 — DEPA section. RLS-gated reads (member-of-org).
+  const [purposesRes, mappingsRes, connectorsRes, artefactsRes, metricsRes] = await Promise.all([
+    supabase
+      .from('purpose_definitions')
+      .select(
+        'purpose_code, display_name, description, data_scope, default_expiry_days, auto_delete_on_expiry, framework, is_active, created_at',
+      )
+      .eq('org_id', orgId)
+      .order('purpose_code'),
+    supabase
+      .from('purpose_connector_mappings')
+      .select('purpose_definition_id, connector_id, data_categories, created_at')
+      .eq('org_id', orgId),
+    supabase
+      .from('integration_connectors')
+      .select('id, connector_type, display_name, status')
+      .eq('org_id', orgId),
+    supabase
+      .from('consent_artefacts')
+      .select('purpose_code, framework, status')
+      .eq('org_id', orgId),
+    supabase
+      .from('depa_compliance_metrics')
+      .select('total_score, coverage_score, expiry_score, freshness_score, revocation_score, computed_at')
+      .eq('org_id', orgId)
+      .maybeSingle(),
+  ])
+
+  zip.file(
+    'depa/purpose_definitions.json',
+    JSON.stringify(purposesRes.data ?? [], null, 2),
+  )
+
+  // Resolve connector id → display_name for richer mappings output.
+  const connectorNameById = new Map(
+    (connectorsRes.data ?? []).map((c) => [c.id as string, c.display_name as string]),
+  )
+  const mappingsOut = (mappingsRes.data ?? []).map((mm) => ({
+    purpose_definition_id: mm.purpose_definition_id,
+    connector_id: mm.connector_id,
+    connector_display_name: connectorNameById.get(mm.connector_id as string) ?? null,
+    data_categories: mm.data_categories,
+    created_at: mm.created_at,
+  }))
+  zip.file('depa/purpose_connector_mappings.json', JSON.stringify(mappingsOut, null, 2))
+
+  // Artefacts summary — counts by (status, framework, purpose_code). No PII.
+  const summary = new Map<string, { status: string; framework: string; purpose_code: string; count: number }>()
+  for (const a of artefactsRes.data ?? []) {
+    const key = `${a.status}|${a.framework}|${a.purpose_code}`
+    const cur = summary.get(key)
+    if (cur) cur.count++
+    else
+      summary.set(key, {
+        status: a.status as string,
+        framework: a.framework as string,
+        purpose_code: a.purpose_code as string,
+        count: 1,
+      })
+  }
+  const summaryCsv = [
+    'status,framework,purpose_code,count',
+    ...Array.from(summary.values()).map(
+      (s) => `${s.status},${s.framework},${s.purpose_code},${s.count}`,
+    ),
+  ].join('\n')
+  zip.file('depa/artefacts_summary.csv', summaryCsv + '\n')
+
+  zip.file(
+    'depa/compliance_metrics.json',
+    JSON.stringify(metricsRes.data ?? null, null, 2),
+  )
+
+  // Write manifest.json last so section_counts reflects the DEPA additions.
+  const sectionCountsWithDepa = {
+    ...m.section_counts,
+    'depa/purpose_definitions': purposesRes.data?.length ?? 0,
+    'depa/purpose_connector_mappings': mappingsOut.length,
+    'depa/artefacts_summary': summary.size,
+    'depa/compliance_metrics': metricsRes.data ? 1 : 0,
+  }
+  zip.file(
+    'manifest.json',
+    JSON.stringify(
+      {
+        format_version: m.format_version,
+        org_id: m.org_id,
+        generated_at: m.generated_at,
+        section_counts: sectionCountsWithDepa,
+      },
+      null,
+      2,
+    ),
+  )
 
   const archive = await zip.generateAsync({ type: 'uint8array', compression: 'DEFLATE' })
 
@@ -76,7 +165,7 @@ export async function POST(
       org_id: orgId,
       requested_by: user.id,
       format_version: m.format_version,
-      section_counts: m.section_counts,
+      section_counts: sectionCountsWithDepa,
       content_bytes: archive.byteLength,
       delivery_target: 'direct_download',
     })

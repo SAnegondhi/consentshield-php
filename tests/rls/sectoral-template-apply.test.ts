@@ -79,12 +79,37 @@ describe('ADR-0030 sectoral template apply', () => {
     }
   })
 
-  it('apply_sectoral_template writes to caller org settings', async () => {
+  it('apply_sectoral_template writes to caller org settings + materialises purposes', async () => {
     const { data, error } = await orgA.client.rpc('apply_sectoral_template', {
       p_template_code: TEMPLATE_CODE,
     })
     expect(error).toBeNull()
-    expect(data).toMatchObject({ code: TEMPLATE_CODE, version: 1 })
+    expect(data).toMatchObject({
+      code: TEMPLATE_CODE,
+      version: 1,
+      // ADR-0037 W9 — materialisation count from the v1 payload (1 purpose).
+      materialised_count: 1,
+    })
+
+    // ADR-0037 W9 — verify purpose_definitions row appeared in caller org.
+    const svc = getServiceClient()
+    const { data: pdRows } = await svc
+      .from('purpose_definitions')
+      .select('purpose_code, display_name, framework, is_active')
+      .eq('org_id', orgA.orgId)
+      .eq('purpose_code', 'essential')
+    expect(pdRows?.length).toBe(1)
+    expect(pdRows![0].display_name).toBe('Essential')
+    expect(pdRows![0].framework).toBe('dpdp')
+    expect(pdRows![0].is_active).toBe(true)
+
+    // Org B should have zero purpose_definitions rows for this code.
+    const { data: bPd } = await svc
+      .from('purpose_definitions')
+      .select('id')
+      .eq('org_id', orgB.orgId)
+      .eq('purpose_code', 'essential')
+    expect(bPd?.length ?? 0).toBe(0)
 
     // Verify via service-role that org A's settings carries the pointer.
     const service = getServiceClient()

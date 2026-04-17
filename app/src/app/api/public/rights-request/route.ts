@@ -4,6 +4,7 @@ import { verifyTurnstileToken } from '@/lib/rights/turnstile'
 import { generateOtp, hashOtp, otpExpiryIso } from '@/lib/rights/otp'
 import { checkRateLimit } from '@/lib/rights/rate-limit'
 import { sendOtpEmail } from '@/lib/rights/email'
+import { deriveRequestFingerprint } from '@/lib/rights/fingerprint'
 
 const VALID_TYPES = ['erasure', 'access', 'correction', 'nomination']
 
@@ -63,6 +64,8 @@ export async function POST(request: Request) {
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
   )
 
+  const sessionFingerprint = await deriveRequestFingerprint(request, org_id)
+
   const { data, error } = await anon.rpc('rpc_rights_request_create', {
     p_org_id: org_id,
     p_request_type: request_type,
@@ -71,6 +74,7 @@ export async function POST(request: Request) {
     p_requestor_message: requestor_message ?? null,
     p_otp_hash: hashOtp(otpCode),
     p_otp_expires_at: otpExpiryIso(15),
+    p_session_fingerprint: sessionFingerprint,
   })
 
   if (error) {

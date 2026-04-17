@@ -16,6 +16,22 @@ Database migrations, RLS policies, roles.
 - [x] `tests/depa/score.test.ts` — 7/7 — PASS (10.8 arithmetic 5 cases + 10.8b refresh round-trip 2 cases).
 - [x] `bun run test:rls` — 13 files, **154/154** — PASS.
 
+## [ADR-0037] — 2026-04-17
+
+**ADR:** ADR-0037 — DEPA Completion
+**Sprints:** 1.1 expiry fan-out · 1.2 rights fingerprint · 1.5 template materialisation
+
+### Added
+- `20260424000001_depa_expiry_connector_fanout.sql` — UNIQUE partial index `deletion_receipts_expiry_artefact_connector_uq` on `(artefact_id, connector_id) WHERE trigger_type = 'consent_expired'`. Rewrites `enforce_artefact_expiry()` so that when a purpose has `auto_delete_on_expiry=true`, it walks `purpose_connector_mappings × integration_connectors (status='active')`, computes `data_categories ∩ data_scope`, and INSERTS one `deletion_receipts` row per mapped connector (`trigger_type='consent_revoked'`… no, `'consent_expired'`) with scoped fields. Keeps the existing `delivery_buffer` R2-export write so both paths fire. `ON CONFLICT DO NOTHING` on the new UNIQUE predicate.
+- `20260424000002_rights_session_fingerprint.sql` — adds `rights_requests.session_fingerprint text` + partial index for non-null lookups.
+- `20260424000003_rights_rpc_fingerprint.sql` — DROP + CREATE `public.rpc_rights_request_create` with a new trailing `p_session_fingerprint text default null` parameter. Inserts into the new column.
+- `20260424000004_apply_template_materialise.sql` — re-creates `public.apply_sectoral_template(p_template_code)` so that after writing the `organisations.settings.sectoral_template` pointer it iterates `v_template.purpose_definitions` and UPSERTs into `public.purpose_definitions` via `ON CONFLICT (org_id, purpose_code, framework) DO UPDATE`. Return payload gains `materialised_count`. Defensive reads default missing JSONB fields to column defaults.
+
+### Tested
+- [x] `tests/depa/expiry-pipeline.test.ts` — 3/3 (10.6 + 10.6b + 10.6c) — PASS.
+- [x] `tests/rls/sectoral-template-apply.test.ts` — 3/3 — PASS (extended with materialisation assertions).
+- [x] `bun run test:rls` — 14 files, **160/160** — PASS.
+
 ## [ADR-0030 Sprint 3.1] — 2026-04-17
 
 **ADR:** ADR-0030 — Sectoral Templates

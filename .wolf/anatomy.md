@@ -1,7 +1,7 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-04-17T11:16:42.708Z
-> Files: 443 tracked | Anatomy hits: 0 | Misses: 0
+> Auto-maintained by OpenWolf. Last scanned: 2026-04-17T12:35:55.144Z
+> Files: 454 tracked | Anatomy hits: 0 | Misses: 0
 
 ## ../../../../../tmp/
 
@@ -67,10 +67,11 @@
 ## admin/
 
 - `eslint.config.mjs` — Declares eslintConfig (~98 tok)
-- `next.config.ts` — Declares NOINDEX_VALUE (~150 tok)
+- `next.config.ts` — Declares NOINDEX_VALUE (~548 tok)
 - `package.json` — Node.js package manifest (~259 tok)
 - `sentry.client.config.ts` (~170 tok)
-- `sentry.server.config.ts` (~170 tok)
+- `sentry.edge.config.ts` — Sentry init for Next.js edge runtime (middleware, edge routes). (~241 tok)
+- `sentry.server.config.ts` — Read the same NEXT_PUBLIC_ var the client uses so there's one env var (~249 tok)
 - `tsconfig.json` — TypeScript configuration (~102 tok)
 - `vercel.json` (~33 tok)
 - `vitest.config.ts` — /*.test.ts'], (~106 tok)
@@ -81,12 +82,13 @@
 
 ## admin/src/
 
-- `proxy.ts` — Admin proxy gate — runs on every admin-app request. (~845 tok)
+- `instrumentation-client.ts` — Sentry client-side init for the admin app. Runs on every page load. (~339 tok)
+- `proxy.ts` — Admin proxy gate — runs on every admin-app request. (~926 tok)
 
 ## admin/src/app/
 
-- `globals.css` — Styles: 1 rules, 4 vars (~87 tok)
-- `layout.tsx` — metadata (~195 tok)
+- `globals.css` — Styles: 2 rules, 60 vars (~886 tok)
+- `layout.tsx` — Wireframe spec (docs/admin/design/consentshield-admin-screens.html :root) uses (~398 tok)
 - `robots.ts` — Admin console is always private — never indexed, never ingested by AI. (~326 tok)
 
 ## admin/src/app/(auth)/login/
@@ -96,7 +98,7 @@
 ## admin/src/app/(operator)/
 
 - `actions.ts` — Exports refreshPlatformMetrics (~167 tok)
-- `layout.tsx` — Operator shell. Red admin-mode strip + red sidebar border per the (~1456 tok)
+- `layout.tsx` — Operator shell — visual spec: docs/admin/design/consentshield-admin-screens.html. (~2179 tok)
 - `page.tsx` — ADR-0028 Sprint 2.1 — Operations Dashboard. (~1660 tok)
 
 ## admin/src/app/(operator)/audit-log/
@@ -164,7 +166,7 @@
 
 ## admin/src/components/common/
 
-- `modal-form.tsx` — ModalShell (~850 tok)
+- `modal-form.tsx` — ModalShell (~891 tok)
 
 ## admin/src/components/flags/
 
@@ -243,7 +245,7 @@
 ## app/src/app/(dashboard)/dashboard/artefacts/
 
 - `filters.tsx` — ArtefactFilters (~902 tok)
-- `page.tsx` — PAGE_SIZE — renders table (~2684 tok)
+- `page.tsx` — PAGE_SIZE — renders table (~2906 tok)
 
 ## app/src/app/(dashboard)/dashboard/artefacts/[artefactId]/
 
@@ -269,7 +271,7 @@
 
 ## app/src/app/(dashboard)/dashboard/rights/[id]/
 
-- `page.tsx` — RightsRequestDetailPage — renders table (~3573 tok)
+- `page.tsx` — RightsRequestDetailPage — renders table (~5598 tok)
 
 ## app/src/app/(dashboard)/dashboard/support-sessions/
 
@@ -297,6 +299,14 @@
 
 - `page.tsx` — Public privacy notice page — no auth required. Backed by rpc_get_privacy_notice (~705 tok)
 
+## app/src/app/api/orgs/[orgId]/artefacts.csv/
+
+- `route.ts` — ADR-0037 V2-D3 — CSV export for Consent Artefacts. (~840 tok)
+
+## app/src/app/api/orgs/[orgId]/audit-export/
+
+- `route.ts` — ADR-0017 Phase 1: authenticated users in an org can download an (~1912 tok)
+
 ## app/src/app/api/orgs/[orgId]/depa-score/
 
 - `route.ts` — ADR-0025 — DEPA score read endpoint. (~822 tok)
@@ -304,6 +314,10 @@
 ## app/src/app/api/orgs/[orgId]/integrations/
 
 - `route.ts` — Next.js API route: GET, POST (~1445 tok)
+
+## app/src/app/api/public/rights-request/
+
+- `route.ts` — Next.js API route: POST (~1013 tok)
 
 ## app/src/components/
 
@@ -323,6 +337,7 @@
 ## app/src/lib/rights/
 
 - `deletion-dispatch.ts` — Deletion orchestration — dispatches erasure to connectors and records (~3008 tok)
+- `fingerprint.ts` — ADR-0037 V2-D2 — session fingerprint derivation at rights-request submit time. (~526 tok)
 
 ## app/tests/buffer/
 
@@ -336,7 +351,7 @@
 
 - `ROADMAP-phase2.md` — ConsentShield — Phase 2 Roadmap (~3150 tok)
 - `STATUS.md` — ConsentShield Status (~2363 tok)
-- `V2-BACKLOG.md` — V2 Backlog — Deferred Items for Post-Phase-2 Review (~2901 tok)
+- `V2-BACKLOG.md` — V2 Backlog — Deferred Items for Post-Phase-2 Review (~2352 tok)
 
 ## docs/ADRs/
 
@@ -372,7 +387,8 @@
 - `ADR-0030-sectoral-templates.md` — ADR-0030: Sectoral Templates (Admin Panel + Customer-Side Read) (~2724 tok)
 - `ADR-0032-support-tickets.md` — ADR-0032: Support Tickets (Admin Panel + Customer-Side Submit) (~2749 tok)
 - `ADR-0036-feature-flags-kill-switches.md` — ADR-0036: Feature Flags & Kill Switches (Admin Panel) (~2282 tok)
-- `ADR-index.md` — ADR Index (~1111 tok)
+- `ADR-0037-depa-completion.md` — ADR-0037: DEPA Completion — Expiry Fan-out, Per-Requestor Binding, CSV Export, Audit DEPA Section, O (~3945 tok)
+- `ADR-index.md` — ADR Index (~1148 tok)
 - `ADR-template.md` — ADR-NNNN: Title (~423 tok)
 - `adr-workflow.md` — ADR Workflow Rules (~557 tok)
 
@@ -396,12 +412,12 @@
 
 ## docs/changelogs/
 
-- `CHANGELOG-api.md` — Changelog — API (~2126 tok)
-- `CHANGELOG-dashboard.md` — Changelog — Dashboard (~6138 tok)
-- `CHANGELOG-docs.md` — Changelog — Documentation (~1448 tok)
+- `CHANGELOG-api.md` — Changelog — API (~2452 tok)
+- `CHANGELOG-dashboard.md` — Changelog — Dashboard (~6394 tok)
+- `CHANGELOG-docs.md` — Changelog — Documentation (~1614 tok)
 - `CHANGELOG-edge-functions.md` — Changelog — Edge Functions (~2405 tok)
 - `CHANGELOG-infra.md` — Changelog — Infrastructure (~3667 tok)
-- `CHANGELOG-schema.md` — Changelog — Schema (~11496 tok)
+- `CHANGELOG-schema.md` — Changelog — Schema (~11969 tok)
 - `CHANGELOG-worker.md` — Changelog — Worker (~1514 tok)
 
 ## docs/design/
@@ -414,7 +430,7 @@
 
 ## docs/design/screen designs and ux/
 
-- `ARCHITECTURE-ALIGNMENT-2026-04-16.md` — Screen Designs — Architecture Alignment (~5508 tok)
+- `ARCHITECTURE-ALIGNMENT-2026-04-16.md` — Screen Designs — Architecture Alignment (~5513 tok)
 - `consentshield-mobile.html` — iOS wireframes spec, 3 flows (rights monitor, breach trigger, clinic ABDM Month 6+). M1/M2/M3 drift items deferred to ABDM/mobile/BFSI ADRs. (~17068 tok)
 - `consentshield-next-steps.md` — Strategic decisions log April 2026 + 2026-04-16 addendum noting DEPA architecture has moved on. (~2784 tok)
 - `consentshield-screens.html` — ConsentShield — Screen Designs & UX Flows (~28280 tok)
@@ -801,6 +817,10 @@
 - `20260421000003_apply_sectoral_template.sql` — ADR-0030 Sprint 3.1 — customer-side sectoral-template application. (~629 tok)
 - `20260422000001_depa_expiry_pipeline.sql` — ADR-0023 Sprint 1.1 — DEPA expiry pipeline. (~1803 tok)
 - `20260423000001_depa_score_refresh.sql` — ADR-0025 Sprint 1.1 — DEPA score nightly refresh + pg_cron. (~933 tok)
+- `20260424000001_depa_expiry_connector_fanout.sql` — ADR-0037 Sprint 1.1 — V2-D1 expiry-triggered connector fan-out. (~1867 tok)
+- `20260424000002_rights_session_fingerprint.sql` — ADR-0037 Sprint 1.2 — V2-D2 per-requestor artefact binding. (~384 tok)
+- `20260424000003_rights_rpc_fingerprint.sql` — ADR-0037 Sprint 1.2 — extend rpc_rights_request_create with session_fingerprint. (~587 tok)
+- `20260424000004_apply_template_materialise.sql` — ADR-0037 Sprint 1.5 — W9 onboarding seed pack materialisation. (~1275 tok)
 
 ## supabase/seed/
 
@@ -851,7 +871,7 @@
 ## tests/depa/
 
 - `consent-event-pipeline.test.ts` — ADR-0021 Sprint 1.1 — process-consent-event pipeline integration tests. (~3428 tok)
-- `expiry-pipeline.test.ts` — ADR-0023 Sprint 1.2 — expiry pipeline integration tests. (~3448 tok)
+- `expiry-pipeline.test.ts` — ADR-0023 + ADR-0037 — expiry pipeline integration tests. (~4529 tok)
 - `revocation-pipeline.test.ts` — ADR-0022 Sprint 1.4 — process-artefact-revocation pipeline integration tests. (~4831 tok)
 - `score.test.ts` — ADR-0025 Sprint 1.2 — DEPA score integration tests. (~3145 tok)
 
@@ -870,7 +890,7 @@
 - `depa-purpose-crud.test.ts` — ADR-0024 Sprint 1.4 — RLS cross-tenant isolation for Purpose Definitions (~1430 tok)
 - `helpers.ts` — Exports getServiceClient, getAnonClient, TestOrg, createTestOrg + 3 more (~951 tok)
 - `isolation.test.ts` — Declares admin (~2328 tok)
-- `sectoral-template-apply.test.ts` — ADR-0030 Sprint 3.1 — customer-side sectoral-template application. (~1521 tok)
+- `sectoral-template-apply.test.ts` — ADR-0030 Sprint 3.1 — customer-side sectoral-template application. (~1784 tok)
 - `support-tickets.test.ts` — ADR-0032 Sprint 2.1 — customer-side support access isolation. (~1536 tok)
 - `url-path.test.ts` — S-2 from the 2026-04-14 codebase review: authenticated API routes (~856 tok)
 

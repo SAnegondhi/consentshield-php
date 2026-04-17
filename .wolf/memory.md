@@ -1571,3 +1571,69 @@
 | 16:45 | ADR-0024 shipped — DEPA customer UI rollup (Purposes + Artefacts + Dashboard tile + Rights preview + Settings row) | 10+ files across app/ | 159/159; build clean | ~12000 |
 | 16:45 | V2-D2 logged (per-requestor artefact binding) + V2-D3 (CSV export) | docs/V2-BACKLOG.md | logged | ~800 |
 | 16:45 | Alignment tracker W2/W3/W6/W7/W10 code columns flipped to ✅ | ARCHITECTURE-ALIGNMENT-2026-04-16 | coded | ~250 |
+| 16:47 | Session end: 212 writes across 71 files (check-no-admin-imports-in-app.ts, check-no-customer-imports-in-admin.ts, check-env-isolation.ts, monorepo-isolation.yml, package.json) | 55 reads | ~353073 tok |
+| 17:13 | Session end: 212 writes across 71 files (check-no-admin-imports-in-app.ts, check-no-customer-imports-in-admin.ts, check-env-isolation.ts, monorepo-isolation.yml, package.json) | 55 reads | ~353685 tok |
+| 17:14 | Session end: 212 writes across 71 files (check-no-admin-imports-in-app.ts, check-no-customer-imports-in-admin.ts, check-env-isolation.ts, monorepo-isolation.yml, package.json) | 55 reads | ~353685 tok |
+| 17:17 | Session end: 212 writes across 71 files (check-no-admin-imports-in-app.ts, check-no-customer-imports-in-admin.ts, check-env-isolation.ts, monorepo-isolation.yml, package.json) | 55 reads | ~353685 tok |
+| 17:25 | Session end: 212 writes across 71 files (check-no-admin-imports-in-app.ts, check-no-customer-imports-in-admin.ts, check-env-isolation.ts, monorepo-isolation.yml, package.json) | 55 reads | ~353685 tok |
+| 17:28 | Session end: 212 writes across 71 files (check-no-admin-imports-in-app.ts, check-no-customer-imports-in-admin.ts, check-env-isolation.ts, monorepo-isolation.yml, package.json) | 59 reads | ~353851 tok |
+| 17:31 | Created admin/src/instrumentation-client.ts | — | ~339 |
+| 17:31 | Created admin/sentry.edge.config.ts | — | ~241 |
+| 17:32 | Edited admin/sentry.server.config.ts | modified init() | ~113 |
+| 17:32 | Edited admin/next.config.ts | 3→3 lines | ~17 |
+| 17:32 | Edited admin/package.json | inline fix | ~10 |
+| 17:32 | Edited admin/src/proxy.ts | expanded (+7 lines) | ~127 |
+| 17:39 | Session end: 218 writes across 74 files (check-no-admin-imports-in-app.ts, check-no-customer-imports-in-admin.ts, check-env-isolation.ts, monorepo-isolation.yml, package.json) | 62 reads | ~354864 tok |
+| 17:41 | Session end: 218 writes across 74 files (check-no-admin-imports-in-app.ts, check-no-customer-imports-in-admin.ts, check-env-isolation.ts, monorepo-isolation.yml, package.json) | 62 reads | ~354864 tok |
+| 17:50 | Created docs/ADRs/ADR-0037-depa-completion.md | — | ~3771 |
+| 17:50 | Edited docs/ADRs/ADR-index.md | 1→2 lines | ~64 |
+| 17:51 | Created supabase/migrations/20260424000001_depa_expiry_connector_fanout.sql | — | ~1867 |
+| 17:52 | Edited tests/depa/expiry-pipeline.test.ts | modified 6c() | ~284 |
+| 17:52 | Edited tests/depa/expiry-pipeline.test.ts | added optional chaining | ~1094 |
+| 17:52 | Session end: 223 writes across 76 files (check-no-admin-imports-in-app.ts, check-no-customer-imports-in-admin.ts, check-env-isolation.ts, monorepo-isolation.yml, package.json) | 66 reads | ~368425 tok |
+| 17:53 | Created supabase/migrations/20260424000002_rights_session_fingerprint.sql | — | ~384 |
+| 17:54 | Edited supabase/migrations/20260424000002_rights_session_fingerprint.sql | modified if() | ~710 |
+| 17:54 | Edited supabase/migrations/20260424000002_rights_session_fingerprint.sql | removed 66 lines | ~110 |
+| 17:54 | Created supabase/migrations/20260424000003_rights_rpc_fingerprint.sql | — | ~587 |
+| 17:54 | Created app/src/lib/rights/fingerprint.ts | — | ~526 |
+| 17:55 | Edited app/src/app/api/public/rights-request/route.ts | added 1 import(s) | ~115 |
+| 17:55 | Edited app/src/app/api/public/rights-request/route.ts | 9→12 lines | ~132 |
+| 17:55 | Edited app/src/app/(dashboard)/dashboard/rights/[id]/page.tsx | modified loadMatchedArtefacts() | ~212 |
+| 17:55 | Edited app/src/app/(dashboard)/dashboard/rights/[id]/page.tsx | expanded (+10 lines) | ~98 |
+| 17:55 | Session end: 232 writes across 79 files (check-no-admin-imports-in-app.ts, check-no-customer-imports-in-admin.ts, check-env-isolation.ts, monorepo-isolation.yml, package.json) | 68 reads | ~374847 tok |
+| 17:55 | Edited app/src/app/(dashboard)/dashboard/rights/[id]/page.tsx | added nullish coalescing | ~1737 |
+| 17:56 | Edited app/src/app/(dashboard)/dashboard/rights/[id]/page.tsx | CSS: matchedCount, hasFingerprint, caveat | ~362 |
+| 17:56 | Created app/src/app/api/orgs/[orgId]/artefacts.csv/route.ts | — | ~840 |
+| 17:56 | Edited app/src/app/(dashboard)/dashboard/artefacts/page.tsx | CSS: hover | ~351 |
+| 17:56 | Session end: 236 writes across 79 files (check-no-admin-imports-in-app.ts, check-no-customer-imports-in-admin.ts, check-env-isolation.ts, monorepo-isolation.yml, package.json) | 69 reads | ~380821 tok |
+| 17:57 | Edited app/src/app/api/orgs/[orgId]/audit-export/route.ts | added nullish coalescing | ~842 |
+| 17:57 | Edited app/src/app/api/orgs/[orgId]/audit-export/route.ts | removed 7 lines | ~8 |
+| 17:57 | Edited app/src/app/api/orgs/[orgId]/audit-export/route.ts | added optional chaining | ~233 |
+| 17:57 | Edited app/src/app/api/orgs/[orgId]/audit-export/route.ts | 10→10 lines | ~93 |
+| 17:58 | Created supabase/migrations/20260424000004_apply_template_materialise.sql | — | ~1275 |
+| 17:59 | Edited tests/rls/sectoral-template-apply.test.ts | added optional chaining | ~351 |
+| 17:59 | Edited tests/rls/sectoral-template-apply.test.ts | 19→19 lines | ~220 |
+| 17:59 | Session end: 243 writes across 80 files (check-no-admin-imports-in-app.ts, check-no-customer-imports-in-admin.ts, check-env-isolation.ts, monorepo-isolation.yml, package.json) | 71 reads | ~386740 tok |
+| 18:01 | Edited docs/ADRs/ADR-0037-depa-completion.md | 2→3 lines | ~22 |
+| 18:01 | Edited docs/ADRs/ADR-0037-depa-completion.md | 3→3 lines | ~76 |
+| 18:02 | Edited docs/ADRs/ADR-0037-depa-completion.md | 3→3 lines | ~89 |
+| 18:02 | Edited docs/ADRs/ADR-0037-depa-completion.md | 3→3 lines | ~56 |
+| 18:02 | Edited docs/ADRs/ADR-0037-depa-completion.md | 3→3 lines | ~92 |
+| 18:02 | Edited docs/ADRs/ADR-0037-depa-completion.md | expanded (+16 lines) | ~218 |
+| 18:02 | Edited docs/ADRs/ADR-index.md | inline fix | ~39 |
+| 18:02 | Created admin/src/app/globals.css | — | ~886 |
+| 18:02 | Edited docs/V2-BACKLOG.md | removed 50 lines | ~63 |
+| 18:03 | Created admin/src/app/layout.tsx | — | ~398 |
+| 18:03 | Edited docs/design/screen designs and ux/ARCHITECTURE-ALIGNMENT-2026-04-16.md | 2→2 lines | ~55 |
+| 18:03 | Edited docs/changelogs/CHANGELOG-schema.md | expanded (+16 lines) | ~515 |
+| 18:03 | Edited docs/changelogs/CHANGELOG-api.md | expanded (+13 lines) | ~358 |
+| 18:03 | Edited docs/changelogs/CHANGELOG-dashboard.md | expanded (+12 lines) | ~280 |
+| 18:03 | Created admin/src/app/(operator)/layout.tsx | — | ~2163 |
+| 18:04 | Edited docs/changelogs/CHANGELOG-docs.md | expanded (+12 lines) | ~189 |
+| 18:10 | ADR-0037 shipped — DEPA completion (V2-D1/D2/D3 + W8/W9) | 4 migrations, 3 routes, 2 tests extended, audit export + rights detail + artefacts page | 160/160; build clean | ~18000 |
+| 18:10 | V2-D1/D2/D3 replaced with pointers; alignment tracker W8/W9 flipped ✅ | V2-BACKLOG, ARCHITECTURE-ALIGNMENT | closed | ~500 |
+| 18:04 | Edited admin/src/app/(operator)/layout.tsx | 6→7 lines | ~48 |
+| 18:04 | Edited admin/src/app/(operator)/layout.tsx | CSS: p, p | ~52 |
+| 18:05 | Edited admin/src/components/common/modal-form.tsx | CSS: color, color | ~290 |
+| 18:05 | Edited admin/src/components/common/modal-form.tsx | CSS: color | ~171 |
+| 18:05 | Edited admin/src/components/common/modal-form.tsx | modified Field() | ~265 |

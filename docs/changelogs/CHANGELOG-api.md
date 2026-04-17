@@ -2,6 +2,19 @@
 
 API route changes.
 
+## [ADR-0037] — 2026-04-17
+
+**ADR:** ADR-0037 — DEPA Completion
+**Sprints:** 1.2 rights fingerprint · 1.3 CSV export · 1.4 Audit DEPA section
+
+### Added
+- `app/src/lib/rights/fingerprint.ts` — `deriveRequestFingerprint(request, orgId)` helper. sha256(userAgent + ipTruncated + orgId) matching the Cloudflare Worker formula at `worker/src/events.ts:118`. Also exports `extractClientIp` and `truncateIp`.
+- `app/src/app/api/orgs/[orgId]/artefacts.csv/route.ts` — GET handler streams `text/csv` for Consent Artefacts honouring the same filters as `/dashboard/artefacts`. Auth via `organisation_members`; no pagination (full filtered result set).
+
+### Changed
+- `app/src/app/api/public/rights-request/route.ts` — derives the session fingerprint from incoming request headers and passes it to `rpc_rights_request_create` as `p_session_fingerprint`. No UI or payload change required on the portal form.
+- `app/src/app/api/orgs/[orgId]/audit-export/route.ts` — ZIP now includes `depa/purpose_definitions.json`, `depa/purpose_connector_mappings.json` (connector display names resolved server-side), `depa/artefacts_summary.csv` (counts by status × framework × purpose_code — no PII), and `depa/compliance_metrics.json`. `manifest.json` + `audit_export_manifests.section_counts` both reflect the DEPA additions.
+
 ## [ADR-0025 Sprint 1.2] — 2026-04-17
 
 **ADR:** ADR-0025 — DEPA Score Dimension

@@ -2,6 +2,18 @@
 
 Next.js UI changes.
 
+## ADR-0037 — 2026-04-17
+
+**ADR:** ADR-0037 — DEPA Completion
+**Sprints:** 1.2 rights per-requestor binding · 1.3 CSV button
+
+### Changed
+- `app/src/app/(dashboard)/dashboard/rights/[id]/page.tsx` — erasure requests now render a "Matched N artefacts" green block above the informational impact preview when `rights_requests.session_fingerprint` matches active artefacts. Each matched row shows purpose, data_scope chips, expires_at, and the connector fan-out per artefact. Impact-preview fallback caveat text now reflects fingerprint availability (`no fingerprint` / `no match` / `fallback + primary`).
+- `app/src/app/(dashboard)/dashboard/artefacts/page.tsx` — topbar gains "Export CSV" anchor that constructs a CSV URL preserving the current filter params (`?status`, `?framework`, `?purpose`, `?expiring=30`). Headline layout restructured to `flex items-start justify-between`.
+
+### Tested
+- [x] `cd app && bun run build` — success, zero errors / zero warnings. `/api/orgs/[orgId]/artefacts.csv` in the route manifest.
+
 ## ADR-0024 — 2026-04-17
 
 **ADR:** ADR-0024 — DEPA Customer UI Rollup

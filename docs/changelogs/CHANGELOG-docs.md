@@ -2,6 +2,18 @@
 
 Documentation changes.
 
+## [ADR-0037 charter + closeout] — 2026-04-17
+
+**ADR:** ADR-0037 (DEPA Completion — V2-D1 + V2-D2 + V2-D3 + W8 + W9)
+
+### Added
+- `docs/ADRs/ADR-0037-depa-completion.md` — drafted and shipped Completed same session. Bundles five previously-deferred DEPA items.
+
+### Changed
+- `docs/V2-BACKLOG.md` — V2-D1, V2-D2, V2-D3 entries replaced with one-line pointers to ADR-0037 sprints per the write-once-then-pointer rule.
+- `docs/design/screen designs and ux/ARCHITECTURE-ALIGNMENT-2026-04-16.md` — W8 + W9 code columns flipped from `☐` to `✅ 2026-04-17`. Implementing-ADR attribution corrected to ADR-0037.
+- `docs/ADRs/ADR-index.md` — ADR-0037 added as Completed.
+
 ## [ADR-0024 charter + closeout] — 2026-04-17
 
 **ADR:** ADR-0024 (DEPA Customer UI Rollup — W2 + W3 + W6 + W7 + W10)

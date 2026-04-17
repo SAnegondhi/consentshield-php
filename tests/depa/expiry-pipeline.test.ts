@@ -1,4 +1,4 @@
-// ADR-0023 Sprint 1.2 — expiry pipeline integration tests.
+// ADR-0023 + ADR-0037 — expiry pipeline integration tests.
 //
 // Priority 10 §6 from consentshield-testing-strategy.md:
 //   - Test 10.6:  enforce_artefact_expiry (time-travel) — flips status,
@@ -6,8 +6,11 @@
 //                 row only when auto_delete_on_expiry=true.
 //   - Test 10.6b: send_expiry_alerts — stages an alert delivery_buffer row
 //                 when notify_at has lapsed; dedupes via notified_at.
+//   - Test 10.6c (ADR-0037 V2-D1): expiry also fans out to deletion_receipts
+//                 for mapped connectors when auto_delete_on_expiry=true,
+//                 scoped to data_categories ∩ data_scope. Idempotent.
 //
-// Both tests hit the live hosted dev Supabase and call the helpers directly
+// All tests hit the live hosted dev Supabase and call the helpers directly
 // via rpc(). Time-travel is achieved by UPDATE-ing expires_at / notify_at
 // on already-created rows (the ADR-0021 pipeline creates them with future
 // timestamps via purpose_definitions.default_expiry_days).
@@ -326,4 +329,90 @@ describe('Test 10.6b — send_expiry_alerts', () => {
     const alerts2 = newRows2.filter((r) => r.event_type === 'consent_expiry_alert')
     expect(alerts2.length).toBe(1) // Still exactly one — second call was a no-op.
   }, 45_000)
+})
+
+// ═══════════════════════════════════════════════════════════
+// Test 10.6c — ADR-0037 V2-D1: expiry fans out to deletion_receipts
+// ═══════════════════════════════════════════════════════════
+
+describe('Test 10.6c — V2-D1 expiry connector fan-out', () => {
+  it('expiry of auto_delete purpose creates one deletion_receipts row per active connector mapping; idempotent on re-invoke', async () => {
+    const admin = getServiceClient()
+    const fingerprint = `test-10-6c-${Date.now()}`
+
+    // Create a fresh connector + mapping to the marketing purpose (auto-delete).
+    const { data: connector, error: cErr } = await admin
+      .from('integration_connectors')
+      .insert({
+        org_id: org.orgId,
+        connector_type: 'webhook',
+        display_name: `Mailchimp-${Date.now()}`,
+        config: '\\x7b7d',
+        status: 'active',
+      })
+      .select('id, display_name')
+      .single()
+    if (cErr) throw new Error(`seed connector: ${cErr.message}`)
+
+    const { error: mErr } = await admin
+      .from('purpose_connector_mappings')
+      .insert({
+        org_id: org.orgId,
+        purpose_definition_id: f.marketingPurposeId,
+        connector_id: connector.id,
+        data_categories: ['email_address', 'name'],
+      })
+    if (mErr) throw new Error(`seed mapping: ${mErr.message}`)
+
+    // Seed an artefact for the marketing purpose via consent event.
+    const eventId = await insertConsentEvent(fingerprint, ['marketing'])
+    const artefacts = await pollArtefactsForEvent(eventId, 1)
+    const marketing = artefacts[0]
+
+    // Time-travel.
+    const past = new Date(Date.now() - 60_000).toISOString()
+    const { error: travelErr } = await admin
+      .from('consent_artefacts')
+      .update({ expires_at: past })
+      .eq('artefact_id', marketing.artefact_id)
+    if (travelErr) throw new Error(`time-travel: ${travelErr.message}`)
+
+    // Run enforcement.
+    const { error: rpcErr } = await admin.rpc('enforce_artefact_expiry')
+    if (rpcErr) throw new Error(`enforce rpc: ${rpcErr.message}`)
+
+    // Expect one deletion_receipts row for this artefact + connector,
+    // trigger_type='consent_expired', scoped to the intersection.
+    const { data: receipts } = await admin
+      .from('deletion_receipts')
+      .select('id, trigger_type, connector_id, status, request_payload, artefact_id')
+      .eq('artefact_id', marketing.artefact_id)
+      .eq('trigger_type', 'consent_expired')
+    expect(receipts?.length).toBe(1)
+    const r = receipts![0]
+    expect(r.connector_id).toBe(connector.id)
+    expect(r.status).toBe('pending')
+    const payload = r.request_payload as {
+      data_scope: string[]
+      reason: string
+      artefact_id: string
+    }
+    expect(payload.reason).toBe('consent_expired')
+    expect(payload.artefact_id).toBe(marketing.artefact_id)
+    // Intersection of mapping (email_address, name) ∩ artefact (email_address, name) = both.
+    expect(new Set(payload.data_scope)).toEqual(new Set(['email_address', 'name']))
+
+    // Idempotency: a second enforce call for the same (already expired)
+    // artefact must not create a duplicate receipt.
+    const { error: rpc2Err } = await admin.rpc('enforce_artefact_expiry')
+    if (rpc2Err) throw new Error(`enforce rpc (2): ${rpc2Err.message}`)
+
+    const { data: receiptsAfter, count } = await admin
+      .from('deletion_receipts')
+      .select('id', { count: 'exact' })
+      .eq('artefact_id', marketing.artefact_id)
+      .eq('trigger_type', 'consent_expired')
+    expect(count).toBe(1)
+    expect(receiptsAfter?.length).toBe(1)
+  }, 60_000)
 })

@@ -204,8 +204,8 @@ A live checklist of each item against the ADR that ports it into code. Tick when
 | W5 | DEPA score gauge | ADR-0025 | ✅ 2026-04-16 | ☐ |
 | W6 | Artefact lifecycle dashboard tile | ADR-0024 (rollup) | ✅ 2026-04-16 | ✅ 2026-04-17 |
 | W7 | Rights Centre artefact-scoped erasure | ADR-0024 (informational; full binding → V2-D2) | ✅ 2026-04-16 | ✅ 2026-04-17 |
-| W8 | Audit & Reports DEPA section | ADR-0025 + ADR-0017 follow-up | ✅ 2026-04-16 | ☐ |
-| W9 | Onboarding purpose seed pack | ADR-0024 follow-up (wireframe-driven) | ✅ 2026-04-16 | ☐ |
+| W8 | Audit & Reports DEPA section | ADR-0037 | ✅ 2026-04-16 | ✅ 2026-04-17 |
+| W9 | Onboarding purpose seed pack | ADR-0037 (materialisation in `apply_sectoral_template`) | ✅ 2026-04-16 | ✅ 2026-04-17 |
 | W10 | Settings sector template | ADR-0024 (covered by /dashboard/template + Purposes header) | ✅ 2026-04-16 | ✅ 2026-04-17 |
 | W11 | Banner save 422 error UX | ADR-0020 | ✅ 2026-04-16 | ☐ |
 | W12 | Worker pipeline health tile | (operational — no DEPA dependency) | ✅ 2026-04-16 | ☐ |

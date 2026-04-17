@@ -100,14 +100,32 @@ export default async function ArtefactsPage({
 
   const { data: artefacts, count: totalCount } = await listQuery
 
+  // ADR-0037 V2-D3 — CSV export link preserving current filters.
+  const csvParams = new URLSearchParams()
+  if (raw.status) csvParams.set('status', raw.status)
+  if (raw.framework) csvParams.set('framework', raw.framework)
+  if (raw.purpose) csvParams.set('purpose', raw.purpose)
+  if (raw.expiring) csvParams.set('expiring', raw.expiring)
+  const csvHref = `/api/orgs/${membership.org_id}/artefacts.csv${
+    csvParams.toString() ? `?${csvParams.toString()}` : ''
+  }`
+
   return (
     <main className="p-8 space-y-6 max-w-6xl">
-      <div>
-        <h1 className="text-2xl font-bold">Consent Artefacts</h1>
-        <p className="text-sm text-gray-600">
-          Per-purpose consent records. Every consent event produces one artefact per accepted
-          purpose; revocation and expiry flow through the ADR-0022/0023 pipelines.
-        </p>
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold">Consent Artefacts</h1>
+          <p className="text-sm text-gray-600">
+            Per-purpose consent records. Every consent event produces one artefact per accepted
+            purpose; revocation and expiry flow through the ADR-0022/0023 pipelines.
+          </p>
+        </div>
+        <a
+          href={csvHref}
+          className="shrink-0 rounded border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50"
+        >
+          Export CSV
+        </a>
       </div>
 
       <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
