@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { createServerClient } from '@/lib/supabase/server'
+import { OrgActionBar } from '@/components/orgs/action-bar'
 
 // ADR-0029 Sprint 1.1 — Organisation detail page (read-only).
 //
@@ -26,7 +27,7 @@ export default async function OrganisationDetailPage({ params }: PageProps) {
   const { orgId } = await params
   const supabase = await createServerClient()
 
-  const [orgRes, membersRes, propertiesRes, integrationsRes, notesRes, sessionsRes] =
+  const [orgRes, membersRes, propertiesRes, integrationsRes, notesRes, sessionsRes, userRes] =
     await Promise.all([
       supabase.from('organisations').select('*').eq('id', orgId).maybeSingle(),
       supabase
@@ -56,10 +57,18 @@ export default async function OrganisationDetailPage({ params }: PageProps) {
         .eq('target_org_id', orgId)
         .order('started_at', { ascending: false })
         .limit(10),
+      supabase.auth.getUser(),
     ])
 
   const org = orgRes.data
   if (!org) notFound()
+
+  const adminRole =
+    (userRes.data.user?.app_metadata?.admin_role as
+      | 'platform_operator'
+      | 'support'
+      | 'read_only'
+      | undefined) ?? 'read_only'
 
   const noteAuthorIds = Array.from(new Set((notesRes.data ?? []).map((n) => n.admin_user_id)))
   const sessionAdminIds = Array.from(
@@ -103,7 +112,12 @@ export default async function OrganisationDetailPage({ params }: PageProps) {
             {org.compliance_contact_email ?? 'no contact email'}
           </p>
         </div>
-        <ActionBarStub status={org.status} />
+        <OrgActionBar
+          orgId={org.id}
+          orgName={org.name}
+          status={org.status}
+          currentAdminRole={adminRole}
+        />
       </header>
 
       <section className="grid grid-cols-1 gap-4 md:grid-cols-3">
@@ -239,51 +253,6 @@ function KV({ label, children }: { label: string; children: React.ReactNode }) {
     <div className="flex items-center justify-between gap-2 border-b border-zinc-100 py-1 text-sm last:border-b-0">
       <span className="text-xs text-zinc-500">{label}</span>
       <span className="truncate text-right">{children}</span>
-    </div>
-  )
-}
-
-function ActionBarStub({ status }: { status: string }) {
-  return (
-    <div className="flex items-center gap-2">
-      <Link
-        href="#"
-        title="Ships in ADR-0029 Sprint 2.1"
-        className="pointer-events-none rounded border border-zinc-300 bg-white px-3 py-1.5 text-xs text-zinc-400"
-      >
-        Add note · soon
-      </Link>
-      <Link
-        href="#"
-        title="Ships in ADR-0029 Sprint 2.1"
-        className="pointer-events-none rounded border border-zinc-300 bg-white px-3 py-1.5 text-xs text-zinc-400"
-      >
-        Extend trial · soon
-      </Link>
-      {status === 'active' ? (
-        <Link
-          href="#"
-          title="Ships in ADR-0029 Sprint 2.1"
-          className="pointer-events-none rounded border border-red-300 bg-white px-3 py-1.5 text-xs text-red-400"
-        >
-          Suspend · soon
-        </Link>
-      ) : status === 'suspended' ? (
-        <Link
-          href="#"
-          title="Ships in ADR-0029 Sprint 2.1"
-          className="pointer-events-none rounded border border-green-300 bg-white px-3 py-1.5 text-xs text-green-500"
-        >
-          Restore · soon
-        </Link>
-      ) : null}
-      <Link
-        href="#"
-        title="Ships in ADR-0029 Sprint 3.1"
-        className="pointer-events-none rounded bg-red-300 px-3 py-1.5 text-xs text-white"
-      >
-        Start impersonation · soon
-      </Link>
     </div>
   )
 }
