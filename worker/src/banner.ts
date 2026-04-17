@@ -1,6 +1,7 @@
 import type { Env } from './index'
 import { getPropertyConfig } from './origin'
 import { getTrackerSignatures, compactSignatures } from './signatures'
+import { getAdminConfig, isKillSwitchEngaged } from './admin-config'
 
 interface Purpose {
   id: string
@@ -28,6 +29,23 @@ export async function handleBannerScript(request: Request, env: Env): Promise<Re
 
   if (!propertyId || !orgId) {
     return new Response('Missing required parameters: org, prop', { status: 400 })
+  }
+
+  // Admin kill-switch: if 'banner_delivery' is engaged, serve a no-op
+  // script instead of the real banner. The script is valid JavaScript
+  // (so embedding <script src=...> on the customer's site doesn't throw)
+  // but performs no UI work. Customers see their site as if the banner
+  // were not installed — intentional behaviour when we need to pause
+  // delivery in an incident.
+  const adminConfig = await getAdminConfig(env)
+  if (isKillSwitchEngaged(adminConfig, 'banner_delivery')) {
+    return new Response('// ConsentShield: banner delivery paused by operator\n', {
+      headers: {
+        'Content-Type': 'application/javascript; charset=utf-8',
+        'Cache-Control': 'public, max-age=30',
+        'Access-Control-Allow-Origin': '*',
+      },
+    })
   }
 
   // Fetch banner config (KV cache + Supabase fallback)

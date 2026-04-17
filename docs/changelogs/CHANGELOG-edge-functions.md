@@ -2,6 +2,20 @@
 
 Supabase Edge Function changes.
 
+## ADR-0027 Sprint 3.2 — 2026-04-17
+
+**ADR:** ADR-0027 — Admin Platform Schema
+**Sprint:** Phase 3, Sprint 3.2 — sync-admin-config-to-kv
+
+### Added
+- `supabase/functions/sync-admin-config-to-kv/index.ts` — reads the consolidated admin snapshot via `rpc('admin_config_snapshot')` using `CS_ORCHESTRATOR_ROLE_KEY`, PUTs the JSON blob to Cloudflare KV at `admin:config:v1` via the CF REST API. Returns `mode: 'wrote'` on success, `mode: 'dry_run'` (with the snapshot) when any of `CF_ACCOUNT_ID` / `CF_API_TOKEN` / `CF_KV_NAMESPACE_ID` are missing — lets operators preview what would sync before the infra credentials are set.
+
+### Deployed
+- `bunx supabase functions deploy sync-admin-config-to-kv --no-verify-jwt` — hosted dev. The cron sends a `Bearer cs_orchestrator_key` which is a valid project JWT, but the Edge Function's own auth is on the DB side (the orchestrator role key used by the Supabase client), not the incoming bearer. `--no-verify-jwt` matches the pattern used by `process-consent-event` (ADR-0021).
+
+### Pending
+- Supabase secrets to set for real (non-dry-run) sync: `CF_API_TOKEN`, `CF_ACCOUNT_ID`, `CF_KV_NAMESPACE_ID`. Operator task, not part of the ADR sprint.
+
 ## ADR-0021 Sprint 1.1 — 2026-04-17
 
 **ADR:** ADR-0021 — `process-consent-event` Edge Function + Dispatch Trigger + Safety-Net Cron

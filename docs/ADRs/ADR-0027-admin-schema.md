@@ -204,6 +204,36 @@ The full SQL for every object is already specified in `docs/admin/architecture/c
 - [ ] **`worker/src/admin-config.ts`** — new helper module that reads kill-switch + tracker-signature state from KV and exposes typed accessors. Used by `worker/src/banner.ts` (kill switch check before serving the real banner) and `worker/src/observations.ts` (active tracker signatures for client-side scoring).
 - [ ] **Worker wiring**: `worker/src/banner.ts` checks `admin-config.killSwitchEnabled('banner_delivery')` before serving the real banner; if engaged, returns the no-op banner. `worker/src/observations.ts` uses `admin-config.activeTrackerSignatures()` instead of the static seed file (the seed migration in Sprint 2.1 has now made the catalogue the source of truth).
 
+**Sprint 3.2 Status:** `[x] complete` — 2026-04-17
+
+**Sprint 3.2 Execution notes (2026-04-17):**
+
+- **2 follow-up migrations landed** for Sprint 3.2:
+  1. `20260417000017_admin_config_snapshot_rpc.sql` — `public.admin_config_snapshot()` SECURITY DEFINER RPC returning the consolidated kill_switches + active tracker_signature_catalogue + published sectoral_templates snapshot in one round-trip. Required because `cs_orchestrator` (the Edge Function's DB role) has no `is_admin` claim and no table-level grants on admin.*; without the RPC, direct SELECTs on admin tables return permission denied.
+  2. `20260417000018_fix_admin_sync_cron.sql` — unschedules and reschedules `admin-sync-config-to-kv` using vault secret `cs_orchestrator_key` instead of the schema-doc-specified `cron_secret` (which never existed in the dev vault). All other admin/customer crons already use `cs_orchestrator_key`; converging on it keeps the operational surface single-keyed.
+- **Edge Function deployed** to the dev project. Smoke-tested via direct HTTPS POST with the orchestrator bearer → returned `mode: dry_run` with the full snapshot because `CF_ACCOUNT_ID` / `CF_API_TOKEN` / `CF_KV_NAMESPACE_ID` Supabase secrets are not yet set. Dry-run mode is deliberate: it lets operators inspect what the next sync would push to KV before wiring CF credentials (which is an infra task — prerequisite for Sprint 4.1).
+- **Single KV key strategy.** Schema doc §3.10 suggested 3-key layout (`admin:kill_switches:*`, `admin:tracker_signatures:active`, `admin:sectoral_templates:published`). The Edge Function writes a single `admin:config:v1` key with the full snapshot — ~5KB even at realistic catalogue sizes, and the Worker hot path saves 2 KV reads per banner request. Documented in Architecture Changes.
+- **Admin-first read precedence in `signatures.ts`.** `getTrackerSignatures(env)` now reads the admin-synced KV snapshot first; if `active_tracker_signatures` is non-empty, those take precedence over the seed-populated `public.tracker_signatures`. If empty (pre-bootstrap or all signatures deprecated), falls back to the legacy table — "deprecate everything" becomes "use the seed default" rather than "disable monitoring entirely".
+- **Banner-delivery kill switch is first check in `handleBannerScript`.** When engaged, the Worker returns a minimal valid-JS no-op (`// ConsentShield: banner delivery paused by operator`) with 30-second `Cache-Control: public, max-age=30`. The customer's `<script src="...">` tag executes the no-op without throwing; site rendering is unchanged.
+- **Test hygiene note.** Sprint 3.1 `tests/admin/rpcs.test.ts` publishes sectoral templates (`test_cascade_pack` v1 + v2) and doesn't deprecate them in afterAll. They leaked into the dev DB and showed up in the first Sprint 3.2 snapshot smoke-test. Cleaned up via direct SQL (`update admin.sectoral_templates set status='deprecated' where template_code='test_cascade_pack' and status='published'`); the test file itself still needs an afterAll hook — tracked as a small Sprint 3.1 follow-up, not a blocker for 3.2.
+
+**New files (Sprint 3.2):**
+- `supabase/functions/sync-admin-config-to-kv/index.ts` — Deno Edge Function. Reads snapshot via `rpc('admin_config_snapshot')` using `CS_ORCHESTRATOR_ROLE_KEY`; PUTs snapshot to `admin:config:v1` in the BANNER_KV namespace via the Cloudflare API using `CF_API_TOKEN` / `CF_ACCOUNT_ID` / `CF_KV_NAMESPACE_ID` env vars. Returns `mode: dry_run` with snapshot when CF credentials are absent.
+- `worker/src/admin-config.ts` — typed accessors over the KV snapshot. Exports `getAdminConfig(env)`, `isKillSwitchEngaged(config, key)`, `toLegacySignatures(adminSignatures)`. Degrades gracefully to `EMPTY_SNAPSHOT` when the KV key is missing.
+
+**Modified files (Sprint 3.2):**
+- `worker/src/banner.ts` — imports `getAdminConfig` + `isKillSwitchEngaged`; adds `banner_delivery` kill-switch check as the first operation after param validation.
+- `worker/src/signatures.ts` — imports `toLegacySignatures` + admin-config; `getTrackerSignatures` tries admin catalogue first, falls back to legacy KV cache + `public.tracker_signatures`.
+
+**Infra prerequisites (NOT part of this sprint — operator action):**
+- `bunx supabase secrets set CF_API_TOKEN=<token>`
+- `bunx supabase secrets set CF_ACCOUNT_ID=8244c59e71e49eaf6343ae0403d14785`
+- `bunx supabase secrets set CF_KV_NAMESPACE_ID=dafd5bef6fa1455c8e8c05ccffcef20b`
+
+Once set, the `*/2 * * * *` cron invokes the function with real CF credentials; the Worker starts seeing admin-synced config inside 2 minutes.
+
+---
+
 **Testing plan (combined for Phase 3):**
 
 - [ ] **RPC contract tests** in new `tests/admin/rpcs.test.ts`:

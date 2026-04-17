@@ -1,4 +1,5 @@
 import type { Env } from './index'
+import { getAdminConfig, toLegacySignatures } from './admin-config'
 
 export interface TrackerSignature {
   service_name: string
@@ -16,7 +17,19 @@ export interface TrackerSignature {
 const CACHE_KEY = 'tracker:signatures:v1'
 const CACHE_TTL_SECONDS = 3600 // 1 hour
 
+// Admin-first read: the operator-editable tracker_signature_catalogue
+// (synced to KV every 2 minutes by sync-admin-config-to-kv) takes
+// precedence over the seed-derived public.tracker_signatures table.
+// Falls back to the legacy table if the admin catalogue is empty —
+// happens in pre-bootstrap environments and when an operator deprecates
+// all entries (treated as "use the seed default" rather than "no
+// monitoring at all").
 export async function getTrackerSignatures(env: Env): Promise<TrackerSignature[]> {
+  const adminConfig = await getAdminConfig(env)
+  if (adminConfig.active_tracker_signatures.length > 0) {
+    return toLegacySignatures(adminConfig.active_tracker_signatures)
+  }
+
   const cached = await env.BANNER_KV.get(CACHE_KEY, 'json')
   if (cached) return cached as TrackerSignature[]
 

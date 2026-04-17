@@ -2,6 +2,28 @@
 
 Database migrations, RLS policies, roles.
 
+## [Sprint 3.2] — 2026-04-17
+
+**ADR:** ADR-0027 — Admin Platform Schema
+**Sprint:** Phase 3, Sprint 3.2 — sync-admin-config-to-kv Edge Function + Worker wiring
+
+### Added
+- `20260417000017_admin_config_snapshot_rpc.sql` — `public.admin_config_snapshot()` SECURITY DEFINER RPC returning the consolidated admin config snapshot (kill_switches object + active tracker_signature_catalogue array + published sectoral_templates array + refreshed_at). Grants EXECUTE to `authenticated` + `cs_orchestrator`. Needed because the Edge Function's `cs_orchestrator` JWT has no `is_admin` claim and no table-level grants on admin.*; the RPC is the only read path into admin data from that role.
+- `20260417000018_fix_admin_sync_cron.sql` — unschedules and reschedules `admin-sync-config-to-kv` using vault secret name `cs_orchestrator_key` instead of `cron_secret`. The latter never existed in the dev vault — every invocation since Sprint 3.1 was silently failing with a NULL Authorization header.
+
+### Changed
+- No table changes in this sprint. The Worker wiring is source-side only; see `CHANGELOG-edge-functions.md` and `CHANGELOG-worker.md` for Edge Function + Worker changes.
+
+### Tested
+- [x] `bun run test:rls` — 8 files, 135/135 (serial mode) — PASS (unchanged tests except Terminal B's +2 from ADR-0021)
+- [x] `cd app && bun run test` — 7 files, 42/42 (Worker harness tolerates the new admin-config.ts wiring) — PASS
+- [x] `cd admin && bun run test` — 1/1 smoke — PASS
+- [x] RPC smoke-test — `select jsonb_object_keys(public.admin_config_snapshot())` → 4 keys (kill_switches, active_tracker_signatures, published_sectoral_templates, refreshed_at)
+- [x] Cron verification — `admin-sync-config-to-kv` command references `cs_orchestrator_key` (not `cron_secret`)
+- [x] Edge Function smoke-test — direct HTTPS POST returns `{"mode":"dry_run","snapshot":{...}}` when CF credentials absent (correct degradation)
+
+Combined: 42 (app) + 135 (rls/admin/depa) + 1 (admin smoke) = **178/178**.
+
 ## [ADR-0021 Sprint 1.1] — 2026-04-17
 
 **ADR:** ADR-0021 — `process-consent-event` Edge Function + Dispatch Trigger + Safety-Net Cron

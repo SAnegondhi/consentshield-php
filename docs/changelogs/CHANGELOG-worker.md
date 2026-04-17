@@ -2,6 +2,22 @@
 
 Cloudflare Worker changes.
 
+## ADR-0027 Sprint 3.2 — 2026-04-17
+
+**ADR:** ADR-0027 — Admin Platform Schema
+**Sprint:** Phase 3, Sprint 3.2 — admin-config wiring
+
+### Added
+- `worker/src/admin-config.ts` — typed accessors over the `admin:config:v1` snapshot written every 2 minutes by `sync-admin-config-to-kv` Edge Function. Exports `getAdminConfig(env)`, `isKillSwitchEngaged(config, switchKey)`, `toLegacySignatures(adminSignatures)`. Graceful degradation — when the KV key is missing (pre-bootstrap, sync down, dev env without CF creds), returns `EMPTY_SNAPSHOT` so all kill switches read disengaged and tracker signatures fall through to the legacy path.
+
+### Changed
+- `worker/src/banner.ts` — adds `banner_delivery` kill-switch check as the first step in `handleBannerScript`. When engaged, returns a minimal valid-JS no-op (`// ConsentShield: banner delivery paused by operator`) with 30-second Cache-Control. Customer sites embed the `<script src="...">` tag exactly as before; the kill switch takes effect inside one minute (CDN cache ceiling) without touching customer HTML.
+- `worker/src/signatures.ts` — `getTrackerSignatures(env)` now reads admin-synced catalogue first (via `getAdminConfig` + `toLegacySignatures`). Falls back to the existing `public.tracker_signatures` + KV cache path when the admin catalogue is empty. "Operator deprecates every signature" => worker still monitors via seed defaults rather than going blind.
+
+### Rule compliance
+- Zero new npm dependencies in the Worker (Rule 15).
+- `admin-config.ts` depends only on the existing `KVNamespace` type from `@cloudflare/workers-types` (already a devDep).
+
 ## Review fix-batch — 2026-04-16
 
 **Source:** `docs/reviews/2026-04-16-phase2-completion-review.md` (N-S1)
