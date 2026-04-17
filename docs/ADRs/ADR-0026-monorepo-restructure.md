@@ -238,7 +238,7 @@ The migration is reversible until Phase 4 (Vercel project split). Up to that poi
 - [ ] Visit `https://consentshield-admin-xxx.vercel.app` (preview URL). Cloudflare Access NOT in front (preview domains aren't gated by free CF Access); Supabase Auth + AAL2 alone gates access.
 - [ ] Visit `https://consentshield.in` and `https://app.consentshield.in`. Customer app still works as before. Cloudflare Access NOT in front.
 
-**Status:** `[~] in progress` — CI guard code + workflow shipped 2026-04-17; Vercel project split, Cloudflare Access, and Sentry project split still deferred (infra, owner-executed).
+**Status:** `[~] in progress` — CI guard code + workflow shipped 2026-04-17 morning. Noindex/noai soft-privacy layer + Ignored Build Step scripts shipped 2026-04-17 afternoon. Custom domain `admin.consentshield.in`, Cloudflare Access on that domain, and the separate Sentry project are still owner-executed infra — dashboard clicks, not code. The two Vercel projects themselves (`consentshield` + `consentshield-admin`) exist and are deploying fine against the current `*.vercel.app` URLs.
 
 ---
 
@@ -337,13 +337,47 @@ Prebuild wiring verified:
   cd admin && bun run prebuild  → would run identically (local admin workspace check).
 ```
 
-Deferred to owner (Vercel dashboard + Cloudflare + Sentry):
-- Create `consentshield-admin` Vercel project, Root Directory = `admin/`
-- Add `admin.consentshield.in` domain + DNS CNAME
-- Cloudflare Access in front of `admin.consentshield.in`
-- Separate Sentry project + `SENTRY_DSN_ADMIN`
-- Vercel "Ignored Build Step" on both projects
-- GitHub Actions workflow green on first PR after merge (smoke)
+### Sprint 4.1 — 2026-04-17 afternoon (Soft-privacy + Ignored Build Step scripts)
+
+Pre-launch, the Vercel-issued URLs (`consentshield.vercel.app`,
+`consentshield-admin.vercel.app`) are effectively private addresses —
+they must not be indexed by search engines or ingested by AI crawlers.
+Belt-and-braces layering:
+
+1. **`<meta name="robots">` in HTML head** — via `metadata.robots` in
+   both app/src/app/layout.tsx and admin/src/app/layout.tsx. Value:
+   `noindex, nofollow, noarchive, nosnippet, noimageindex, noai, noimageai`.
+2. **`/robots.txt`** — new `app/src/app/robots.ts` + `admin/src/app/robots.ts`
+   enumerating `User-Agent: *` + 30 named search/AI bots (Googlebot,
+   Google-Extended, GPTBot, ChatGPT-User, anthropic-ai, ClaudeBot,
+   PerplexityBot, CCBot, Bytespider, Amazonbot, Applebot-Extended,
+   Meta-ExternalAgent, etc.), all `Disallow: /`.
+3. **`X-Robots-Tag` HTTP header** — via `async headers()` in both
+   `app/next.config.ts` and `admin/next.config.ts`. Covers API routes,
+   JSON responses, and anything else the `<head>` meta can't reach.
+
+Smoke-verified via `bun run start` + curl:
+- `GET /` → `X-Robots-Tag: noindex, nofollow, noarchive, nosnippet, noimageindex, noai, noimageai`
+- `GET /robots.txt` → 200, same header, full disallow body
+
+Ignored Build Step scripts (not yet wired in Vercel dashboard):
+- `app/scripts/vercel-should-build.sh` — builds when diff touches any of
+  `app/**`, `packages/**`, `worker/**`, `supabase/**`, root `package.json`,
+  `bun.lock`, `tsconfig.base.json`. Skips otherwise.
+- `admin/scripts/vercel-should-build.sh` — builds when diff touches any of
+  `admin/**`, `packages/**`, `supabase/**`, root `package.json`, `bun.lock`,
+  `tsconfig.base.json`. Skips otherwise.
+
+Wire in each Vercel project's Settings → Git → Ignored Build Step:
+- `consentshield` project: `bash app/scripts/vercel-should-build.sh`
+- `consentshield-admin` project: `bash admin/scripts/vercel-should-build.sh`
+
+Deferred to owner (dashboard clicks, not code):
+- Custom domain `admin.consentshield.in` → Vercel's `consentshield-admin` project. DNS CNAME via Cloudflare.
+- Cloudflare Access in front of `admin.consentshield.in` (GitHub-OAuth restricted to Sudhindra).
+- Separate Sentry project `consentshield-admin` + set `SENTRY_DSN_ADMIN` on admin Vercel env (script once the DSN is in hand).
+- Wire the two `vercel-should-build.sh` scripts into the Vercel projects' Ignored Build Step settings.
+- GitHub Actions workflow green on first PR after merge (smoke).
 
 ---
 

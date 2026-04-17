@@ -4,7 +4,10 @@ import './globals.css'
 export const metadata: Metadata = {
   title: 'ConsentShield Admin',
   description: 'ConsentShield operator console.',
-  robots: { index: false, follow: false },
+  // Admin console is always private — never indexed, never ingested by AI.
+  // See also admin/src/app/robots.ts and next.config.ts X-Robots-Tag header.
+  robots:
+    'noindex, nofollow, noarchive, nosnippet, noimageindex, noai, noimageai',
 }
 
 export default function RootLayout({

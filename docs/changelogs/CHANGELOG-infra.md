@@ -2,6 +2,29 @@
 
 Vercel, Cloudflare, Supabase config changes.
 
+## [Sprint 4.1 — ADR-0026, afternoon] — 2026-04-17
+
+**ADR:** ADR-0026 — Monorepo Restructure
+**Sprint:** Phase 4, Sprint 4.1 — soft-privacy + Ignored Build Step scripts
+
+### Added (soft-privacy layer — pre-launch URL containment)
+- `app/src/app/robots.ts` + `admin/src/app/robots.ts` — robots.txt routes that disallow `User-Agent: *` plus 30 named search and AI crawlers (Googlebot, Google-Extended, GPTBot, ChatGPT-User, anthropic-ai, ClaudeBot, PerplexityBot, CCBot, Bytespider, Amazonbot, Applebot-Extended, Meta-ExternalAgent, etc.).
+- `<meta name="robots">` in both apps' root layout: `noindex, nofollow, noarchive, nosnippet, noimageindex, noai, noimageai`.
+- `X-Robots-Tag` HTTP header on every response, via `async headers()` in both `app/next.config.ts` and `admin/next.config.ts`. Covers API routes and non-HTML bodies.
+- Smoke-verified with `curl`: header present on `/` and `/robots.txt`; full disallow list served on `/robots.txt`.
+
+### Added (Ignored Build Step)
+- `app/scripts/vercel-should-build.sh` — exit 0 skips the build; checks `git diff` for changes in `app/**`, `packages/**`, `worker/**`, `supabase/**`, root `package.json`, `bun.lock`, `tsconfig.base.json`.
+- `admin/scripts/vercel-should-build.sh` — same pattern; admin builds on `admin/**`, `packages/**`, `supabase/**`, root `package.json`, `bun.lock`, `tsconfig.base.json`. NOT on `app/**` or `worker/**`.
+- Both scripts mode `0755`.
+
+### Deferred (owner dashboard steps)
+- Wire `bash app/scripts/vercel-should-build.sh` into `consentshield` Vercel project's Settings → Git → Ignored Build Step.
+- Wire `bash admin/scripts/vercel-should-build.sh` into `consentshield-admin` Vercel project likewise.
+- Add `admin.consentshield.in` domain to `consentshield-admin` Vercel project + Cloudflare CNAME.
+- Cloudflare Access gate on `admin.consentshield.in`.
+- Create Sentry project `consentshield-admin` + set `SENTRY_DSN_ADMIN` env (script once DSN is known).
+
 ## [Sprint 4.1 — ADR-0026] — 2026-04-17
 
 **ADR:** ADR-0026 — Monorepo Restructure

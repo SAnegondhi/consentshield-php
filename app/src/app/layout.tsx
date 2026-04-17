@@ -15,6 +15,10 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: 'ConsentShield',
   description: "India's DPDP compliance enforcement engine",
+  // Pre-launch: these URLs are private. No search engine, no AI crawler.
+  // See also app/src/app/robots.ts and next.config.ts X-Robots-Tag header.
+  robots:
+    'noindex, nofollow, noarchive, nosnippet, noimageindex, noai, noimageai',
 }
 
 export default function RootLayout({
