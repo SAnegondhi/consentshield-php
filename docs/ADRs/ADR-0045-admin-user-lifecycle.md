@@ -2,8 +2,9 @@
 
 (c) 2026 Sudhindra Anegondhi a.d.sudhindra@gmail.com
 
-**Status:** In Progress
+**Status:** Completed
 **Date proposed:** 2026-04-18
+**Date completed:** 2026-04-18
 **Depends on:** ADR-0027 (admin schema + `admin.admin_users` + `admin.admin_audit_log` + `admin.require_admin`), ADR-0044 (customer RBAC invitation primitives — informs the email-invite pattern)
 **Related:** V2-A1 in `docs/V2-BACKLOG.md`
 
@@ -142,12 +143,14 @@ Without these, the endpoints return 500 with a precise error message; no silent 
 
 **Deliverables:**
 
-- [ ] `admin/src/app/(operator)/admins/page.tsx` — server component, fetches `admin.admin_list()` + caller role. Renders list with status pill + Disable / Role-change buttons per row.
-- [ ] `admin/src/app/(operator)/admins/admin-list.tsx` — client component; Invite modal, Role-change modal, Disable modal — same modal primitives used by `/billing`, `/security`.
-- [ ] `admin/src/app/(operator)/admins/actions.ts` — three server actions wrapping the three Route Handlers (client-to-server indirection so Zod validation lives server-side).
-- [ ] Nav flip: add `Admin Users` entry in `admin/src/app/(operator)/layout.tsx` between `Feature Flags` and `Audit Log`. ADR pointer = `ADR-0045`.
+- [x] `admin/src/lib/admin/lifecycle.ts` — shared orchestration helper (`inviteAdmin`, `changeAdminRole`, `disableAdmin`). Route Handlers + Server Actions both delegate here so the RPC-then-auth-side ordering + rollback invariants live in exactly one place.
+- [x] `admin/src/app/(operator)/admins/page.tsx` — server component, fetches `admin.admin_list()` + caller role + service-readiness check. Shows amber banner when service-role env missing.
+- [x] `admin/src/app/(operator)/admins/admin-list.tsx` — client panel with Invite / Change-role / Disable modals. Self-row actions disabled; disabled-row actions disabled. Status pill per row (active / invited / suspended / disabled). Bootstrap + "you" inline chips.
+- [x] `admin/src/app/(operator)/admins/actions.ts` — three Server Actions (`inviteAdminAction`, `changeAdminRoleAction`, `disableAdminAction`) calling the shared helper. `revalidatePath('/admins')` after each.
+- [x] Nav flip in `admin/src/app/(operator)/layout.tsx` — `Admin Users` → `/admins`, `live:true`, pointer `ADR-0045`.
+- [x] Build + lint clean. `/admins` in admin route manifest.
 
-**Status:** `[ ] planned`
+**Status:** `[x] complete` — 2026-04-18
 
 ## Test plan
 
