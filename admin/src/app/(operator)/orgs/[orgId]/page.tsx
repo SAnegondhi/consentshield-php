@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { createServerClient } from '@/lib/supabase/server'
 import { OrgActionBar } from '@/components/orgs/action-bar'
+import { AdminMembersSection, type MemberRow as AdminMemberRow } from './members-section'
 
 // ADR-0029 Sprint 1.1 — Organisation detail page (read-only).
 //
@@ -27,7 +28,7 @@ export default async function OrganisationDetailPage({ params }: PageProps) {
   const { orgId } = await params
   const supabase = await createServerClient()
 
-  const [orgRes, membersRes, propertiesRes, integrationsRes, notesRes, sessionsRes, userRes] =
+  const [orgRes, membersRes, propertiesRes, integrationsRes, notesRes, sessionsRes, userRes, listMembersRes] =
     await Promise.all([
       supabase
         .from('organisations')
@@ -62,6 +63,7 @@ export default async function OrganisationDetailPage({ params }: PageProps) {
         .order('started_at', { ascending: false })
         .limit(10),
       supabase.auth.getUser(),
+      supabase.rpc('list_members'),
     ])
 
   const org = orgRes.data
@@ -98,6 +100,19 @@ export default async function OrganisationDetailPage({ params }: PageProps) {
   const notes = notesRes.data ?? []
   const sessions = sessionsRes.data ?? []
   const members = membersRes.data ?? []
+
+  interface ListMembersRow {
+    scope: 'account' | 'org'
+    org_id: string | null
+    user_id: string
+    email: string
+    role: string
+  }
+  const orgMembers: AdminMemberRow[] = (
+    (listMembersRes.data ?? []) as ListMembersRow[]
+  )
+    .filter((r) => r.scope === 'org' && r.org_id === orgId)
+    .map((r) => ({ userId: r.user_id, email: r.email, role: r.role }))
 
   return (
     <div className="space-y-6">
@@ -170,6 +185,12 @@ export default async function OrganisationDetailPage({ params }: PageProps) {
           </KV>
         </Card>
       </section>
+
+      <AdminMembersSection
+        orgId={orgId}
+        members={orgMembers}
+        adminRole={adminRole}
+      />
 
       <section className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         <Card title="Operator notes">

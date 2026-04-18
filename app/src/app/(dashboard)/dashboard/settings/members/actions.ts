@@ -100,3 +100,65 @@ export async function revokeInvitation(
   revalidatePath('/dashboard/settings/members')
   return { ok: true }
 }
+
+// ADR-0047 Sprint 1.2 — change an existing member's role.
+
+export interface ChangeRoleInput {
+  userId: string
+  scope: 'account' | 'org'
+  orgId: string | null
+  newRole: 'account_owner' | 'account_viewer' | 'org_admin' | 'admin' | 'viewer'
+  reason: string
+}
+
+export async function changeMembershipRole(
+  input: ChangeRoleInput,
+): Promise<{ ok: true } | { ok: false; error: string }> {
+  if (input.reason.trim().length < 10) {
+    return { ok: false, error: 'Reason must be at least 10 characters' }
+  }
+  if (input.scope === 'org' && !input.orgId) {
+    return { ok: false, error: 'org_id required for scope=org' }
+  }
+  const supabase = await createServerClient()
+  const { error } = await supabase.rpc('change_membership_role', {
+    p_user_id: input.userId,
+    p_scope: input.scope,
+    p_org_id: input.orgId,
+    p_new_role: input.newRole,
+    p_reason: input.reason.trim(),
+  })
+  if (error) return { ok: false, error: error.message }
+  revalidatePath('/dashboard/settings/members')
+  return { ok: true }
+}
+
+// ADR-0047 Sprint 1.2 — hard-delete an existing membership.
+
+export interface RemoveMembershipInput {
+  userId: string
+  scope: 'account' | 'org'
+  orgId: string | null
+  reason: string
+}
+
+export async function removeMembership(
+  input: RemoveMembershipInput,
+): Promise<{ ok: true } | { ok: false; error: string }> {
+  if (input.reason.trim().length < 10) {
+    return { ok: false, error: 'Reason must be at least 10 characters' }
+  }
+  if (input.scope === 'org' && !input.orgId) {
+    return { ok: false, error: 'org_id required for scope=org' }
+  }
+  const supabase = await createServerClient()
+  const { error } = await supabase.rpc('remove_membership', {
+    p_user_id: input.userId,
+    p_scope: input.scope,
+    p_org_id: input.orgId,
+    p_reason: input.reason.trim(),
+  })
+  if (error) return { ok: false, error: error.message }
+  revalidatePath('/dashboard/settings/members')
+  return { ok: true }
+}

@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation'
 import { createServerClient } from '@/lib/supabase/server'
 import { InviteForm, type OrgOption } from './invite-form'
 import { RevokeButton } from './revoke-button'
+import { MemberRowActions } from './member-row-actions'
 
 // ADR-0044 Phase 2.4 — /dashboard/settings/members.
 //
@@ -120,6 +121,20 @@ export default async function MembersPage() {
 
   const orgNameById = new Map(orgs.map((o) => [o.id, o.name]))
 
+  // Last-account_owner bookkeeping for UI disablement (server-side RPC
+  // is still authoritative; this just avoids pointless round-trips).
+  const accountOwnerCount = members.filter(
+    (m) => m.scope === 'account' && m.role === 'account_owner',
+  ).length
+
+  function canManageRow(row: MemberRow): boolean {
+    if (accountRole === 'account_owner') return true
+    if (row.scope === 'org' && row.org_id === org!.id && orgEffective === 'org_admin') {
+      return true
+    }
+    return false
+  }
+
   return (
     <main className="p-8 space-y-8 max-w-5xl">
       <header>
@@ -144,6 +159,7 @@ export default async function MembersPage() {
                 <th className="px-3 py-2 font-medium">Role</th>
                 <th className="px-3 py-2 font-medium">Scope</th>
                 <th className="px-3 py-2 font-medium">Joined</th>
+                <th className="px-3 py-2 font-medium text-right">Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -169,6 +185,21 @@ export default async function MembersPage() {
                       month: 'short',
                       year: 'numeric',
                     })}
+                  </td>
+                  <td className="px-3 py-2 text-right">
+                    <MemberRowActions
+                      userId={m.user_id}
+                      scope={m.scope}
+                      orgId={m.org_id}
+                      currentRole={m.role}
+                      isSelf={m.user_id === user.id}
+                      canManage={canManageRow(m)}
+                      isLastAccountOwner={
+                        m.scope === 'account' &&
+                        m.role === 'account_owner' &&
+                        accountOwnerCount <= 1
+                      }
+                    />
                   </td>
                 </tr>
               ))}

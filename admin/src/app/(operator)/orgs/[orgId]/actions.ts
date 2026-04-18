@@ -90,3 +90,58 @@ export async function restoreOrg(
   revalidatePath('/orgs')
   return { ok: true }
 }
+
+// ADR-0047 Sprint 1.2 — admin mirror for customer membership lifecycle.
+//
+// These actions target public.change_membership_role / remove_membership.
+// The admin-JWT bypass branch inside those RPCs lets platform_operators
+// act on any account/org without being a member themselves. The RPC
+// writes to public.membership_audit_log with actor_user_id = the
+// admin's auth.uid(); a companion admin.admin_audit_log write can be
+// layered on if operator-forensics demands it.
+
+export async function changeMembershipRole(
+  orgId: string,
+  userId: string,
+  scope: 'account' | 'org',
+  scopeOrgId: string | null,
+  newRole: string,
+  reason: string,
+): Promise<ActionResult> {
+  if (reason.trim().length < 10) {
+    return { ok: false, error: 'Reason must be at least 10 characters' }
+  }
+  const supabase = await createServerClient()
+  const { error } = await supabase.rpc('change_membership_role', {
+    p_user_id: userId,
+    p_scope: scope,
+    p_org_id: scopeOrgId,
+    p_new_role: newRole,
+    p_reason: reason.trim(),
+  })
+  if (error) return { ok: false, error: error.message }
+  revalidatePath(`/orgs/${orgId}`)
+  return { ok: true }
+}
+
+export async function removeMembership(
+  orgId: string,
+  userId: string,
+  scope: 'account' | 'org',
+  scopeOrgId: string | null,
+  reason: string,
+): Promise<ActionResult> {
+  if (reason.trim().length < 10) {
+    return { ok: false, error: 'Reason must be at least 10 characters' }
+  }
+  const supabase = await createServerClient()
+  const { error } = await supabase.rpc('remove_membership', {
+    p_user_id: userId,
+    p_scope: scope,
+    p_org_id: scopeOrgId,
+    p_reason: reason.trim(),
+  })
+  if (error) return { ok: false, error: error.message }
+  revalidatePath(`/orgs/${orgId}`)
+  return { ok: true }
+}

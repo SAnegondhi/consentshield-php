@@ -2,6 +2,26 @@
 
 Next.js UI changes.
 
+## ADR-0047 Sprint 1.2 — 2026-04-18
+
+**ADR:** ADR-0047 — Customer membership lifecycle
+**Sprint:** Phase 1, Sprint 1.2 — UI wiring
+
+### Added
+- `app/src/app/(dashboard)/dashboard/settings/members/member-row-actions.tsx` — per-row role dropdown + Apply + Remove controls. Self-row + last-account_owner disable client-side. Reason collected via `window.prompt` (min 10 chars; matches RPC gate).
+- `app/src/app/(dashboard)/dashboard/settings/members/actions.ts` — `changeMembershipRole`, `removeMembership` Server Actions wrapping the public RPCs.
+- `admin/src/app/(operator)/orgs/[orgId]/members-section.tsx` — admin mirror: org members list + per-row controls. Read-only for support/read_only admins; full controls for platform_operator.
+- `admin/src/app/(operator)/orgs/[orgId]/actions.ts` — `changeMembershipRole`, `removeMembership` on the admin side (admin-JWT bypass fires in the RPC).
+
+### Changed
+- `app/src/app/(dashboard)/dashboard/settings/members/page.tsx` — new "Actions" column; `canManageRow` helper.
+- `admin/src/app/(operator)/orgs/[orgId]/page.tsx` — fetches `list_members()` (admin-JWT returns platform-wide) and renders the new `AdminMembersSection` between the summary cards and the notes row.
+
+### Tested
+- `cd app && bun run build && bun run lint` — green, zero warnings.
+- `cd admin && bun run build && bun run lint` — green, zero warnings.
+- `bun run test:rls` — 243/243 (Sprint 1.1 RPC suite still validates the now-wired UI).
+
 ## ADR-0044 Phase 2.5 — 2026-04-18
 
 **ADR:** ADR-0044 v2 — Customer RBAC

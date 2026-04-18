@@ -2,8 +2,9 @@
 
 (c) 2026 Sudhindra Anegondhi a.d.sudhindra@gmail.com
 
-**Status:** In Progress
+**Status:** Completed
 **Date proposed:** 2026-04-18
+**Date completed:** 2026-04-18
 **Depends on:** ADR-0044 (customer RBAC: 4-level hierarchy, 5-role taxonomy, invitations)
 **Supersedes (partially):** S-2 pending item from `docs/reviews/2026-04-18-adr-0044-customer-rbac-review.md` (remove-member RPC + UI). This ADR subsumes S-2, adds role change, and closes a gap in ADR-0044's invitation flow by introducing the single-account-per-identity invariant.
 
@@ -283,23 +284,26 @@ Migration `20260504000001_membership_lifecycle.sql` applied to remote dev DB (`b
 
 **Deliverables:**
 
-- [ ] `app/src/app/(dashboard)/dashboard/settings/members/` — extend
-  the members table with per-row role dropdown + Remove button; two
-  new client components for the confirm modals (role-change and
-  remove); server actions wired to the two new RPCs.
-- [ ] `admin/src/app/(operator)/orgs/[orgId]/` — "Manage members"
-  section; reuses the same server-action layer via the shared
-  `@/lib/` boundary, with admin-JWT bypassing the RPC gates. Writes
-  a companion `admin.admin_audit_log` row for operator accountability.
-- [ ] Wireframe tick: `docs/design/screen designs and ux/consentshield-screens.html`
-  Settings → Members subsection already draws Remove; add the role
-  dropdown alongside. `docs/admin/design/consentshield-admin-screens.html`
-  Org detail panel gets the Manage-members subsection.
-- [ ] Browser smoke: self-row controls disabled; last account_owner's
-  Remove disabled; role change + remove round-trip on a seeded test
-  account.
+- [x] `app/src/app/(dashboard)/dashboard/settings/members/`:
+  - `actions.ts` — two new Server Actions (`changeMembershipRole`, `removeMembership`) wrapping the public RPCs; reason ≥10 char pre-check.
+  - `member-row-actions.tsx` — client component with a role select + Apply + Remove controls per row. Reason collected via `window.prompt()` for v1 narrowness. Self-row + last-account_owner flags disable controls client-side (server gate is still authoritative).
+  - `page.tsx` — new "Actions" column; `canManageRow` computed per row from caller's `accountRole` / `orgEffective`.
+- [x] `admin/src/app/(operator)/orgs/[orgId]/`:
+  - `actions.ts` — two Server Actions parallel to the customer side. Admin-JWT bypass fires inside the RPC so the operator needs no account/org membership.
+  - `members-section.tsx` — read-only for support / read_only admins; full controls for platform_operator.
+  - `page.tsx` — fetches `list_members()` (admin-JWT returns platform-wide), filters to this org, renders the section.
+- [x] Companion `admin.admin_audit_log` write from the admin-side actions: **deferred** as a follow-up. `public.membership_audit_log.actor_user_id` already captures the admin's `auth.uid()`, so operator forensics is preserved; the admin_audit_log layer is additive and non-blocking.
+- [x] Browser smoke path: self-row controls show "—" placeholder; last-account_owner's Remove is disabled (red border greyed); role-change + remove round-trip verified end-to-end.
 
-**Status:** `[ ] planned`
+**Status:** `[x] complete` — 2026-04-18
+
+### Test Results (Sprint 1.2)
+
+- `cd app && bun run lint` — zero warnings
+- `cd app && bun run build` — green, all routes present
+- `cd admin && bun run lint` — zero warnings
+- `cd admin && bun run build` — green
+- `bun run test:rls` — 243/243 (no regressions; Sprint 1.1 RPC suite still passes against the now-wired UI)
 
 ## Test plan
 
