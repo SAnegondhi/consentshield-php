@@ -2,8 +2,10 @@
 
 (c) 2026 Sudhindra Anegondhi a.d.sudhindra@gmail.com
 
-**Status:** Proposed (charter only; no sprint started)
+**Status:** In Progress (Phase 1 Sprint 1.1 shipped — schema + admin RPC + tests)
 **Date proposed:** 2026-04-18
+
+> Phase 1 Sprint 1.1 implementation notes are appended at the bottom of this file. Phases 2–4 remain charter-only.
 **Depends on:** ADR-0044 (accounts/organisations hierarchy — SDF status lives on organisations), ADR-0017 (audit-export package — DPIA reports reuse the ZIP shape), ADR-0030 (sectoral templates — BFSI template lands alongside SDF workflow).
 **Related:** `docs/architecture/consentshield-definitive-architecture.md` §7 Rule 3 (regulated sensitive content).
 
@@ -159,3 +161,17 @@ without leaving half-finished state.
   DPIA records store category declarations + references to
   customer-held artefacts; they never hold PAN values, bank
   balances, or clinical records.
+
+---
+
+## Phase 1 Sprint 1.1 — shipped 2026-04-18
+
+**Deliverables:**
+
+- [x] `supabase/migrations/20260505000001_sdf_foundation.sql` — adds `organisations.sdf_status` (not_designated / self_declared / notified / exempt, default not_designated) + `sdf_notified_at timestamptz` + `sdf_notification_ref text`. Check constraint enforces the enum. Partial index `organisations_sdf_designated_idx` keeps the "list all SDF-flagged orgs" query cheap. Rule 3 respected — only categories/references, never notification PDF bytes.
+- [x] `admin.set_sdf_status(p_org_id, p_sdf_status, p_sdf_notification_ref, p_sdf_notified_at, p_reason)` — platform_operator only. Audit-logged. Clears notification metadata when reverting to `not_designated` so stale values don't linger.
+- [x] `tests/admin/sdf-rpcs.test.ts` — 7 assertions: self_declared happy path, notified with metadata, revert clears metadata, unknown status rejected, short-reason rejected, missing-org rejected, support role denied. **7/7 PASS**.
+
+**Status:** `[x] complete` — 2026-04-18
+
+Phase 1 Sprint 1.2 (admin UI edit + customer dashboard card) is next.
