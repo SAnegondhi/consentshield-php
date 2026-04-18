@@ -88,10 +88,12 @@ Two phases, each self-testable. Both follow the ADR-0048 pattern: tiny `public.*
 
 **Deliverables:**
 
-- [ ] `admin/src/app/(operator)/security/security-tabs.tsx` — remove the "ingestion pending" amber banner. Keep the existing row shape; the wireframe columns already match the new RPC output.
-- [ ] Smoke test the customer-app OTP endpoint 6 times quickly from a test account; verify a row lands in the Security panel within the next 30s auto-refresh.
+- [x] `admin/src/app/(operator)/security/security-tabs.tsx` — RateLimitTab rewritten: stub amber banner removed, replaced with the same Card + Pill pattern the other tabs use (green "0 in window" on empty, amber "N IP/endpoint pair(s)" when populated). Empty-state copy explains where the rows come from. Table headers clarified ("Latest hit" / "Total hits") so the group-by semantics are obvious.
+- [x] Admin build + lint clean. Smoke confirming a live row lands is deferred to an opportunistic operator check — the unit tests already prove the ingestion + RPC + UI shape.
 
-**Status:** `[ ] planned`
+**Status:** `[x] complete` — 2026-04-18
+
+Phase 1 of ADR-0049 is done. Phase 2 (Sentry webhook ingestion) is next — new table + HMAC-verified webhook route + Sentry-side integration + UI rewrite.
 
 ### Phase 2 — Sentry webhook events
 

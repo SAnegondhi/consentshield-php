@@ -166,49 +166,51 @@ function Card({
 }
 
 function RateLimitTab({ rows }: { rows: SecurityData['rateLimit'] }) {
+  const pill =
+    rows.length === 0 ? (
+      <Pill tone="green">0 in window</Pill>
+    ) : (
+      <Pill tone="amber">{rows.length} IP/endpoint pair(s)</Pill>
+    )
   return (
-    <Card title="Rate-limit triggers (last 24h)">
-      <div className="space-y-3 p-6">
-        <div className="rounded border border-amber-200 bg-amber-50 p-3 text-xs text-amber-900">
-          <strong>Ingestion pending.</strong> Rate-limit hits run through
-          Upstash Redis (stateless, TTL-based) and aren&apos;t persisted anywhere
-          today. A follow-up ADR (V2-S2) will add a{' '}
-          <code>public.rate_limit_events</code> ingestion path so historical
-          triggers surface here.
-        </div>
-        {rows.length === 0 ? null : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead className="bg-bg text-left text-xs uppercase tracking-wider text-text-3">
-                <tr>
-                  <th className="px-4 py-2">When</th>
-                  <th className="px-4 py-2">Endpoint</th>
-                  <th className="px-4 py-2">IP</th>
-                  <th className="px-4 py-2">Org</th>
-                  <th className="px-4 py-2">Hits</th>
+    <Card title="Rate-limit triggers (last 24h)" pill={pill}>
+      {rows.length === 0 ? (
+        <p className="p-6 text-sm text-text-3">
+          No rate-limit denials in the last 24 hours. Hits from the public
+          rights-request routes populate here via <code>public.rate_limit_events</code>.
+        </p>
+      ) : (
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead className="bg-bg text-left text-xs uppercase tracking-wider text-text-3">
+              <tr>
+                <th className="px-4 py-2">Latest hit</th>
+                <th className="px-4 py-2">Endpoint</th>
+                <th className="px-4 py-2">IP</th>
+                <th className="px-4 py-2">Org</th>
+                <th className="px-4 py-2">Total hits</th>
+              </tr>
+            </thead>
+            <tbody>
+              {rows.map((r, i) => (
+                <tr key={i} className="border-t border-[color:var(--border)]">
+                  <td className="px-4 py-2 font-mono text-[11px]">
+                    {relative(r.occurred_at)}
+                  </td>
+                  <td className="px-4 py-2 font-mono text-[11px]">
+                    {r.endpoint}
+                  </td>
+                  <td className="px-4 py-2 font-mono text-[11px]">{r.ip}</td>
+                  <td className="px-4 py-2 text-xs">
+                    {r.org_id?.slice(0, 8) ?? '—'}
+                  </td>
+                  <td className="px-4 py-2 text-xs">{r.hit_count}</td>
                 </tr>
-              </thead>
-              <tbody>
-                {rows.map((r, i) => (
-                  <tr key={i} className="border-t border-[color:var(--border)]">
-                    <td className="px-4 py-2 font-mono text-[11px]">
-                      {relative(r.occurred_at)}
-                    </td>
-                    <td className="px-4 py-2 font-mono text-[11px]">
-                      {r.endpoint}
-                    </td>
-                    <td className="px-4 py-2 font-mono text-[11px]">{r.ip}</td>
-                    <td className="px-4 py-2 text-xs">
-                      {r.org_id?.slice(0, 8) ?? '—'}
-                    </td>
-                    <td className="px-4 py-2 text-xs">{r.hit_count}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </div>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
     </Card>
   )
 }
