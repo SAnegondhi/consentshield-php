@@ -175,3 +175,20 @@ without leaving half-finished state.
 **Status:** `[x] complete` — 2026-04-18
 
 Phase 1 Sprint 1.2 (admin UI edit + customer dashboard card) is next.
+
+## Phase 1 Sprint 1.2 — shipped 2026-04-18
+
+**Deliverables:**
+
+- [x] Admin `/orgs/[orgId]`:
+  - `admin/src/app/(operator)/orgs/[orgId]/actions.ts` — `setSdfStatus` Server Action wrapping `admin.set_sdf_status`.
+  - `admin/src/app/(operator)/orgs/[orgId]/sdf-card.tsx` — client card + edit modal. Status pill (gray/amber/red/green), current ref + notified-at, Edit button gated on platform_operator. Modal disables metadata fields when status = not_designated; surfaces an amber note that reverting clears the ref.
+  - `admin/src/app/(operator)/orgs/[orgId]/page.tsx` — injects the SDF card before the Contacts card in the three-column header grid, with the org's current sdf_status/sdf_notified_at/sdf_notification_ref passed in.
+- [x] Customer `app/src/app/(dashboard)/dashboard/page.tsx`:
+  - Org select extended with `sdf_status, sdf_notified_at, sdf_notification_ref`.
+  - New `SdfObligationsCard` server component — renders only when `sdf_status != 'not_designated'`. Shows the DPDP §10 obligations (DPO, independent auditor, DPIAs, published transparency summaries), tone-coded by status, notification metadata when present. Closes with a pointer to Phase 2+ DPIA/auditor surfaces (stub note).
+- [x] Build + lint clean on both apps.
+
+**Status:** `[x] complete` — 2026-04-18
+
+Phase 1 complete. Phases 2 (`dpia_records`), 3 (`data_auditor_engagements`), and 4 (DPIA export extension) remain — charter-only.

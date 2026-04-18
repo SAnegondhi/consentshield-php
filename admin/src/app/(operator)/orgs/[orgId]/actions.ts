@@ -91,6 +91,47 @@ export async function restoreOrg(
   return { ok: true }
 }
 
+// ADR-0046 Phase 1 Sprint 1.2 — SDF status on org detail.
+// Wraps admin.set_sdf_status. platform_operator only (RPC enforces).
+// Customer dashboard picks the change up on its next server-render
+// via the organisations RLS path.
+
+export async function setSdfStatus(
+  orgId: string,
+  input: {
+    sdfStatus: 'not_designated' | 'self_declared' | 'notified' | 'exempt'
+    notificationRef: string
+    notifiedAt: string
+    reason: string
+  },
+): Promise<ActionResult> {
+  if (input.reason.trim().length < 10) {
+    return { ok: false, error: 'Reason must be at least 10 characters' }
+  }
+  if (
+    input.sdfStatus !== 'not_designated' &&
+    input.sdfStatus !== 'self_declared' &&
+    input.sdfStatus !== 'notified' &&
+    input.sdfStatus !== 'exempt'
+  ) {
+    return { ok: false, error: 'Unknown sdf_status' }
+  }
+  const supabase = await createServerClient()
+  const { error } = await supabase.schema('admin').rpc('set_sdf_status', {
+    p_org_id: orgId,
+    p_sdf_status: input.sdfStatus,
+    p_sdf_notification_ref: input.notificationRef.trim() || null,
+    p_sdf_notified_at: input.notifiedAt
+      ? new Date(input.notifiedAt).toISOString()
+      : null,
+    p_reason: input.reason.trim(),
+  })
+  if (error) return { ok: false, error: error.message }
+  revalidatePath(`/orgs/${orgId}`)
+  revalidatePath('/orgs')
+  return { ok: true }
+}
+
 // ADR-0047 Sprint 1.2 — admin mirror for customer membership lifecycle.
 //
 // These actions target public.change_membership_role / remove_membership.

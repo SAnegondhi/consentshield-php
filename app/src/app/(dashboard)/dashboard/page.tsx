@@ -32,13 +32,21 @@ export default async function DashboardPage() {
   }
 
   // ADR-0044 Phase 0 — plan lives on accounts, joined via organisations.account_id.
+  // ADR-0046 Phase 1 — sdf_* columns surface SDF status on the dashboard.
   const { data: orgRaw } = await supabase
     .from('organisations')
-    .select('name, storage_mode, accounts(plan_code)')
+    .select('name, storage_mode, sdf_status, sdf_notified_at, sdf_notification_ref, accounts(plan_code)')
     .eq('id', membership.org_id)
     .single()
   const org = orgRaw as
-    | { name: string; storage_mode: string; accounts: { plan_code: string } | null }
+    | {
+        name: string
+        storage_mode: string
+        sdf_status: 'not_designated' | 'self_declared' | 'notified' | 'exempt' | null
+        sdf_notified_at: string | null
+        sdf_notification_ref: string | null
+        accounts: { plan_code: string } | null
+      }
     | null
 
   // Parallel data fetches
@@ -179,6 +187,14 @@ export default async function DashboardPage() {
           {org?.accounts?.plan_code ?? 'trial'} plan · {membership.role} · storage: {org?.storage_mode}
         </p>
       </div>
+
+      {org && org.sdf_status && org.sdf_status !== 'not_designated' ? (
+        <SdfObligationsCard
+          sdfStatus={org.sdf_status}
+          sdfNotifiedAt={org.sdf_notified_at}
+          sdfNotificationRef={org.sdf_notification_ref}
+        />
+      ) : null}
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Compliance scores */}
@@ -357,5 +373,70 @@ function EventBadge({ type }: { type: string }) {
   const cls = styles[type] || 'bg-gray-100 text-gray-700'
   return (
     <span className={`rounded px-2 py-0.5 text-xs font-medium ${cls}`}>{type}</span>
+  )
+}
+
+// ADR-0046 Phase 1 Sprint 1.2 — SDF obligations card.
+//
+// Renders only when sdf_status != 'not_designated'. Summarises the
+// DPDP §10 obligations that apply to the org and points at Phase 2+
+// surfaces (DPIA records, auditor engagements) once they land.
+
+function SdfObligationsCard({
+  sdfStatus,
+  sdfNotifiedAt,
+  sdfNotificationRef,
+}: {
+  sdfStatus: 'self_declared' | 'notified' | 'exempt'
+  sdfNotifiedAt: string | null
+  sdfNotificationRef: string | null
+}) {
+  const label =
+    sdfStatus === 'self_declared'
+      ? 'Self-declared SDF'
+      : sdfStatus === 'notified'
+        ? 'Notified SDF (DPDP §10)'
+        : 'Exempt from SDF designation'
+  const tone =
+    sdfStatus === 'notified'
+      ? 'border-red-200 bg-red-50 text-red-900'
+      : sdfStatus === 'self_declared'
+        ? 'border-amber-200 bg-amber-50 text-amber-900'
+        : 'border-emerald-200 bg-emerald-50 text-emerald-900'
+
+  return (
+    <section className={`rounded border p-4 ${tone}`}>
+      <header className="flex items-baseline justify-between">
+        <h2 className="text-sm font-semibold">{label}</h2>
+        <span className="text-[11px] opacity-70">DPDP §10 · Draft Rules</span>
+      </header>
+      {sdfStatus !== 'exempt' ? (
+        <ul className="mt-2 space-y-0.5 text-[13px]">
+          <li>· Appoint a Data Protection Officer based in India.</li>
+          <li>· Engage an independent Data Auditor; retain audit reports.</li>
+          <li>· Carry out periodic DPIAs on high-impact processing.</li>
+          <li>· Publish summarised DPIA findings (transparency).</li>
+        </ul>
+      ) : (
+        <p className="mt-2 text-[13px]">
+          This class has been carved out of the SDF designation. Keep the
+          exemption reference on file for audit readiness.
+        </p>
+      )}
+      <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-[11px] opacity-80">
+        {sdfNotifiedAt ? (
+          <span>Notified: {new Date(sdfNotifiedAt).toLocaleDateString()}</span>
+        ) : null}
+        {sdfNotificationRef ? (
+          <span>
+            Ref: <code className="font-mono">{sdfNotificationRef}</code>
+          </span>
+        ) : null}
+      </div>
+      <p className="mt-2 text-[11px] opacity-70">
+        DPIA records and auditor engagements will surface here once those
+        panels ship (ADR-0046 Phase 2+).
+      </p>
+    </section>
   )
 }

@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation'
 import { createServerClient } from '@/lib/supabase/server'
 import { OrgActionBar } from '@/components/orgs/action-bar'
 import { AdminMembersSection, type MemberRow as AdminMemberRow } from './members-section'
+import { SdfCard } from './sdf-card'
 
 // ADR-0029 Sprint 1.1 — Organisation detail page (read-only).
 //
@@ -168,6 +169,14 @@ export default async function OrganisationDetailPage({ params }: PageProps) {
           <KV label="Integrations">{integrationCount}</KV>
           <KV label="Members">{members.length}</KV>
         </Card>
+
+        <SdfCard
+          orgId={orgId}
+          sdfStatus={(org.sdf_status ?? 'not_designated') as 'not_designated' | 'self_declared' | 'notified' | 'exempt'}
+          sdfNotifiedAt={org.sdf_notified_at ?? null}
+          sdfNotificationRef={org.sdf_notification_ref ?? null}
+          canWrite={adminRole === 'platform_operator'}
+        />
 
         <Card title="Contacts">
           <KV label="DPO">{org.dpo_name ?? '—'}</KV>
