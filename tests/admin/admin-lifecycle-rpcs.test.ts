@@ -128,6 +128,55 @@ describe('ADR-0045 Sprint 1.1 — admin lifecycle RPCs', () => {
       }
     })
 
+    it('refuses to elevate a target that has customer memberships (Rule 12)', async () => {
+      // Create a fresh auth user via service role, then seed a
+      // customer membership on it (simulating the edge case where
+      // the email is a customer identity). admin_invite_create must
+      // reject with the Rule 12 message.
+      const { data: authData } = await service.auth.admin.createUser({
+        email: `cust-${Date.now()}@test.consentshield.in`,
+        password: `CustPass!${Date.now()}`,
+        email_confirm: true,
+      })
+      const targetId = authData.user.id
+      try {
+        // Seed an org + account_membership for this user.
+        const { data: acct } = await service
+          .from('accounts')
+          .insert({ name: 'cross-id test', plan_code: 'trial_starter', status: 'trial' })
+          .select('id')
+          .single()
+        await service
+          .from('account_memberships')
+          .insert({
+            account_id: acct!.id,
+            user_id: targetId,
+            role: 'account_owner',
+            accepted_at: new Date().toISOString(),
+          })
+
+        const { error } = await opA.client
+          .schema('admin')
+          .rpc('admin_invite_create', {
+            p_user_id: targetId,
+            p_display_name: 'Cross-identity attempt',
+            p_admin_role: 'support',
+            p_reason: 'Attempting to elevate a customer identity to admin',
+          })
+        expect(error).not.toBeNull()
+        expect(error?.message).toMatch(/rule 12/i)
+
+        // Cleanup.
+        await service
+          .from('account_memberships')
+          .delete()
+          .eq('user_id', targetId)
+        await service.from('accounts').delete().eq('id', acct!.id)
+      } finally {
+        await service.auth.admin.deleteUser(targetId)
+      }
+    })
+
     it('rejects reason < 10 chars', async () => {
       const { data: authData } = await service.auth.admin.createUser({
         email: `short-${Date.now()}@test.consentshield.in`,

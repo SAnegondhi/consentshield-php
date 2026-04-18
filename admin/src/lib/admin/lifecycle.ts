@@ -55,9 +55,20 @@ export async function inviteAdmin(params: {
     app_metadata: { is_admin: true, admin_role: params.adminRole },
   })
   if (createErr) {
+    // Rule 12 hint: duplicate-email means an auth.users row already
+    // exists for this address, which (given our policy) is a customer
+    // identity. Surface a clearer message than Supabase's default.
+    const msg = createErr.message.toLowerCase()
+    const isDupe =
+      msg.includes('already been registered') ||
+      msg.includes('already registered') ||
+      msg.includes('already exists') ||
+      msg.includes('duplicate')
     throw new LifecycleError(
       'create_user_failed',
-      `auth.admin.createUser: ${createErr.message}`,
+      isDupe
+        ? `An auth user with email ${params.email} already exists — under CLAUDE.md Rule 12 it is a customer identity and cannot be elevated to admin. Use a different email.`
+        : `auth.admin.createUser: ${createErr.message}`,
     )
   }
   const newUserId = created.user.id
