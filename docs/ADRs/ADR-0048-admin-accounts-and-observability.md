@@ -2,7 +2,7 @@
 
 (c) 2026 Sudhindra Anegondhi a.d.sudhindra@gmail.com
 
-**Status:** In Progress
+**Status:** Completed
 **Date proposed:** 2026-04-18
 **Depends on:**
 - ADR-0027 (admin schema, `cs_admin`, `admin.admin_audit_log`, `admin.require_admin`)
@@ -94,12 +94,16 @@ One ADR, two phases.
 
 **Deliverables:**
 
-- [ ] Helper `worker/src/worker-errors.ts` (already exists — extend with category constants if not present).
-- [ ] `worker/src/hmac.ts` — on rejection, fire-and-forget a write of `{ org_id, property_id, endpoint, status_code: 403, upstream_error: 'hmac_<reason>' }` to `worker_errors` via the existing `SUPABASE_WORKER_KEY`. Errors are swallowed so logging failures never DoS the customer.
-- [ ] `worker/src/origin.ts` — same pattern. Categories: `origin_missing`, `origin_mismatch`.
-- [ ] `app/tests/worker/events.test.ts` / `observations.test.ts` — extend a pair of failing-path tests to assert the `worker_errors` write.
+- [x] `worker/src/worker-errors.ts` — added `Worker403Reason` type union documenting the prefix discipline (`hmac_*` / `origin_*`) the Security tabs filter on.
+- [x] `worker/src/events.ts` + `worker/src/observations.ts` — every 403 site now fires a `ctx.waitUntil(logWorkerError(...))` call with the matching category. Four sites × two endpoints = 8 total. Upstream errors swallowed inside `logWorkerError`, so a logging outage never DoSes the customer.
+  - `hmac_timestamp_drift: <ts>` on ±5 min window violations
+  - `hmac_signature_mismatch` on bad signature (even after previous-secret retry)
+  - `origin_missing: unsigned request without Origin/Referer`
+  - `origin_mismatch: <origin>` when Origin is present but not allowlisted
+- [x] `app/tests/worker/events.test.ts` — extended the wrong-secret case to assert the `worker_errors` REST POST landed with the right category, status_code, and endpoint. Full worker suite **20/20 PASS**.
+- [x] Deployed — `wrangler deploy` version `db15f7ea`.
 
-**Status:** `[ ] planned`
+**Status:** `[x] complete` — 2026-04-18
 
 ---
 

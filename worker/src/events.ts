@@ -60,6 +60,15 @@ export async function handleConsentEvent(
 
   const originResult = validateOrigin(request, propConfig.allowed_origins)
   if (originResult.status === 'rejected') {
+    ctx.waitUntil(
+      logWorkerError(env, {
+        org_id: body.org_id,
+        property_id: body.property_id,
+        endpoint: '/v1/events',
+        status_code: 403,
+        upstream_error: `origin_mismatch: ${originResult.origin}`,
+      }),
+    )
     return rejectOrigin(originResult.origin)
   }
 
@@ -73,6 +82,15 @@ export async function handleConsentEvent(
 
   if (body.signature && body.timestamp) {
     if (!isTimestampValid(body.timestamp)) {
+      ctx.waitUntil(
+        logWorkerError(env, {
+          org_id: body.org_id,
+          property_id: body.property_id,
+          endpoint: '/v1/events',
+          status_code: 403,
+          upstream_error: `hmac_timestamp_drift: ${body.timestamp}`,
+        }),
+      )
       return new Response('Timestamp expired (±5 minutes)', { status: 403, headers: CORS_HEADERS })
     }
 
@@ -98,11 +116,29 @@ export async function handleConsentEvent(
     }
 
     if (!hmacValid) {
+      ctx.waitUntil(
+        logWorkerError(env, {
+          org_id: body.org_id,
+          property_id: body.property_id,
+          endpoint: '/v1/events',
+          status_code: 403,
+          upstream_error: 'hmac_signature_mismatch',
+        }),
+      )
       return new Response('Invalid signature', { status: 403, headers: CORS_HEADERS })
     }
     originVerified = 'hmac-verified'
   } else {
     if (originResult.status !== 'valid') {
+      ctx.waitUntil(
+        logWorkerError(env, {
+          org_id: body.org_id,
+          property_id: body.property_id,
+          endpoint: '/v1/events',
+          status_code: 403,
+          upstream_error: 'origin_missing: unsigned request without Origin/Referer',
+        }),
+      )
       return new Response('Origin required for unsigned events', {
         status: 403,
         headers: CORS_HEADERS,

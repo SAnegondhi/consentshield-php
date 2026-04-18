@@ -49,7 +49,7 @@ describe('POST /v1/events — HMAC path', () => {
     expect((insert?.body as { origin_verified: string }).origin_verified).toBe('hmac-verified')
   })
 
-  it('rejects a signature computed with the wrong secret', async () => {
+  it('rejects a signature computed with the wrong secret + logs hmac_signature_mismatch', async () => {
     const ts = Date.now().toString()
     const sig = await signHmac(`${ORG_ID}${PROPERTY_ID}${ts}`, 'WRONG_SECRET'.repeat(5))
     const res = await postEvent({
@@ -63,6 +63,21 @@ describe('POST /v1/events — HMAC path', () => {
     })
     expect(res.status).toBe(403)
     expect(state.writes.some((w) => w.url.includes('/consent_events'))).toBe(false)
+
+    // ADR-0048 Sprint 2.1 — worker_errors write lands via ctx.waitUntil.
+    // Allow the microtask + fetch round-trip through the Miniflare
+    // outboundService to complete before asserting.
+    await new Promise((r) => setTimeout(r, 50))
+    const errWrite = state.writes.find((w) => w.url.includes('/worker_errors'))
+    expect(errWrite).toBeTruthy()
+    const body = errWrite?.body as {
+      upstream_error: string
+      status_code: number
+      endpoint: string
+    }
+    expect(body.status_code).toBe(403)
+    expect(body.endpoint).toBe('/v1/events')
+    expect(body.upstream_error).toBe('hmac_signature_mismatch')
   })
 
   it('rejects a timestamp outside the ±5 minute window', async () => {

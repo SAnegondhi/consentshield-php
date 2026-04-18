@@ -16,6 +16,18 @@ export interface WorkerErrorRecord {
   upstream_error: string
 }
 
+// ADR-0048 Sprint 2.1 — 403-site category prefixes.
+//
+// The admin Security HMAC + Origin tabs filter worker_errors via
+//   ILIKE 'hmac_%' or ILIKE 'origin_%'
+// so every 403 caller MUST encode the reason in this prefix discipline.
+// Upstream REST write failures (from Supabase) keep their raw shape.
+export type Worker403Reason =
+  | 'hmac_timestamp_drift'
+  | 'hmac_signature_mismatch'
+  | 'origin_missing'
+  | 'origin_mismatch'
+
 export async function logWorkerError(
   env: Env,
   record: WorkerErrorRecord,
