@@ -2,6 +2,41 @@
 
 API route changes.
 
+## [ADR-0049 Phase 2.1] — 2026-04-18
+
+**ADR:** ADR-0049 — Security observability ingestion
+
+### Added
+- `app/src/app/api/webhooks/sentry/route.ts` — HMAC-SHA256 verify on raw body via `SENTRY_WEBHOOK_SECRET` (timing-safe compare). Filters info/debug, returns 200 on unhandled payload shapes so Sentry doesn't retry, upserts into `public.sentry_events` on `sentry_id` conflict for idempotent retries. Uses the anon key — no service-role.
+
+## [ADR-0049 Phase 1.1] — 2026-04-18
+
+**ADR:** ADR-0049 — Security observability ingestion
+
+### Added
+- `app/src/lib/rights/rate-limit-log.ts` — fire-and-forget `logRateLimitHit()` posting to `public.rate_limit_events` via the anon REST API. SHA-256s the bucket key. Callers never await; errors swallowed.
+- Wired into `app/src/app/api/public/rights-request/route.ts` + `verify-otp/route.ts` — on 429, logger fires before the response.
+
+## [ADR-0045 Sprint 1.2] — 2026-04-18
+
+**ADR:** ADR-0045 — Admin user lifecycle
+
+### Added
+- `admin/src/lib/supabase/service.ts` — service-role client factory. Accepts `SUPABASE_SERVICE_ROLE_KEY` or `SUPABASE_SECRET_KEY`. Scoped to admin Route Handlers per CLAUDE.md Rule 5 carve-out.
+- `admin/src/lib/admin/invite-email.ts` — Resend dispatch for OTP-based admin invites.
+- `admin/src/lib/admin/lifecycle.ts` — shared orchestration (`inviteAdmin`, `changeAdminRole`, `disableAdmin`) — Route Handlers AND Server Actions delegate here.
+- `admin/src/app/api/admin/users/invite/route.ts` — POST. Creates auth user + calls admin_invite_create + sends invite email. Rolls back auth user if the RPC refuses.
+- `admin/src/app/api/admin/users/[adminId]/role/route.ts` — PATCH. `admin_change_role` + `auth.admin.updateUserById` sync. Returns 207 on db/auth drift.
+- `admin/src/app/api/admin/users/[adminId]/disable/route.ts` — POST. `admin_disable` + `app_metadata.is_admin=false` flip. Same 207 pattern.
+
+## [ADR-0034 Sprint 2.2] — 2026-04-18
+
+**ADR:** ADR-0034 — Billing Operations
+
+### Added
+- `admin/src/lib/razorpay/client.ts` — typed fetch wrapper. Reads `RAZORPAY_KEY_ID` + `RAZORPAY_KEY_SECRET`; throws `RazorpayEnvError` on missing env. `issueRefund({paymentId, amountPaise, notes})` returns typed response. `subscriptionDashboardUrl(id)` helper. `RazorpayApiError` wraps HTTP failures with status + parsed payload.
+- `admin/src/app/(operator)/billing/actions.ts` extended — `createRefund` now does the full round-trip: pending row → Razorpay → flip via mark_issued / mark_failed. Missing env or payment id degrades to `status:'pending'` with surfaced warning.
+
 ## [ADR-0044 Phase 2.5] — 2026-04-18
 
 **ADR:** ADR-0044 v2 — Customer RBAC

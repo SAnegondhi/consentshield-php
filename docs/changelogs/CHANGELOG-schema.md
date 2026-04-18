@@ -2,6 +2,71 @@
 
 Database migrations, RLS policies, roles.
 
+## [ADR-0049 Phase 2.1] — 2026-04-18
+
+**ADR:** ADR-0049 — Security observability ingestion
+**Sprint:** Phase 2.1 — sentry_events
+
+### Added
+- `20260507000002_sentry_events.sql`: `public.sentry_events` (sentry_id UNIQUE, level CHECK enum, payload jsonb, received_at desc index, composite (project_slug, level, received_at) index). INSERT to anon/authenticated (webhook uses anon + HMAC verify); SELECT to cs_admin only. 7-day cleanup cron at 03:45 UTC. `admin.security_sentry_events_list(p_window_hours)` RPC (cap 500 rows).
+
+## [ADR-0049 Phase 1.1] — 2026-04-18
+
+**ADR:** ADR-0049 — Security observability ingestion
+**Sprint:** Phase 1.1 — rate_limit_events
+
+### Added
+- `20260507000001_rate_limit_events.sql`: `public.rate_limit_events` + RLS (INSERT to anon/authenticated, no SELECT for customers), indexes on (ip_address, occurred_at desc) + (occurred_at desc), 7-day cleanup cron at 03:35 UTC.
+- Rewrote `admin.security_rate_limit_triggers` — stub replaced with grouped read by (endpoint, ip_address) summing hit_count. Signature preserved.
+
+## [ADR-0048 Sprint 1.1] — 2026-04-18
+
+**ADR:** ADR-0048 — Admin Accounts panel + ADR-0033/34 deviation closeout
+**Sprint:** Phase 1.1 — account RPCs
+
+### Added
+- `20260506000001_admin_accounts.sql`: four SECURITY DEFINER RPCs — `admin.accounts_list` (support+, filters by status/plan/name), `admin.account_detail` (JSON envelope with account + orgs + active adjustments + recent audit), `admin.suspend_account` (platform_operator; fans out to child orgs and records the flipped set in audit-log new_value), `admin.restore_account` (reverses only the set captured in the last suspend).
+
+## [ADR-0046 Phase 1.1] — 2026-04-18
+
+**ADR:** ADR-0046 — Significant Data Fiduciary foundation
+**Sprint:** Phase 1.1 — SDF status marker
+
+### Added
+- `20260505000001_sdf_foundation.sql`: `organisations.sdf_status` CHECK enum (`not_designated` / `self_declared` / `notified` / `exempt`), `sdf_notified_at`, `sdf_notification_ref`. Partial index on designated orgs. Rule 3 respected — references only, no PDF bytes.
+- `admin.set_sdf_status(org_id, status, ref, notified_at, reason)` — platform_operator, audit-logged, auto-clears notification metadata on revert-to-not_designated.
+
+## [Rule 12 hardening] — 2026-04-18
+
+**Policy:** CLAUDE.md Rule 12 (identity isolation)
+
+### Added
+- `20260504000002_accept_invitation_reject_admin.sql` — re-declares `public.accept_invitation` after ADR-0047's version, layering a guard that raises 42501 when caller's JWT carries `is_admin=true`.
+- `20260504000003_admin_invite_isolation.sql` — re-declares `admin.admin_invite_create` with a customer-membership check; raises 42501 if target has any `account_memberships` or `org_memberships` rows.
+
+## [ADR-0045 Sprint 1.1] — 2026-04-18
+
+**ADR:** ADR-0045 — Admin user lifecycle
+**Sprint:** Phase 1.1 — lifecycle RPCs
+
+### Added
+- `20260503000001_admin_user_lifecycle.sql`: extends `admin.admin_users.status` CHECK to include `invited`. Four new RPCs — `admin.admin_invite_create`, `admin.admin_change_role` (refuses self-change + last-active-PO demotion), `admin.admin_disable` (refuses self-disable + last-active-PO disable), `admin.admin_list` (support+).
+
+## [ADR-0034 amendment + outcome RPCs] — 2026-04-18
+
+**ADR:** ADR-0034 — Billing Operations (amended for ADR-0044 Phase 0)
+
+### Added
+- `20260502000001_billing_relocate_to_accounts.sql`: rewires `public.refunds` + `public.plan_adjustments` from `org_id` to `account_id` (ADD, backfill from `organisations.account_id`, DROP `org_id`, rebuild partial-unique index). Drops `public.org_effective_plan(uuid)` → creates `public.account_effective_plan(uuid)`. Rewrites all six `admin.billing_*` RPCs with `p_account_id`.
+- `20260502000002_refund_outcome_rpcs.sql`: `admin.billing_mark_refund_issued` + `admin.billing_mark_refund_failed` (support+, reject already-terminal transitions, audit-logged) — back the Razorpay round-trip.
+
+## [ADR-0034 Sprint 1.1 — original] — 2026-04-17
+
+**ADR:** ADR-0034 — Billing Operations
+
+### Added
+- `20260428000001_billing_operations.sql`: `public.refunds` + `public.plan_adjustments` (org_id-scoped at ship, rewired in the amendment above). Six admin RPCs + `public.org_effective_plan(uuid)` (later dropped). Logged `bug-250` for the `now()`-in-partial-index gotcha.
+
 ## [ADR-0047 Sprint 1.1] — 2026-04-18
 
 **ADR:** ADR-0047 — Customer membership lifecycle + single-account-per-identity invariant

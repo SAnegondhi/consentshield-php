@@ -2,6 +2,69 @@
 
 Documentation changes.
 
+## [ADR-0049 charter + closeout] — 2026-04-18
+
+**ADR:** ADR-0049 — Security observability ingestion (closes V2-S1 + V2-S2)
+
+### Added
+- `docs/ADRs/ADR-0049-security-observability-ingestion.md` — chartered + shipped Completed. Two phases.
+- `docs/ops/sentry-webhook-setup.md` — operator runbook for wiring Sentry Internal Integration + round-trip smoke.
+
+## [ADR-0048 charter + closeout] — 2026-04-18
+
+**ADR:** ADR-0048 — Admin Accounts panel + ADR-0033/34 deviation closeout
+
+### Added
+- `docs/ADRs/ADR-0048-admin-accounts-and-observability.md` — chartered + shipped Completed. Two phases.
+
+### Changed
+- ADR-0034 Sprint 2.1 deviations (Suspend-org fan-out, Adjustment UUID textbox) marked closed.
+- ADR-0033 Security HMAC/Origin empty-tab deviation marked closed.
+
+## [ADR-0046 charter + Phase 1] — 2026-04-18
+
+**ADR:** ADR-0046 — Significant Data Fiduciary foundation
+
+### Added
+- `docs/ADRs/ADR-0046-significant-data-fiduciary.md` — chartered as four phases. Phase 1 shipped; Phases 2–4 remain charter-only.
+
+## [ADR-0045 charter + closeout] — 2026-04-18
+
+**ADR:** ADR-0045 — Admin user lifecycle (invite + role change + disable)
+
+### Added
+- `docs/ADRs/ADR-0045-admin-user-lifecycle.md` — promoted stub → Completed in one session.
+
+## [Policy: Rule 5 carve-out + new Rule 12] — 2026-04-18
+
+### Changed
+- `CLAUDE.md` Rule 5 — documented carve-out: admin Route Handlers under `admin/src/app/api/admin/*` may use service-role **solely for `auth.admin.*`** operations, and MUST call an `admin.*` RPC running `require_admin('platform_operator')` first. Non-auth reads stay on `cs_admin`.
+- `CLAUDE.md` new Rule 12 — identity isolation: one auth.users row is customer OR admin, never both. Both proxies enforce; `accept_invitation` + `admin_invite_create` refuse cross-identity mixing. Code-rules section renumbered 13–18.
+- `app/src/proxy.ts` — rejects `is_admin=true` sessions with 403 + hint at admin origin.
+
+## [Brand assets] — 2026-04-17
+
+### Added
+- `docs/design/brand-assets/` — 12 SVGs extracted from `consentshield-logos-v2.pdf` (shield variants, wordmarks, full logos, verified badge, social avatar) + README.
+- Mirrored into `app/public/brand/` and `admin/public/brand/`.
+
+## [ADR-0034 charter + closeout] — 2026-04-18
+
+**ADR:** ADR-0034 — Billing Operations
+
+### Added
+- `docs/ADRs/ADR-0034-billing-operations.md` — chartered + shipped Completed. Three sprints.
+
+### Changed
+- Amended for ADR-0044 Phase 0 — billing subject moved from `organisations` to `accounts`; refunds/plan_adjustments rewired; RPCs re-signatured.
+
+## [ADR-0019 closeout] — 2026-04-18
+
+**ADR:** ADR-0019 — DEPA Roadmap (meta-ADR)
+
+### Changed
+- `docs/ADRs/ADR-0019-depa-roadmap.md` — flipped Proposed → Completed. All children (0020/0021/0022/0023/0024/0025 + 0037 rollup) shipped.
+
 ## [ADR-0039 charter + closeout] — 2026-04-17
 
 **ADR:** ADR-0039 (Connector OAuth — Mailchimp + HubSpot)

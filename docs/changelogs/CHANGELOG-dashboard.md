@@ -2,6 +2,56 @@
 
 Next.js UI changes.
 
+## [ADR-0049 Phase 2.2] — 2026-04-18
+
+**ADR:** ADR-0049 — Security observability ingestion
+
+### Changed
+- `admin/src/app/(operator)/security/security-tabs.tsx` — `SentryTab` rewritten from link-out-only to inline table (Received · Project · Level (tone-coded) · Title + culprit · Users · per-row "Open ↗"). Project-wide triage links retained in the Card action. `SecurityData.sentryEvents` interface added; `LevelPill` helper added. RateLimitTab "ingestion pending" banner dropped.
+- `admin/src/app/(operator)/security/page.tsx` — fetches `admin.security_sentry_events_list` in Promise.all.
+
+## [ADR-0048 Sprint 1.2] — 2026-04-18
+
+**ADR:** ADR-0048 — Admin Accounts panel
+
+### Added
+- `admin/src/app/(operator)/accounts/page.tsx` — list with filter bar (status / plan / name-search).
+- `admin/src/app/(operator)/accounts/[accountId]/page.tsx` + `action-bar.tsx` — detail envelope (plan, billing identity, lifecycle, orgs, active adjustments, recent audit) + Suspend/Restore modals gated on platform_operator.
+- `admin/src/app/(operator)/accounts/actions.ts` — `suspendAccountAction` / `restoreAccountAction`.
+- Nav: `Accounts` between `Organisations` and `Support Tickets`.
+
+### Changed
+- `admin/src/app/(operator)/billing/billing-tabs.tsx` — Adjustment modal UUID textbox replaced with select populated via `admin.accounts_list`. Payment Failures tab gains a `Suspend` button (platform_operator + retries ≥ 3).
+- `admin/src/app/(operator)/billing/page.tsx` — fetches `accounts_list` at page render.
+
+## [ADR-0046 Phase 1.2] — 2026-04-18
+
+**ADR:** ADR-0046 — Significant Data Fiduciary foundation
+
+### Added
+- `admin/src/app/(operator)/orgs/[orgId]/sdf-card.tsx` — client card + edit modal. Tone-coded status pill; notification fields disabled when status is `not_designated`; amber note warns revert clears metadata.
+- `admin/src/app/(operator)/orgs/[orgId]/actions.ts` — `setSdfStatus` Server Action wrapping `admin.set_sdf_status`.
+- SDF card slotted into the org detail page before the Contacts card.
+- `app/src/app/(dashboard)/dashboard/page.tsx` — `SdfObligationsCard` renders only when `sdf_status != 'not_designated'`. Lists DPDP §10 obligations with tone-coded styling + notification metadata + Phase 2+ pointer.
+
+## [ADR-0045 Sprint 2.1] — 2026-04-18
+
+**ADR:** ADR-0045 — Admin user lifecycle
+
+### Added
+- `admin/src/app/(operator)/admins/page.tsx` + `admin-list.tsx` + `actions.ts` — list with Invite / Change-role / Disable modals. Service-readiness banner when `SUPABASE_SERVICE_ROLE_KEY` absent. Self-row + disabled-row actions disabled in UI.
+- Nav: `Admin Users` between `Feature Flags` and `Audit Log`.
+
+## [ADR-0034 Sprints 2.1 + 2.2] — 2026-04-18
+
+**ADR:** ADR-0034 — Billing Operations
+
+### Added
+- `admin/src/app/(operator)/billing/page.tsx` + `billing-tabs.tsx` — four tabs (Payment failures · Refunds · Comp accounts · Plan overrides), 30s auto-refresh, three modals (Refund · Adjustment · Revoke). ₹-denominated amount input (converted to paise server-side).
+- Refund modal result screen (green issued / red failed / amber pending) after Razorpay round-trip.
+- Payment Failures `Retry at Razorpay ↗` link-out (Razorpay handles subscription retries automatically).
+- Nav: `Billing Operations` live.
+
 ## ADR-0047 Sprint 1.2 — 2026-04-18
 
 **ADR:** ADR-0047 — Customer membership lifecycle

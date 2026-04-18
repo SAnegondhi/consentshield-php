@@ -2,6 +2,39 @@
 
 Cloudflare Worker changes.
 
+## [ADR-0048 Sprint 2.1] — 2026-04-18
+
+**ADR:** ADR-0048 — Worker HMAC + Origin 403 logging
+
+### Added
+- `worker/src/worker-errors.ts` — `Worker403Reason` type union documenting the prefix discipline the Security tabs filter on (`hmac_*`, `origin_*`).
+
+### Changed
+- `worker/src/events.ts` + `worker/src/observations.ts` — every 403 site fires `ctx.waitUntil(logWorkerError(...))` with one of four categories: `hmac_timestamp_drift`, `hmac_signature_mismatch`, `origin_missing`, `origin_mismatch`. Eight total sites (4 × 2 endpoints). Errors swallowed inside `logWorkerError` — never DoSes customers.
+
+### Deployed
+- `bunx wrangler deploy` — version `db15f7ea`.
+
+### Tested
+- `app/tests/worker/events.test.ts` — wrong-secret case extended to assert `/worker_errors` REST write (category + status_code + endpoint). Full worker suite 20/20.
+
+## [ADR-0033 Sprint 2.3] — 2026-04-17
+
+**ADR:** ADR-0033 — Worker blocked-IP enforcement
+
+### Added
+- `worker/src/blocked-ip.ts` — `ipv4ToInt`, `isIpInCidr`, `isIpBlocked`, `getClientIp`, `ipBlockedResponse`. IPv4 CIDR; IPv6 tolerated-but-never-match. Fail-open on empty/malformed input. Zero npm deps.
+
+### Changed
+- `worker/src/admin-config.ts` — `AdminConfigSnapshot` gains `blocked_ips: string[]`. Defensive defaulting for older snapshots.
+- `worker/src/index.ts` — `isIpBlocked` check before route dispatch on all paths except `/v1/health`.
+
+### Deployed
+- `bunx wrangler deploy` — version `0de173db`.
+
+### Tested
+- `app/tests/worker/blocked-ip.test.ts` — 6/6 PASS; full suite 20/20.
+
 ## ADR-0029 Sprint 4.1 — 2026-04-17
 
 **ADR:** ADR-0029 — Admin Organisations
