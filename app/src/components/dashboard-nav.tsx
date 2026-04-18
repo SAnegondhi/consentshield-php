@@ -20,6 +20,7 @@ const navItems = [
   { href: '/dashboard/billing', label: 'Billing' },
   { href: '/dashboard/support', label: 'Support' },
   { href: '/dashboard/support-sessions', label: 'Support sessions' },
+  { href: '/dashboard/settings/members', label: 'Team & invites' },
 ]
 
 export function DashboardNav() {

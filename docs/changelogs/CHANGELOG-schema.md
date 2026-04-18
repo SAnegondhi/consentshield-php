@@ -2,6 +2,28 @@
 
 Database migrations, RLS policies, roles.
 
+## [ADR-0044 Phase 2.4] — 2026-04-18
+
+**ADR:** ADR-0044 v2 — Customer RBAC
+**Sprint:** Phase 2.4 — list + revoke + member primitives
+
+### Added
+- `20260501000001_invitations_list_revoke.sql`:
+  - `public.invitations.revoked_at` + `revoked_by` columns. The pending-unique index + three helper indexes now condition on `accepted_at is null and revoked_at is null` so a revoked invite no longer blocks re-issuance to the same email.
+  - `public.invitation_preview(p_token)` re-declared to ignore `revoked_at is not null` rows.
+  - `public.list_pending_invitations()` — SECURITY DEFINER. Returns pending invites scoped by caller:
+    - `account_owner` → every pending invite for their account.
+    - effective `org_admin` of current org → pending invites for that org.
+    - admin JWT → platform-wide.
+    - else → empty set.
+  - `public.revoke_invitation(p_id)` — SECURITY DEFINER. Same role gate as `create_invitation`; raises on already-accepted; idempotent on already-revoked.
+- `20260501000002_invitations_list_members.sql`:
+  - `public.list_members()` — SECURITY DEFINER. Joins `account_memberships` + `org_memberships` with `auth.users.email` (which authenticated otherwise can't read). Visibility mirrors `list_pending_invitations`.
+
+### Tested
+- `tests/rbac/invitations-list-revoke.test.ts` — 10 tests covering: list scoping per role, revoked rows drop from list, revoke role gate (account_owner yes, admin-tier no, stranger no), already-accepted raises, double-revoke idempotent, list_members self-inclusion + stranger-empty.
+- `bun run test:rls` — 204/204 across 18 files.
+
 ## [ADR-0044 Phase 2.1] — 2026-04-18
 
 **ADR:** ADR-0044 v2 — Customer RBAC

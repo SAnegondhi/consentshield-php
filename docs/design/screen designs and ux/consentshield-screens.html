@@ -1365,6 +1365,134 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:14
               <button class="btn btn-secondary btn-sm">Upgrade to Pro</button>
             </div>
           </div>
+
+          <!-- ─────────── ADR-0044 Phase 2.4 — Team members ─────────── -->
+          <!-- Route: /dashboard/settings/members
+               Visibility:
+                 account_owner → full: all roles, all orgs in account
+                 org_admin     → restricted: admin/viewer, own org only
+                 others        → section hidden
+               RPCs consumed:
+                 public.list_pending_invitations()  (new, Phase 2.4)
+                 public.revoke_invitation(id)       (new, Phase 2.4)
+                 public.create_invitation(...)      (Phase 2.1)
+          -->
+          <div class="settings-section" id="team-members" style="margin-top:24px">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+              <div>
+                <div style="font-size:14px;font-weight:600">Team members</div>
+                <div style="font-size:12px;color:var(--text-3);margin-top:2px">
+                  You are signed in as <strong>sudhindra@acme.in</strong> —
+                  <span style="background:var(--navy);color:white;padding:1px 6px;border-radius:10px;font-size:10px;margin-left:2px">account_owner</span>
+                </div>
+              </div>
+              <button class="btn btn-primary btn-sm" onclick="document.getElementById('invite-card').scrollIntoView({behavior:'smooth'})">+ Invite member</button>
+            </div>
+
+            <!-- Existing members: account-level + current-org-level, merged. -->
+            <div style="font-size:12px;font-weight:600;color:var(--text-2);margin:12px 0 6px">Current members</div>
+            <table class="t" style="margin-bottom:18px">
+              <thead>
+                <tr>
+                  <th>Member</th>
+                  <th>Role</th>
+                  <th>Scope</th>
+                  <th>Joined</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>Sudhindra A.</strong><br><span style="font-size:11px;color:var(--text-3)">sudhindra@acme.in · you</span></td>
+                  <td><span class="pill pill-navy">account_owner</span></td>
+                  <td style="font-size:12px">Acme account</td>
+                  <td style="font-size:12px">Mar 8</td>
+                  <td></td>
+                </tr>
+                <tr>
+                  <td><strong>Priya Desai</strong><br><span style="font-size:11px;color:var(--text-3)">priya@acme.in</span></td>
+                  <td><span class="pill pill-navy">org_admin</span></td>
+                  <td style="font-size:12px">org_4af2 · Acme India</td>
+                  <td style="font-size:12px">Mar 21</td>
+                  <td><button class="btn btn-secondary btn-sm">Remove</button></td>
+                </tr>
+                <tr>
+                  <td><strong>Raj Kumar</strong><br><span style="font-size:11px;color:var(--text-3)">raj@acme.in</span></td>
+                  <td><span class="pill pill-gray">viewer</span></td>
+                  <td style="font-size:12px">org_4af2 · Acme India</td>
+                  <td style="font-size:12px">Apr 2</td>
+                  <td><button class="btn btn-secondary btn-sm">Remove</button></td>
+                </tr>
+              </tbody>
+            </table>
+
+            <!-- Pending invitations — list_pending_invitations() -->
+            <div style="font-size:12px;font-weight:600;color:var(--text-2);margin:18px 0 6px">Pending invitations</div>
+            <table class="t" style="margin-bottom:18px">
+              <thead>
+                <tr>
+                  <th>Invitee</th>
+                  <th>Role</th>
+                  <th>Scope</th>
+                  <th>Expires</th>
+                  <th>Invited by</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>finance@acme.in</td>
+                  <td><span class="pill pill-navy">account_viewer</span></td>
+                  <td style="font-size:12px">Acme account</td>
+                  <td style="font-size:12px;color:var(--amber)">in 9 days</td>
+                  <td style="font-size:12px">you · Apr 12</td>
+                  <td><button class="btn btn-secondary btn-sm">Revoke</button></td>
+                </tr>
+                <tr>
+                  <td>audit@acme.in</td>
+                  <td><span class="pill pill-gray">viewer</span></td>
+                  <td style="font-size:12px">org_4af2 · Acme India</td>
+                  <td style="font-size:12px;color:var(--text-3)">in 13 days</td>
+                  <td style="font-size:12px">priya@acme.in · today 9:02</td>
+                  <td><button class="btn btn-secondary btn-sm">Revoke</button></td>
+                </tr>
+              </tbody>
+            </table>
+
+            <!-- Invite form — role picker respects caller's permissions. -->
+            <div class="settings-section" id="invite-card" style="background:var(--bg);border:1px solid var(--border);border-radius:var(--r);padding:14px;margin-top:14px">
+              <div style="font-size:13px;font-weight:600;margin-bottom:10px">Invite a new member</div>
+              <div class="settings-row">
+                <div><div class="settings-row-label">Email <span style="color:var(--red)">*</span></div><div class="settings-row-desc">The invitee receives an OTP-gated /signup link. No walk-up signup is possible.</div></div>
+                <input class="config-input" type="email" placeholder="newmember@acme.in" style="width:240px">
+              </div>
+              <div class="settings-row">
+                <div><div class="settings-row-label">Role</div><div class="settings-row-desc">account_owner sees all 5 roles. org_admin sees only admin / viewer for their org.</div></div>
+                <select class="config-input" style="width:240px;padding:7px 10px">
+                  <option value="account_owner">account_owner — full control of billing + all orgs</option>
+                  <option value="account_viewer">account_viewer — read-only, all orgs</option>
+                  <option value="org_admin">org_admin — full control of one org</option>
+                  <option value="admin">admin — write within one org</option>
+                  <option value="viewer">viewer — read within one org</option>
+                </select>
+              </div>
+              <div class="settings-row" style="display:none" id="invite-org-row">
+                <div><div class="settings-row-label">Organisation</div><div class="settings-row-desc">Required for org-scoped roles (org_admin / admin / viewer).</div></div>
+                <select class="config-input" style="width:240px;padding:7px 10px">
+                  <option>org_4af2 · Acme India</option>
+                  <option>org_8c1d · Acme Singapore</option>
+                </select>
+              </div>
+              <div class="settings-row">
+                <div><div class="settings-row-label">Invitation expires in (days)</div><div class="settings-row-desc">1–90. Default 14.</div></div>
+                <input class="config-input" type="number" min="1" max="90" value="14" style="width:100px">
+              </div>
+              <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:10px">
+                <button class="btn btn-secondary btn-sm">Cancel</button>
+                <button class="btn btn-primary btn-sm">Create invite</button>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>

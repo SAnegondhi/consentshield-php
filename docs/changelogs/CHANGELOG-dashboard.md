@@ -2,6 +2,22 @@
 
 Next.js UI changes.
 
+## ADR-0044 Phase 2.4 — 2026-04-18
+
+**ADR:** ADR-0044 v2 — Customer RBAC
+**Sprint:** Phase 2.4 — customer-side member management
+
+### Added
+- `app/src/app/(dashboard)/dashboard/settings/members/page.tsx` + `invite-form.tsx` + `revoke-button.tsx` + `actions.ts` — Server Component lists current members (account-tier + current-org-tier) and pending invitations; client form creates invites with a role picker scoped to caller's effective role. Revoke button calls `public.revoke_invitation`.
+- Nav entry `Team & invites` in `app/src/components/dashboard-nav.tsx`.
+
+### Changed
+- `docs/design/screen designs and ux/consentshield-screens.html` — Team members subsection added to the Settings panel (current-members table, pending-invitations table with Revoke buttons, invite form with role picker + org selector + expiry).
+
+### Notes
+- Role-scoped role picker: `account_owner` sees all 5 roles (`account_owner`, `account_viewer`, `org_admin`, `admin`, `viewer`); `org_admin` (effective) sees only `admin` + `viewer` for their current org. Users with neither role see a "no permission" card.
+- Copy-to-clipboard accept URL on success. Email dispatch is still Phase 2.5 — the success card carries an inline reminder.
+
 ## ADR-0044 Phase 2.3 — 2026-04-18
 
 **ADR:** ADR-0044 v2 — Customer RBAC

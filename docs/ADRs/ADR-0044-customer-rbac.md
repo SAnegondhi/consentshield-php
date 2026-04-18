@@ -211,7 +211,7 @@ public.invitations            (id, token UNIQUE, invited_email citext,
 - [ ] `app/src/app/(public)/signup/page.tsx` — require `?invite=<token>`. Show email pre-filled (read-only). Invalid/expired/consumed → support-contact error page. Accept path branches by role.
 - [ ] Resend email templates, one per invite shape.
 - [x] `admin/src/app/(operator)/orgs/new-invite/**` + `admin/src/app/(operator)/orgs/[orgId]/new-invite/**` — operator-side forms. Split into two routes (phase 2.3): top-level for account-creating invites (email + plan + trial_days + optional default_org_name), org-scoped for org_admin promotion. Wireframe added to `docs/admin/design/consentshield-admin-screens.html` panels 2a + 2b.
-- [ ] `app/src/app/(dashboard)/dashboard/settings/members/` — account_owner / org_admin invite forms (internal).
+- [x] `app/src/app/(dashboard)/dashboard/settings/members/` — account_owner / org_admin invite forms (internal). Adds `revoked_at` + `revoked_by` to `public.invitations`, three new RPCs (`list_pending_invitations`, `revoke_invitation`, `list_members`), existing-member + pending-invite tables + invite form with role-scoped picker. Wireframe added to `docs/design/screen designs and ux/consentshield-screens.html` Settings panel Team members subsection.
 - [ ] `app/src/app/api/internal/invites/route.ts` — HMAC-gated stub endpoint for the future marketing site. Test coverage; no live consumer yet.
 
 **Testing plan:**
