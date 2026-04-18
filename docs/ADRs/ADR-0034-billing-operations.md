@@ -122,14 +122,20 @@ One migration. One `/billing` page with 4 tabs. One Razorpay API wrapper in the 
 
 **Deliverables:**
 
-- [ ] `admin/src/app/(operator)/billing/page.tsx` — server component fetching all 4 RPCs in parallel + the caller's admin role.
-- [ ] `admin/src/app/(operator)/billing/billing-tabs.tsx` — client tabs, 30s auto-refresh (`router.refresh()` on interval, same pattern as `/pipeline`).
-- [ ] `admin/src/app/(operator)/billing/actions.ts` — server actions: `createRefund`, `upsertPlanAdjustment`, `revokePlanAdjustment`. Wraps the corresponding admin RPC. Validates input (amount > 0, reason ≥ 10 chars) before the RPC call.
-- [ ] Modals: New refund, New comp, New override. Zod validation for each.
-- [ ] Suspend-org shortcut on the Payment failures tab: reuses `admin.suspend_org` (ADR-0029) for the max-retries case; opens the same reason-required confirm dialog used on the Orgs panel.
-- [ ] `admin/src/app/(operator)/layout.tsx` — flip `Billing Operations` nav row `live: true, href: '/billing'`.
+- [x] `admin/src/app/(operator)/billing/page.tsx` — server component. Fetches 4 admin RPCs + `public.plans` active list + caller's admin role in parallel (`Promise.all` of 6 awaits).
+- [x] `admin/src/app/(operator)/billing/billing-tabs.tsx` — 4 tabs + 3 modals (Refund, Adjustment, Revoke), 30s auto-refresh via `router.refresh()`.
+- [x] `admin/src/app/(operator)/billing/actions.ts` — 3 server actions: `createRefund`, `upsertPlanAdjustment`, `revokePlanAdjustment`. Validates amount>0 + reason ≥ 10 chars client-side before the RPC.
+- [x] Modals take: (a) Refund — pre-fills `razorpay_payment_id` from the failing row + amount in ₹ (converted to paise) + reason; (b) Adjustment — UUID account id + plan picker (from `public.plans where is_active`) + optional `datetime-local` expiry + reason; (c) Revoke — reason only.
+- [x] `admin/src/app/(operator)/layout.tsx` — `Billing Operations` nav row now `live: true, href: '/billing'`.
+- [x] Build (`bun run build`) + lint (`bun run lint`) — clean. `/billing` present in admin route manifest.
 
-**Status:** `[ ] planned`
+**Deviations from original plan:**
+
+- **Suspend-org shortcut deferred.** Wireframe §8 shows a "Suspend org" button at max retries, but post ADR-0044 Phase 0 the Payment Failures tab is account-scoped and `admin.suspend_org(p_org_id)` is per-org. An account has 1..N orgs; suspending all of them from one click is a different semantic. Flagged for Sprint 2.2 or V2 — cleanest answer is a new `admin.suspend_account` RPC that fans out across `organisations.status` for the account.
+- **Refund amount is entered in ₹** (converted to paise server-side). Easier for operators than typing paise directly.
+- **Account id input is a UUID textbox** in the Adjustment modal. A proper account-picker dropdown belongs in Sprint 2.2 alongside the admin-side accounts list surface (which doesn't exist yet — see open question on admin accounts panel).
+
+**Status:** `[x] complete` — 2026-04-18
 
 #### Sprint 2.2 — Razorpay client + Retry-charge + Issue-refund round-trip
 
