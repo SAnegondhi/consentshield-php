@@ -22,7 +22,7 @@ import {
 // the operator can inspect stuck dispatches from the admin console.
 
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL!
-const SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY!
+const ORCHESTRATOR_KEY = process.env.CS_ORCHESTRATOR_ROLE_KEY!
 const DISPATCH_SECRET = process.env.INVITATION_DISPATCH_SECRET ?? ''
 const RESEND_API_KEY = process.env.RESEND_API_KEY ?? ''
 const RESEND_FROM = process.env.RESEND_FROM ?? 'noreply@consentshield.in'
@@ -59,7 +59,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'invitation_id required' }, { status: 400 })
   }
 
-  const supabase = createClient(SUPABASE_URL, SERVICE_ROLE_KEY, {
+  const supabase = createClient(SUPABASE_URL, ORCHESTRATOR_KEY, {
     auth: { persistSession: false },
   })
 
