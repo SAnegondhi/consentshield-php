@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { createServerClient } from '@/lib/supabase/server'
+import { canOperate, type AdminRole } from '@/lib/admin/role-tiers'
 import { ConnectorDetailActions } from '@/components/connectors/detail-actions'
 
 // ADR-0031 Sprint 1.1 — Connector detail page.
@@ -61,13 +62,8 @@ export default async function ConnectorDetailPage({ params }: PageProps) {
   const {
     data: { user },
   } = await supabase.auth.getUser()
-  const adminRole =
-    (user?.app_metadata?.admin_role as
-      | 'platform_operator'
-      | 'support'
-      | 'read_only'
-      | undefined) ?? 'read_only'
-  const canWrite = adminRole === 'platform_operator'
+  const adminRole = (user?.app_metadata?.admin_role as AdminRole) ?? 'read_only'
+  const canWrite = canOperate(adminRole)
 
   const { data: creator } = await supabase
     .schema('admin')

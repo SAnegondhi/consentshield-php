@@ -1,5 +1,6 @@
 import { createServerClient } from '@/lib/supabase/server'
 import { isServiceClientReady } from '@/lib/supabase/service'
+import { canOperate, type AdminRole } from '@/lib/admin/role-tiers'
 import { AdminListPanel, type AdminRow } from './admin-list'
 
 // ADR-0045 Sprint 2.1 — Admin Users panel.
@@ -18,12 +19,8 @@ export default async function AdminsPage() {
   const rows = (list.data ?? []) as AdminRow[]
 
   const adminRole =
-    (user.data.user?.app_metadata?.admin_role as
-      | 'platform_operator'
-      | 'support'
-      | 'read_only'
-      | undefined) ?? 'read_only'
-  const canWrite = adminRole === 'platform_operator'
+    (user.data.user?.app_metadata?.admin_role as AdminRole) ?? 'read_only'
+  const canWrite = canOperate(adminRole)
 
   const currentAdminId = user.data.user?.id ?? null
   const serviceReady = isServiceClientReady()

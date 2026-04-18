@@ -34,7 +34,11 @@ export interface AdminTestUser {
 let adminTestCounter = 0
 
 export async function createAdminTestUser(
-  role: 'platform_operator' | 'support' | 'read_only' = 'platform_operator',
+  role:
+    | 'platform_owner'
+    | 'platform_operator'
+    | 'support'
+    | 'read_only' = 'platform_operator',
   opts: { insertAdminUsersRow?: boolean } = {},
 ): Promise<AdminTestUser> {
   adminTestCounter++

@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { createServerClient } from '@/lib/supabase/server'
+import { canSupport, type AdminRole } from '@/lib/admin/role-tiers'
 import { TicketControls } from '@/components/support/ticket-controls'
 import { ReplyForm } from '@/components/support/reply-form'
 
@@ -82,13 +83,8 @@ export default async function TicketDetailPage({ params }: PageProps) {
   const {
     data: { user },
   } = await supabase.auth.getUser()
-  const adminRole =
-    (user?.app_metadata?.admin_role as
-      | 'platform_operator'
-      | 'support'
-      | 'read_only'
-      | undefined) ?? 'read_only'
-  const canWrite = adminRole === 'platform_operator' || adminRole === 'support'
+  const adminRole = (user?.app_metadata?.admin_role as AdminRole) ?? 'read_only'
+  const canWrite = canSupport(adminRole)
 
   return (
     <div className="mx-auto max-w-4xl space-y-4">

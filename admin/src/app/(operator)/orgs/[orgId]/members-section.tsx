@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { changeMembershipRole, removeMembership } from './actions'
+import { canOperate, type AdminRole } from '@/lib/admin/role-tiers'
 
 // ADR-0047 Sprint 1.2 — admin mirror of the customer members panel.
 // Lists org_memberships for the current org and exposes per-row role
@@ -22,13 +23,13 @@ export interface MemberRow {
 export interface AdminMembersSectionProps {
   orgId: string
   members: MemberRow[]
-  adminRole: 'platform_operator' | 'support' | 'read_only'
+  adminRole: AdminRole
 }
 
 const ORG_ROLES = ['org_admin', 'admin', 'viewer'] as const
 
 export function AdminMembersSection(props: AdminMembersSectionProps) {
-  const canManage = props.adminRole === 'platform_operator'
+  const canManage = canOperate(props.adminRole)
 
   return (
     <section className="rounded-md border border-[color:var(--border)] bg-white shadow-sm">

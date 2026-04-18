@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { createServerClient } from '@/lib/supabase/server'
+import { canOperate, type AdminRole } from '@/lib/admin/role-tiers'
 import { AccountActionBar } from './action-bar'
 
 // ADR-0048 Sprint 1.2 — Account detail.
@@ -72,12 +73,8 @@ export default async function AccountDetailPage({ params }: PageProps) {
 
   const envelope = detailRes.data as AccountEnvelope
   const adminRole =
-    (userRes.data.user?.app_metadata?.admin_role as
-      | 'platform_operator'
-      | 'support'
-      | 'read_only'
-      | undefined) ?? 'read_only'
-  const canWrite = adminRole === 'platform_operator'
+    (userRes.data.user?.app_metadata?.admin_role as AdminRole) ?? 'read_only'
+  const canWrite = canOperate(adminRole)
 
   const { account, organisations, active_adjustments, audit_recent } = envelope
 

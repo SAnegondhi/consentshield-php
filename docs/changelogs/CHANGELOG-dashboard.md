@@ -2,6 +2,21 @@
 
 Next.js UI changes.
 
+## [ADR-0050 Sprint 2.1 — chunk 1] — 2026-04-18
+
+**ADR:** ADR-0050 — Admin account-aware billing
+**Sprint:** Sprint 2.1 — platform_owner tier UI alignment
+
+### Added
+- `admin/src/lib/admin/role-tiers.ts` — `AdminRole` type + `canOperate()` + `canSupport()` helpers. Mirrors the Postgres `admin.require_admin` tier hierarchy so UI gating reads the same way the DB gate does.
+
+### Changed
+- Eleven admin-console sites switched from inline `adminRole === 'platform_operator'` (and variants) to `canOperate(adminRole)` / `canSupport(adminRole)`: `admin/src/app/(operator)/billing/operations/page.tsx`, `security/page.tsx`, `templates/[templateId]/page.tsx`, `accounts/[accountId]/page.tsx`, `admins/page.tsx`, `connectors/[connectorId]/page.tsx`, `support/[ticketId]/page.tsx`, `orgs/[orgId]/page.tsx`, `orgs/[orgId]/members-section.tsx`, `components/flags/feature-flags-tab.tsx`, `components/flags/kill-switches-tab.tsx`, `components/orgs/action-bar.tsx`. Without this change a `platform_owner` user would silently lose UI action buttons even though their RPCs succeed.
+
+### Tested
+- [x] `bun run build` on `admin/` — compiles with all routes intact.
+- [x] `bun run lint` on `admin/` — clean.
+
 ## [ADR-0050 Sprint 1] — 2026-04-18
 
 **ADR:** ADR-0050 — Admin account-aware billing

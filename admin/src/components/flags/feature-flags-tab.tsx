@@ -8,6 +8,7 @@ import {
   FormFooter,
 } from '@/components/common/modal-form'
 import { setFeatureFlag, deleteFeatureFlag } from '@/app/(operator)/flags/actions'
+import { canOperate, type AdminRole } from '@/lib/admin/role-tiers'
 
 export interface FeatureFlag {
   id: string
@@ -38,10 +39,10 @@ export function FeatureFlagsTab({
 }: {
   flags: FeatureFlag[]
   orgs: Array<{ id: string; name: string }>
-  adminRole: 'platform_operator' | 'support' | 'read_only'
+  adminRole: AdminRole
 }) {
   const [modal, setModal] = useState<Modal>(null)
-  const canWrite = adminRole === 'platform_operator'
+  const canWrite = canOperate(adminRole)
 
   return (
     <div className="rounded-md border border-[color:var(--border)] bg-white shadow-sm">

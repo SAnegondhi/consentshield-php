@@ -15,12 +15,13 @@ import {
   ReasonField,
   FormFooter,
 } from '../common/modal-form'
+import { canOperate, type AdminRole } from '@/lib/admin/role-tiers'
 
 interface Props {
   orgId: string
   orgName: string
   status: string
-  currentAdminRole: 'platform_operator' | 'support' | 'read_only'
+  currentAdminRole: AdminRole
 }
 
 type Modal = 'note' | 'trial' | 'suspend' | 'restore' | null
@@ -28,7 +29,7 @@ type Modal = 'note' | 'trial' | 'suspend' | 'restore' | null
 export function OrgActionBar({ orgId, orgName, status, currentAdminRole }: Props) {
   const [modal, setModal] = useState<Modal>(null)
 
-  const isPlatformOperator = currentAdminRole === 'platform_operator'
+  const isPlatformOperator = canOperate(currentAdminRole)
 
   return (
     <>

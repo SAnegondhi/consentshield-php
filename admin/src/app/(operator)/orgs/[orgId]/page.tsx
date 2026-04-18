@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { createServerClient } from '@/lib/supabase/server'
+import { canOperate, type AdminRole } from '@/lib/admin/role-tiers'
 import { OrgActionBar } from '@/components/orgs/action-bar'
 import { AdminMembersSection, type MemberRow as AdminMemberRow } from './members-section'
 import { SdfCard } from './sdf-card'
@@ -71,11 +72,7 @@ export default async function OrganisationDetailPage({ params }: PageProps) {
   if (!org) notFound()
 
   const adminRole =
-    (userRes.data.user?.app_metadata?.admin_role as
-      | 'platform_operator'
-      | 'support'
-      | 'read_only'
-      | undefined) ?? 'read_only'
+    (userRes.data.user?.app_metadata?.admin_role as AdminRole) ?? 'read_only'
 
   const noteAuthorIds = Array.from(new Set((notesRes.data ?? []).map((n) => n.admin_user_id)))
   const sessionAdminIds = Array.from(
@@ -175,7 +172,7 @@ export default async function OrganisationDetailPage({ params }: PageProps) {
           sdfStatus={(org.sdf_status ?? 'not_designated') as 'not_designated' | 'self_declared' | 'notified' | 'exempt'}
           sdfNotifiedAt={org.sdf_notified_at ?? null}
           sdfNotificationRef={org.sdf_notification_ref ?? null}
-          canWrite={adminRole === 'platform_operator'}
+          canWrite={canOperate(adminRole)}
         />
 
         <Card title="Contacts">

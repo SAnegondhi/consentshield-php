@@ -1,4 +1,5 @@
 import { createServerClient } from '@/lib/supabase/server'
+import { canOperate, canSupport, type AdminRole } from '@/lib/admin/role-tiers'
 import { BillingTabs, type BillingData } from './billing-tabs'
 
 // ADR-0034 Sprint 2.1 — Billing Operations panel.
@@ -52,13 +53,9 @@ export default async function BillingPage() {
   ].filter((e): e is string => !!e)
 
   const adminRole =
-    (user.data.user?.app_metadata?.admin_role as
-      | 'platform_operator'
-      | 'support'
-      | 'read_only'
-      | undefined) ?? 'read_only'
-  const canWriteRefunds = adminRole === 'support' || adminRole === 'platform_operator'
-  const canWriteAdjustments = adminRole === 'platform_operator'
+    (user.data.user?.app_metadata?.admin_role as AdminRole) ?? 'read_only'
+  const canWriteRefunds = canSupport(adminRole)
+  const canWriteAdjustments = canOperate(adminRole)
 
   const data: BillingData = {
     paymentFailures: (failures.data ?? []) as BillingData['paymentFailures'],

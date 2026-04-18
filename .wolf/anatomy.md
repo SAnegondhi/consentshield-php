@@ -1,7 +1,7 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-04-18T12:43:33.885Z
-> Files: 679 tracked | Anatomy hits: 0 | Misses: 0
+> Auto-maintained by OpenWolf. Last scanned: 2026-04-18T14:50:01.044Z
+> Files: 684 tracked | Anatomy hits: 0 | Misses: 0
 
 ## ../../../../../tmp/
 
@@ -134,13 +134,13 @@
 ## admin/src/app/(operator)/accounts/[accountId]/
 
 - `action-bar.tsx` — AccountActionBar — renders form, modal (~1248 tok)
-- `page.tsx` — ADR-0048 Sprint 1.2 — Account detail. (~2852 tok)
+- `page.tsx` — ADR-0048 Sprint 1.2 — Account detail. (~2847 tok)
 
 ## admin/src/app/(operator)/admins/
 
 - `actions.ts` — Exports inviteAdminAction, changeAdminRoleAction, disableAdminAction (~1311 tok)
 - `admin-list.tsx` — ROLE_LABEL — renders form, table, modal (~4558 tok)
-- `page.tsx` — ADR-0045 Sprint 2.1 — Admin Users panel. (~634 tok)
+- `page.tsx` — ADR-0045 Sprint 2.1 — Admin Users panel. (~629 tok)
 
 ## admin/src/app/(operator)/audit-log/
 
@@ -164,6 +164,7 @@
 
 - `actions.ts` — Exports createRefund, upsertPlanAdjustment, revokePlanAdjustment (~1883 tok)
 - `billing-tabs.tsx` — BillingTabs — renders table, modal (~9004 tok)
+- `page.tsx` — ADR-0034 Sprint 2.1 — Billing Operations panel. (~1062 tok)
 
 ## admin/src/app/(operator)/connectors/
 
@@ -172,7 +173,7 @@
 
 ## admin/src/app/(operator)/connectors/[connectorId]/
 
-- `page.tsx` — ADR-0031 Sprint 1.1 — Connector detail page. (~2385 tok)
+- `page.tsx` — ADR-0031 Sprint 1.1 — Connector detail page. (~2379 tok)
 
 ## admin/src/app/(operator)/connectors/[connectorId]/edit/
 
@@ -195,8 +196,8 @@
 
 - `actions.ts` — Exports addOrgNote, extendTrial, suspendOrg, restoreOrg + 3 more (~1710 tok)
 - `impersonation-actions.ts` — Exports startImpersonation, endImpersonation, forceEndImpersonation (~1296 tok)
-- `members-section.tsx` — ORG_ROLES — renders table (~1683 tok)
-- `page.tsx` — ADR-0029 Sprint 1.1 — Organisation detail page (read-only). (~3322 tok)
+- `members-section.tsx` — ORG_ROLES — renders table (~1688 tok)
+- `page.tsx` — ADR-0029 Sprint 1.1 — Organisation detail page (read-only). (~3317 tok)
 - `sdf-card.tsx` — STATUS_LABEL — renders form, modal (~2102 tok)
 
 ## admin/src/app/(operator)/orgs/[orgId]/new-invite/
@@ -219,7 +220,7 @@
 ## admin/src/app/(operator)/security/
 
 - `actions.ts` — Exports blockIp, unblockIp (~614 tok)
-- `page.tsx` — ADR-0033 Sprint 2.2 — Abuse & Security panel. (~960 tok)
+- `page.tsx` — ADR-0033 Sprint 2.2 — Abuse & Security panel. (~955 tok)
 - `security-tabs.tsx` — SecurityTabs — renders table (~5792 tok)
 
 ## admin/src/app/(operator)/signatures/
@@ -250,7 +251,7 @@
 
 ## admin/src/app/(operator)/support/[ticketId]/
 
-- `page.tsx` — ADR-0032 Sprint 1.1 — Support ticket detail + thread + reply. (~1688 tok)
+- `page.tsx` — ADR-0032 Sprint 1.1 — Support ticket detail + thread + reply. (~1670 tok)
 
 ## admin/src/app/(operator)/templates/
 
@@ -259,7 +260,7 @@
 
 ## admin/src/app/(operator)/templates/[templateId]/
 
-- `page.tsx` — ADR-0030 Sprint 1.1 — Sectoral Template detail (read-only). (~2993 tok)
+- `page.tsx` — ADR-0030 Sprint 1.1 — Sectoral Template detail (read-only). (~3002 tok)
 
 ## admin/src/app/(operator)/templates/[templateId]/edit/
 
@@ -311,9 +312,9 @@
 
 ## admin/src/components/flags/
 
-- `feature-flags-tab.tsx` — FeatureFlagsTab — renders form, table, modal (~4012 tok)
+- `feature-flags-tab.tsx` — FeatureFlagsTab — renders form, table, modal (~4054 tok)
 - `flags-tabs.tsx` — FlagsTabs (~469 tok)
-- `kill-switches-tab.tsx` — KillSwitchesTab — renders form, modal (~2289 tok)
+- `kill-switches-tab.tsx` — KillSwitchesTab — renders form, modal (~2312 tok)
 
 ## admin/src/components/impersonation/
 
@@ -332,7 +333,7 @@
 
 ## admin/src/components/orgs/
 
-- `action-bar.tsx` — OrgActionBar — renders form, modal (~2608 tok)
+- `action-bar.tsx` — OrgActionBar — renders form, modal (~2614 tok)
 - `filter-bar.tsx` — PLANS — renders form (~898 tok)
 - `invite-created-card.tsx` — InviteCreatedCard (~649 tok)
 
@@ -364,6 +365,7 @@
 
 - `invite-email.ts` — ADR-0045 Sprint 1.2 — admin invite email dispatch via Resend. (~903 tok)
 - `lifecycle.ts` — ADR-0045 Sprint 1.2/2.1 — shared orchestration for the three admin (~1511 tok)
+- `role-tiers.ts` — ADR-0050 Sprint 2.1 — admin tier helpers. (~243 tok)
 
 ## admin/src/lib/impersonation/
 
@@ -706,7 +708,7 @@
 - `ADR-0047-customer-membership-lifecycle.md` — ADR-0047 — Customer membership lifecycle (role change + remove) + single-account-per-identity invari (~3944 tok)
 - `ADR-0048-admin-accounts-and-observability.md` — ADR-0048: Admin Accounts panel + ADR-0033/34 deviation closeout (~2261 tok)
 - `ADR-0049-security-observability-ingestion.md` — ADR-0049: Security observability ingestion — rate_limit_events + sentry_events (~2365 tok)
-- `ADR-0050-admin-account-aware-billing.md` — ADR-0050: Admin account-aware billing — issuer entities, invoices, GST, dispute workspace (~10972 tok)
+- `ADR-0050-admin-account-aware-billing.md` — ADR-0050: Admin account-aware billing — issuer entities, invoices, GST, dispute workspace (~11134 tok)
 - `ADR-index.md` — ADR Index (~1718 tok)
 - `ADR-template.md` — ADR-NNNN: Title (~423 tok)
 - `adr-workflow.md` — ADR Workflow Rules (~557 tok)
@@ -732,11 +734,11 @@
 ## docs/changelogs/
 
 - `CHANGELOG-api.md` — Changelog — API (~4845 tok)
-- `CHANGELOG-dashboard.md` — Changelog — Dashboard (~10931 tok)
+- `CHANGELOG-dashboard.md` — Changelog — Dashboard (~11229 tok)
 - `CHANGELOG-docs.md` — Changelog — Documentation (~3064 tok)
 - `CHANGELOG-edge-functions.md` — Changelog — Edge Functions (~3003 tok)
 - `CHANGELOG-infra.md` — Changelog — Infrastructure (~3667 tok)
-- `CHANGELOG-schema.md` — Changelog — Schema (~17401 tok)
+- `CHANGELOG-schema.md` — Changelog — Schema (~17836 tok)
 - `CHANGELOG-worker.md` — Changelog — Worker (~1897 tok)
 
 ## docs/design/
@@ -1211,6 +1213,8 @@
 - `20260507000001_billing_account_summary.sql` — ADR-0050 Sprint 1 — admin.billing_account_summary (~1061 tok)
 - `20260507000001_rate_limit_events.sql` — ADR-0049 Phase 1 Sprint 1.1 — rate_limit_events ingestion. (~1267 tok)
 - `20260507000002_sentry_events.sql` — ADR-0049 Phase 2 Sprint 2.1 — sentry_events ingestion. (~999 tok)
+- `20260507000004_admin_role_platform_owner.sql` — ADR-0050 Sprint 2.1 — admin_role platform_owner tier. (~3541 tok)
+- `20260507000005_platform_owner_followup.sql` — ADR-0050 Sprint 2.1 — follow-up to 20260507000004_admin_role_platform_owner.sql. (~1277 tok)
 
 ## supabase/seed/
 
@@ -1253,8 +1257,9 @@
 - `billing-account-view.test.ts` — Declares env (~1374 tok)
 - `billing-rpcs.test.ts` — service: countAuditRows, createPendingRefund (~4016 tok)
 - `foundation.test.ts` — Declares anon (~1516 tok)
-- `helpers.ts` — Helpers for admin-side tests. Reuses the Supabase project + env vars (~969 tok)
+- `helpers.ts` — Helpers for admin-side tests. Reuses the Supabase project + env vars (~979 tok)
 - `pipeline-rpcs.test.ts` — Declares row (~1753 tok)
+- `platform-owner-role.test.ts` — service: seedPlatformOwner (~2016 tok)
 - `rate-limit-rpcs.test.ts` — Declares service (~1008 tok)
 - `rls.test.ts` — Declares adminOnlyTables (~1952 tok)
 - `rpcs.test.ts` — service: rpc (~4104 tok)

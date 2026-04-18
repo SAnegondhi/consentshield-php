@@ -2,6 +2,19 @@
 
 Database migrations, RLS policies, roles.
 
+## [ADR-0050 Sprint 2.1 — chunk 1] — 2026-04-18
+
+**ADR:** ADR-0050 — Admin account-aware billing
+**Sprint:** Sprint 2.1 — platform_owner admin tier
+
+### Added
+- `20260507000004_admin_role_platform_owner.sql`: extends `admin.admin_users.admin_role` CHECK to include `'platform_owner'`. Extends `admin.require_admin` so `platform_owner` dominates `platform_operator` which dominates `support` (owner satisfies every lower tier). Guards added: `admin.admin_invite_create` rejects `p_admin_role='platform_owner'`; `admin.admin_change_role` rejects `p_new_role='platform_owner'` AND rejects mutating an existing `platform_owner` row (founder identity protection); `admin.admin_disable` rejects disabling a `platform_owner`. Idempotently seeds `admin_role='platform_owner'` onto the founder's `auth.users` + `admin.admin_users` rows (match by email `a.d.sudhindra@gmail.com`); emits NOTICE and skips when the founder row doesn't exist yet.
+- `20260507000005_platform_owner_followup.sql`: CREATE OR REPLACE `admin_invite_create` to restore the Rule-12 identity-isolation check that `20260504000003_admin_invite_isolation.sql` added (dropped during the 0004 rewrite); CREATE OR REPLACE `admin_disable` to restore the original `cannot disable yourself` wording (the one admin-lifecycle-rpcs.test.ts asserts).
+
+### Tested
+- [x] `tests/admin/platform-owner-role.test.ts` 7/7 PASS: require_admin tier dominance; support cannot reach platform_operator tier; invite rejects platform_owner; change_role rejects promotion to owner; change_role refuses to mutate owner row; admin_disable refuses to disable owner.
+- [x] Regression `tests/admin/{account-rpcs,admin-lifecycle-rpcs,billing-rpcs,billing-account-view,platform-owner-role}.test.ts` — 52/52 PASS.
+
 ## [ADR-0050 Sprint 1] — 2026-04-18
 
 **ADR:** ADR-0050 — Admin account-aware billing

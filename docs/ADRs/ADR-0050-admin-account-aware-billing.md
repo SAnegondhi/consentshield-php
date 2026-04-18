@@ -375,11 +375,13 @@ When ADR-0051 ships, the bundle assembler pulls evidence_ledger rows as well.
 
 **Deliverables:**
 
-- [ ] Migration `supabase/migrations/YYYYMMDD_admin_role_platform_owner.sql`:
-  - Extend `admin_role` CHECK to include `platform_owner`.
-  - Extend ADR-0045 `admin.require_admin(p_min_role text)` so `platform_owner` dominates `platform_operator` in the ordering.
-  - Seed `platform_owner` onto the founder's `auth.users` row (`app_metadata.admin_role = 'platform_owner'`) in the same migration; guard with a single-row INSERT that no-ops if already set.
-  - Reject, in ADR-0045's `admin_invite_create` RPC, any invite that attempts to grant `platform_owner` (must be raised in-line, not silently downgraded).
+- [x] Migration `20260507000004_admin_role_platform_owner.sql` + follow-up `20260507000005_platform_owner_followup.sql`:
+  - Extended `admin_role` CHECK to include `platform_owner`.
+  - Extended `admin.require_admin(p_min_role text)` so `platform_owner` dominates `platform_operator` dominates `support`.
+  - Seeded `platform_owner` idempotently onto the founder's `auth.users` + `admin.admin_users` rows (match by email). Migration emits NOTICE + skips when the founder row doesn't exist yet.
+  - `admin_invite_create` rejects `platform_owner` grants; `admin_change_role` rejects `platform_owner` as new role and rejects mutating an existing `platform_owner` row; `admin_disable` rejects disabling `platform_owner`.
+  - UI tier alignment: new `admin/src/lib/admin/role-tiers.ts` helper + 11 admin-console sites switched from `adminRole === 'platform_operator'` to `canOperate(adminRole)` so `platform_owner` users retain UI action buttons.
+  - Test: `tests/admin/platform-owner-role.test.ts` **7/7 PASS**. Regression 52/52 PASS across admin-RPC tests.
 - [ ] Migration `supabase/migrations/YYYYMMDD_billing_issuer_and_invoices.sql`:
   - `billing` schema creation (if not exists) + grants.
   - `billing.issuer_entities` as specified above + single-active-issuer constraint + identity-field immutability trigger (`BEFORE UPDATE` raise if `NEW.legal_name|gstin|pan|registered_state_code|invoice_prefix|fy_start_month` differ from `OLD.*`).
@@ -399,7 +401,7 @@ When ADR-0051 ships, the bundle assembler pulls evidence_ledger rows as well.
 - [ ] `tests/webhooks/razorpay-verbatim.test.ts` — happy path insert; duplicate-event-id upsert behaviour; signature-verification failure path does *not* write a verbatim row (we only persist signature-verified events).
 - [ ] Miniflare / fetch-mocked webhook test: replay one `invoice.paid` fixture, assert row lands with `processed_outcome='ok'` and `processed_at IS NOT NULL`.
 
-**Status:** `[ ] planned`
+**Status:** `[~] in progress` — platform_owner tier landed 2026-04-18; remaining: issuer_entities schema + CRUD + admin panel, invoice schema + immutability triggers, razorpay_webhook_events verbatim store, webhook handler refactor.
 
 #### Sprint 2.2 — Invoice PDF renderer + issuance RPC + GST computation
 

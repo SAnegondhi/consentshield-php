@@ -5318,7 +5318,9 @@
         "rpc",
         "billing"
       ],
-      "related_bugs": ["bug-331"],
+      "related_bugs": [
+        "bug-331"
+      ],
       "occurrences": 1,
       "last_seen": "2026-04-18T17:55:00.000Z"
     },
@@ -5339,6 +5341,150 @@
       "related_bugs": [],
       "occurrences": 1,
       "last_seen": "2026-04-18T17:55:00.000Z"
+    },
+    {
+      "id": "bug-334",
+      "timestamp": "2026-04-18T14:30:53.037Z",
+      "error_message": "Incorrect value in code",
+      "file": "supabase/migrations/20260507000004_admin_role_platform_owner.sql",
+      "root_cause": "Had 'cannot disable your own account'",
+      "fix": "Changed to 'cannot disable yourself'",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "sql"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-18T14:30:53.037Z"
+    },
+    {
+      "id": "bug-335",
+      "timestamp": "2026-04-18T14:46:14.702Z",
+      "error_message": "Type error",
+      "file": "admin/src/app/(operator)/billing/operations/page.tsx",
+      "root_cause": "Missing or incorrect type annotation",
+      "fix": "Added type assertion/annotation | Also: const adminRole = (user?.app_metadata?.admin_role as AdminRo; const canWrite = canSupport(adminRole) | Also: const adminRole = (user?.app_metadata?.admin_role as AdminRo; const canWrite = canOperate(adminRole) | Also: (user.data.user?.app_metadata?.admin_role as AdminRole) ?? '; const canWrite = canOperate(adminRole) | Also: const adminRole = (user?.app_metadata?.admin_role as AdminRo; const canPublish = canOperate(adminRole) | Also: (userRes.data.user?.app_metadata?.admin_role as AdminRole) ?; const canWrite = canOperate(adminRole)",
+      "tags": [
+        "auto-detected",
+        "type-fix",
+        "tsx"
+      ],
+      "related_bugs": [],
+      "occurrences": 8,
+      "last_seen": "2026-04-18T14:48:11.380Z"
+    },
+    {
+      "id": "bug-336",
+      "timestamp": "2026-04-18T14:46:16.663Z",
+      "error_message": "Incorrect value in code",
+      "file": "admin/src/app/(operator)/billing/operations/page.tsx",
+      "root_cause": "Had './billing-tabs'",
+      "fix": "Changed to '@/lib/admin/role-tiers'",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "tsx"
+      ],
+      "related_bugs": [],
+      "occurrences": 5,
+      "last_seen": "2026-04-18T14:47:51.922Z"
+    },
+    {
+      "id": "bug-337",
+      "timestamp": "2026-04-18T14:46:53.688Z",
+      "error_message": "CSS fix: adminRole",
+      "file": "admin/src/components/flags/feature-flags-tab.tsx",
+      "root_cause": "adminRole: 'platform_operator' | 'support' | 'read_only' → AdminRole",
+      "fix": "Changed adminRole: 'platform_operator' | 'support' | 'read_only' → AdminRole",
+      "tags": [
+        "auto-detected",
+        "style-fix",
+        "tsx"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-18T14:46:53.688Z"
+    },
+    {
+      "id": "bug-338",
+      "timestamp": "2026-04-18T14:46:56.847Z",
+      "error_message": "CSS fix: adminRole",
+      "file": "admin/src/components/flags/kill-switches-tab.tsx",
+      "root_cause": "adminRole: 'platform_operator' | 'support' | 'read_only' → AdminRole",
+      "fix": "Changed adminRole: 'platform_operator' | 'support' | 'read_only' → AdminRole",
+      "tags": [
+        "auto-detected",
+        "style-fix",
+        "tsx"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-18T14:46:56.847Z"
+    },
+    {
+      "id": "bug-339",
+      "timestamp": "2026-04-18T14:46:59.656Z",
+      "error_message": "CSS fix: adminRole",
+      "file": "admin/src/app/(operator)/orgs/[orgId]/members-section.tsx",
+      "root_cause": "adminRole: 'platform_operator' | 'support' | 'read_only' → AdminRole",
+      "fix": "Changed adminRole: 'platform_operator' | 'support' | 'read_only' → AdminRole",
+      "tags": [
+        "auto-detected",
+        "style-fix",
+        "tsx"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-18T14:46:59.656Z"
+    },
+    {
+      "id": "bug-340",
+      "timestamp": "2026-04-18T14:48:30.921Z",
+      "error_message": "CSS fix: currentAdminRole",
+      "file": "admin/src/components/orgs/action-bar.tsx",
+      "root_cause": "currentAdminRole: 'platform_operator' | 'support' | 'read_only' → AdminRole",
+      "fix": "Changed currentAdminRole: 'platform_operator' | 'support' | 'read_only' → AdminRole",
+      "tags": [
+        "auto-detected",
+        "style-fix",
+        "tsx"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-18T14:48:30.921Z"
+    },
+    {
+      "id": "bug-341",
+      "timestamp": "2026-04-18T14:49:58.186Z",
+      "error_message": "Significant refactor of ",
+      "file": "docs/ADRs/ADR-0050-admin-account-aware-billing.md",
+      "root_cause": "5 lines replaced/restructured",
+      "fix": "Rewrote 5→7 lines (5 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-18T14:49:58.186Z"
+    },
+    {
+      "id": "bug-342",
+      "timestamp": "2026-04-18T14:50:01.053Z",
+      "error_message": "Incorrect value in code",
+      "file": "docs/ADRs/ADR-0050-admin-account-aware-billing.md",
+      "root_cause": "Had `[ ] planned`",
+      "fix": "Changed to `[~] in progress`",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-18T14:50:01.053Z"
     }
   ]
 }

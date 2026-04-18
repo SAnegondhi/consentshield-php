@@ -1,4 +1,5 @@
 import { createServerClient } from '@/lib/supabase/server'
+import { canOperate, type AdminRole } from '@/lib/admin/role-tiers'
 import { SecurityTabs, type SecurityData } from './security-tabs'
 
 // ADR-0033 Sprint 2.2 — Abuse & Security panel.
@@ -50,12 +51,8 @@ export default async function SecurityPage() {
   ].filter((e): e is string => !!e)
 
   const adminRole =
-    (user.data.user?.app_metadata?.admin_role as
-      | 'platform_operator'
-      | 'support'
-      | 'read_only'
-      | undefined) ?? 'read_only'
-  const canWrite = adminRole === 'platform_operator'
+    (user.data.user?.app_metadata?.admin_role as AdminRole) ?? 'read_only'
+  const canWrite = canOperate(adminRole)
 
   const data: SecurityData = {
     rateLimit: (rateLimit.data ?? []) as SecurityData['rateLimit'],

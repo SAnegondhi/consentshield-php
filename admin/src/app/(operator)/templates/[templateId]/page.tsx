@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { createServerClient } from '@/lib/supabase/server'
+import { canOperate, type AdminRole } from '@/lib/admin/role-tiers'
 import { TemplateDetailActions } from '@/components/templates/detail-actions'
 
 // ADR-0030 Sprint 1.1 — Sectoral Template detail (read-only).
@@ -73,13 +74,8 @@ export default async function TemplateDetailPage({ params }: PageProps) {
   const {
     data: { user },
   } = await supabase.auth.getUser()
-  const adminRole =
-    (user?.app_metadata?.admin_role as
-      | 'platform_operator'
-      | 'support'
-      | 'read_only'
-      | undefined) ?? 'read_only'
-  const canPublish = adminRole === 'platform_operator'
+  const adminRole = (user?.app_metadata?.admin_role as AdminRole) ?? 'read_only'
+  const canPublish = canOperate(adminRole)
 
   // Resolve admin display names for created_by / published_by.
   const adminIds = [template.created_by, template.published_by].filter(
