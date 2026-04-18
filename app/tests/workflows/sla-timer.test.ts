@@ -10,13 +10,24 @@ if (!SUPABASE_URL || !SERVICE_ROLE_KEY) {
 
 let admin: SupabaseClient
 let orgId: string
+let accountId: string
 const seededIds: string[] = []
 
 beforeAll(async () => {
   admin = createClient(SUPABASE_URL, SERVICE_ROLE_KEY)
+
+  // ADR-0044 Phase 0 — organisations require an account_id FK.
+  const acct = await admin
+    .from('accounts')
+    .insert({ name: `SLA Test Account ${Date.now()}`, plan_code: 'trial_starter', status: 'trial' })
+    .select('id')
+    .single()
+  if (acct.error) throw new Error(`createAccount failed: ${acct.error.message}`)
+  accountId = acct.data!.id
+
   const { data, error } = await admin
     .from('organisations')
-    .insert({ name: `SLA Test Org ${Date.now()}` })
+    .insert({ name: `SLA Test Org ${Date.now()}`, account_id: accountId })
     .select('id')
     .single()
   if (error) throw new Error(`createOrg failed: ${error.message}`)
@@ -25,6 +36,7 @@ beforeAll(async () => {
 
 afterAll(async () => {
   if (orgId) await admin.from('organisations').delete().eq('id', orgId)
+  if (accountId) await admin.from('accounts').delete().eq('id', accountId)
 }, 30000)
 
 async function insertWithCreatedAt(createdAtIso: string) {

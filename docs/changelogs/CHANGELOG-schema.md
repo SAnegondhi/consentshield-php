@@ -2,6 +2,37 @@
 
 Database migrations, RLS policies, roles.
 
+## [ADR-0044 Phase 0] — 2026-04-18
+
+**ADR:** ADR-0044 v2 — Customer RBAC + 4-level hierarchy
+**Sprint:** Phase 0 — accounts layer + billing relocation
+
+### Added
+- `20260428000002_accounts_and_plans.sql`:
+  - `public.plans` table + seed rows (`trial_starter`, `starter`, `growth`, `pro`, `enterprise`) with `max_organisations` + `max_web_properties_per_org` + `base_price_inr` + `trial_days`.
+  - `public.accounts` table (subscription identity + plan + status + `trial_ends_at`).
+  - `public.organisations.account_id` (NOT NULL FK after backfill).
+  - `public.current_account_id()` + `public.current_plan()` helpers.
+  - Extended `organisations_status_check` to include `suspended_by_plan`.
+  - Backfill: every existing org became a solo-account with the matching plan + razorpay ids copied across.
+
+### Changed
+- `public.admin_config_snapshot()` — `suspended_org_ids` now includes orgs with `status IN ('suspended','suspended_by_plan')`, so plan-downgrade suspensions reach the Worker via the existing KV-sync cron.
+- `public.rpc_razorpay_apply_subscription` — resolves by `accounts.razorpay_subscription_id` and mutates `accounts.plan_code` / `accounts.status`; audit-log entity_type is now `'account'`.
+- `public.rpc_plan_limit_check` — reads `plans.max_web_properties_per_org` via `organisations → accounts → plans`.
+- `public.rpc_signup_bootstrap_org` — creates a brand-new account + org atomically (plan_code=`trial_starter`, `trial_ends_at=now()+30d`).
+- `admin.extend_trial` — extends `accounts.trial_ends_at` via the org's account (was `organisations.trial_ends_at`).
+- `public.org_effective_plan` + `admin.billing_payment_failures_list` (ADR-0034) — rewritten to read plan from `accounts`.
+
+### Dropped
+- `public.organisations.plan` · `plan_started_at` · `trial_ends_at` · `razorpay_subscription_id` · `razorpay_customer_id`. All data moved to `accounts` during backfill.
+
+### Tested
+- [x] `bun run test:rls` — 185/185 across 16 files. New `accounts` FK honored by every test-helper-created org.
+- [x] `cd admin && bun run build` — 27 routes compile.
+- [x] `cd app && bun run build` — all customer routes compile.
+- [x] `cd app && bunx vitest run` — 69 tests (11 files).
+
 ## [ADR-0033 Sprint 2.1] — 2026-04-17
 
 **ADR:** ADR-0033 — Admin Ops + Security (Phase 2: Abuse & Security)

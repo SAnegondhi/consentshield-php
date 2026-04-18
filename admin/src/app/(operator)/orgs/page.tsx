@@ -16,12 +16,14 @@ const PAGE_SIZE = 50
 interface Org {
   id: string
   name: string
-  plan: string | null
   status: string
-  trial_ends_at: string | null
   compliance_contact_email: string | null
   created_at: string
   updated_at: string | null
+  accounts: {
+    plan_code: string
+    trial_ends_at: string | null
+  } | null
 }
 
 interface PageProps {
@@ -38,15 +40,16 @@ export default async function OrganisationsListPage({ searchParams }: PageProps)
   const page = Math.max(0, parseInt(params.page ?? '0', 10) || 0)
   const supabase = await createServerClient()
 
+  // ADR-0044 Phase 0 — billing identity moved to accounts; embed via FK join.
   let query = supabase
     .from('organisations')
     .select(
-      'id, name, plan, status, trial_ends_at, compliance_contact_email, created_at, updated_at',
+      'id, name, status, compliance_contact_email, created_at, updated_at, accounts(plan_code, trial_ends_at)',
       { count: 'exact' },
     )
     .order('created_at', { ascending: false })
 
-  if (params.plan) query = query.eq('plan', params.plan)
+  if (params.plan) query = query.eq('accounts.plan_code', params.plan)
   if (params.status) query = query.eq('status', params.status)
   if (params.q) {
     const needle = `%${params.q}%`
@@ -70,7 +73,7 @@ export default async function OrganisationsListPage({ searchParams }: PageProps)
     )
   }
 
-  const orgs = (data ?? []) as Org[]
+  const orgs = (data ?? []) as unknown as Org[]
   const total = count ?? 0
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE))
 
@@ -118,10 +121,10 @@ export default async function OrganisationsListPage({ searchParams }: PageProps)
                       {org.compliance_contact_email ? ` · ${org.compliance_contact_email}` : ''}
                     </div>
                   </td>
-                  <td className="px-4 py-2 text-xs">{org.plan ?? '—'}</td>
+                  <td className="px-4 py-2 text-xs">{org.accounts?.plan_code ?? '—'}</td>
                   <td className="px-4 py-2">{statusPill(org.status)}</td>
                   <td className="px-4 py-2 text-xs text-text-2">
-                    {org.trial_ends_at ? formatDate(org.trial_ends_at) : '—'}
+                    {org.accounts?.trial_ends_at ? formatDate(org.accounts.trial_ends_at) : '—'}
                   </td>
                   <td className="px-4 py-2 text-xs text-text-2">
                     {formatDate(org.created_at)}

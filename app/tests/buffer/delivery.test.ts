@@ -6,13 +6,24 @@ const SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY!
 
 let admin: SupabaseClient
 let orgId: string
+let accountId: string
 const cleanupIds: string[] = []
 
 beforeAll(async () => {
   admin = createClient(SUPABASE_URL, SERVICE_ROLE_KEY)
+
+  // ADR-0044 Phase 0 — organisations require an account_id FK.
+  const acct = await admin
+    .from('accounts')
+    .insert({ name: `Buffer Test Account ${Date.now()}`, plan_code: 'trial_starter', status: 'trial' })
+    .select('id')
+    .single()
+  if (acct.error) throw new Error(`account: ${acct.error.message}`)
+  accountId = acct.data!.id
+
   const { data, error } = await admin
     .from('organisations')
-    .insert({ name: `Buffer Test Org ${Date.now()}` })
+    .insert({ name: `Buffer Test Org ${Date.now()}`, account_id: accountId })
     .select('id')
     .single()
   if (error) throw new Error(`org: ${error.message}`)
@@ -24,6 +35,7 @@ afterAll(async () => {
     await admin.from('audit_log').delete().eq('id', id)
   }
   if (orgId) await admin.from('organisations').delete().eq('id', orgId)
+  if (accountId) await admin.from('accounts').delete().eq('id', accountId)
 }, 30000)
 
 async function seedAuditRow(overrides: Record<string, unknown> = {}) {

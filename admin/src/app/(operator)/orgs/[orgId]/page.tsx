@@ -29,7 +29,11 @@ export default async function OrganisationDetailPage({ params }: PageProps) {
 
   const [orgRes, membersRes, propertiesRes, integrationsRes, notesRes, sessionsRes, userRes] =
     await Promise.all([
-      supabase.from('organisations').select('*').eq('id', orgId).maybeSingle(),
+      supabase
+        .from('organisations')
+        .select('*, accounts(plan_code, trial_ends_at, razorpay_subscription_id, razorpay_customer_id, status, created_at)')
+        .eq('id', orgId)
+        .maybeSingle(),
       supabase
         .from('organisation_members')
         .select('user_id, role')
@@ -121,19 +125,20 @@ export default async function OrganisationDetailPage({ params }: PageProps) {
       </header>
 
       <section className="grid grid-cols-1 gap-4 md:grid-cols-3">
-        <Card title="Billing">
-          <KV label="Plan">{org.plan ?? 'free'}</KV>
-          <KV label="Status">{statusBadge(org.status)}</KV>
-          <KV label="Plan started">
-            {org.plan_started_at ? formatDate(org.plan_started_at) : '—'}
+        <Card title="Billing (account)">
+          <KV label="Plan">{org.accounts?.plan_code ?? 'free'}</KV>
+          <KV label="Org status">{statusBadge(org.status)}</KV>
+          <KV label="Account status">{org.accounts?.status ?? '—'}</KV>
+          <KV label="Account created">
+            {org.accounts?.created_at ? formatDate(org.accounts.created_at) : '—'}
           </KV>
           <KV label="Trial ends">
-            {org.trial_ends_at ? formatDate(org.trial_ends_at) : '—'}
+            {org.accounts?.trial_ends_at ? formatDate(org.accounts.trial_ends_at) : '—'}
           </KV>
           <KV label="Razorpay sub">
-            {org.razorpay_subscription_id ? (
+            {org.accounts?.razorpay_subscription_id ? (
               <code className="font-mono text-xs">
-                {org.razorpay_subscription_id}
+                {org.accounts.razorpay_subscription_id}
               </code>
             ) : (
               '—'

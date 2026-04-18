@@ -47,6 +47,7 @@ All Architecture Decision Records for ConsentShield, in chronological order.
 | ADR-0034 | Admin Billing Operations — Razorpay failures + refunds + comps + plan overrides | Proposed | 2026-04-17 | 2 | 3 |
 | ADR-0035 | Abuse & Security admin panel | Abandoned | 2026-04-17 | — | — | _(folded into ADR-0033; see its context)_ |
 | ADR-0043 | Customer App is Auth-Only (drop public landing; marketing site becomes www.consentshield.in) | Completed | 2026-04-17 | 1 | 1 |
+| ADR-0044 | Customer RBAC — 4-level hierarchy (account → orgs → web properties) + 5-role model + invitation-only signup | Proposed | 2026-04-18 | 5 | 8 |
 
 <!--
 When adding a new ADR:

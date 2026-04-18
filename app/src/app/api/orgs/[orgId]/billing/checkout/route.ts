@@ -58,11 +58,20 @@ export async function POST(
       customerNotify: true,
     })
 
-    // Save subscription ID on the org but keep plan='trial' until webhook confirms
-    await supabase
+    // ADR-0044 Phase 0 — subscription identity lives on accounts, not orgs.
+    // Resolve the account via the org and stamp the subscription id there.
+    const { data: org } = await supabase
       .from('organisations')
-      .update({ razorpay_subscription_id: subscription.id })
+      .select('account_id')
       .eq('id', orgId)
+      .single()
+
+    if (org?.account_id) {
+      await supabase
+        .from('accounts')
+        .update({ razorpay_subscription_id: subscription.id })
+        .eq('id', org.account_id)
+    }
 
     return NextResponse.json({
       subscription_id: subscription.id,

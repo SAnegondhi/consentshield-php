@@ -26,20 +26,33 @@ export default async function BillingPage() {
     )
   }
 
+  // ADR-0044 Phase 0 — billing identity moved from organisations to accounts.
+  // We still hop through organisations to get account_id (v1: one account per user).
   const { data: org } = await supabase
     .from('organisations')
-    .select('plan, plan_started_at, trial_ends_at')
+    .select('account_id, created_at')
     .eq('id', membership.org_id)
     .single()
+
+  const { data: account } = org?.account_id
+    ? await supabase
+        .from('accounts')
+        .select('plan_code, created_at, trial_ends_at, status')
+        .eq('id', org.account_id)
+        .single()
+    : { data: null }
 
   const { count: propertyCount } = await supabase
     .from('web_properties')
     .select('id', { count: 'exact', head: true })
 
-  const currentPlan = getPlan(org?.plan ?? 'trial')
-  const isTrial = currentPlan.id === 'trial'
+  // Map new plan_code back to the PLANS catalogue (trial_starter → 'trial').
+  const planIdForLookup =
+    account?.plan_code === 'trial_starter' ? 'trial' : (account?.plan_code ?? 'trial')
+  const currentPlan = getPlan(planIdForLookup)
+  const isTrial = account?.status === 'trial' || planIdForLookup === 'trial'
   const trialDaysLeft =
-    isTrial && org?.trial_ends_at ? Math.max(0, daysBetween(org.trial_ends_at)) : 0
+    isTrial && account?.trial_ends_at ? Math.max(0, daysBetween(account.trial_ends_at)) : 0
 
   return (
     <main className="p-8 space-y-6 max-w-6xl">
@@ -78,8 +91,8 @@ export default async function BillingPage() {
           <div className="text-right text-sm text-gray-600">
             <p>Properties: <strong>{propertyCount ?? 0} / {currentPlan.limits.web_properties ?? '∞'}</strong></p>
             <p className="mt-1 text-xs">
-              {org?.plan_started_at
-                ? `Since ${new Date(org.plan_started_at).toLocaleDateString()}`
+              {account?.created_at
+                ? `Since ${new Date(account.created_at).toLocaleDateString()}`
                 : ''}
             </p>
           </div>

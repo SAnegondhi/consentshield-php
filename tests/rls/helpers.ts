@@ -18,6 +18,7 @@ export function getAnonClient(): SupabaseClient {
 
 export interface TestOrg {
   orgId: string
+  accountId: string
   userId: string
   email: string
   client: SupabaseClient
@@ -42,15 +43,24 @@ export async function createTestOrg(suffix?: string): Promise<TestOrg> {
   if (authError) throw new Error(`createUser failed: ${authError.message}`)
   const userId = authData.user.id
 
-  // Create org
+  // ADR-0044 Phase 0 — organisations now require an account_id FK.
+  const { data: account, error: accountError } = await admin
+    .from('accounts')
+    .insert({ name: `Test Account ${tag}`, plan_code: 'trial_starter', status: 'trial' })
+    .select('id')
+    .single()
+  if (accountError) throw new Error(`createAccount failed: ${accountError.message}`)
+
+  // Create org under the account
   const { data: org, error: orgError } = await admin
     .from('organisations')
-    .insert({ name: `Test Org ${tag}` })
+    .insert({ name: `Test Org ${tag}`, account_id: account.id })
     .select('id')
     .single()
   if (orgError) throw new Error(`createOrg failed: ${orgError.message}`)
 
-  // Link user as admin
+  // Link user as admin (old organisation_members role taxonomy; Phase 1
+  // will rename table + migrate role values).
   const { error: memberError } = await admin
     .from('organisation_members')
     .insert({ org_id: org.id, user_id: userId, role: 'admin' })
@@ -64,13 +74,16 @@ export async function createTestOrg(suffix?: string): Promise<TestOrg> {
   // Force token refresh so JWT picks up org_id claim from the hook
   await userClient.auth.refreshSession()
 
-  return { orgId: org.id, userId, email, client: userClient }
+  return { orgId: org.id, accountId: account.id, userId, email, client: userClient }
 }
 
 export async function cleanupTestOrg(testOrg: TestOrg) {
   const admin = getServiceClient()
-  // Cascade delete handles organisation_members and all org-scoped data
+  // Cascade delete handles organisation_members and all org-scoped data;
+  // the account row is cleaned up after the org because the FK is
+  // ON DELETE RESTRICT from org → account.
   await admin.from('organisations').delete().eq('id', testOrg.orgId)
+  await admin.from('accounts').delete().eq('id', testOrg.accountId)
   await admin.auth.admin.deleteUser(testOrg.userId)
 }
 

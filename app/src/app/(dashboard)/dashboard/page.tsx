@@ -31,11 +31,15 @@ export default async function DashboardPage() {
     )
   }
 
-  const { data: org } = await supabase
+  // ADR-0044 Phase 0 — plan lives on accounts, joined via organisations.account_id.
+  const { data: orgRaw } = await supabase
     .from('organisations')
-    .select('name, plan, storage_mode')
+    .select('name, storage_mode, accounts(plan_code)')
     .eq('id', membership.org_id)
     .single()
+  const org = orgRaw as
+    | { name: string; storage_mode: string; accounts: { plan_code: string } | null }
+    | null
 
   // Parallel data fetches
   const since = isoSinceHours(24)
@@ -171,7 +175,7 @@ export default async function DashboardPage() {
       <div>
         <h1 className="text-2xl font-bold">{org?.name ?? 'Dashboard'}</h1>
         <p className="text-sm text-gray-600">
-          {org?.plan ?? 'trial'} plan · {membership.role} · storage: {org?.storage_mode}
+          {org?.accounts?.plan_code ?? 'trial'} plan · {membership.role} · storage: {org?.storage_mode}
         </p>
       </div>
 
