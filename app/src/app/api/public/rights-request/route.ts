@@ -3,6 +3,7 @@ import { NextResponse } from 'next/server'
 import { verifyTurnstileToken } from '@/lib/rights/turnstile'
 import { generateOtp, hashOtp, otpExpiryIso } from '@/lib/rights/otp'
 import { checkRateLimit } from '@/lib/rights/rate-limit'
+import { logRateLimitHit } from '@/lib/rights/rate-limit-log'
 import { sendOtpEmail } from '@/lib/rights/email'
 import { deriveRequestFingerprint } from '@/lib/rights/fingerprint'
 
@@ -11,8 +12,17 @@ const VALID_TYPES = ['erasure', 'access', 'correction', 'nomination']
 export async function POST(request: Request) {
   const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown'
 
-  const limit = await checkRateLimit(`rl:rights:${ip}`, 5, 60)
+  const rateKey = `rl:rights:${ip}`
+  const limit = await checkRateLimit(rateKey, 5, 60)
   if (!limit.allowed) {
+    // ADR-0049 Phase 1.1 — fire-and-forget.
+    logRateLimitHit({
+      endpoint: '/api/public/rights-request',
+      key: rateKey,
+      ipAddress: ip,
+      hitCount: 5,
+      windowSeconds: 60 * 60,
+    })
     return NextResponse.json(
       { error: 'Too many requests. Try again later.', retry_in_seconds: limit.retryInSeconds },
       { status: 429, headers: { 'Retry-After': String(limit.retryInSeconds) } },

@@ -2,13 +2,22 @@ import { createClient } from '@supabase/supabase-js'
 import { NextResponse } from 'next/server'
 import { hashOtp } from '@/lib/rights/otp'
 import { checkRateLimit } from '@/lib/rights/rate-limit'
+import { logRateLimitHit } from '@/lib/rights/rate-limit-log'
 import { sendComplianceNotification } from '@/lib/rights/email'
 
 export async function POST(request: Request) {
   const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown'
 
-  const limit = await checkRateLimit(`rl:rights-otp:${ip}`, 10, 60)
+  const rateKey = `rl:rights-otp:${ip}`
+  const limit = await checkRateLimit(rateKey, 10, 60)
   if (!limit.allowed) {
+    logRateLimitHit({
+      endpoint: '/api/public/rights-request/verify-otp',
+      key: rateKey,
+      ipAddress: ip,
+      hitCount: 10,
+      windowSeconds: 60 * 60,
+    })
     return NextResponse.json(
       { error: 'Too many attempts. Try again later.' },
       { status: 429, headers: { 'Retry-After': String(limit.retryInSeconds) } },

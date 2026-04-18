@@ -72,15 +72,17 @@ Two phases, each self-testable. Both follow the ADR-0048 pattern: tiny `public.*
 
 **Deliverables:**
 
-- [ ] Migration `20260507000001_rate_limit_events.sql`:
-  - `public.rate_limit_events(id, occurred_at, endpoint, ip_address, org_id, hit_count, window_seconds, key_hash)` with RLS enabled; INSERT granted to `authenticated` (the Next.js server client running public rights-request routes); no customer-facing SELECT policy.
-  - Partial index `(ip_address, occurred_at desc)` for the admin group-by-IP query.
-  - 7-day cleanup cron matching the `worker_errors` discipline.
-  - `admin.security_rate_limit_triggers(p_window_hours)` rewritten to read from the new table; support+.
-- [ ] `app/src/lib/rights/rate-limit.ts` — on `allowed=false`, fire-and-forget INSERT via the public Supabase client. Errors swallowed — rate limiting still functions if the log write fails.
-- [ ] `tests/admin/rate-limit-rpcs.test.ts` — insert a synthetic row + call the RPC + assert the group-by shape; RPC denial for non-admin; stub behaviour on empty table.
+- [x] Migration `20260507000001_rate_limit_events.sql`:
+  - `public.rate_limit_events(id, occurred_at, endpoint, ip_address, org_id, hit_count, window_seconds, key_hash)` with RLS enabled. INSERT granted to `anon + authenticated` (public rights endpoints run as anon; dashboard routes run as authenticated). No SELECT policy — customer can't read.
+  - Indexes on `(ip_address, occurred_at desc)` + `(occurred_at desc)` for the admin group-by-IP + time-window queries.
+  - pg_cron `rate-limit-events-cleanup-daily` at `35 3 * * *` deletes rows older than 7 days.
+  - `admin.security_rate_limit_triggers(p_window_hours)` rewritten to read from the new table grouped by (endpoint, ip_address). Signature unchanged so the Security tab UI keeps working.
+- [x] New `app/src/lib/rights/rate-limit-log.ts` — fire-and-forget logger using the anon key + SHA-256'd bucket key. Errors swallowed. No await on the caller side.
+- [x] Rights-request routes wired (`/api/public/rights-request` + `/api/public/rights-request/verify-otp`): on `allowed=false` the logger is called before returning 429.
+- [x] `tests/admin/rate-limit-rpcs.test.ts` — **5/5 PASS**: empty-table shape, group-by (endpoint, ip) sums hit_count correctly (15 from three 5's), window-bounds rejection, non-admin denial, direct-SELECT returns zero rows under RLS default-deny for authenticated.
+- [x] Customer app build + lint clean.
 
-**Status:** `[ ] planned`
+**Status:** `[x] complete` — 2026-04-18
 
 #### Sprint 1.2 — Security panel polish
 
