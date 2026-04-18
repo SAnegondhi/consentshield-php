@@ -119,12 +119,24 @@ returning:
 
 **Deliverables:**
 
-- [ ] `admin/src/app/api/admin/users/invite/route.ts` — POST. Gate caller at `platform_operator` via proxy + defensive re-check in handler. Creates auth user via `supabase.auth.admin.createUser({ email, email_confirm: true, app_metadata: { is_admin: true, admin_role } })`. Calls `admin.admin_invite_create`. Generates + emails the password-setup link (Supabase `generateLink({ type: 'recovery' })` + Resend). Returns `{ adminId }`.
-- [ ] `admin/src/app/api/admin/users/[adminId]/role/route.ts` — PATCH. Calls `admin.admin_change_role`. On success, syncs `app_metadata.admin_role` via `auth.admin.updateUserById`. Response includes a note that the invitee must sign out + back in for the new JWT to carry the role.
-- [ ] `admin/src/app/api/admin/users/[adminId]/disable/route.ts` — POST. Calls `admin.admin_disable`. On success, syncs `app_metadata.is_admin=false`. Existing sessions fail at the next `proxy.ts` is_admin check after refresh.
-- [ ] Sync-drift tolerance: if the RPC succeeds but the subsequent Auth API call fails, the Route Handler surfaces a 500 with both sides' status so the operator can retry. The RPC side (postgres) is authoritative for RLS + audit; the JWT side follows on next refresh.
+- [x] `admin/src/lib/supabase/service.ts` — `getAdminServiceClient()` + `isServiceClientReady()`. Accepts either `SUPABASE_SERVICE_ROLE_KEY` (legacy JWT) or `SUPABASE_SECRET_KEY` (new sb_secret format). Throws `ServiceClientEnvError` on missing env so Route Handlers can return precise 500s.
+- [x] `admin/src/lib/admin/invite-email.ts` — `sendAdminInviteEmail()` dispatches via Resend; returns `{dispatched:false, reason}` when RESEND env missing so the Route Handler can fall back to out-of-band credential handoff. OTP-based (no magic-link / password-set flow) — matches project memory `otp_over_magic_link`.
+- [x] `admin/src/app/api/admin/users/invite/route.ts` — POST. Orchestrates `auth.admin.createUser` (sets `email_confirm=true` + `app_metadata={is_admin:true, admin_role}`), then `admin.admin_invite_create` (under caller's JWT for `require_admin` defence-in-depth), then `sendAdminInviteEmail`. Rolls back the auth user if the RPC fails so no orphaned elevated auth rows.
+- [x] `admin/src/app/api/admin/users/[adminId]/role/route.ts` — PATCH. `admin_change_role` (guard fires) → `auth.admin.updateUserById` with `{...existingMeta, admin_role: newRole}`. Returns 207 on postgres-succeeds / auth-fails drift so the operator can reconcile. Response includes the "sign out + back in" note for the affected admin.
+- [x] `admin/src/app/api/admin/users/[adminId]/disable/route.ts` — POST. `admin_disable` → flips `app_metadata.is_admin=false` (keeps `admin_role` for forensic history). Same 207-drift pattern.
+- [x] Build (`bun run build`) + lint (`bun run lint`) clean. All 3 routes in the admin route manifest.
 
-**Status:** `[ ] planned`
+**Deployment requirement:** admin Vercel project needs the following env vars for the Route Handlers to operate:
+
+- `SUPABASE_SERVICE_ROLE_KEY` or `SUPABASE_SECRET_KEY` — to call `auth.admin.*` APIs
+- `RESEND_API_KEY` + `RESEND_FROM` — to send the invite email (missing env degrades cleanly to `emailDispatched:false`)
+- `NEXT_PUBLIC_ADMIN_LOGIN_URL` (optional; defaults to `https://admin.consentshield.in/login`)
+
+Without these, the endpoints return 500 with a precise error message; no silent failures.
+
+**Route-handler test coverage:** not added this sprint — no Next.js route-handler test harness in the repo. Live smoke with a test invitation is the acceptance path; planned alongside Sprint 2.1 UI.
+
+**Status:** `[x] complete` — 2026-04-18
 
 ### Sprint 2.1 — Admin Users panel UI
 
