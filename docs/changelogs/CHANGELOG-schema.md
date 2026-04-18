@@ -2,6 +2,19 @@
 
 Database migrations, RLS policies, roles.
 
+## [ADR-0044 Phase 2.6] — 2026-04-18
+
+**ADR:** ADR-0044 v2 — Customer RBAC
+**Sprint:** Phase 2.6 — marketing-site invite RPC
+
+### Added
+- `20260501000004_invitations_marketing_rpc.sql` — `public.create_invitation_from_marketing(p_email, p_plan_code, p_trial_days, p_default_org_name, p_expires_in_days)`. Narrow wrapper of the account-creating branch of `public.create_invitation` with the `is_admin` JWT check dropped. EXECUTE granted only to `cs_orchestrator`. Access control lives in the Node.js route's HMAC verification.
+- `20260501000005_marketing_rpc_grant_fix.sql` — explicit `revoke execute from public, anon, authenticated` on the RPC. Discovered during a manual probe that the initial `revoke from public` wasn't enough: hosted Supabase grants EXECUTE on `public.*` functions to anon + authenticated via default privileges at creation time. Follow-up memo in `feedback_supabase_default_function_grants.md`.
+
+### Tested
+- `tests/rbac/invitations-marketing-rpc.test.ts` — 5 tests: authenticated + anon hit `42501` permission denied; service-role (superuser path) successfully creates an account_owner invite with the expected shape; inactive plan raises; duplicate pending invite raises `23505`.
+- `bun run test:rls` — 212/212 across 20 files.
+
 ## [ADR-0044 Phase 2.5] — 2026-04-18
 
 **ADR:** ADR-0044 v2 — Customer RBAC
