@@ -29,11 +29,30 @@
 alter table public.refunds
   add column if not exists account_id uuid references public.accounts(id) on delete cascade;
 
-update public.refunds r
-   set account_id = o.account_id
-  from public.organisations o
- where o.id = r.org_id
-   and r.account_id is null;
+-- Backfill guarded by column existence so `supabase db push --include-all`
+-- replays don't hit "column org_id does not exist" if this migration is
+-- re-invoked against a schema that's already been rewritten. Also uses
+-- fully-qualified column refs instead of an alias in UPDATE...FROM —
+-- PG's planner has historically been finicky about alias resolution in
+-- UPDATE statements when the aliased column gets dropped later in the
+-- same transaction (observed on fresh local replays per Terminal B).
+do $$
+begin
+  if exists (
+    select 1 from information_schema.columns
+     where table_schema = 'public'
+       and table_name   = 'refunds'
+       and column_name  = 'org_id'
+  ) then
+    execute $sql$
+      update public.refunds
+         set account_id = o.account_id
+        from public.organisations o
+       where o.id = public.refunds.org_id
+         and public.refunds.account_id is null
+    $sql$;
+  end if;
+end $$;
 
 alter table public.refunds
   alter column account_id set not null;
@@ -54,11 +73,23 @@ create index if not exists refunds_account_created_idx
 alter table public.plan_adjustments
   add column if not exists account_id uuid references public.accounts(id) on delete cascade;
 
-update public.plan_adjustments pa
-   set account_id = o.account_id
-  from public.organisations o
- where o.id = pa.org_id
-   and pa.account_id is null;
+do $$
+begin
+  if exists (
+    select 1 from information_schema.columns
+     where table_schema = 'public'
+       and table_name   = 'plan_adjustments'
+       and column_name  = 'org_id'
+  ) then
+    execute $sql$
+      update public.plan_adjustments
+         set account_id = o.account_id
+        from public.organisations o
+       where o.id = public.plan_adjustments.org_id
+         and public.plan_adjustments.account_id is null
+    $sql$;
+  end if;
+end $$;
 
 alter table public.plan_adjustments
   alter column account_id set not null;
