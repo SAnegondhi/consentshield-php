@@ -2,6 +2,23 @@
 
 Documentation changes.
 
+## [ADR-1001 Sprint 1.1] — 2026-04-19
+
+**ADR:** ADR-1001 — v2 Whitepaper Phase 1 (Truth-in-marketing + Public API foundation)
+**Sprint:** Sprint 1.1 — Connector catalogue accuracy (G-001)
+
+### Changed
+- `docs/design/ConsentShield-Customer-Integration-Whitepaper-v2.md` — Appendix D re-tabled into Shipping today / Q3 2026 / Q4 2026 status columns with ADR-1007 sprint targets; only Mailchimp + HubSpot marked Shipping today. §6.2 in-body connector table reshaped to match. §9.1 Pure-Web-SaaS archetype diagram corrected (removed Intercom from "pre-built OAuth connectors" line).
+- `docs/design/screen designs and ux/consentshield-site.html` — five overclaims corrected: feature card (line 1016), product-section bullet (line 1297), solution tile (line 1846), pricing tile (line 1868), FAQ (line 2156). The "13 pre-built connectors" language is fully removed.
+
+### Added
+- `app/src/lib/connectors/README.md` — authoritative connector catalogue, matching the whitepaper Appendix D exactly. Documents the Shipping today / Q3 2026 / Q4 2026 status semantics and the owning ADR-1007 sprints. Added the norm that this file, Appendix D, and the site HTML MUST match (per CC-F, whitepaper-as-normative-spec).
+
+### Tested
+- [x] Test 1: grep for "Shipping today" in whitepaper — PASS (2 data rows, both backed by real files)
+- [x] Test 2: Shipping claims ↔ connector files under `app/src/lib/connectors/oauth/` — PASS (1:1 correspondence: Mailchimp ↔ `mailchimp.ts`, HubSpot ↔ `hubspot.ts`)
+- [x] Test 3 (added): no stale "13 pre-built" / "15 pre-built" claims in site HTML — PASS
+
 ## [ADR-0050 Sprint 2.3 status flip] — 2026-04-19
 
 **ADR:** ADR-0050 — Admin account-aware billing

@@ -1,0 +1,226 @@
+# ADR-1002: DPDP §6 Runtime Enforcement — Verify, Record, Artefact Ops, Deletion API
+
+**Status:** Proposed
+**Date proposed:** 2026-04-19
+**Date completed:** —
+**Related plan:** `docs/plans/ConsentShield-V2-Whitepaper-Closure-Plan.md` Phase 2
+**Depends on:** ADR-1001 (API key middleware + `cs_api` role must exist)
+**Related gaps:** G-037, G-038, G-039, G-040
+
+---
+
+## Context
+
+ADR-1001 ships the ability to authenticate a `/v1/*` request. What those requests *do* is the product. Sections 4, 5, 6, 9.2, 9.3, 9.4, and 11 of the v2.0 whitepaper describe four integration surfaces that depend on a small set of endpoints that do not currently exist:
+
+- **Consent capture from non-browser channels** (mobile app, call-centre, branch, kiosk, in-person) needs a server-to-server recording endpoint (§4.2 Mode B). Without this, every BFSI, NBFC, and healthcare archetype loses DPDP §6(1) artefact coverage for its most important channels.
+- **Runtime consent verification** (§5, §11) is the gating check every customer system makes before acting on user data. Without this, DPDP §6(2) purpose limitation is recorded but not enforced — the worst possible DPB examination finding.
+- **Programmatic artefact management** — listing, retrieving, revoking — is how a customer's mobile app's "withdraw consent" button works (§6(4) parity obligation), and how a core banking platform stores the five artefact IDs for Mrs. Sharma at account opening (§11).
+- **Programmatic deletion triggering + receipt listing** is how a support desk initiates a §13 erasure request and how a compliance dashboard pages through historical receipts.
+
+This ADR delivers those endpoints and an OpenAPI stub that describes them. The endpoints are thin handlers over existing RPCs (ADR-0021 for `process-consent-event`, ADR-0022 for `process-artefact-revocation`, ADR-0007 for deletion orchestration) — the novelty is the public surface, not the processing.
+
+## Decision
+
+Ship five endpoints as Vercel Functions in the customer app (`app/src/app/api/v1/consent/**`, `app/src/app/api/v1/deletion/**`) behind ADR-1001's middleware:
+
+1. `GET /v1/consent/verify` — single-identifier verification via `consent_artefact_index`. Sub-50ms p99 target (measurement in ADR-1008). **(G-037)**
+2. `POST /v1/consent/verify/batch` — up to 10,000 identifiers per call. **(G-037)**
+3. `POST /v1/consent/record` — Mode B server-to-server consent capture with synchronous artefact return. **(G-038)**
+4. `GET /v1/consent/artefacts` + `GET /v1/consent/artefacts/{id}` + `POST /v1/consent/artefacts/{id}/revoke` + `GET /v1/consent/events`. **(G-039)**
+5. `POST /v1/deletion/trigger` + `GET /v1/deletion/receipts`. **(G-040)**
+
+Every endpoint has a matching entry in `app/public/openapi.yaml`. The whitepaper's Appendix A is regenerated from the spec as part of Sprint 3.1.
+
+## Consequences
+
+- Section 5 of the whitepaper becomes executable. The BFSI-procurement "how do I verify consent before a lending decision?" has a live answer.
+- Section 11 (Mrs. Sharma worked example) is reproducible end-to-end against staging — this becomes the canonical BFSI demo.
+- G-039's revoke endpoint closes the §6(4) parity loop: anything grantable via API is revokable via API.
+- Deletion orchestration remains the only authoritative executor of downstream deletes; `/v1/deletion/trigger` merely creates the right rows and lets the existing pipeline run.
+- The public API surface now has five real endpoints. The whitepaper Appendix A CI drift check (deferred to ADR-1006) protects against silent divergence from here on.
+- No changes to the DEPA artefact model or the fan-out pipeline. This ADR is purely surface work.
+
+---
+
+## Implementation Plan
+
+### Phase 1: Verification endpoints (G-037)
+
+#### Sprint 1.1: `GET /v1/consent/verify`
+
+**Estimated effort:** 2 days
+
+**Deliverables:**
+- [ ] `app/src/app/api/v1/consent/verify/route.ts` handler
+- [ ] Query parsing: `property_id`, `data_principal_identifier`, `identifier_type`, `purpose_code` — reject missing with 422
+- [ ] Helper `app/src/lib/consent/verify.ts`: single query against `consent_artefact_index` (no JOIN to `consent_artefacts` on hot path); returns the §5.1 response shape
+- [ ] Status resolution logic: active index row → `granted`; revocation row present → `revoked` + revocation_record_id; expired artefact → `expired`; absent → `never_consented`
+- [ ] `evaluated_at` set server-side (never trust client)
+- [ ] Scope gate: `read:consent`
+
+**Testing plan:**
+- [ ] Fixture: an org with 4 artefacts in different states (active/revoked/expired/absent) → 4 GET calls return the right 4 statuses
+- [ ] Timestamp fields are ISO 8601 and null-valid per spec
+- [ ] Wrong scope → 403
+- [ ] Cross-org identifier (property belongs to different org) → 404
+- [ ] One-shot perf test in staging on 50M-row index: p99 < 50 ms captured as baseline
+
+**Status:** `[ ] planned`
+
+#### Sprint 1.2: `POST /v1/consent/verify/batch`
+
+**Estimated effort:** 2 days
+
+**Deliverables:**
+- [ ] `app/src/app/api/v1/consent/verify/batch/route.ts`
+- [ ] Body validation: reject >10,000 identifiers with 413
+- [ ] Single parameterised query using `= ANY($1)` over the index for the identifier array
+- [ ] Response: ordered array matching input order, each with `{ identifier, status, active_artefact_id?, revoked_at?, expires_at?, revocation_record_id? }`
+- [ ] Scope: `read:consent`
+
+**Testing plan:**
+- [ ] 10,000-identifier fixture returns 10,000 statuses in order
+- [ ] 10,001 identifiers → 413
+- [ ] Mixed property_ids in a single call (if spec allows — per §5.3 single property_id per batch; reject multi) → 422
+- [ ] Load test at 100 concurrent batches → p99 < 2 s per batch (ADR-1008 continues)
+
+**Status:** `[ ] planned`
+
+### Phase 2: Consent record — Mode B (G-038)
+
+#### Sprint 2.1: `POST /v1/consent/record`
+
+**Estimated effort:** 3 days
+
+**Deliverables:**
+- [ ] `app/src/app/api/v1/consent/record/route.ts`
+- [ ] Body validation: property_id belongs to org, every `purpose_definition_id` resolves and belongs to org, `captured_at` within ±15 min of server
+- [ ] Transactional write of `consent_events` row with `source='api'`
+- [ ] Inline synchronous call to `process-consent-event` (bypasses the trigger → `net.http_post` path for this invocation; trigger + safety-net path remains for all other writers and for idempotency)
+- [ ] Response: `{ event_id, artefact_ids: [{ purpose_code, artefact_id, status }], created_at }`
+- [ ] Scope: `write:consent`
+
+**Testing plan:**
+- [ ] 5-grant + 2-deny fixture (the §4.2 call-centre scenario) returns 5 artefact IDs (only granted purposes create artefacts)
+- [ ] Missing / invalid `purpose_definition_id` → 422 with list of offending IDs
+- [ ] `captured_at` more than 15 min stale → 422
+- [ ] Idempotency: replaying the exact same body (same `event_id` if supplied) returns existing artefact IDs, not new ones
+- [ ] Audit trail: `audit_log` row written with `captured_via` and `captured_by`
+
+**Status:** `[ ] planned`
+
+### Phase 3: Artefact + event ops (G-039)
+
+#### Sprint 3.1: List + read artefacts + list events
+
+**Estimated effort:** 2 days
+
+**Deliverables:**
+- [ ] `GET /v1/consent/artefacts` with cursor-based pagination (`limit` ≤ 200, `cursor` opaque)
+- [ ] Filters: `property_id`, `data_principal_identifier`, `status`, `purpose_code`, `expires_before`, `expires_after`
+- [ ] `GET /v1/consent/artefacts/{id}` returning artefact + revocation record if any + `replaced_by` chain traversal (Section 3.4 semantics)
+- [ ] `GET /v1/consent/events` date-range filter; paged summary (no full payloads)
+- [ ] Scopes: `read:artefacts`, `read:consent`
+
+**Testing plan:**
+- [ ] Cursor pagination: 250-artefact org returns two pages of 200 + 50
+- [ ] Replaced-by chain: A replaced by B replaced by C; GET C returns chain `[A, B, C]`
+- [ ] Revoked artefact: GET returns artefact + revocation record linked
+- [ ] Cross-org artefact_id lookup → 404
+
+**Status:** `[ ] planned`
+
+#### Sprint 3.2: Revoke artefact
+
+**Estimated effort:** 2 days
+
+**Deliverables:**
+- [ ] `POST /v1/consent/artefacts/{id}/revoke`
+- [ ] Body: `{ reason_code, reason_notes?, actor_type: "user" | "operator" | "system" }`
+- [ ] Re-uses existing `artefact_revocations` INSERT path (ADR-0022 cascade)
+- [ ] Idempotency: already-revoked → 200 with existing `revocation_record_id`, not 409
+- [ ] Scope: `write:artefacts`
+
+**Testing plan:**
+- [ ] Revoke active artefact → status transitions to `revoked`; cascade trigger fires; deletion receipts created per `purpose_connector_mappings`
+- [ ] Idempotent replay: same artefact → 200 with same `revocation_record_id`
+- [ ] Revoke already-expired artefact → 409 (expired is terminal)
+- [ ] Revoke replaced artefact → 409 (replaced is terminal)
+
+**Status:** `[ ] planned`
+
+### Phase 4: Deletion API (G-040)
+
+#### Sprint 4.1: Trigger + list
+
+**Estimated effort:** 2 days
+
+**Deliverables:**
+- [ ] `POST /v1/deletion/trigger` body: `{ property_id, data_principal, reason, purpose_codes?, deadline? }`
+  - `reason='consent_revoked'` or `'consent_expired'`: require `purpose_codes`; creates `artefact_revocations` rows for matching artefacts and lets the cascade fire
+  - `reason='erasure_request'`: sweeps all active artefacts for the principal (equivalent to DPDP §13 rights request)
+  - `reason='retention_expired'`: data-scope-driven, accepts an explicit scope override
+- [ ] `GET /v1/deletion/receipts` filters: `status`, `connector_id`, `artefact_id`, `issued_after`, `issued_before`
+- [ ] Response to POST: array of receipt IDs + initial status
+- [ ] Scopes: `write:deletion`, `read:deletion`
+
+**Testing plan:**
+- [ ] Trigger with `reason=consent_revoked` + purpose_code → matching artefact revoked; `deletion_receipts` rows created
+- [ ] Trigger with `reason=erasure_request` → every active artefact for principal swept
+- [ ] Missing required fields per reason → 422
+- [ ] List filters compose correctly (status + artefact_id + date range)
+
+**Status:** `[ ] planned`
+
+### Phase 5: Exit gate
+
+#### Sprint 5.1: OpenAPI stub + Mrs. Sharma end-to-end
+
+**Estimated effort:** 2 days
+
+**Deliverables:**
+- [ ] `app/public/openapi.yaml` extended with all 7 endpoints from this ADR (schemas, scopes, error shapes)
+- [ ] `tests/integration/mrs-sharma.e2e.test.ts` reproducing the §11 scenario end-to-end:
+  1. Record 5 grants via `POST /v1/consent/record`
+  2. Batch verify 12M identifiers (scaled down to 10k for CI, 12M in staging load test)
+  3. Revoke artefact cs_art_... via `POST /v1/consent/artefacts/{id}/revoke`
+  4. Verify single → returns `revoked`
+  5. `GET /v1/deletion/receipts?artefact_id=…` returns one receipt
+- [ ] Whitepaper §5, §11 edits: if any response-shape drift is discovered while wiring, the whitepaper is the artefact amended (CC-F / whitepaper-as-normative-spec)
+
+**Testing plan:**
+- [ ] E2E test passes end-to-end in staging
+- [ ] OpenAPI validates (`redocly lint`) + renders (`redocly build-docs`)
+
+**Status:** `[ ] planned`
+
+---
+
+## Architecture Changes
+
+- `docs/architecture/consentshield-definitive-architecture.md`: add sections for Surface 1 (Mode B API), Surface 2 (verify/verify-batch), and artefact-management API; document synchronous fan-out path.
+- No schema changes — this ADR is entirely surface work on top of existing tables.
+
+_None yet._
+
+---
+
+## Test Results
+
+_Empty until Sprint 1.1 runs._
+
+---
+
+## V2 Backlog (explicitly deferred)
+
+- Streaming batch-verify for >10k identifiers (customer uses parallel calls today).
+- Idempotency keys on `/v1/consent/record` — synchronous-return pattern + `event_id` de-dupe is enough for v1.
+- Webhook subscriptions for artefact-status changes — BFSI customers poll `/v1/consent/events` today; subscriptions deferred until demand.
+
+---
+
+## Changelog References
+
+- `CHANGELOG-api.md` — all sprints
+- `CHANGELOG-docs.md` — Sprint 5.1 (OpenAPI + whitepaper amendments)

@@ -54,6 +54,14 @@ All Architecture Decision Records for ConsentShield, in chronological order.
 | ADR-0048 | Admin Accounts panel + ADR-0033/34 deviation closeout (suspend_account / account picker / Worker HMAC+Origin logging) | Completed | 2026-04-18 | 2 | 3 |
 | ADR-0049 | Security observability ingestion — rate_limit_events + sentry_events (closes V2-S1/S2) | Completed | 2026-04-18 | 2 | 4 |
 | ADR-0050 | Admin account-aware billing — issuer entities + invoices + GST + dispute workspace | In Progress | 2026-04-18 | 3 | 6 |
+| ADR-1001 | v2 Whitepaper Phase 1 — Truth-in-marketing + Public API foundation (`cs_live_*` keys + Bearer middleware) | In Progress | 2026-04-19 | 3 | 7 |
+| ADR-1002 | v2 Whitepaper Phase 2 — DPDP §6 runtime enforcement (`/v1/consent/verify` + `record` + artefact ops + deletion API) | Proposed | 2026-04-19 | 5 | 7 |
+| ADR-1003 | v2 Whitepaper Phase 3 — Processor posture (`storage_mode` enforcement + BYOS + Zero-Storage + Healthcare seed + sandbox) | Proposed | 2026-04-19 | 5 | 8 |
+| ADR-1004 | v2 Whitepaper Phase 4 — Statutory retention (Regulatory Exemption Engine) + material-change re-consent + silent-failure detection | Proposed | 2026-04-19 | 3 | 9 |
+| ADR-1005 | v2 Whitepaper Phase 5 — Operations maturity (webhook reference, test_delete, support model, status page, rights API, non-email channels) | Proposed | 2026-04-19 | 6 | 10 |
+| ADR-1006 | v2 Whitepaper Phase 6 — Developer experience (Node/Python/Java/Go client libraries + OpenAPI + CI drift check) | Proposed | 2026-04-19 | 4 | 7 |
+| ADR-1007 | v2 Whitepaper Phase 7 — Connector ecosystem expansion (CleverTap, Razorpay, WebEngage/MoEngage, Intercom/Freshdesk, Shopify/WooCommerce, Segment) + WordPress + Shopify plugins | Proposed | 2026-04-19 | 3 | 9 |
+| ADR-1008 | v2 Whitepaper Phase 8 — Scale + audit polish + P3 hardening (load tests, verify SLO, audit CSV, tracker corpus, multi-channel re-consent, HMAC rotation, SOC 2, React Native, WYSIWYG decision) | Proposed | 2026-04-19 | 3 | 10 |
 
 <!--
 When adding a new ADR:
