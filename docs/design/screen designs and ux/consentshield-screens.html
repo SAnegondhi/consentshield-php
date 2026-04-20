@@ -1639,6 +1639,127 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:14
             </div>
           </div>
 
+          <!-- ─────────── ADR-0054 — Customer-facing Billing settings ─────────── -->
+          <!--
+            Route: /dashboard/settings/billing
+            Visibility:
+              account_owner → full read/write (billing profile edit, invoice download)
+              account_viewer → read-only (can view invoices + profile, cannot edit)
+              org_admin / admin / viewer → section hidden (account-level concern only)
+            RPCs consumed:
+              public.list_account_invoices()                     (new, Sprint 1.1)
+              public.get_account_billing_profile()               (new, Sprint 1.1)
+              public.update_account_billing_profile(...)         (new, Sprint 1.2)
+            R2 PDF access: short-TTL presigned URL per download click via new
+              /api/orgs/[orgId]/billing/invoices/[invoiceId]/pdf route.
+          -->
+          <div class="settings-section" id="billing-section" style="margin-top:24px">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+              <div>
+                <div style="font-size:14px;font-weight:600">Billing</div>
+                <div style="font-size:12px;color:var(--text-3);margin-top:2px">Plan, billing profile, and invoice history for <strong>Acme account</strong></div>
+              </div>
+            </div>
+
+            <!-- Current plan card (summary; deep-link to /dashboard/billing for plan change) -->
+            <div style="background:var(--bg);border:1px solid var(--border);border-radius:var(--r);padding:14px;margin-bottom:18px">
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+                <div>
+                  <div style="font-size:13px;font-weight:600">Growth plan</div>
+                  <div style="font-size:12px;color:var(--text-2);margin-top:2px">₹5,999 / month · Renews May 11, 2026</div>
+                </div>
+                <button class="btn btn-secondary btn-sm" onclick="showPanel('billing')">Change plan</button>
+              </div>
+              <div style="font-size:11px;color:var(--text-3)">Plan limits: 10 web properties · 100K consent events/month · unlimited rights requests</div>
+            </div>
+
+            <!-- Billing profile (editable by account_owner) -->
+            <div style="font-size:12px;font-weight:600;color:var(--text-2);margin:18px 0 8px">Billing profile</div>
+            <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:4px 14px">
+              <div class="settings-row">
+                <div><div class="settings-row-label">Legal name</div><div class="settings-row-desc">Printed on every invoice</div></div>
+                <input class="config-input" value="Acme Technologies Pvt Ltd" style="width:260px">
+              </div>
+              <div class="settings-row">
+                <div><div class="settings-row-label">GSTIN <span style="font-size:10px;color:var(--text-3);margin-left:4px">(optional)</span></div><div class="settings-row-desc">Required for input tax credit claims</div></div>
+                <input class="config-input" value="29ABCDE1234F1Z5" style="width:260px;font-family:monospace">
+              </div>
+              <div class="settings-row">
+                <div><div class="settings-row-label">Registered state</div><div class="settings-row-desc">Determines IGST vs CGST+SGST split</div></div>
+                <select class="config-input" style="width:260px;padding:7px 10px">
+                  <option>Karnataka (29)</option>
+                  <option>Maharashtra (27)</option>
+                  <option>Tamil Nadu (33)</option>
+                  <option>Delhi (07)</option>
+                </select>
+              </div>
+              <div class="settings-row">
+                <div><div class="settings-row-label">Billing address</div><div class="settings-row-desc">Printed on every invoice; do NOT include personal addresses</div></div>
+                <textarea class="config-input" style="width:260px;height:60px;resize:vertical;font-family:inherit">#42, 4th Main, Indiranagar&#10;Bengaluru 560038&#10;Karnataka, India</textarea>
+              </div>
+              <div class="settings-row">
+                <div><div class="settings-row-label">Billing email</div><div class="settings-row-desc">Invoice PDFs are emailed here on issuance</div></div>
+                <input class="config-input" value="finance@acme.in" style="width:260px">
+              </div>
+              <div class="settings-row" style="border-bottom:none">
+                <div style="font-size:11px;color:var(--text-3)">Profile last updated Apr 18, 2026 by sudhindra@acme.in</div>
+                <button class="btn btn-primary btn-sm">Save changes</button>
+              </div>
+            </div>
+
+            <!-- Invoice history (read-only for everyone who can see the section) -->
+            <div style="font-size:12px;font-weight:600;color:var(--text-2);margin:22px 0 8px;display:flex;align-items:center;justify-content:space-between">
+              <span>Invoice history</span>
+              <span style="font-weight:400;color:var(--text-3)">Showing 12 invoices</span>
+            </div>
+            <table class="t">
+              <thead>
+                <tr>
+                  <th>Invoice #</th>
+                  <th>Issued</th>
+                  <th>Amount (incl. GST)</th>
+                  <th>Status</th>
+                  <th style="text-align:right">PDF</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong style="font-family:monospace">CS-25-26-042</strong></td>
+                  <td style="font-size:12px">Apr 11, 2026</td>
+                  <td style="font-size:13px">₹7,078.82</td>
+                  <td><span class="pill pill-teal"><span class="dot dot-teal"></span>Paid</span></td>
+                  <td style="text-align:right"><a href="#" style="color:var(--teal);font-size:12px;text-decoration:none">Download ↓</a></td>
+                </tr>
+                <tr>
+                  <td><strong style="font-family:monospace">CS-25-26-028</strong></td>
+                  <td style="font-size:12px">Mar 11, 2026</td>
+                  <td style="font-size:13px">₹7,078.82</td>
+                  <td><span class="pill pill-teal"><span class="dot dot-teal"></span>Paid</span></td>
+                  <td style="text-align:right"><a href="#" style="color:var(--teal);font-size:12px;text-decoration:none">Download ↓</a></td>
+                </tr>
+                <tr>
+                  <td><strong style="font-family:monospace">CS-25-26-015</strong></td>
+                  <td style="font-size:12px">Feb 11, 2026</td>
+                  <td style="font-size:13px">₹7,078.82</td>
+                  <td><span class="pill pill-amber"><span class="dot dot-amber"></span>Issued</span></td>
+                  <td style="text-align:right"><a href="#" style="color:var(--teal);font-size:12px;text-decoration:none">Download ↓</a></td>
+                </tr>
+                <tr>
+                  <td><strong style="font-family:monospace">CS-25-26-002</strong></td>
+                  <td style="font-size:12px">Jan 11, 2026</td>
+                  <td style="font-size:13px">₹7,078.82</td>
+                  <td><span class="pill pill-gray"><span class="dot dot-gray"></span>Void</span></td>
+                  <td style="text-align:right"><span style="font-size:11px;color:var(--text-3)">—</span></td>
+                </tr>
+              </tbody>
+            </table>
+            <div style="font-size:11px;color:var(--text-3);margin-top:10px">
+              Invoices are issued by the active <span class="pill pill-navy" style="font-size:10px;padding:1px 6px">ConsentShield (issuer)</span>
+              entity. GST is computed at issuance time based on your registered state vs the issuer's state.
+              PDFs are tamper-evident (SHA-256 recorded).
+            </div>
+          </div>
+
           <!-- ── Modal: Create new key ── -->
           <!--
             Shown via "+ New key" button. Dismissed via Cancel or after key is created
