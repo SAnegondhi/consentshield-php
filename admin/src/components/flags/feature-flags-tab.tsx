@@ -226,7 +226,10 @@ function FlagFormModal({
     const r = await setFeatureFlag({
       flagKey: flagKey.trim(),
       scope,
-      orgId: scope === 'global' ? null : orgId,
+      orgId: scope === 'org' ? orgId : null,
+      // ADR-0056 Sprint 1.1 — account-scope plumbing in place; UI selector
+      // for account targets lands in a follow-up sprint.
+      accountId: null,
       value,
       description,
       reason,
@@ -400,6 +403,7 @@ function DeleteFlagModal({
       flagKey: flag.flag_key,
       scope: flag.scope,
       orgId: flag.org_id,
+      accountId: null,  // ADR-0056: account-scoped delete wired via UI in follow-up sprint
       reason,
     })
     setPending(false)

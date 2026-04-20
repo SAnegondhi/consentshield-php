@@ -871,3 +871,11 @@ Combined: 42 (app) + 135 (rls/admin/depa) + 1 (admin smoke) = **178/178**.
 
 ### Changed
 - `admin/src/app/(operator)/accounts/[accountId]/page.tsx` — passes `accountName` through to the action bar so the impersonation modal can show "Impersonate account — {name}".
+
+## [ADR-0056 Sprint 1.1] — 2026-04-20
+
+**ADR:** ADR-0056 — Per-account feature-flag targeting
+
+### Changed
+- `admin/src/app/(operator)/flags/actions.ts` — `setFeatureFlag` + `deleteFeatureFlag` accept optional `accountId`; validates scope/target shape client-side; forwards `p_account_id` to RPC.
+- `admin/src/components/flags/feature-flags-tab.tsx` — existing callers pass `accountId: null` for compatibility. Full UI (account picker + account-scoped row badge) lands in ADR-0056 Sprint 1.2.

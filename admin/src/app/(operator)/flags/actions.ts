@@ -20,8 +20,9 @@ type FlagValue =
 
 export async function setFeatureFlag(input: {
   flagKey: string
-  scope: 'global' | 'org'
+  scope: 'global' | 'account' | 'org'
   orgId: string | null
+  accountId: string | null
   value: FlagValue
   description: string
   reason: string
@@ -33,8 +34,17 @@ export async function setFeatureFlag(input: {
   if (input.scope === 'org' && !input.orgId) {
     return { ok: false, error: 'Org-scope flags require an org.' }
   }
-  if (input.scope === 'global' && input.orgId) {
-    return { ok: false, error: 'Global-scope flags must not carry an org id.' }
+  if (input.scope === 'account' && !input.accountId) {
+    return { ok: false, error: 'Account-scope flags require an account.' }
+  }
+  if (input.scope === 'global' && (input.orgId || input.accountId)) {
+    return { ok: false, error: 'Global-scope flags must not carry an org or account id.' }
+  }
+  if (input.scope === 'account' && input.orgId) {
+    return { ok: false, error: 'Account-scope flags must not carry an org id.' }
+  }
+  if (input.scope === 'org' && input.accountId) {
+    return { ok: false, error: 'Org-scope flags must not carry an account id.' }
   }
   if (input.description.trim().length === 0) {
     return { ok: false, error: 'Description required.' }
@@ -50,6 +60,7 @@ export async function setFeatureFlag(input: {
     p_value: input.value.value,
     p_description: input.description.trim(),
     p_org_id: input.orgId,
+    p_account_id: input.accountId,
     p_reason: input.reason.trim(),
   })
   if (error) return { ok: false, error: error.message }
@@ -60,8 +71,9 @@ export async function setFeatureFlag(input: {
 
 export async function deleteFeatureFlag(input: {
   flagKey: string
-  scope: 'global' | 'org'
+  scope: 'global' | 'account' | 'org'
   orgId: string | null
+  accountId: string | null
   reason: string
 }): Promise<ActionResult> {
   if (input.reason.trim().length < 10) {
@@ -73,6 +85,7 @@ export async function deleteFeatureFlag(input: {
     p_flag_key: input.flagKey,
     p_scope: input.scope,
     p_org_id: input.orgId,
+    p_account_id: input.accountId,
     p_reason: input.reason.trim(),
   })
   if (error) return { ok: false, error: error.message }

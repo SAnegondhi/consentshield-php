@@ -1333,3 +1333,17 @@ Closes four blocking findings from the 2026-04-14 review.
 
 ### Tested
 - [x] `tests/billing/account-scoped-impersonation.test.ts` — 8/8 PASS (start happy path, support allowed, read_only denied, short reason rejected, invalid reason rejected, non-existent account rejected, CHECK constraint guards, target_scope surfacing)
+
+## [ADR-0056 Sprint 1.1] — 2026-04-20
+
+**ADR:** ADR-0056 — Per-account feature-flag targeting
+
+### Added
+- `20260730000001_account_scoped_feature_flags.sql`:
+  - `admin.feature_flags.account_id` column + `feature_flags_scope_shape_check` (exactly one of account_id / org_id set per scope).
+  - Unique index expanded to `(flag_key, scope, coalesce(account_id), coalesce(org_id))`.
+  - `public.get_feature_flag` resolver — fallback order org → account → global.
+  - `admin.set_feature_flag` + `admin.delete_feature_flag` — dropped & recreated with `p_account_id` parameter; full validation of scope/target shape.
+
+### Tested
+- [x] `tests/billing/account-feature-flags.test.ts` — 9/9 PASS (create, missing account_id guard, both-set guard, global-with-account guard, support denied, resolver org > account > global, delete)
