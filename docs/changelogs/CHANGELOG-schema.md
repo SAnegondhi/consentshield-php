@@ -1195,3 +1195,13 @@ Closes four blocking findings from the 2026-04-14 review.
 
 ### Tested
 - [x] `tests/rls/update-org-industry.test.ts` — 5/5 PASS (happy path, cross-org denied, invalid code rejected, null rejected, all 8 sectors accepted)
+
+## [ADR-0048 follow-up — suspension gate on compliance writes] — 2026-04-20
+
+**ADR:** ADR-0048 — Admin accounts panel (customer-side follow-up)
+
+### Added
+- `20260620000005_assert_org_not_suspended.sql` — `public.assert_org_not_suspended(p_org_id)` helper that raises `org_suspended` or `account_suspended` on caller attempts to advance compliance workflow while either is suspended. Wired into `create_dpia_record`, `publish_dpia_record`, and `create_auditor_engagement`. Non-gated intentionally: billing profile edits (customer needs to pay out), industry changes (harmless), team management (must keep working).
+
+### Tested
+- [x] `tests/rls/org-suspension-gate.test.ts` — 5/5 PASS (active happy path, org-suspended raises, account-suspended raises via cascade, both RPCs gated, post-restore recovery)

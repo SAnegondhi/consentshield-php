@@ -805,3 +805,10 @@ Combined: 42 (app) + 135 (rls/admin/depa) + 1 (admin smoke) = **178/178**.
 
 ### Changed
 - `app/src/components/dashboard-nav.tsx` — "Account settings" nav entry before Team & invites.
+
+## [ADR-0048 follow-up — suspension banner clarification] — 2026-04-20
+
+**ADR:** ADR-0048 — Admin accounts panel (customer-side follow-up)
+
+### Changed
+- `app/src/components/suspended-banner.tsx` — now checks both `organisations.status` and parent `accounts.status` (account suspension is the more common driver and cascades to orgs). Copy expanded to list explicitly what is paused (banner delivery, new DPIA/auditor engagement entries) vs. what still works (data viewing, billing updates so customer can pay out of suspension, team management).
