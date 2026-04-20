@@ -21,6 +21,8 @@ interface SessionRow {
   duration_seconds: number
   status: string
   actions_summary: Record<string, unknown> | null
+  // ADR-0055 Sprint 1.1 — 'org' or 'account' scope
+  target_scope: 'org' | 'account'
 }
 
 interface SearchParams {
@@ -173,6 +175,11 @@ export default async function SupportSessionsPage({
                       <span className="font-medium text-gray-800">
                         {s.admin_display_name ?? <span className="font-sans text-gray-400 italic">unknown</span>}
                       </span>
+                      {s.target_scope === 'account' && (
+                        <span className="ml-2 rounded bg-purple-50 px-1.5 py-0.5 text-[10px] font-medium text-purple-700 border border-purple-200">
+                          account
+                        </span>
+                      )}
                     </td>
                     <td className="px-4 py-3 text-xs">
                       <code className="rounded bg-gray-100 px-1.5 py-0.5 text-[11px] text-gray-700">

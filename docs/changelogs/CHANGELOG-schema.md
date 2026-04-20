@@ -1319,3 +1319,17 @@ Closes four blocking findings from the 2026-04-14 review.
 
 ### Tested
 - [x] `tests/billing/gstr1-json.test.ts` — 11/11 PASS (shape, B2B/B2CL/B2CS classification, HSN aggregation, void exclusion, doc_issue range, operator/owner scope, invalid period, support denied)
+
+## [ADR-0055 Sprint 1.1] — 2026-04-20
+
+**ADR:** ADR-0055 — Account-scoped impersonation
+
+### Added
+- `20260725000001_account_scoped_impersonation.sql`:
+  - `admin.impersonation_sessions.target_account_id` — nullable FK; `target_org_id` now nullable; `impersonation_target_scope_check` CHECK enforces exactly one is set.
+  - New RPC `admin.start_impersonation_account(p_account_id, p_reason, p_reason_detail, p_duration_minutes)` — SECURITY DEFINER, `require_admin('support')`, mirrors the org-scoped RPC contract.
+  - RLS: `impersonation_sessions_account_view` — account_owners can SELECT their account's account-scoped rows.
+  - `public.list_org_support_sessions` — dropped + recreated with a new `target_scope` return column ('org' | 'account'). Now returns account-scoped sessions when the caller is an account_owner of the target account.
+
+### Tested
+- [x] `tests/billing/account-scoped-impersonation.test.ts` — 8/8 PASS (start happy path, support allowed, read_only denied, short reason rejected, invalid reason rejected, non-existent account rejected, CHECK constraint guards, target_scope surfacing)

@@ -859,3 +859,15 @@ Combined: 42 (app) + 135 (rls/admin/depa) + 1 (admin smoke) = **178/178**.
 
 ### Changed
 - `admin/src/app/(operator)/billing/gst-statement/actions.ts` — added `generateGstr1Json` server action wrapping `admin.billing_gstr1_json`; produces `gstr1-<gstin>-<MMYYYY>.json` filename.
+
+## [ADR-0055 Sprint 1.1] — 2026-04-20
+
+**ADR:** ADR-0055 — Account-scoped impersonation
+
+### Added
+- `admin/src/app/(operator)/accounts/actions.ts` — `startAccountImpersonationAction` server action.
+- `admin/src/app/(operator)/accounts/[accountId]/action-bar.tsx` — "Impersonate account" button + modal with reason picker, detail textarea, duration dropdown.
+- `app/src/app/(dashboard)/dashboard/support-sessions/page.tsx` — renders a small purple `account` pill next to the operator name for account-scoped sessions.
+
+### Changed
+- `admin/src/app/(operator)/accounts/[accountId]/page.tsx` — passes `accountName` through to the action bar so the impersonation modal can show "Impersonate account — {name}".

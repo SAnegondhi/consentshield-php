@@ -87,6 +87,7 @@ export default async function AccountDetailPage({ params }: PageProps) {
         </div>
         <AccountActionBar
           accountId={account.id}
+          accountName={account.name}
           status={account.status}
           canWrite={canWrite}
         />
