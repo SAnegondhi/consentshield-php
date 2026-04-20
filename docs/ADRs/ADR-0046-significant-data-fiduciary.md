@@ -207,4 +207,24 @@ Phase 1 complete. Phase 2 Sprint 2.1 shipped 2026-04-20 (see below). Phase 2 Spr
 
 **Status:** `[x] complete` — 2026-04-20
 
-Phase 2 Sprint 2.2 (customer UI at `/dashboard/dpia`) is next.
+Phase 2 Sprint 2.2 (customer UI at `/dashboard/dpia`) — shipped below.
+
+## Phase 2 Sprint 2.2 — shipped 2026-04-20
+
+**Deliverables:**
+
+- [x] Wireframe: `docs/design/screen designs and ux/consentshield-screens.html` — new `<div id="panel-dpia">` between the audit panel and the onboarding panel. Describes: SDF context banner, KPI strip (published / drafts / review-due<30d / superseded), filter chips (status × risk), list table (title / risk / status / conducted / next-review / auditor / View), and a create-form sketch. Nav item added between "Audit & Reports" and "Onboarding Flow" with an `SDF` badge.
+- [x] `app/src/app/(dashboard)/dashboard/dpia/page.tsx` — list page. KPI strip computed from visible rows. Filter chips bind to `?status=` / `?risk=` URL params. Review-due highlighting when `next_review_at < now + 30d`. Superseded rows greyed. SDF context banner renders only when `org.sdf_status != 'not_designated'`.
+- [x] `app/src/app/(dashboard)/dashboard/dpia/actions.ts` — server actions wrapping `create_dpia_record` / `publish_dpia_record` / `supersede_dpia_record`.
+- [x] `app/src/app/(dashboard)/dashboard/dpia/new/` — `page.tsx` + client `form.tsx`. Fields: title, processing_description, data_categories (comma-separated category strings), risk_level, auditor_name + attestation_ref, conducted_at, next_review_at (default +12mo), mitigations free-text. "Save as draft" / "Save & publish" buttons.
+- [x] `app/src/app/(dashboard)/dashboard/dpia/[dpiaId]/` — `page.tsx` + `detail-actions.tsx`. Renders full DPIA detail; actions panel shows Publish button when status=draft, Supersede dropdown (populated from same-org drafts) when status=published. Role-gated via `effective_org_role` — read-only UI for non-org_admin callers.
+- [x] `app/src/components/dashboard-nav.tsx` — "DPIA Records" nav entry added between Rights Requests and Integrations.
+
+**Testing plan:**
+
+- [x] Schema + RPC coverage from Sprint 2.1 (10/10 PASS) covers the write path.
+- [ ] Manual smoke: create draft, verify list, publish, create second draft, supersede first with second — requires running app + real Supabase auth (pending). Admin SDF-status toggle exercised in Phase 1 Sprint 1.2.
+
+**Status:** `[x] complete — 2026-04-20`
+
+Phase 2 complete. Phases 3 (`data_auditor_engagements`) and 4 (DPIA export extension) remain — charter-only.

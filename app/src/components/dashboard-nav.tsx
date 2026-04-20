@@ -16,6 +16,7 @@ const navItems = [
   { href: '/dashboard/inventory', label: 'Data Inventory' },
   { href: '/dashboard/template', label: 'Sector template' },
   { href: '/dashboard/rights', label: 'Rights Requests' },
+  { href: '/dashboard/dpia', label: 'DPIA Records' },
   { href: '/dashboard/integrations', label: 'Integrations' },
   { href: '/dashboard/billing', label: 'Billing' },
   { href: '/dashboard/support', label: 'Support' },

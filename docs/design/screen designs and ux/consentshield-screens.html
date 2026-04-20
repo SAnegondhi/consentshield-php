@@ -388,6 +388,14 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:14
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
         Audit & Reports
       </div>
+      <!-- ADR-0046 Phase 2 Sprint 2.2 — DPIA Records. Visible only when the current
+           org is SDF-designated (sdf_status != 'not_designated'); hidden otherwise
+           so non-SDF customers don't see compliance surfaces they don't need. -->
+      <div class="nav-item" onclick="showPanel('dpia')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><path d="M9 13h6"/><path d="M9 17h4"/></svg>
+        DPIA Records
+        <span class="nav-badge">SDF</span>
+      </div>
       <div class="nav-item" onclick="showPanel('onboarding')">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
         Onboarding Flow
@@ -1318,6 +1326,181 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:14
               <div class="audit-score-row"><div class="audit-score-label">Scope sanity — data_scope contains categories only (Rule 3)</div><div class="audit-score-bar"><div class="audit-score-fill" style="width:100%;background:var(--green)"></div></div><div class="audit-score-val" style="color:var(--green)">Pass</div></div>
             </div>
           </div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─────────── ADR-0046 Phase 2 Sprint 2.2 — DPIA Records ─────────── -->
+  <!--
+    Route: /dashboard/dpia
+    Visibility:
+      account_owner / org_admin (effective) → full (list, create, publish, supersede)
+      viewer / account_viewer               → read-only (can see records, cannot write)
+      Non-SDF orgs                          → nav item hidden (optional: route still
+                                              reachable via URL for non-SDF orgs that
+                                              want to track DPIAs voluntarily)
+    RPCs consumed:
+      public.create_dpia_record(...)         (Sprint 2.1)
+      public.publish_dpia_record(id)         (Sprint 2.1)
+      public.supersede_dpia_record(old, new) (Sprint 2.1)
+    Rule 3: `data_categories` is a category-string JSONB array; never raw values.
+    `auditor_attestation_ref` is a URL/reference to customer-held audit artefacts,
+    never the artefact bytes — ConsentShield does not store DPIA PDFs.
+  -->
+  <div id="panel-dpia" class="panel">
+    <div class="topbar">
+      <div class="topbar-title">DPIA Records <span class="pill pill-navy" style="font-size:10px;margin-left:6px">SDF</span></div>
+      <div class="topbar-actions">
+        <span style="font-size:11px;color:var(--text-3)">7 published · 2 drafts · 3 review due in &lt; 30d</span>
+        <button class="btn btn-primary btn-sm">+ New DPIA</button>
+      </div>
+    </div>
+    <div class="content-area">
+      <!-- SDF context banner — shown when the org is marked sdf_status != not_designated -->
+      <div style="background:var(--amber-light,#FEF3C7);border:1px solid #FDE68A;border-radius:var(--r);padding:12px 14px;margin-bottom:14px;font-size:12px;color:var(--text);display:flex;gap:10px;align-items:flex-start">
+        <svg style="flex-shrink:0;margin-top:2px" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        <div>
+          <div style="font-weight:500;margin-bottom:2px">Acme India is a Significant Data Fiduciary (self-declared)</div>
+          <div style="color:var(--text-2)">
+            Under DPDP §10, you must maintain DPIAs for high-impact processing operations,
+            appoint an independent Data Auditor, and publish transparency summaries.
+            This panel records DPIA cycles; the DPIA document itself stays in your own storage
+            (we keep the reference, never the PDF bytes).
+          </div>
+        </div>
+      </div>
+
+      <!-- KPI strip -->
+      <div class="stat-row">
+        <div class="stat-card"><div class="stat-label">Published</div><div class="stat-value" style="color:var(--green)">7</div><div class="stat-sub">Active DPIA cycles</div></div>
+        <div class="stat-card"><div class="stat-label">Drafts</div><div class="stat-value">2</div><div class="stat-sub">Awaiting publish</div></div>
+        <div class="stat-card"><div class="stat-label">Review due &lt; 30d</div><div class="stat-value" style="color:var(--amber)">3</div><div class="stat-sub">Schedule next cycle</div></div>
+        <div class="stat-card"><div class="stat-label">Superseded</div><div class="stat-value" style="color:var(--text-3)">4</div><div class="stat-sub">Historical record</div></div>
+      </div>
+
+      <!-- Filter chips -->
+      <div class="card" style="margin-top:14px">
+        <div class="card-header">
+          <div class="card-title">DPIA records</div>
+          <div style="display:flex;gap:6px;flex-wrap:wrap">
+            <span class="pill pill-green" style="cursor:pointer">Status: Published</span>
+            <span class="pill pill-gray" style="cursor:pointer">Status: Draft</span>
+            <span class="pill pill-gray" style="cursor:pointer">Status: Superseded</span>
+            <span class="pill pill-amber" style="cursor:pointer">Review due &lt; 30d</span>
+            <span class="pill pill-red" style="cursor:pointer">Risk: High</span>
+            <span class="pill pill-gray" style="cursor:pointer">Risk: Medium</span>
+          </div>
+        </div>
+        <div style="overflow-x:auto">
+          <table class="inv-table">
+            <thead>
+              <tr>
+                <th>Title</th>
+                <th>Risk</th>
+                <th>Status</th>
+                <th>Conducted</th>
+                <th>Next review</th>
+                <th>Auditor</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Customer on-boarding KYC data flow</strong><br><span style="font-size:11px;color:var(--text-3)">contact.* · financial.kyc_category</span></td>
+                <td><span class="pill pill-red" style="font-size:10px">High</span></td>
+                <td><span class="pill pill-green">Published</span></td>
+                <td style="font-size:12px">Jan 12, 2026</td>
+                <td style="font-size:12px"><span style="color:var(--amber)">in 23 days ⚠</span></td>
+                <td style="font-size:12px">KPMG India</td>
+                <td style="text-align:right"><button class="btn btn-secondary btn-sm">View</button></td>
+              </tr>
+              <tr>
+                <td><strong>Marketing attribution — web analytics</strong><br><span style="font-size:11px;color:var(--text-3)">device.* · behavioural.page_view</span></td>
+                <td><span class="pill pill-amber" style="font-size:10px">Medium</span></td>
+                <td><span class="pill pill-green">Published</span></td>
+                <td style="font-size:12px">Mar 3, 2026</td>
+                <td style="font-size:12px"><span style="color:var(--green)">in 289 days</span></td>
+                <td style="font-size:12px">Deloitte</td>
+                <td style="text-align:right"><button class="btn btn-secondary btn-sm">View</button></td>
+              </tr>
+              <tr>
+                <td><strong>Call-recording retention — customer support</strong><br><span style="font-size:11px;color:var(--text-3)">voice.recording_reference</span></td>
+                <td><span class="pill pill-amber" style="font-size:10px">Medium</span></td>
+                <td><span class="pill pill-gray">Draft</span></td>
+                <td style="font-size:12px">Apr 14, 2026</td>
+                <td style="font-size:12px">—</td>
+                <td style="font-size:12px">—</td>
+                <td style="text-align:right"><button class="btn btn-secondary btn-sm">Edit & publish</button></td>
+              </tr>
+              <tr style="opacity:.65">
+                <td><strong>Customer on-boarding KYC data flow v1</strong><br><span style="font-size:11px;color:var(--text-3)">Replaced by KYC v2 (above)</span></td>
+                <td><span class="pill pill-red" style="font-size:10px">High</span></td>
+                <td><span class="pill pill-gray">Superseded</span></td>
+                <td style="font-size:12px">Jul 8, 2025</td>
+                <td style="font-size:12px">—</td>
+                <td style="font-size:12px">KPMG India</td>
+                <td style="text-align:right"><button class="btn btn-secondary btn-sm">View</button></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Create / edit form sketch (renders in a modal or right drawer in the real UI) -->
+      <div class="card" style="margin-top:14px">
+        <div class="card-header">
+          <div class="card-title">New DPIA (form sketch)</div>
+          <span style="font-size:11px;color:var(--text-3)">Rule 3 reminder — list category names, not raw values</span>
+        </div>
+        <div style="padding:14px;display:grid;grid-template-columns:1fr 1fr;gap:14px">
+          <div style="grid-column:1 / -1">
+            <label style="font-size:12px;font-weight:500;display:block;margin-bottom:4px">Title <span style="color:var(--red)">*</span></label>
+            <input class="config-input" placeholder="e.g. Customer on-boarding KYC data flow" style="width:100%">
+          </div>
+          <div style="grid-column:1 / -1">
+            <label style="font-size:12px;font-weight:500;display:block;margin-bottom:4px">Processing description <span style="color:var(--red)">*</span></label>
+            <textarea class="config-input" rows="3" style="width:100%;resize:vertical" placeholder="Describe the processing operation — purpose, lawful basis, data subject categories, retention window. 10–5000 chars."></textarea>
+          </div>
+          <div>
+            <label style="font-size:12px;font-weight:500;display:block;margin-bottom:4px">Data categories <span style="color:var(--red)">*</span></label>
+            <div style="border:1px solid var(--border);border-radius:var(--r);padding:8px;min-height:52px;background:var(--bg);font-size:12px">
+              <span class="pill pill-gray" style="font-size:10px;margin-right:4px">contact.email ×</span>
+              <span class="pill pill-gray" style="font-size:10px;margin-right:4px">financial.kyc_category ×</span>
+              <span class="pill pill-gray" style="font-size:10px;margin-right:4px">identity.pan_flag ×</span>
+              <span style="color:var(--text-3)">+ add</span>
+            </div>
+            <span style="font-size:11px;color:var(--text-3)">Category names only — never raw values.</span>
+          </div>
+          <div>
+            <label style="font-size:12px;font-weight:500;display:block;margin-bottom:4px">Risk level <span style="color:var(--red)">*</span></label>
+            <div style="display:flex;gap:8px">
+              <label style="display:flex;align-items:center;gap:4px;font-size:12px"><input type="radio" name="risk"> Low</label>
+              <label style="display:flex;align-items:center;gap:4px;font-size:12px"><input type="radio" name="risk" checked> Medium</label>
+              <label style="display:flex;align-items:center;gap:4px;font-size:12px"><input type="radio" name="risk"> High</label>
+            </div>
+          </div>
+          <div>
+            <label style="font-size:12px;font-weight:500;display:block;margin-bottom:4px">Auditor name</label>
+            <input class="config-input" placeholder="e.g. KPMG India" style="width:100%">
+          </div>
+          <div>
+            <label style="font-size:12px;font-weight:500;display:block;margin-bottom:4px">Attestation reference</label>
+            <input class="config-input" placeholder="URL or reference to customer-stored DPIA artefact" style="width:100%">
+          </div>
+          <div>
+            <label style="font-size:12px;font-weight:500;display:block;margin-bottom:4px">Conducted on <span style="color:var(--red)">*</span></label>
+            <input type="date" class="config-input" style="width:100%" value="2026-04-14">
+          </div>
+          <div>
+            <label style="font-size:12px;font-weight:500;display:block;margin-bottom:4px">Next review</label>
+            <input type="date" class="config-input" style="width:100%" value="2027-04-14">
+            <span style="font-size:11px;color:var(--text-3)">Default 12 months after conducted.</span>
+          </div>
+          <div style="grid-column:1 / -1;display:flex;gap:8px;justify-content:flex-end;margin-top:8px">
+            <button class="btn btn-secondary btn-sm">Save as draft</button>
+            <button class="btn btn-primary btn-sm">Publish DPIA</button>
+          </div>
         </div>
       </div>
     </div>

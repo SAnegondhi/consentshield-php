@@ -756,3 +756,18 @@ Combined: 42 (app) + 135 (rls/admin/depa) + 1 (admin smoke) = **178/178**.
 
 ### Changed
 - `app/src/app/(dashboard)/dashboard/settings/billing/page.tsx` — static profile block replaced with the client `BillingProfileForm` component. Page remains a server component.
+
+## [ADR-0046 Phase 2 Sprint 2.2] — 2026-04-20
+
+**ADR:** ADR-0046 — Significant Data Fiduciary foundation
+**Sprint:** Phase 2, Sprint 2.2 (DPIA customer UI)
+
+### Added
+- `docs/design/screen designs and ux/consentshield-screens.html` — new DPIA panel wireframe + nav entry (SDF badge) between Audit & Reports and Onboarding Flow.
+- `app/src/app/(dashboard)/dashboard/dpia/page.tsx` — list page with KPI strip, status/risk filter chips, review-due highlighting (<30d), SDF context banner.
+- `app/src/app/(dashboard)/dashboard/dpia/actions.ts` — server actions wrapping the 3 DPIA RPCs.
+- `app/src/app/(dashboard)/dashboard/dpia/new/` — create form (page + client form component) with Save-as-draft / Save-and-publish buttons.
+- `app/src/app/(dashboard)/dashboard/dpia/[dpiaId]/` — detail page with publish / supersede actions (role-gated via `effective_org_role`).
+
+### Changed
+- `app/src/components/dashboard-nav.tsx` — "DPIA Records" nav item added after Rights Requests.
