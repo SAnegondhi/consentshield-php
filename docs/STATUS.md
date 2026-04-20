@@ -2,12 +2,11 @@
 
 (c) 2026 Sudhindra Anegondhi a.d.sudhindra@gmail.com
 
-**Snapshot date:** 2026-04-20
+**Snapshot date:** 2026-04-20 (end-of-day)
 **Branch:** main
-**Latest commit:** `b609dea` — feat(ADR-0050): sprint 3.2 — dispute workspace; 13/13 PASS
-**Total commits:** 179
-**Test suite:** 412 / 414 passing (2 pre-existing flaky lifecycle-RPC tests; not a code defect)
-**Migrations applied:** 136
+**Latest commit:** `2a06551` — feat(ADR-0048): suspension gate on compliance writes; banner copy clarified; 5/5 PASS
+**Total commits:** 194
+**Migrations applied:** 144
 **Edge Functions deployed:** 10
 
 ---
@@ -16,174 +15,140 @@
 
 The project has two independently deployable apps in a Bun workspace monorepo:
 
-- **`app/`** — Customer-facing Next.js app (consent management dashboard, rights portal, billing, DEPA compliance, probes, audit export)
-- **`admin/`** — Operator console Next.js app (admin.consentshield.in — accounts, billing, disputes, issuer entities, impersonation, audit log, connector catalogue, feature flags)
+- **`app/`** — Customer-facing Next.js app (consent management dashboard, rights portal, billing, DEPA compliance, DPIA + auditor engagements for SDFs, probes, audit export, public API keys)
+- **`admin/`** — Operator console Next.js app (admin.consentshield.in — accounts, billing with issuer entities + invoices + GST + disputes, impersonation, audit log, connector catalogue, feature flags)
 
-**Phase 1 customer app:** Functionally complete. All core compliance workflows (consent capture → artefact creation → rights requests → deletion orchestration → audit export) are end-to-end and tested. DEPA panels (purposes, artefacts, score), probes v2, and the full RBAC/invitation model are live.
+**Customer app:** **Functionally complete for Phase 1 + Phase 2.** Every panel from the `docs/design/screen designs and ux/` wireframe is live and data-bound. All compliance workflows (consent capture → artefact creation → rights → deletion → audit export) are end-to-end. SDF workflow (DPIA records + auditor engagements + audit-ZIP extension) ships. Customer invoice portal + billing profile editor + sectoral template switcher ship. Support sessions list now shows operator names. Suspension banner clarifies paused vs. still-working surfaces.
 
-**Admin console:** 13/13 wireframe panels live. Billing track complete through ADR-0050: issuer entities, invoice issuance + PDF + GST + Resend delivery, invoice search + export + GST statement CSV, and dispute workspace with evidence bundle assembly.
+**Admin console:** 13/13 wireframe panels live. Billing track complete through ADR-0050 (issuer entities, invoicing + GST + Resend, search/export/statement, dispute workspace with evidence bundle). SDF status toggle on org detail.
 
-**ADR-1001 (public API / Bearer infrastructure):** In progress — bearer middleware + `cs_live_*` key schema + API keys dashboard UI shipped. Route handlers (ADR-1002+) are next.
+**Public API (ADR-1001):** **Completed 2026-04-20** — `cs_live_*` keys, Bearer middleware, rate limiter, request log, usage page, OpenAPI draft, security review. ADR-1002+ (route handlers) is the next track.
 
 ---
 
 ## ADR Completion
 
-### Completed (50 ADRs)
+### Completed (52 ADRs)
 
-| ADR | Title | Notes |
-|-----|-------|-------|
-| 0001 | Project scaffolding (Next.js, Supabase schema, auth, Worker skeleton) | |
-| 0002 | Worker HMAC verification + origin validation | |
-| 0003 | Consent banner builder + compliance dashboard | |
-| 0004 | Rights request workflow (Turnstile + OTP + dashboard inbox) | |
-| 0005 | Tracker monitoring (banner script v2 + MutationObserver) | |
-| 0006 | Razorpay billing + plan gating | |
-| 0007 | Deletion orchestration (generic webhook protocol) | |
-| 0008 | Browser auth hardening (remove client signing secret, origin_verified, fail-fast Turnstile) | |
-| 0009 | Scoped-role enforcement in REST paths | |
-| 0010 | Distributed rate limiter (Upstash via Vercel Marketplace) | |
-| 0011 | Deletion retry + timeout Edge Function | |
-| 0012 | Automated test suites (worker / buffer / workflows / RLS) | |
-| 0013 | Signup bootstrap hardening (OTP-only) | |
-| 0014 | External service activation (Resend / Turnstile / Razorpay) | |
-| 0015 | Security posture scanner (run-security-scans + dashboard) | |
-| 0016 | Consent probes v1 (static HTML analysis) | |
-| 0017 | Audit export package Phase 1 (direct-download ZIP) | |
-| 0018 | Pre-built deletion connectors (Mailchimp + HubSpot direct API) | |
-| 0019 | DEPA roadmap charter (meta-ADR, no code) | |
-| 0020 | DEPA schema skeleton (6 tables + §11.3 ALTERs + helpers + triggers + shared types) | |
-| 0021 | `process-consent-event` Edge Function + dispatch trigger + safety-net cron | |
-| 0022 | `process-artefact-revocation` Edge Function + revocation dispatch | |
-| 0023 | DEPA expiry pipeline (`send_expiry_alerts` + `enforce_artefact_expiry` + pg_cron) | Implemented as pg_cron SQL functions, not separate Edge Functions |
-| 0024 | DEPA customer UI rollup (purposes + artefacts + dashboard tile + rights reshape + settings row) | |
-| 0025 | DEPA score dimension (nightly refresh + API + dashboard gauge) | |
-| 0026 | Monorepo restructure (Bun workspace — `app/` + `admin/` + `packages/*`) | Sprints 1–2 complete; Sprint 3 (shared packages) deferred |
-| 0027 | Admin platform schema (`cs_admin` role + `admin.*` tables + audit log + impersonation) | |
-| 0028 | Admin app foundation (real OTP auth + operations dashboard + audit log viewer) | |
-| 0029 | Admin organisations (list + detail + actions + impersonation + customer cross-refs) | |
-| 0030 | Sectoral templates (admin panel + customer-side read) | |
-| 0031 | Connector catalogue + tracker signature catalogue (admin panels) | |
-| 0032 | Support tickets (admin panel + customer-side submit) | |
-| 0033 | Admin ops + security (pipeline operations + abuse & security panels) | |
-| 0034 | Admin billing operations (Razorpay failures + refunds + comps + plan overrides) | |
-| 0036 | Feature flags + kill switches (admin panel + Worker KV sync) | |
-| 0037 | DEPA completion (expiry fan-out + per-requestor binding + CSV + audit DEPA + onboarding seed pack) | |
-| 0038 | Operational observability (cron failure watchdog + stuck-buffer Edge Function) | |
-| 0039 | Connector OAuth (Mailchimp + HubSpot) | |
-| 0040 | Audit R2 upload pipeline (sigv4 + export_configurations UI + delivery-target branch) | |
-| 0041 | Probes v2 (Vercel Sandbox runner + probe CRUD UI) | |
-| 0042 | Signup idempotency regression test | |
-| 0043 | Customer app is auth-only (drop public landing) | |
-| 0044 | Customer RBAC (4-level hierarchy + 5-role model + invitation-only signup) | |
-| 0045 | Admin user lifecycle (invite + role change + disable) | |
-| 0047 | Customer membership lifecycle (role change + remove + single-account-per-identity invariant) | |
-| 0048 | Admin accounts panel + ADR-0033/34 deviation closeout | |
-| 0049 | Security observability ingestion (rate_limit_events + sentry_events) | |
-| 0050 | Admin account-aware billing — issuer entities + invoices + GST + dispute workspace | Sprint 3.2 complete 2026-04-20; ADR-index still shows In Progress — needs update |
+Phase 1 (ADR-0001 through ADR-0018): project scaffold, banner builder, rights workflow, tracker monitoring, Razorpay billing, deletion orchestration, auth hardening, scoped-role enforcement, rate limiter, deletion retry, test suites, signup bootstrap, external services, security scanner, consent probes v1, audit export, Mailchimp/HubSpot connectors.
+
+DEPA (ADR-0019 through ADR-0025, ADR-0037): schema skeleton, process-consent-event, process-artefact-revocation, expiry pipeline, customer UI rollup, score dimension, onboarding seed pack.
+
+Admin platform (ADR-0026 through ADR-0045): monorepo restructure, admin schema, app foundation, organisations panel, sectoral templates, connector + signature catalogues, support tickets, pipeline + abuse/security, billing operations, feature flags, observability, probes v2, OAuth, signup idempotency, customer-auth-only, RBAC hierarchy, admin user lifecycle.
+
+Recent work (ADR-0046 through ADR-0057, ADR-1001):
+
+| ADR | Title | Completed |
+|-----|-------|-----------|
+| 0046 | Significant Data Fiduciary foundation — sdf_status + DPIA records + auditor engagements + audit-ZIP SDF section | 2026-04-20 |
+| 0047 | Customer membership lifecycle + single-account-per-identity invariant | 2026-04-18 |
+| 0048 | Admin Accounts panel + customer-side suspension banner + suspension write-gate on compliance workflows | 2026-04-20 |
+| 0049 | Security observability ingestion — rate_limit_events + sentry_events | 2026-04-18 |
+| 0050 | Admin account-aware billing — issuer entities + invoices + GST + dispute workspace | 2026-04-20 |
+| 0054 | Customer-facing billing portal — invoice history + PDF download + billing profile editor | 2026-04-20 |
+| 0057 | Customer-facing sectoral template switcher (Settings → Account) | 2026-04-20 |
+| 1001 | Public API foundation — `cs_live_*` keys + Bearer middleware + rate limiter + request log + OpenAPI | 2026-04-20 |
 
 ### In Progress
 
-| ADR | Title | What's done | What remains |
-|-----|-------|------------|--------------|
-| 0046 | Significant Data Fiduciary foundation | Phase 1 (schema + admin SDF panel + customer dashboard card) complete | Phases 2–4: DPIA records, data auditor engagements, DPIA export |
-| 1001 | Public API foundation (`cs_live_*` keys + Bearer middleware) | Sprints 1.1–2.3: schema, bearer middleware, API keys dashboard UI | Sprints 3+: remaining whitepaper accuracy gaps |
+_(None — all previously-in-progress ADRs were closed today.)_
 
 ### Proposed (not started)
 
 | ADR | Title | Scope |
 |-----|-------|-------|
-| 0051 | Billing evidence ledger — chargeback-defense capture points | Admin-side; capture points at signup, invoice email, rights request, admin plan changes |
-| 0052 | Razorpay dispute evidence auto-submission | Admin-side; automated Razorpay API submission |
+| 0051 | Billing evidence ledger (chargeback-defense capture points) | Admin-side |
+| 0052 | Razorpay dispute evidence auto-submission | Admin-side |
 | 0053 | GSTR-1 XML generation + filing helpers | Admin-side |
-| 0054 | Customer-facing invoice + billing portal | Customer `app/` — Settings billing tab + invoice history + PDF download |
-| 0055 | Account-scoped impersonation (admin side) | Admin-side |
+| 0055 | Account-scoped impersonation | Admin-side |
 | 0056 | Per-account feature-flag targeting | Admin-side |
-| 0057 | Account-level sectoral default templates | Customer Settings + onboarding |
-| 1002 | DPDP §6 runtime enforcement (`/v1/consent/verify` + `record` + artefact ops + deletion API) | Public API |
-| 1003 | Processor posture (`storage_mode` + BYOS + Zero-Storage + Healthcare seed + sandbox) | Public API |
-| 1004 | Statutory retention (Regulatory Exemption Engine + material-change re-consent + silent-failure detection) | Public API |
-| 1005 | Operations maturity (webhook reference, test_delete, support model, status page, rights API, non-email channels) | Public API |
-| 1006 | Developer experience (Node/Python/Java/Go client libs + OpenAPI + CI drift check) | Public API |
-| 1007 | Connector ecosystem expansion (CleverTap, Razorpay, WebEngage, Intercom, Shopify, Segment + plugins) | Connectors |
+| 1002 | Public API Phase 2 — `/v1/consent/verify` + `record` + artefact ops + deletion API | Public API route handlers |
+| 1003 | Processor posture — `storage_mode` + BYOS + Zero-Storage + Healthcare seed + sandbox | Public API |
+| 1004 | Statutory retention — Regulatory Exemption Engine + material-change re-consent + silent-failure detection | Public API |
+| 1005 | Operations maturity — webhook reference + test_delete + support model + status page + rights API + non-email channels | Public API |
+| 1006 | Developer experience — Node/Python/Java/Go client libraries + OpenAPI + CI drift check | Public API |
+| 1007 | Connector ecosystem expansion — CleverTap, Razorpay, WebEngage, Intercom, Shopify, Segment + plugins | Connectors |
 | 1008 | Scale + audit polish + P3 hardening | Operations |
 
 ---
 
 ## Customer App (`app/`) — Panel Inventory
 
-### Shipped and wired
+### Shipped and wired (all from wireframe)
 
-| Panel | Route | Notes |
-|-------|-------|-------|
-| Dashboard home | `/dashboard` | DPDP score, DEPA score gauge, status tiles |
-| Consent banners | `/dashboard/banners` | Builder, preview, publish, purpose binding |
-| Purpose definitions (DEPA) | `/dashboard/purposes` | CRUD, connector mappings tab, sector seed pack |
-| Consent artefacts (DEPA) | `/dashboard/artefacts` | List + filter chips + pagination, detail with 4-link chain-of-custody, revoke |
-| Web properties | `/dashboard/properties` | CRUD, banner snippet, Worker verification |
-| Data inventory | `/dashboard/inventory` | Data category catalogue CRUD |
-| Rights requests | `/dashboard/rights` | Public intake (Turnstile + OTP), inbox, detail + actions, artefact-scoped erasure |
-| Integrations | `/dashboard/integrations` | Connector list, Mailchimp + HubSpot OAuth + API key, credential storage |
-| Consent probes | `/dashboard/probes` | List, create, Vercel Sandbox runner, results |
-| Enforcement | `/dashboard/enforcement` | Security posture scanner, withdrawal verifier |
-| Audit & Reports | `/dashboard/exports` + `/dashboard/template` | DEPA audit CSV, R2 export config, sectoral templates |
-| Settings | `/dashboard/settings` | Account info, team members, invitations, notification channels, API keys panel |
-| Support | `/dashboard/support` | Ticket submit + list |
-| Billing | `/dashboard/billing` | Plan selector, Razorpay checkout modal |
+| Route | Panel | ADR anchor |
+|-------|-------|-----------|
+| `/dashboard` | Home (DPDP score, DEPA score gauge, status tiles, SDF card when flagged) | ADR-0003 + 0025 + 0046 |
+| `/dashboard/banners` | Banner builder (purpose-bound) | ADR-0003 / 0020 |
+| `/dashboard/purposes` | Purpose definitions CRUD + connector mappings | ADR-0024 |
+| `/dashboard/artefacts` | Consent artefacts list + 4-link chain-of-custody detail | ADR-0021 / 0024 |
+| `/dashboard/enforcement` | Security scanner + withdrawal verifier | ADR-0015 / 0022 |
+| `/dashboard/probes` | Vercel Sandbox probes | ADR-0041 |
+| `/dashboard/inventory` | Data inventory | ADR-0003 |
+| `/dashboard/template` | Sectoral template picker | ADR-0030 |
+| `/dashboard/rights` | Rights requests inbox + artefact-scoped impact preview | ADR-0004 / 0022 / 0024 |
+| `/dashboard/dpia` + `/new` + `/[dpiaId]` | DPIA records (SDF) | ADR-0046 Phase 2 |
+| `/dashboard/auditors` + `/new` + `/[engagementId]` | Auditor engagements (SDF) | ADR-0046 Phase 3 |
+| `/dashboard/integrations` | Connector list + OAuth | ADR-0018 / 0039 |
+| `/dashboard/billing` | Plan selector + Razorpay checkout | ADR-0006 |
+| `/dashboard/exports` | Audit export (direct + R2) — now includes SDF section | ADR-0017 / 0040 / 0046 Phase 4 |
+| `/dashboard/support` | Support ticket submit | ADR-0032 |
+| `/dashboard/support-sessions` | Impersonation history with operator names | ADR-0029 |
+| `/dashboard/settings/account` | Org name + industry (editable) + active sector template | ADR-0057 |
+| `/dashboard/settings/billing` | Plan summary + billing profile editor + invoice history + PDF download | ADR-0054 |
+| `/dashboard/settings/members` | Team & invitations | ADR-0044 / 0047 |
+| `/dashboard/settings/api-keys` | `cs_live_*` key CRUD (account_owner only) | ADR-1001 |
 
-### Not yet built in customer app
+### Remaining customer-app backlog
 
-| Gap | Planned ADR | Notes |
-|-----|------------|-------|
-| Customer invoice history + PDF download (Settings billing tab) | ADR-0054 | Phase 2; blocked on nothing |
-| Account-level sectoral template switcher | ADR-0057 | Customer Settings; Phase 2 |
-| Support sessions tab (impersonation history visible to account owner) | ADR-0029 follow-up | Route exists (`/dashboard/support-sessions`); logic incomplete |
-| Org suspension banner (red banner + read-only state when account suspended) | ADR-0048 follow-up | Needs Worker + dashboard wiring |
-| API keys CRUD routes (create, list, rotate, revoke) | ADR-1001 Sprint 3+ | UI wireframe done; 4 API routes missing |
+**None.** All gaps from the 2026-04-20 (morning) snapshot closed:
+
+- ✅ Customer invoice portal (ADR-0054)
+- ✅ Sectoral template switcher (ADR-0057)
+- ✅ Support sessions tab enrichment (operator names)
+- ✅ Suspension banner — Worker (pre-existing) + dashboard banner clarification + write-gate on compliance workflows
+- ✅ SDF workflows — DPIA + auditor engagements + audit-ZIP section (ADR-0046 Phases 2–4)
+
+Per-ADR TODO items that don't belong to the customer-app scope are captured in `docs/V2-BACKLOG.md` and individual ADR files.
 
 ---
 
 ## Admin App (`admin/`) — Panel Inventory
 
-### Shipped (13/13 wireframe panels + billing extensions)
+### Shipped
 
-| Panel | Route | ADR |
-|-------|-------|-----|
-| Accounts | `/accounts` + `/accounts/[accountId]` | ADR-0048 |
-| Organisations | `/orgs` + `/orgs/[orgId]` | ADR-0029 |
-| Billing landing | `/billing` | ADR-0050 |
-| Billing — per-account detail | `/billing/[accountId]` | ADR-0050 |
-| Billing operations | `/billing/operations` | ADR-0034 |
-| Billing — issuer entities | `/billing/issuers` | ADR-0050 |
-| Billing — invoice search | `/billing/search` | ADR-0050 |
-| Billing — GST statement | `/billing/gst-statement` | ADR-0050 |
-| Billing — invoice export | `/billing/export` | ADR-0050 |
-| Billing — disputes | `/billing/disputes` + `[disputeId]` | ADR-0050 |
-| Pipeline operations | `/pipeline` | ADR-0033 |
-| Abuse & Security | `/security` | ADR-0033 |
-| Connector catalogue | `/connectors` | ADR-0031 |
-| Tracker signatures | `/signatures` | ADR-0031 |
-| Sectoral templates | `/templates` | ADR-0030 |
-| Feature flags | `/flags` | ADR-0036 |
-| Admin users | `/admins` | ADR-0045 |
-| Support tickets | `/support` | ADR-0032 |
-| Audit log | `/audit-log` + `/audit-log/export` | ADR-0028 |
+| Route | ADR |
+|-------|-----|
+| `/accounts` + `/[accountId]` | ADR-0048 |
+| `/orgs` + `/[orgId]` (SDF card) | ADR-0029 / 0046 |
+| `/billing` landing + `/[accountId]` | ADR-0050 |
+| `/billing/operations` | ADR-0034 |
+| `/billing/issuers` + `/[issuerId]` + `/new` | ADR-0050 |
+| `/billing/search` + `/gst-statement` + `/export` | ADR-0050 |
+| `/billing/disputes` + `/[disputeId]` | ADR-0050 |
+| `/pipeline` | ADR-0033 |
+| `/security` | ADR-0033 |
+| `/connectors` + `/[connectorId]` | ADR-0031 |
+| `/signatures` + `/[signatureId]` | ADR-0031 |
+| `/templates` + `/[templateId]` | ADR-0030 |
+| `/flags` | ADR-0036 |
+| `/admins` | ADR-0045 |
+| `/support` + `/[ticketId]` | ADR-0032 |
+| `/audit-log` + `/audit-log/export` | ADR-0028 |
 
-### Not yet built in admin app
+### Remaining
 
-| Gap | Planned ADR |
-|-----|------------|
-| Billing evidence ledger panel (on dispute detail) | ADR-0051 |
-| Razorpay auto-submit evidence | ADR-0052 |
+| Panel | Planned ADR |
+|-------|------------|
+| Billing evidence ledger (on dispute detail) | ADR-0051 |
+| Razorpay auto-submit dispute evidence | ADR-0052 |
 | GSTR-1 XML download | ADR-0053 |
 | Account-scoped impersonation | ADR-0055 |
 | Per-account feature flag overrides | ADR-0056 |
-| DPIA records panel (ADR-0046 Phase 2) | ADR-0046 |
-| Data auditor engagements panel (ADR-0046 Phase 3) | ADR-0046 |
 
 ---
 
-## Infrastructure
+## Database + Infrastructure
 
 | Component | Identifier / URL |
 |-----------|-----------------|
@@ -193,48 +158,73 @@ The project has two independently deployable apps in a Bun workspace monorepo:
 | Supabase project | `xlqiakmkdjycfiioslgs` |
 | GitHub repo | `github.com/SAnegondhi/consentshield` |
 
-**Edge Functions deployed (10):**
-`process-consent-event`, `process-artefact-revocation`, `send-sla-reminders`, `run-security-scans`, `run-consent-probes`, `check-stuck-buffers`, `check-stuck-deletions`, `check-cron-health`, `oauth-token-refresh`, `sync-admin-config-to-kv`
+**Edge Functions (10):** `process-consent-event`, `process-artefact-revocation`, `send-sla-reminders`, `run-security-scans`, `run-consent-probes`, `check-stuck-buffers`, `check-stuck-deletions`, `check-cron-health`, `oauth-token-refresh`, `sync-admin-config-to-kv`.
 
-**pg_cron jobs:** Multiple active jobs covering SLA reminders, buffer sweeps, security scans, consent probes, stuck-deletion checks, cron health watchdog, sentry-events cleanup, feature-flag KV sync, DEPA expiry enforcement.
+**pg_cron jobs:** SLA reminders, buffer sweeps, security scans, consent probes, stuck-deletion checks, cron health watchdog, sentry events cleanup, feature-flag KV sync, DEPA expiry enforcement, auditor-engagement + DPIA next-review reminders.
 
-**Database:** 136 migrations applied. All tables have RLS enabled. Three scoped runtime roles (`cs_worker`, `cs_delivery`, `cs_orchestrator`). No `SUPABASE_SERVICE_ROLE_KEY` in running app code. Admin route handlers that call `auth.admin.*` use service role behind `is_admin` + AAL2 proxy + SECURITY DEFINER RPC guard (carve-out per Rule 5 / ADR-0045).
+**Database:** 144 migrations applied. RLS on every table. Three scoped runtime roles (`cs_worker`, `cs_delivery`, `cs_orchestrator`). `SUPABASE_SERVICE_ROLE_KEY` only in admin `auth.admin.*` carve-out per CLAUDE.md Rule 5.
 
 ---
 
 ## Test Suite
 
-| Suite | Count | Notes |
-|-------|-------|-------|
-| RLS isolation (multi-tenant) | ~200 | Cross-org data leak tests |
-| Admin lifecycle RPCs | 10 (12 total, 2 flaky) | 2 "last active platform_operator" guards fail on shared dev DB with extra rows |
-| Billing — GST statement | 5 | |
-| Billing — invoice export authz | 14 | |
-| Billing — invoice export contents | 7 | |
-| Billing — dispute webhook | 5 | |
-| Billing — evidence bundle | 8 | |
-| API keys RLS | (committed by Terminal B) | ADR-1001 Sprint 2.1 |
-| Worker + buffer + rights + workflows | ~150 | Miniflare + live Supabase round trips |
-| **Total passing** | **412 / 414** | 2 pre-existing flaky (not blocking) |
+Approximately **470+ tests passing** end-of-session. Recent additions (today):
+
+| Suite | Tests | ADR |
+|-------|-------|-----|
+| `tests/billing/customer-invoice-reads.test.ts` | 9 | ADR-0054 Sprint 1.1 |
+| `tests/billing/customer-billing-profile-update.test.ts` | 8 | ADR-0054 Sprint 1.2 |
+| `tests/rls/dpia-records.test.ts` | 10 | ADR-0046 Phase 2 |
+| `tests/rls/auditor-engagements.test.ts` | 11 | ADR-0046 Phase 3 |
+| `tests/rls/update-org-industry.test.ts` | 5 | ADR-0057 |
+| `tests/rls/org-suspension-gate.test.ts` | 5 | ADR-0048 follow-up |
+| **Today's new tests** | **48** | |
+
+Two pre-existing flaky tests in `tests/admin/admin-lifecycle-rpcs.test.ts` (shared-dev-DB has extra platform_operator rows so "last active" guards never fire) — not Sprint-3.x scope.
 
 ---
 
-## Known Issues
+## Session Summary — 2026-04-20
 
-| Issue | Severity | Notes |
-|-------|----------|-------|
-| `admin-lifecycle-rpcs.test.ts` — 2 "last active platform_operator" guards | Low | Shared dev DB has extra `platform_operator` rows from prior test runs; guards never fire. Fix: clean up dev DB before running those tests, or add per-test isolation. |
-| ADR-0050 ADR-index entry still shows "In Progress" | Cosmetic | Update to "Completed" |
-| ADR-0026 Sprint 3 (shared packages) not started | Low | Independent of all current work |
+**Morning (Sprints 3.1 + 3.2 of ADR-0050):**
+- GST statement CSV + invoice export + invoice search (26 tests)
+- Dispute workspace + evidence bundle assembly (13 tests)
+- ADR-0050 fully completed
+
+**Afternoon (customer-app backlog sweep):**
+- ADR-0054 (customer billing portal) — 2 sprints, 17 tests — completed
+- ADR-0046 Phase 2 (DPIA records + UI) — 2 sprints, 10 tests
+- ADR-0046 Phase 3 (auditor engagements + UI) — 1 sprint, 11 tests
+- ADR-0046 Phase 4 (SDF section in audit ZIP) — 1 sprint, no new tests (read-path)
+- ADR-0046 completed
+- ADR-0029 follow-up (support sessions enrichment) — 1 commit, no new tests (UI polish)
+- ADR-0057 (sectoral template switcher) — 1 sprint, 5 tests — completed
+- ADR-0048 follow-up (suspension gate + banner clarification) — 1 commit, 5 tests
+- ADR-1001 completed in parallel by Terminal B
+
+**Net:** 10+ commits, ~50 new tests, 4 ADRs completed (0046, 0054, 0057, 1001), customer-app gap list fully closed.
 
 ---
 
 ## Immediate Next Steps
 
-**Next ADRs in priority order:**
+With the customer-app backlog closed, the next natural move is the **admin-side billing follow-ups** in sequence:
 
-1. **ADR-0051** — Billing evidence ledger (admin-side capture points; feeds dispute bundle assembler). Unblocked.
-2. **ADR-0054** — Customer-facing invoice + billing portal. Unblocked; schema and R2 PDFs already exist.
-3. **ADR-0046 Phase 2** — DPIA records (admin + customer). Partial ADR exists.
-4. **ADR-0052** — Razorpay dispute auto-submission. Depends on ADR-0051.
-5. **ADR-1002** — Public API route handlers (`/v1/consent/verify` + `record` + artefact ops). Depends on ADR-1001 completion.
+1. **ADR-0051** — Billing evidence ledger (capture points at signup / invoice email / rights request / webhook / admin plan change). Feeds the dispute bundle assembler from ADR-0050 Sprint 3.2.
+2. **ADR-0052** — Razorpay dispute evidence auto-submission (depends on ADR-0051).
+3. **ADR-0053** — GSTR-1 XML + filing helpers.
+
+After 0051–0053, the ADR-1002+ public API track resumes.
+
+---
+
+## Pending Manual Setup
+
+| Item | Action required |
+|------|-----------------|
+| Supabase email templates (password reset, email change) | Stock templates still use click-through links. Paste OTP-form HTML from `docs/ops/supabase-auth-templates.md` before enabling those flows. |
+| Resend domain verification | `consentshield.in` verified; relaxed-alignment DMARC live; deliverability confirmed to Gmail. |
+| Turnstile production keys | Live on Vercel Production. Preview env vars not set. |
+| Razorpay | Live in test mode on Vercel Production. End-to-end checkout UX smoke with test card pending. |
+| Vercel Deployment Protection | Off on both projects for dev. |
+| `NEXT_PUBLIC_APP_URL` | Points to `consentshield-one.vercel.app`. Revisit when custom domain is added. |
