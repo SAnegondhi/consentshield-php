@@ -134,13 +134,50 @@ export async function POST(
     JSON.stringify(metricsRes.data ?? null, null, 2),
   )
 
-  // Write manifest.json last so section_counts reflects the DEPA additions.
+  // ADR-0046 Phase 4 — SDF section.
+  // Includes the org's SDF status + full DPIA records + auditor engagements.
+  // RLS-gated reads (effective_org_role-based policies — member of the org
+  // is sufficient). Rule 3 respected: all rows contain only category
+  // declarations and external references, never raw personal data or report
+  // bytes. Entire section is omitted from sdf_status when the org is
+  // not_designated so non-SDF orgs don't pay serialisation cost — but we
+  // still emit the empty files so the ZIP shape is stable across orgs.
+  const [sdfStatusRes, dpiaRes, engagementsRes] = await Promise.all([
+    supabase
+      .from('organisations')
+      .select('id, name, sdf_status, sdf_notified_at, sdf_notification_ref')
+      .eq('id', orgId)
+      .single(),
+    supabase
+      .from('dpia_records')
+      .select(
+        'id, title, processing_description, data_categories, risk_level, mitigations, auditor_attestation_ref, auditor_name, conducted_at, next_review_at, status, superseded_by, created_at, published_at, superseded_at',
+      )
+      .eq('org_id', orgId)
+      .order('conducted_at', { ascending: false }),
+    supabase
+      .from('data_auditor_engagements')
+      .select(
+        'id, auditor_name, registration_category, registration_ref, scope, engagement_start, engagement_end, attestation_ref, status, notes, terminated_reason, created_at, updated_at',
+      )
+      .eq('org_id', orgId)
+      .order('engagement_start', { ascending: false }),
+  ])
+
+  zip.file('sdf/sdf_status.json', JSON.stringify(sdfStatusRes.data ?? null, null, 2))
+  zip.file('sdf/dpia_records.json', JSON.stringify(dpiaRes.data ?? [], null, 2))
+  zip.file('sdf/data_auditor_engagements.json', JSON.stringify(engagementsRes.data ?? [], null, 2))
+
+  // Write manifest.json last so section_counts reflects all additions.
   const sectionCountsWithDepa = {
     ...m.section_counts,
     'depa/purpose_definitions': purposesRes.data?.length ?? 0,
     'depa/purpose_connector_mappings': mappingsOut.length,
     'depa/artefacts_summary': summary.size,
     'depa/compliance_metrics': metricsRes.data ? 1 : 0,
+    'sdf/sdf_status': sdfStatusRes.data ? 1 : 0,
+    'sdf/dpia_records': dpiaRes.data?.length ?? 0,
+    'sdf/data_auditor_engagements': engagementsRes.data?.length ?? 0,
   }
   zip.file(
     'manifest.json',

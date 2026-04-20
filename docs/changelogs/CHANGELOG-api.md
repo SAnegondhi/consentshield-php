@@ -2,6 +2,25 @@
 
 API route changes.
 
+## [ADR-1001 Sprint 2.4] — 2026-04-20
+
+**ADR:** ADR-1001 — Truth-in-Marketing + Public API Foundation
+**Sprint:** Sprint 2.4 — Rate limiter + request logging + OpenAPI stub
+
+### Added
+- `app/src/lib/api/rate-limits.ts` — `limitsForTier(rateTier)` static map (mirrors `public.plans.api_rate_limit_per_hour` + `api_burst`). No DB query per request.
+- `app/src/lib/api/log-request.ts` — `logApiRequest(context, route, method, status, latencyMs)` fire-and-forget helper; calls `rpc_api_request_log_insert` via service-role client; swallows errors.
+- `app/public/openapi.yaml` — OpenAPI 3.1 stub: `bearerAuth` security scheme, `/_ping` endpoint, 401/410/429 response schemas.
+
+### Changed
+- `app/src/proxy.ts` — after Bearer verification: rate-check via `checkRateLimit('api_key:<key_id>', perHour, 60)`; 429 + `Retry-After` + `X-RateLimit-Limit` on breach; injects `x-cs-t` (epoch ms) for route latency tracking.
+- `app/src/lib/api/context.ts` — added `requestStart: 'x-cs-t'` to `API_HDR`.
+- `app/src/app/api/v1/_ping/route.ts` — reads `x-cs-t` to compute latency; calls `logApiRequest` on 200.
+
+### Tested
+- [x] `cd app && bun run build` — PASS (0 errors, 0 warnings)
+- [x] `bun run lint` — PASS
+
 ## [ADR-1001 Sprint 2.2] — 2026-04-20
 
 **ADR:** ADR-1001 — Truth-in-Marketing + Public API Foundation
@@ -408,3 +427,14 @@ Service-role key is now only used by migrations.
 
 ### Note
 - Route path is `/api/billing/*`, not `/api/orgs/[orgId]/billing/*` — invoices are account-scoped, not org-scoped. The caller's account context is resolved server-side via the RPC, not URL parameter.
+
+## [ADR-0046 Phase 4] — 2026-04-20
+
+**ADR:** ADR-0046 — Significant Data Fiduciary foundation
+**Sprint:** Phase 4 — DPIA export extension
+
+### Changed
+- `app/src/app/api/orgs/[orgId]/audit-export/route.ts` — extended ADR-0017 audit ZIP with an `sdf/` section: `sdf_status.json` + `dpia_records.json` + `data_auditor_engagements.json`. `section_counts` in manifest.json extended; no breaking change to the existing shape. Rule 3 respected — categories + references only.
+
+### Note
+- SDF files are emitted for all orgs (even non-SDF) so ZIP shape stays stable across customers. Empty arrays for orgs with no DPIA records / engagements.

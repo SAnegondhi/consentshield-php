@@ -2,10 +2,11 @@
 
 (c) 2026 Sudhindra Anegondhi a.d.sudhindra@gmail.com
 
-**Status:** In Progress (Phase 1 Sprint 1.1 shipped — schema + admin RPC + tests)
+**Status:** Completed — 2026-04-20
 **Date proposed:** 2026-04-18
+**Date completed:** 2026-04-20
 
-> Phase 1 Sprint 1.1 implementation notes are appended at the bottom of this file. Phases 2–4 remain charter-only.
+> Phase-by-phase implementation notes are appended at the bottom of this file.
 **Depends on:** ADR-0044 (accounts/organisations hierarchy — SDF status lives on organisations), ADR-0017 (audit-export package — DPIA reports reuse the ZIP shape), ADR-0030 (sectoral templates — BFSI template lands alongside SDF workflow).
 **Related:** `docs/architecture/consentshield-definitive-architecture.md` §7 Rule 3 (regulated sensitive content).
 
@@ -227,7 +228,7 @@ Phase 2 Sprint 2.2 (customer UI at `/dashboard/dpia`) — shipped below.
 
 **Status:** `[x] complete — 2026-04-20`
 
-Phase 2 complete. Phase 3 shipped 2026-04-20 (below). Phase 4 (DPIA export extension to ADR-0017 audit ZIP) is next.
+Phase 2 complete. Phase 3 shipped 2026-04-20 (below). Phase 4 shipped 2026-04-20 (below).
 
 ## Phase 3 — shipped 2026-04-20
 
@@ -249,4 +250,24 @@ Phase 2 complete. Phase 3 shipped 2026-04-20 (below). Phase 4 (DPIA export exten
 
 **Status:** `[x] complete — 2026-04-20`
 
-Phase 4 (DPIA export extension — fold DPIA records + auditor engagements into the ADR-0017 audit ZIP) remains.
+Phase 4 shipped 2026-04-20 (below).
+
+## Phase 4 — shipped 2026-04-20
+
+**Deliverables:**
+
+- [x] `app/src/app/api/orgs/[orgId]/audit-export/route.ts` — extends the ADR-0017 audit-export ZIP with an `sdf/` section:
+  - `sdf/sdf_status.json` — org SDF status + notification metadata.
+  - `sdf/dpia_records.json` — all DPIA records (draft / published / superseded) with full metadata fields. Rule 3 respected — `data_categories` is category-string array, `auditor_attestation_ref` is a URL reference, no PDF bytes.
+  - `sdf/data_auditor_engagements.json` — all auditor engagements (active / completed / terminated) with registration_category + attestation_ref.
+- [x] `section_counts` in `manifest.json` extended with `sdf/*` entries so the existing manifest row recording + R2-upload paths pick them up transparently.
+- [x] No breaking change to the existing audit export manifest shape — the SDF block is additive. Non-SDF orgs (sdf_status = not_designated) still receive all three SDF files (empty array / status-only-row) so the ZIP shape is stable across orgs.
+
+**Testing plan:**
+
+- [x] Build + type-check clean.
+- [ ] Manual smoke: trigger audit export for an SDF-flagged test org with DPIA records + engagements, confirm `sdf/` folder in the ZIP contains all three files with populated arrays; confirm non-SDF org still gets all three files but with empty data.
+
+**Status:** `[x] complete — 2026-04-20`
+
+ADR-0046 fully complete. All four phases shipped.
