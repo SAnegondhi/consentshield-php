@@ -812,3 +812,11 @@ Combined: 42 (app) + 135 (rls/admin/depa) + 1 (admin smoke) = **178/178**.
 
 ### Changed
 - `app/src/components/suspended-banner.tsx` — now checks both `organisations.status` and parent `accounts.status` (account suspension is the more common driver and cascades to orgs). Copy expanded to list explicitly what is paused (banner delivery, new DPIA/auditor engagement entries) vs. what still works (data viewing, billing updates so customer can pay out of suspension, team management).
+
+## [ADR-0051 Sprint 1.1] — 2026-04-20
+
+**ADR:** ADR-0051 — Billing evidence ledger
+
+### Changed
+- `admin/src/lib/billing/build-evidence-bundle.ts` — accepts optional `ledger: LedgerEvent[]`; emits `evidence-ledger.ndjson` in the dispute ZIP; returns `ledgerEventCount`.
+- `admin/src/app/(operator)/billing/disputes/actions.ts` — `assembleEvidenceBundle` fetches ledger rows via `admin.billing_evidence_ledger_for_account` before building the ZIP.

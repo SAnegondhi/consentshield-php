@@ -50,12 +50,22 @@ export interface AccountSnapshot {
   plan: string | null
 }
 
+export interface LedgerEvent {
+  id: string
+  event_type: string
+  event_source: string
+  occurred_at: string
+  source_ref: string | null
+  metadata: Record<string, unknown> | null
+}
+
 export interface EvidenceInput {
   dispute: DisputeInfo
   invoices: DisputeInvoice[]
   webhookEvents: WebhookEventRow[]
   planHistory: PlanHistoryRow[]
   account: AccountSnapshot
+  ledger?: LedgerEvent[]
 }
 
 export interface EvidenceBundleResult {
@@ -64,6 +74,7 @@ export interface EvidenceBundleResult {
   invoicePdfCount: number
   webhookEventCount: number
   planHistoryCount: number
+  ledgerEventCount: number
 }
 
 export type PdfFetcher = (r2Key: string) => Promise<Buffer>
@@ -127,6 +138,13 @@ export async function buildEvidenceBundle(
   // 5. Plan history JSON
   zip.file('plan-history.json', JSON.stringify(input.planHistory, null, 2))
 
+  // 6. Evidence ledger (ADR-0051) — structured chargeback-defense events
+  // captured at the moment they happened. NDJSON so large timelines stream
+  // cleanly into log-inspection tooling.
+  const ledger = input.ledger ?? []
+  const ledgerNdjson = ledger.map(e => JSON.stringify(e)).join('\n')
+  zip.file('evidence-ledger.ndjson', ledgerNdjson)
+
   const zipBuffer = await zip.generateAsync({ type: 'nodebuffer' })
   const sha256 = createHash('sha256').update(zipBuffer).digest('hex')
 
@@ -136,5 +154,6 @@ export async function buildEvidenceBundle(
     invoicePdfCount,
     webhookEventCount: input.webhookEvents.length,
     planHistoryCount: input.planHistory.length,
+    ledgerEventCount: ledger.length,
   }
 }

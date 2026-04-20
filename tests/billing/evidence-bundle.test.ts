@@ -114,7 +114,50 @@ describe('ADR-0050 Sprint 3.2 — buildEvidenceBundle', () => {
     expect(result.invoicePdfCount).toBe(1)
     expect(result.webhookEventCount).toBe(2)
     expect(result.planHistoryCount).toBe(1)
+    expect(result.ledgerEventCount).toBe(0)
     expect(result.sha256).toMatch(/^[a-f0-9]{64}$/)
+  })
+
+  it('evidence-ledger.ndjson is included with ledger events (ADR-0051)', async () => {
+    const input = await buildInput({
+      ledger: [
+        {
+          id: 'evt-1',
+          event_type: 'subscription_activated',
+          event_source: 'webhook_trigger',
+          occurred_at: '2026-03-01T08:00:00Z',
+          source_ref: 'evt_webhook_001',
+          metadata: { razorpay_event_id: 'evt_webhook_001' },
+        },
+        {
+          id: 'evt-2',
+          event_type: 'invoice_emailed',
+          event_source: 'invoice_trigger',
+          occurred_at: '2026-04-01T12:00:00Z',
+          source_ref: 'inv_uuid_123',
+          metadata: { invoice_number: 'CS-25-26-001', email_message_id: 'resend_abc' },
+        },
+      ],
+    })
+    const { zipBuffer, ledgerEventCount } = await buildEvidenceBundle(input, fakeFetcher)
+    expect(ledgerEventCount).toBe(2)
+
+    const zip = await JSZip.loadAsync(zipBuffer)
+    const ndjson = await zip.file('evidence-ledger.ndjson')!.async('string')
+    const lines = ndjson.trim().split('\n').filter(Boolean)
+    expect(lines).toHaveLength(2)
+    const first = JSON.parse(lines[0]) as { event_type: string }
+    expect(first.event_type).toBe('subscription_activated')
+  })
+
+  it('evidence-ledger.ndjson is empty string when no ledger provided', async () => {
+    const input = await buildInput()  // no ledger
+    const { zipBuffer, ledgerEventCount } = await buildEvidenceBundle(input, fakeFetcher)
+    expect(ledgerEventCount).toBe(0)
+
+    const zip = await JSZip.loadAsync(zipBuffer)
+    const ndjson = await zip.file('evidence-ledger.ndjson')!.async('string')
+    expect(ndjson).toBe('')
   })
 
   it('webhook-events.ndjson has one JSON object per line', async () => {

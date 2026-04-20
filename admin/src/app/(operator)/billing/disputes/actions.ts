@@ -146,6 +146,18 @@ export async function assembleEvidenceBundle(
         .single()
     : { data: null }
 
+  // 3.5 Load evidence ledger for the account (ADR-0051)
+  const { data: ledgerRows } = dispute.account_id
+    ? await supabase
+        .schema('admin')
+        .rpc('billing_evidence_ledger_for_account', {
+          p_account_id: dispute.account_id,
+          p_from: null,
+          p_to: null,
+          p_limit: 500,
+        })
+    : { data: null }
+
   const disputeInfo: DisputeInfo = {
     id: dispute.id,
     razorpay_dispute_id: dispute.razorpay_dispute_id,
@@ -184,12 +196,22 @@ export async function assembleEvidenceBundle(
         plan: null,
       }
 
+  const ledger = (ledgerRows ?? []) as Array<{
+    id: string
+    event_type: string
+    event_source: string
+    occurred_at: string
+    source_ref: string | null
+    metadata: Record<string, unknown> | null
+  }>
+
   const evidenceInput: EvidenceInput = {
     dispute: disputeInfo,
     invoices,
     webhookEvents,
     planHistory,
     account,
+    ledger,
   }
 
   // 4. Build ZIP

@@ -1228,3 +1228,16 @@ Closes four blocking findings from the 2026-04-14 review.
 
 ### Tested
 - [x] `tests/rls/org-suspension-gate.test.ts` — 5/5 PASS (active happy path, org-suspended raises, account-suspended raises via cascade, both RPCs gated, post-restore recovery)
+
+## [ADR-0051 Sprint 1.1] — 2026-04-20
+
+**ADR:** ADR-0051 — Billing evidence ledger
+
+### Added
+- `20260630000001_billing_evidence_ledger.sql` — `billing.evidence_ledger` append-only table (17-value event_type CHECK) + `billing.record_evidence_event()` helper + 3 triggers (audit_log / webhook_events / invoices) + `admin.billing_evidence_ledger_for_account()` read RPC (platform_operator+).
+- `20260630000002_evidence_ledger_grant_fix.sql` — grant the read RPC to authenticated (admin sessions call via proxy).
+- `20260630000003_fix_invoice_issued_trigger.sql` — trigger fires on issued_at null→ts UPDATE (billing_finalize_invoice_pdf path), not just INSERT.
+
+### Tested
+- [x] `tests/billing/evidence-ledger-triggers.test.ts` — 7/7 PASS (invoice_issued/emailed/voided, audit_log billing_* mapping, non-billing skip, platform_operator access, support denied)
+- [x] `tests/billing/evidence-bundle.test.ts` — 10/10 PASS (2 new assertions for `evidence-ledger.ndjson`)
