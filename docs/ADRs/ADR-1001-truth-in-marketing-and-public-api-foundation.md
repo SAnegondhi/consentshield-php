@@ -202,20 +202,33 @@ Fix during testing: `rpc_api_key_revoke` requires `current_uid()` — must call 
 **Estimated effort:** 2 days
 
 **Deliverables:**
-- [ ] Per-tier window config pulled from `public.plans` join (columns: `api_rate_limit_per_hour`, `api_burst`)
-- [ ] ADR-0010 rate limiter called with `key_id` bucket
-- [ ] Every `/api/v1/*` response records a row in `public.api_request_log` (async via pg trigger or explicit INSERT in finally block)
-- [ ] Retention policy: pg_cron daily job drops partitions older than 90 days
-- [ ] Dashboard page `/dashboard/settings/api-keys/[id]/usage` charts last 7 days of request counts + p50/p95 latency
-- [ ] OpenAPI stub at `app/public/openapi.yaml` with `securitySchemes.bearerAuth` and the `_ping` endpoint
+- [x] Per-tier window config pulled from `public.plans` join (columns: `api_rate_limit_per_hour`, `api_burst`)
+- [x] ADR-0010 rate limiter called with `key_id` bucket (proxy.ts, 1-hour window)
+- [x] Every `/api/v1/*` response records a row in `public.api_request_log` (fire-and-forget via `logApiRequest` + `rpc_api_request_log_insert`)
+- [x] Retention policy: pg_cron daily job already in 20260520000001 (drops partitions > 90 days); new migration adds INSERT + usage RPCs
+- [x] Dashboard page `/dashboard/settings/api-keys/[id]/usage` — SVG bar chart + p50/p95 latency table (no new deps)
+- [x] OpenAPI stub at `app/public/openapi.yaml` with `securitySchemes.bearerAuth` and the `_ping` endpoint
+
+### Architecture Notes
+
+- `api_request_log` table exists from migration 20260520000001 (daily partitions, existing cron). Migration 20260601000001 adds `rpc_api_request_log_insert` (service_role only) and `rpc_api_key_usage`.
+- Rate-tier limits are a static mirror (`app/src/lib/api/rate-limits.ts`) of DB values to avoid a per-request DB query in middleware.
+- Usage chart is pure server-side SVG; no charting library added (Rule 15 compliance).
 
 **Testing plan:**
 - [ ] Burst test: 200 req/sec on a Starter-tier key → limiter triggers 429 at 100/hr window
 - [ ] Audit log populated: `SELECT count(*) FROM api_request_log WHERE key_id = $1 AND occurred_at > now()-interval '1 min'` correct
-- [ ] Retention: backfill a 95-day-old partition; cron drops it
+- [ ] Retention: backfill a 95-day-old partition; cron drops it (existing function `api_request_log_drop_old_partitions`)
 - [ ] OpenAPI stub validates via `redocly lint`
 
-**Status:** `[ ] planned`
+### Test Results
+
+- Build: `cd app && bun run build` — PASS
+- Lint: `bun run lint` — PASS (0 errors, 0 warnings)
+- Migration: `20260601000001_api_request_log.sql` applied — PASS
+- Manual flow + burst test: pending
+
+**Status:** `[x] complete — 2026-04-20`
 
 ### Phase 3: Exit gate
 

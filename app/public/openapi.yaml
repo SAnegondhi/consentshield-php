@@ -1,0 +1,121 @@
+openapi: "3.1.0"
+info:
+  title: ConsentShield Compliance API
+  version: "1.0.0"
+  description: >
+    Bearer-authenticated compliance API for DPDP consent events, rights requests,
+    audit logs, and data deletion. All endpoints require a `cs_live_*` API key
+    issued from the ConsentShield dashboard.
+  contact:
+    name: ConsentShield Support
+    email: support@consentshield.in
+
+servers:
+  - url: https://app.consentshield.in/api/v1
+    description: Production
+
+security:
+  - bearerAuth: []
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: "cs_live_<token>"
+      description: >
+        Obtain a `cs_live_*` API key from Settings → API keys in the dashboard.
+        Include it as `Authorization: Bearer cs_live_<token>` on every request.
+
+  schemas:
+    Problem:
+      type: object
+      required: [type, title, status, detail]
+      properties:
+        type:
+          type: string
+          format: uri
+        title:
+          type: string
+        status:
+          type: integer
+        detail:
+          type: string
+
+    PingResponse:
+      type: object
+      required: [ok, org_id, account_id, scopes, rate_tier]
+      properties:
+        ok:
+          type: boolean
+          example: true
+        org_id:
+          type: string
+          format: uuid
+          nullable: true
+        account_id:
+          type: string
+          format: uuid
+        scopes:
+          type: array
+          items:
+            type: string
+          example: ["read:consent", "write:consent"]
+        rate_tier:
+          type: string
+          example: starter
+
+  responses:
+    Unauthorized:
+      description: Missing, malformed, or invalid API key.
+      content:
+        application/problem+json:
+          schema:
+            $ref: "#/components/schemas/Problem"
+
+    Gone:
+      description: API key has been revoked.
+      content:
+        application/problem+json:
+          schema:
+            $ref: "#/components/schemas/Problem"
+
+    TooManyRequests:
+      description: Rate limit exceeded.
+      headers:
+        Retry-After:
+          schema:
+            type: integer
+          description: Seconds until the rate-limit window resets.
+        X-RateLimit-Limit:
+          schema:
+            type: integer
+          description: Requests allowed per hour for this key's tier.
+      content:
+        application/problem+json:
+          schema:
+            $ref: "#/components/schemas/Problem"
+
+paths:
+  /_ping:
+    get:
+      operationId: ping
+      summary: Canary health-check
+      description: >
+        Returns the resolved context for the authenticated key.
+        Use this to verify your API key is valid, confirm scopes, and check
+        the rate tier before calling data endpoints.
+      tags: [Utility]
+      responses:
+        "200":
+          description: Key is valid and active.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PingResponse"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "410":
+          $ref: "#/components/responses/Gone"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"

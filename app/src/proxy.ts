@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createServerClient } from '@supabase/ssr'
 import { verifyBearerToken, problemJson } from '@/lib/api/auth'
 import { buildApiContextHeaders } from '@/lib/api/context'
+import { checkRateLimit } from '@/lib/rights/rate-limit'
+import { limitsForTier } from '@/lib/api/rate-limits'
 
 // Customer-app proxy.
 //
@@ -53,8 +55,32 @@ export async function proxy(request: NextRequest) {
       )
     }
 
-    // Inject verified context as request headers for the route handler.
+    // Rate limit by key_id bucket.
+    const limits = limitsForTier(result.context.rate_tier)
+    const rl = await checkRateLimit(
+      `api_key:${result.context.key_id}`,
+      limits.perHour,
+      60, // 1-hour window
+    )
+    if (!rl.allowed) {
+      return NextResponse.json(
+        problemJson(429, 'Too Many Requests', 'Rate limit exceeded for this API key', {
+          retry_after: rl.retryInSeconds,
+        }),
+        {
+          status: 429,
+          headers: {
+            ...PROBLEM_JSON_HEADERS,
+            'Retry-After': String(rl.retryInSeconds),
+            'X-RateLimit-Limit': String(limits.perHour),
+          },
+        },
+      )
+    }
+
+    // Inject verified context + request start time for route-level logging.
     const injected = buildApiContextHeaders(request.headers, result.context)
+    injected.set('x-cs-t', String(Date.now()))
     return NextResponse.next({ request: { headers: injected } })
   }
 

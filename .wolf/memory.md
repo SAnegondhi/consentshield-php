@@ -2687,3 +2687,60 @@
 | 07:44 | Edited app/src/app/(dashboard)/dashboard/settings/api-keys/api-keys-panel.tsx | inline fix | ~14 |
 | 07:45 | Edited docs/ADRs/ADR-1001-truth-in-marketing-and-public-api-foundation.md | expanded (+6 lines) | ~280 |
 | 07:45 | Edited docs/changelogs/CHANGELOG-dashboard.md | expanded (+16 lines) | ~350 |
+| 07:47 | Session end: 7 writes across 6 files (actions.ts, api-keys-panel.tsx, page.tsx, dashboard-nav.tsx, ADR-1001-truth-in-marketing-and-public-api-foundation.md) | 6 reads | ~31571 tok |
+| 07:48 | Edited tests/billing/dispute-webhook.test.ts | 3→5 lines | ~110 |
+| 07:48 | Edited docs/ADRs/ADR-0050-admin-account-aware-billing.md | 5→7 lines | ~83 |
+| 07:49 | Session end: 9 writes across 8 files (actions.ts, api-keys-panel.tsx, page.tsx, dashboard-nav.tsx, ADR-1001-truth-in-marketing-and-public-api-foundation.md) | 6 reads | ~31770 tok |
+| 08:33 | Session end: 9 writes across 8 files (actions.ts, api-keys-panel.tsx, page.tsx, dashboard-nav.tsx, ADR-1001-truth-in-marketing-and-public-api-foundation.md) | 6 reads | ~31770 tok |
+| 08:41 | Session end: 9 writes across 8 files (actions.ts, api-keys-panel.tsx, page.tsx, dashboard-nav.tsx, ADR-1001-truth-in-marketing-and-public-api-foundation.md) | 12 reads | ~109979 tok |
+| 08:47 | Created docs/STATUS.md | — | ~3820 |
+| 08:47 | Edited docs/ADRs/ADR-index.md | inline fix | ~35 |
+| 08:48 | Session end: 11 writes across 10 files (actions.ts, api-keys-panel.tsx, page.tsx, dashboard-nav.tsx, ADR-1001-truth-in-marketing-and-public-api-foundation.md) | 13 reads | ~116473 tok |
+| 08:56 | Session end: 11 writes across 10 files (actions.ts, api-keys-panel.tsx, page.tsx, dashboard-nav.tsx, ADR-1001-truth-in-marketing-and-public-api-foundation.md) | 13 reads | ~116473 tok |
+| 09:05 | Session end: 11 writes across 10 files (actions.ts, api-keys-panel.tsx, page.tsx, dashboard-nav.tsx, ADR-1001-truth-in-marketing-and-public-api-foundation.md) | 13 reads | ~116473 tok |
+| 09:05 | Session end: 11 writes across 10 files (actions.ts, api-keys-panel.tsx, page.tsx, dashboard-nav.tsx, ADR-1001-truth-in-marketing-and-public-api-foundation.md) | 13 reads | ~116473 tok |
+| 09:15 | Edited docs/design/screen designs and ux/consentshield-screens.html | expanded (+121 lines) | ~2174 |
+| 09:16 | Created docs/ADRs/ADR-0054-customer-billing-portal.md | — | ~3013 |
+| 09:16 | Created supabase/migrations/20260601000001_api_request_log.sql | — | ~2242 |
+| 09:17 | Edited docs/ADRs/ADR-index.md | 2→3 lines | ~107 |
+| 09:17 | Session end: 15 writes across 13 files (actions.ts, api-keys-panel.tsx, page.tsx, dashboard-nav.tsx, ADR-1001-truth-in-marketing-and-public-api-foundation.md) | 17 reads | ~163174 tok |
+| 09:20 | Created supabase/migrations/20260601000001_api_request_log.sql | — | ~992 |
+| 09:20 | Created app/src/lib/api/rate-limits.ts | — | ~221 |
+| 09:20 | Created app/src/lib/api/log-request.ts | — | ~309 |
+| 09:20 | Edited app/src/proxy.ts | added 2 import(s) | ~98 |
+| 09:20 | Edited app/src/proxy.ts | added 1 condition(s) | ~267 |
+| 09:20 | Edited app/src/lib/api/context.ts | 7→8 lines | ~66 |
+| 09:20 | Created app/src/app/api/v1/_ping/route.ts | — | ~324 |
+| 09:21 | Created supabase/migrations/20260601000001_customer_billing_portal_reads.sql | — | ~2008 |
+| 09:22 | Created app/src/app/api/billing/invoices/[invoiceId]/pdf/route.ts | — | ~882 |
+| 09:23 | Created app/src/app/(dashboard)/dashboard/settings/billing/page.tsx | — | ~2662 |
+| 09:23 | Edited app/src/components/dashboard-nav.tsx | 3→4 lines | ~58 |
+| 09:24 | Created tests/billing/customer-invoice-reads.test.ts | — | ~2490 |
+| 09:25 | Created tests/billing/customer-invoice-reads.test.ts | — | ~2542 |
+| 09:26 | Edited tests/billing/customer-invoice-reads.test.ts | added 1 condition(s) | ~139 |
+| 09:26 | Edited docs/ADRs/ADR-0054-customer-billing-portal.md | 4→4 lines | ~28 |
+| 09:26 | Edited docs/ADRs/ADR-0054-customer-billing-portal.md | 5→7 lines | ~167 |
+| 09:27 | Session end: 31 writes across 20 files (actions.ts, api-keys-panel.tsx, page.tsx, dashboard-nav.tsx, ADR-1001-truth-in-marketing-and-public-api-foundation.md) | 25 reads | ~194706 tok |
+| 09:31 | Created app/src/app/(dashboard)/dashboard/settings/api-keys/[id]/usage/page.tsx | — | ~1906 |
+| 09:31 | Created app/public/openapi.yaml | — | ~913 |
+| 09:31 | Edited app/src/lib/api/log-request.ts | 12→10 lines | ~86 |
+| 09:32 | Edited docs/ADRs/ADR-1001-truth-in-marketing-and-public-api-foundation.md | expanded (+13 lines) | ~489 |
+| 09:32 | Created supabase/migrations/20260610000002_customer_billing_portal_writes.sql | — | ~1706 |
+| 09:32 | Edited docs/changelogs/CHANGELOG-dashboard.md | expanded (+23 lines) | ~500 |
+| 09:33 | Created app/src/app/(dashboard)/dashboard/settings/billing/profile-form.tsx | — | ~2862 |
+| 09:33 | Created app/src/app/(dashboard)/dashboard/settings/billing/actions.ts | — | ~253 |
+| 09:33 | Edited app/src/app/(dashboard)/dashboard/settings/billing/page.tsx | added 1 import(s) | ~52 |
+| 09:33 | Edited app/src/app/(dashboard)/dashboard/settings/billing/page.tsx | removed 36 lines | ~30 |
+| 09:34 | Edited app/src/app/(dashboard)/dashboard/settings/billing/page.tsx | 3→2 lines | ~32 |
+| 09:34 | Created tests/billing/customer-billing-profile-update.test.ts | — | ~1794 |
+| 09:35 | Edited docs/ADRs/ADR-0054-customer-billing-portal.md | 4→4 lines | ~23 |
+| 09:35 | Edited docs/ADRs/ADR-0054-customer-billing-portal.md | 3→7 lines | ~220 |
+| 09:35 | Edited docs/ADRs/ADR-index.md | inline fix | ~31 |
+| 09:35 | Session end: 46 writes across 24 files (actions.ts, api-keys-panel.tsx, page.tsx, dashboard-nav.tsx, ADR-1001-truth-in-marketing-and-public-api-foundation.md) | 27 reads | ~216253 tok |
+| 09:39 | Created supabase/migrations/20260620000001_dpia_records.sql | — | ~2760 |
+| 09:39 | Created tests/billing/dpia-records.test.ts | — | ~1912 |
+| 09:40 | Edited docs/ADRs/ADR-0046-significant-data-fiduciary.md | expanded (+16 lines) | ~422 |
+| 09:41 | Session end: 49 writes across 27 files (actions.ts, api-keys-panel.tsx, page.tsx, dashboard-nav.tsx, ADR-1001-truth-in-marketing-and-public-api-foundation.md) | 28 reads | ~223915 tok |
+| 09:48 | Edited docs/design/screen designs and ux/consentshield-screens.html | expanded (+8 lines) | ~244 |
+| 09:48 | Edited docs/design/screen designs and ux/consentshield-screens.html | expanded (+175 lines) | ~3077 |
+| 09:49 | Created app/src/app/(dashboard)/dashboard/dpia/page.tsx | — | ~3358 |

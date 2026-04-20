@@ -3,11 +3,12 @@ import { NextResponse } from 'next/server'
 import type { ApiKeyContext } from './auth'
 
 export const API_HDR = {
-  keyId:     'x-api-key-id',
-  accountId: 'x-api-account-id',
-  orgId:     'x-api-org-id',
-  scopes:    'x-api-scopes',
-  rateTier:  'x-api-rate-tier',
+  keyId:        'x-api-key-id',
+  accountId:    'x-api-account-id',
+  orgId:        'x-api-org-id',
+  scopes:       'x-api-scopes',
+  rateTier:     'x-api-rate-tier',
+  requestStart: 'x-cs-t',
 } as const
 
 // Call from a v1 route handler to read the context injected by proxy.ts.

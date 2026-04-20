@@ -6065,6 +6065,86 @@
       "related_bugs": [],
       "occurrences": 1,
       "last_seen": "2026-04-20T02:15:03.306Z"
+    },
+    {
+      "id": "bug-379",
+      "timestamp": "2026-04-20T03:50:42.108Z",
+      "error_message": "Wrong return value",
+      "file": "app/src/proxy.ts",
+      "root_cause": "Was returning: NextResponse.next({ request: { headers: injected }",
+      "fix": "Now returns: NextResponse.json(",
+      "tags": [
+        "auto-detected",
+        "return-value",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-20T03:50:42.108Z"
+    },
+    {
+      "id": "bug-380",
+      "timestamp": "2026-04-20T03:53:05.082Z",
+      "error_message": "CSS fix: href",
+      "file": "app/src/components/dashboard-nav.tsx",
+      "root_cause": "href: '/dashboard/settings/api-keys', label: 'API keys' → '/dashboard/settings/billing', label: 'Billing settings'",
+      "fix": "Changed href: '/dashboard/settings/api-keys', label: 'API keys' → '/dashboard/settings/billing', label: 'Billing settings'",
+      "tags": [
+        "auto-detected",
+        "style-fix",
+        "tsx"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-20T03:53:05.082Z"
+    },
+    {
+      "id": "bug-381",
+      "timestamp": "2026-04-20T03:56:10.154Z",
+      "error_message": "Missing guard clause",
+      "file": "tests/billing/customer-invoice-reads.test.ts",
+      "root_cause": "No early return/throw for edge case: activateRes.error",
+      "fix": "Added guard clause: if (activateRes.error)",
+      "tags": [
+        "auto-detected",
+        "guard-clause",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-20T03:56:10.154Z"
+    },
+    {
+      "id": "bug-382",
+      "timestamp": "2026-04-20T04:02:37.943Z",
+      "error_message": "Significant refactor of ",
+      "file": "docs/ADRs/ADR-1001-truth-in-marketing-and-public-api-foundation.md",
+      "root_cause": "8 lines replaced/restructured",
+      "fix": "Rewrote 15→28 lines (8 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-20T04:02:37.943Z"
+    },
+    {
+      "id": "bug-383",
+      "timestamp": "2026-04-20T04:05:18.381Z",
+      "error_message": "Wrong reference: Proposed should be Completed",
+      "file": "docs/ADRs/ADR-index.md",
+      "root_cause": "Used \"Proposed\" instead of \"Completed\"",
+      "fix": "Changed Proposed → Completed",
+      "tags": [
+        "auto-detected",
+        "wrong-reference",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-20T04:05:18.381Z"
     }
   ]
 }

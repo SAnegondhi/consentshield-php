@@ -8,8 +8,8 @@
       "first_read": "2026-04-20T01:46:34.150Z"
     },
     "/Users/sudhindra/projects/aiSpirit/consent-sheild/app/src/components/dashboard-nav.tsx": {
-      "count": 1,
-      "tokens": 701,
+      "count": 2,
+      "tokens": 719,
       "first_read": "2026-04-20T02:05:43.082Z"
     },
     "/Users/sudhindra/projects/aiSpirit/consent-sheild/app/src/app/(dashboard)/dashboard/settings/members/page.tsx": {
@@ -23,14 +23,124 @@
       "first_read": "2026-04-20T02:05:50.458Z"
     },
     "/Users/sudhindra/projects/aiSpirit/consent-sheild/docs/ADRs/ADR-1001-truth-in-marketing-and-public-api-foundation.md": {
-      "count": 1,
-      "tokens": 5196,
+      "count": 3,
+      "tokens": 5265,
       "first_read": "2026-04-20T02:14:54.586Z"
     },
     "/Users/sudhindra/projects/aiSpirit/consent-sheild/docs/changelogs/CHANGELOG-dashboard.md": {
-      "count": 1,
-      "tokens": 12311,
+      "count": 2,
+      "tokens": 12908,
       "first_read": "2026-04-20T02:15:06.067Z"
+    },
+    "/Users/sudhindra/projects/aiSpirit/consent-sheild/docs/ADRs/ADR-index.md": {
+      "count": 2,
+      "tokens": 2085,
+      "first_read": "2026-04-20T03:06:35.880Z"
+    },
+    "/Users/sudhindra/projects/aiSpirit/consent-sheild/docs/architecture/consentshield-definitive-architecture.md": {
+      "count": 1,
+      "tokens": 17711,
+      "first_read": "2026-04-20T03:06:36.316Z"
+    },
+    "/Users/sudhindra/projects/aiSpirit/consent-sheild/docs/design/screen designs and ux/ARCHITECTURE-ALIGNMENT-2026-04-16.md": {
+      "count": 1,
+      "tokens": 5513,
+      "first_read": "2026-04-20T03:06:40.041Z"
+    },
+    "/Users/sudhindra/projects/aiSpirit/consent-sheild/docs/architecture/consentshield-complete-schema-design.md": {
+      "count": 1,
+      "tokens": 34644,
+      "first_read": "2026-04-20T03:06:54.174Z"
+    },
+    "/Users/sudhindra/projects/aiSpirit/consent-sheild/docs/ADRs/ADR-0050-admin-account-aware-billing.md": {
+      "count": 1,
+      "tokens": 12228,
+      "first_read": "2026-04-20T03:07:01.015Z"
+    },
+    "/Users/sudhindra/projects/aiSpirit/consent-sheild/app/src/app/(dashboard)/dashboard/settings/api-keys/api-keys-panel.tsx": {
+      "count": 1,
+      "tokens": 6028,
+      "first_read": "2026-04-20T03:08:29.764Z"
+    },
+    "/Users/sudhindra/projects/aiSpirit/consent-sheild/docs/STATUS.md": {
+      "count": 1,
+      "tokens": 2363,
+      "first_read": "2026-04-20T03:15:15.599Z"
+    },
+    "/Users/sudhindra/projects/aiSpirit/consent-sheild/docs/design/screen designs and ux/consentshield-screens.html": {
+      "count": 8,
+      "tokens": 37649,
+      "first_read": "2026-04-20T03:36:20.910Z"
+    },
+    "/Users/sudhindra/projects/aiSpirit/consent-sheild/app/src/lib/rights/rate-limit.ts": {
+      "count": 1,
+      "tokens": 663,
+      "first_read": "2026-04-20T03:44:06.826Z"
+    },
+    "/Users/sudhindra/projects/aiSpirit/consent-sheild/app/src/proxy.ts": {
+      "count": 2,
+      "tokens": 1396,
+      "first_read": "2026-04-20T03:44:20.187Z"
+    },
+    "/Users/sudhindra/projects/aiSpirit/consent-sheild/app/src/lib/api/auth.ts": {
+      "count": 1,
+      "tokens": 984,
+      "first_read": "2026-04-20T03:45:14.394Z"
+    },
+    "/Users/sudhindra/projects/aiSpirit/consent-sheild/app/src/app/(dashboard)/dashboard/settings/api-keys/page.tsx": {
+      "count": 1,
+      "tokens": 810,
+      "first_read": "2026-04-20T03:49:17.364Z"
+    },
+    "/Users/sudhindra/projects/aiSpirit/consent-sheild/supabase/migrations/20260429000001_rbac_memberships.sql": {
+      "count": 2,
+      "tokens": 5594,
+      "first_read": "2026-04-20T03:49:32.908Z"
+    },
+    "/Users/sudhindra/projects/aiSpirit/consent-sheild/supabase/migrations/20260507000008_billing_accounts_invoices_webhooks.sql": {
+      "count": 3,
+      "tokens": 3901,
+      "first_read": "2026-04-20T03:50:02.551Z"
+    },
+    "/Users/sudhindra/projects/aiSpirit/consent-sheild/app/src/lib/api/context.ts": {
+      "count": 1,
+      "tokens": 534,
+      "first_read": "2026-04-20T03:50:45.797Z"
+    },
+    "/Users/sudhindra/projects/aiSpirit/consent-sheild/app/src/app/api/orgs/[orgId]/audit-export/route.ts": {
+      "count": 1,
+      "tokens": 2755,
+      "first_read": "2026-04-20T03:51:52.988Z"
+    },
+    "/Users/sudhindra/projects/aiSpirit/consent-sheild/app/src/lib/api/log-request.ts": {
+      "count": 1,
+      "tokens": 309,
+      "first_read": "2026-04-20T03:53:33.746Z"
+    },
+    "/Users/sudhindra/projects/aiSpirit/consent-sheild/tests/rls/helpers.ts": {
+      "count": 1,
+      "tokens": 1275,
+      "first_read": "2026-04-20T03:53:47.616Z"
+    },
+    "/Users/sudhindra/projects/aiSpirit/consent-sheild/tests/billing/gst-statement.test.ts": {
+      "count": 1,
+      "tokens": 2856,
+      "first_read": "2026-04-20T03:55:01.805Z"
+    },
+    "/Users/sudhindra/projects/aiSpirit/consent-sheild/supabase/migrations/20260504000001_membership_lifecycle.sql": {
+      "count": 1,
+      "tokens": 7729,
+      "first_read": "2026-04-20T04:02:00.067Z"
+    },
+    "/Users/sudhindra/projects/aiSpirit/consent-sheild/app/src/app/(dashboard)/dashboard/settings/billing/page.tsx": {
+      "count": 1,
+      "tokens": 2112,
+      "first_read": "2026-04-20T04:03:57.600Z"
+    },
+    "/Users/sudhindra/projects/aiSpirit/consent-sheild/docs/ADRs/ADR-0046-significant-data-fiduciary.md": {
+      "count": 1,
+      "tokens": 2341,
+      "first_read": "2026-04-20T04:08:01.725Z"
     }
   },
   "files_written": [
@@ -75,19 +185,315 @@
       "action": "edit",
       "tokens": 375,
       "at": "2026-04-20T02:15:16.900Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/tests/billing/dispute-webhook.test.ts",
+      "action": "edit",
+      "tokens": 110,
+      "at": "2026-04-20T02:18:03.169Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/docs/ADRs/ADR-0050-admin-account-aware-billing.md",
+      "action": "edit",
+      "tokens": 89,
+      "at": "2026-04-20T02:18:19.404Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/docs/STATUS.md",
+      "action": "create",
+      "tokens": 4093,
+      "at": "2026-04-20T03:17:46.024Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/docs/ADRs/ADR-index.md",
+      "action": "edit",
+      "tokens": 38,
+      "at": "2026-04-20T03:17:52.113Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/docs/design/screen designs and ux/consentshield-screens.html",
+      "action": "edit",
+      "tokens": 2329,
+      "at": "2026-04-20T03:45:10.795Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/docs/ADRs/ADR-0054-customer-billing-portal.md",
+      "action": "create",
+      "tokens": 3228,
+      "at": "2026-04-20T03:46:38.011Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/supabase/migrations/20260601000001_api_request_log.sql",
+      "action": "create",
+      "tokens": 2402,
+      "at": "2026-04-20T03:46:46.214Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/docs/ADRs/ADR-index.md",
+      "action": "edit",
+      "tokens": 115,
+      "at": "2026-04-20T03:47:00.056Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/supabase/migrations/20260601000001_api_request_log.sql",
+      "action": "create",
+      "tokens": 1062,
+      "at": "2026-04-20T03:50:01.981Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/app/src/lib/api/rate-limits.ts",
+      "action": "create",
+      "tokens": 221,
+      "at": "2026-04-20T03:50:21.536Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/app/src/lib/api/log-request.ts",
+      "action": "create",
+      "tokens": 309,
+      "at": "2026-04-20T03:50:28.756Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/app/src/proxy.ts",
+      "action": "edit",
+      "tokens": 98,
+      "at": "2026-04-20T03:50:34.863Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/app/src/proxy.ts",
+      "action": "edit",
+      "tokens": 267,
+      "at": "2026-04-20T03:50:42.106Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/app/src/lib/api/context.ts",
+      "action": "edit",
+      "tokens": 66,
+      "at": "2026-04-20T03:50:50.125Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/app/src/app/api/v1/_ping/route.ts",
+      "action": "create",
+      "tokens": 324,
+      "at": "2026-04-20T03:50:58.337Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/supabase/migrations/20260601000001_customer_billing_portal_reads.sql",
+      "action": "create",
+      "tokens": 2152,
+      "at": "2026-04-20T03:51:09.918Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/app/src/app/api/billing/invoices/[invoiceId]/pdf/route.ts",
+      "action": "create",
+      "tokens": 882,
+      "at": "2026-04-20T03:52:24.169Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/app/src/app/(dashboard)/dashboard/settings/billing/page.tsx",
+      "action": "create",
+      "tokens": 2662,
+      "at": "2026-04-20T03:53:00.654Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/app/src/components/dashboard-nav.tsx",
+      "action": "edit",
+      "tokens": 58,
+      "at": "2026-04-20T03:53:05.081Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/tests/billing/customer-invoice-reads.test.ts",
+      "action": "create",
+      "tokens": 2490,
+      "at": "2026-04-20T03:54:34.103Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/tests/billing/customer-invoice-reads.test.ts",
+      "action": "create",
+      "tokens": 2542,
+      "at": "2026-04-20T03:55:44.666Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/tests/billing/customer-invoice-reads.test.ts",
+      "action": "edit",
+      "tokens": 139,
+      "at": "2026-04-20T03:56:10.152Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/docs/ADRs/ADR-0054-customer-billing-portal.md",
+      "action": "edit",
+      "tokens": 30,
+      "at": "2026-04-20T03:56:32.503Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/docs/ADRs/ADR-0054-customer-billing-portal.md",
+      "action": "edit",
+      "tokens": 178,
+      "at": "2026-04-20T03:56:40.432Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/app/src/app/(dashboard)/dashboard/settings/api-keys/[id]/usage/page.tsx",
+      "action": "create",
+      "tokens": 1906,
+      "at": "2026-04-20T04:01:23.598Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/app/public/openapi.yaml",
+      "action": "create",
+      "tokens": 913,
+      "at": "2026-04-20T04:01:41.398Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/app/src/lib/api/log-request.ts",
+      "action": "edit",
+      "tokens": 86,
+      "at": "2026-04-20T04:01:58.966Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/docs/ADRs/ADR-1001-truth-in-marketing-and-public-api-foundation.md",
+      "action": "edit",
+      "tokens": 524,
+      "at": "2026-04-20T04:02:37.942Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/supabase/migrations/20260610000002_customer_billing_portal_writes.sql",
+      "action": "create",
+      "tokens": 1828,
+      "at": "2026-04-20T04:02:49.120Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/docs/changelogs/CHANGELOG-dashboard.md",
+      "action": "edit",
+      "tokens": 536,
+      "at": "2026-04-20T04:02:54.935Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/app/src/app/(dashboard)/dashboard/settings/billing/profile-form.tsx",
+      "action": "create",
+      "tokens": 2862,
+      "at": "2026-04-20T04:03:30.953Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/app/src/app/(dashboard)/dashboard/settings/billing/actions.ts",
+      "action": "create",
+      "tokens": 253,
+      "at": "2026-04-20T04:03:36.862Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/app/src/app/(dashboard)/dashboard/settings/billing/page.tsx",
+      "action": "edit",
+      "tokens": 52,
+      "at": "2026-04-20T04:03:41.469Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/app/src/app/(dashboard)/dashboard/settings/billing/page.tsx",
+      "action": "edit",
+      "tokens": 30,
+      "at": "2026-04-20T04:03:52.338Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/app/src/app/(dashboard)/dashboard/settings/billing/page.tsx",
+      "action": "edit",
+      "tokens": 32,
+      "at": "2026-04-20T04:04:01.484Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/tests/billing/customer-billing-profile-update.test.ts",
+      "action": "create",
+      "tokens": 1794,
+      "at": "2026-04-20T04:04:29.718Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/docs/ADRs/ADR-0054-customer-billing-portal.md",
+      "action": "edit",
+      "tokens": 24,
+      "at": "2026-04-20T04:05:02.775Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/docs/ADRs/ADR-0054-customer-billing-portal.md",
+      "action": "edit",
+      "tokens": 236,
+      "at": "2026-04-20T04:05:12.528Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/docs/ADRs/ADR-index.md",
+      "action": "edit",
+      "tokens": 33,
+      "at": "2026-04-20T04:05:18.379Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/supabase/migrations/20260620000001_dpia_records.sql",
+      "action": "create",
+      "tokens": 2957,
+      "at": "2026-04-20T04:09:13.503Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/tests/billing/dpia-records.test.ts",
+      "action": "create",
+      "tokens": 1912,
+      "at": "2026-04-20T04:09:53.615Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/docs/ADRs/ADR-0046-significant-data-fiduciary.md",
+      "action": "edit",
+      "tokens": 452,
+      "at": "2026-04-20T04:10:30.351Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/docs/design/screen designs and ux/consentshield-screens.html",
+      "action": "edit",
+      "tokens": 262,
+      "at": "2026-04-20T04:18:06.917Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/docs/design/screen designs and ux/consentshield-screens.html",
+      "action": "edit",
+      "tokens": 3297,
+      "at": "2026-04-20T04:18:55.066Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/app/src/app/(dashboard)/dashboard/dpia/page.tsx",
+      "action": "create",
+      "tokens": 3358,
+      "at": "2026-04-20T04:19:51.419Z"
     }
   ],
   "edit_counts": {
     "app/src/app/(dashboard)/dashboard/settings/api-keys/actions.ts": 1,
     "app/src/app/(dashboard)/dashboard/settings/api-keys/api-keys-panel.tsx": 2,
     "app/src/app/(dashboard)/dashboard/settings/api-keys/page.tsx": 1,
-    "app/src/components/dashboard-nav.tsx": 1,
-    "docs/ADRs/ADR-1001-truth-in-marketing-and-public-api-foundation.md": 1,
-    "docs/changelogs/CHANGELOG-dashboard.md": 1
+    "app/src/components/dashboard-nav.tsx": 2,
+    "docs/ADRs/ADR-1001-truth-in-marketing-and-public-api-foundation.md": 2,
+    "docs/changelogs/CHANGELOG-dashboard.md": 2,
+    "tests/billing/dispute-webhook.test.ts": 1,
+    "docs/ADRs/ADR-0050-admin-account-aware-billing.md": 1,
+    "docs/STATUS.md": 1,
+    "docs/ADRs/ADR-index.md": 3,
+    "docs/design/screen designs and ux/consentshield-screens.html": 3,
+    "docs/ADRs/ADR-0054-customer-billing-portal.md": 5,
+    "supabase/migrations/20260601000001_api_request_log.sql": 2,
+    "app/src/lib/api/rate-limits.ts": 1,
+    "app/src/lib/api/log-request.ts": 2,
+    "app/src/proxy.ts": 2,
+    "app/src/lib/api/context.ts": 1,
+    "app/src/app/api/v1/_ping/route.ts": 1,
+    "supabase/migrations/20260601000001_customer_billing_portal_reads.sql": 1,
+    "app/src/app/api/billing/invoices/[invoiceId]/pdf/route.ts": 1,
+    "app/src/app/(dashboard)/dashboard/settings/billing/page.tsx": 4,
+    "tests/billing/customer-invoice-reads.test.ts": 3,
+    "app/src/app/(dashboard)/dashboard/settings/api-keys/[id]/usage/page.tsx": 1,
+    "app/public/openapi.yaml": 1,
+    "supabase/migrations/20260610000002_customer_billing_portal_writes.sql": 1,
+    "app/src/app/(dashboard)/dashboard/settings/billing/profile-form.tsx": 1,
+    "app/src/app/(dashboard)/dashboard/settings/billing/actions.ts": 1,
+    "tests/billing/customer-billing-profile-update.test.ts": 1,
+    "supabase/migrations/20260620000001_dpia_records.sql": 1,
+    "tests/billing/dpia-records.test.ts": 1,
+    "docs/ADRs/ADR-0046-significant-data-fiduciary.md": 1,
+    "app/src/app/(dashboard)/dashboard/dpia/page.tsx": 1
   },
-  "anatomy_hits": 6,
+  "anatomy_hits": 27,
   "anatomy_misses": 0,
-  "repeated_reads_warned": 1,
+  "repeated_reads_warned": 17,
   "cerebrum_warnings": 0,
-  "stop_count": 1
+  "stop_count": 13
 }

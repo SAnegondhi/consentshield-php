@@ -1,7 +1,7 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-04-20T02:15:16.893Z
-> Files: 768 tracked | Anatomy hits: 0 | Misses: 0
+> Auto-maintained by OpenWolf. Last scanned: 2026-04-20T04:19:51.413Z
+> Files: 785 tracked | Anatomy hits: 0 | Misses: 0
 
 ## ../../../../../tmp/
 
@@ -459,6 +459,10 @@
 - `tsconfig.json` — TypeScript configuration (~117 tok)
 - `vercel.json` (~33 tok)
 
+## app/public/
+
+- `openapi.yaml` (~913 tok)
+
 ## app/sandbox-scripts/
 
 - `package.json` — Node.js package manifest (~93 tok)
@@ -471,7 +475,7 @@
 
 ## app/src/
 
-- `proxy.ts` — Customer-app proxy. (~1396 tok)
+- `proxy.ts` — Customer-app proxy. (~1632 tok)
 
 ## app/src/app/
 
@@ -500,6 +504,10 @@
 ## app/src/app/(dashboard)/dashboard/billing/
 
 - `page.tsx` — BillingPage (~1899 tok)
+
+## app/src/app/(dashboard)/dashboard/dpia/
+
+- `page.tsx` — dynamic — renders table (~3358 tok)
 
 ## app/src/app/(dashboard)/dashboard/enforcement/
 
@@ -547,6 +555,16 @@
 - `api-keys-panel.tsx` — ALL_SCOPES — renders form (~6028 tok)
 - `page.tsx` — dynamic (~810 tok)
 
+## app/src/app/(dashboard)/dashboard/settings/api-keys/[id]/usage/
+
+- `page.tsx` — dynamic — renders table (~1906 tok)
+
+## app/src/app/(dashboard)/dashboard/settings/billing/
+
+- `actions.ts` — Exports updateBillingProfile (~253 tok)
+- `page.tsx` — dynamic — renders table (~2098 tok)
+- `profile-form.tsx` — STATE_OPTIONS (~2862 tok)
+
 ## app/src/app/(dashboard)/dashboard/settings/members/
 
 - `actions.ts` — Exports InviteMemberInput, InviteResult, inviteMember, revokeInvitation + 4 more (~1464 tok)
@@ -584,6 +602,10 @@
 ## app/src/app/(public)/signup/
 
 - `page.tsx` — SignupPage — renders form (~2442 tok)
+
+## app/src/app/api/billing/invoices/[invoiceId]/pdf/
+
+- `route.ts` — ADR-0054 Sprint 1.1 — Customer-facing invoice PDF download. (~882 tok)
 
 ## app/src/app/api/integrations/oauth/[provider]/callback/
 
@@ -639,7 +661,7 @@
 
 ## app/src/app/api/v1/_ping/
 
-- `route.ts` — ADR-1001 Sprint 2.2 — Canary endpoint to exercise the Bearer middleware. (~210 tok)
+- `route.ts` — ADR-1001 Sprint 2.2 — Canary endpoint to exercise the Bearer middleware. (~324 tok)
 
 ## app/src/app/api/webhooks/razorpay/
 
@@ -655,7 +677,7 @@
 
 ## app/src/components/
 
-- `dashboard-nav.tsx` — navItems (~719 tok)
+- `dashboard-nav.tsx` — navItems (~739 tok)
 - `otp-boxes.tsx` — OtpBoxes (~345 tok)
 - `suspended-banner.tsx` — ADR-0029 Sprint 4.1 — customer-side suspension banner. (~537 tok)
 
@@ -671,7 +693,9 @@
 ## app/src/lib/api/
 
 - `auth.ts` — Exports ApiKeyContext, VerifyResult, verifyBearerToken, problemJson (~984 tok)
-- `context.ts` — Exports API_HDR, getApiContext, assertScope, buildApiContextHeaders (~534 tok)
+- `context.ts` — Exports API_HDR, getApiContext, assertScope, buildApiContextHeaders (~546 tok)
+- `log-request.ts` — ADR-1001 Sprint 2.4 — fire-and-forget API request logging. (~276 tok)
+- `rate-limits.ts` — ADR-1001 Sprint 2.4 — rate tier limits. (~221 tok)
 
 ## app/src/lib/auth/
 
@@ -750,7 +774,7 @@
 
 - `FEATURE-INVENTORY.md` — ConsentShield — Complete Feature Inventory (~9665 tok)
 - `ROADMAP-phase2.md` — ConsentShield — Phase 2 Roadmap (~3150 tok)
-- `STATUS.md` — ConsentShield Status (~2363 tok)
+- `STATUS.md` — ConsentShield Status (~3581 tok)
 - `V2-BACKLOG.md` — V2 Backlog — Deferred Items for Post-Phase-2 Review (~1378 tok)
 - `WHITEPAPER-AUDIT.md` — ConsentShield Integration Whitepaper — Critical Audit vs. Implementation (~4878 tok)
 
@@ -800,12 +824,13 @@
 - `ADR-0043-customer-app-auth-only.md` — ADR-0043: Customer App is Auth-Only (Drop Public Landing) (~750 tok)
 - `ADR-0044-customer-rbac.md` — ADR-0044: Customer RBAC — 4-Level Hierarchy + 5-Role Model + Invitation-Only Signup (v2) (~5563 tok)
 - `ADR-0045-admin-user-lifecycle.md` — ADR-0045 — Admin user lifecycle (invite + role change) (~3049 tok)
-- `ADR-0046-significant-data-fiduciary.md` — ADR-0046: Significant Data Fiduciary (SDF) Foundation (~2341 tok)
+- `ADR-0046-significant-data-fiduciary.md` — ADR-0046: Significant Data Fiduciary (SDF) Foundation (~3333 tok)
 - `ADR-0047-customer-membership-lifecycle.md` — ADR-0047 — Customer membership lifecycle (role change + remove) + single-account-per-identity invari (~3944 tok)
 - `ADR-0048-admin-accounts-and-observability.md` — ADR-0048: Admin Accounts panel + ADR-0033/34 deviation closeout (~2261 tok)
 - `ADR-0049-security-observability-ingestion.md` — ADR-0049: Security observability ingestion — rate_limit_events + sentry_events (~2365 tok)
-- `ADR-0050-admin-account-aware-billing.md` — ADR-0050: Admin account-aware billing — issuer entities, invoices, GST, dispute workspace (~12164 tok)
-- `ADR-1001-truth-in-marketing-and-public-api-foundation.md` — ADR-1001: Truth-in-Marketing + Public API Foundation (~5265 tok)
+- `ADR-0050-admin-account-aware-billing.md` — ADR-0050: Admin account-aware billing — issuer entities, invoices, GST, dispute workspace (~12228 tok)
+- `ADR-0054-customer-billing-portal.md` — ADR-0054 — Customer-facing billing portal (invoice history + billing profile) (~3086 tok)
+- `ADR-1001-truth-in-marketing-and-public-api-foundation.md` — ADR-1001: Truth-in-Marketing + Public API Foundation (~5472 tok)
 - `ADR-1002-dpdp-section6-runtime-enforcement.md` — ADR-1002: DPDP §6 Runtime Enforcement — Verify, Record, Artefact Ops, Deletion API (~2942 tok)
 - `ADR-1003-processor-posture-and-healthcare-unlock.md` — ADR-1003: Processor Posture + Healthcare Category Unlock (~3365 tok)
 - `ADR-1004-statutory-retention-material-change-silent-failure.md` — ADR-1004: Statutory Retention + Material-Change Re-consent + Silent-Failure Detection (~3856 tok)
@@ -813,7 +838,7 @@
 - `ADR-1006-developer-experience-and-openapi.md` — ADR-1006: Developer Experience — Client Libraries + OpenAPI Spec + CI Drift Check (~2658 tok)
 - `ADR-1007-connector-ecosystem-expansion.md` — ADR-1007: Connector Ecosystem Expansion + Platform Plugins (~2738 tok)
 - `ADR-1008-scale-audit-polish-and-p3-hardening.md` — ADR-1008: Scale + Audit Polish + P3 Hardening (~3065 tok)
-- `ADR-index.md` — ADR Index (~2085 tok)
+- `ADR-index.md` — ADR Index (~2114 tok)
 - `ADR-template.md` — ADR-NNNN: Title (~423 tok)
 - `adr-workflow.md` — ADR Workflow Rules (~557 tok)
 
@@ -838,7 +863,7 @@
 ## docs/changelogs/
 
 - `CHANGELOG-api.md` — Changelog — API (~6363 tok)
-- `CHANGELOG-dashboard.md` — Changelog — Dashboard (~12908 tok)
+- `CHANGELOG-dashboard.md` — Changelog — Dashboard (~13819 tok)
 - `CHANGELOG-docs.md` — Changelog — Documentation (~4378 tok)
 - `CHANGELOG-edge-functions.md` — Changelog — Edge Functions (~3003 tok)
 - `CHANGELOG-infra.md` — Changelog — Infrastructure (~3667 tok)
@@ -877,7 +902,7 @@
 - `ARCHITECTURE-ALIGNMENT-2026-04-16.md` — Screen Designs — Architecture Alignment (~5513 tok)
 - `consentshield-mobile.html` — iOS wireframes spec, 3 flows (rights monitor, breach trigger, clinic ABDM Month 6+). M1/M2/M3 drift items deferred to ABDM/mobile/BFSI ADRs. (~17068 tok)
 - `consentshield-next-steps.md` — Strategic decisions log April 2026 + 2026-04-16 addendum noting DEPA architecture has moved on. (~2784 tok)
-- `consentshield-screens.html` — ConsentShield — Screen Designs & UX Flows (~35515 tok)
+- `consentshield-screens.html` — ConsentShield — Screen Designs & UX Flows (~40871 tok)
 - `consentshield-site.html` — ConsentShield — India's DEPA-native DPDP compliance platform (~55978 tok)
 
 ## docs/ops/
@@ -1344,6 +1369,10 @@
 - `20260520000002_api_keys_v2_fixes.sql` — Migration: ADR-1001 Sprint 2.1 — fixes to 20260520000001 (~1664 tok)
 - `20260520000003_api_keys_column_grants.sql` — Migration: ADR-1001 Sprint 2.1 — column-level SELECT grants on public.api_keys (~299 tok)
 - `20260530000001_billing_disputes.sql` — Migration: ADR-0050 Sprint 3.2 — public.disputes table + dispute-upsert RPC + admin RPCs (~2808 tok)
+- `20260601000001_api_request_log.sql` — ADR-1001 Sprint 2.4 — rate-tier plan columns + request-log RPCs (~992 tok)
+- `20260601000001_customer_billing_portal_reads.sql` — Migration: ADR-0054 Sprint 1.1 — Customer billing portal (read path). (~2008 tok)
+- `20260610000002_customer_billing_portal_writes.sql` — Migration: ADR-0054 Sprint 1.2 — Customer billing portal (write path). (~1706 tok)
+- `20260620000001_dpia_records.sql` — Migration: ADR-0046 Phase 2 Sprint 2.1 — DPIA records schema + RPCs. (~2760 tok)
 
 ## supabase/seed/
 
@@ -1401,7 +1430,10 @@
 
 ## tests/billing/
 
-- `dispute-webhook.test.ts` — Declares service (~1842 tok)
+- `customer-billing-profile-update.test.ts` — ADR-0054 Sprint 1.2 — public.update_account_billing_profile. (~1794 tok)
+- `customer-invoice-reads.test.ts` — service: nextGstin, setAccountBilling, createIssuer + 3 more (~2618 tok)
+- `dispute-webhook.test.ts` — Declares service (~1896 tok)
+- `dpia-records.test.ts` — ADR-0046 Phase 2 Sprint 2.1 — DPIA records schema + RPCs. (~1912 tok)
 - `evidence-bundle.test.ts` — EvidenceInput: buildInput (~1758 tok)
 - `gst-computation.test.ts` — ADR-0050 Sprint 2.2 — public.billing_compute_gst. (~1232 tok)
 - `gst-statement.test.ts` — service: nextGstin, setAccountBillingProfile, createIssuer, issueInvoice, finalizeInvoice (~2856 tok)
