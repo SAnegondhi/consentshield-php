@@ -750,12 +750,53 @@ This ensures the notification email — the one that could be used as a spam vec
 
 ### 10.3 Compliance API (API key auth — Pro/Enterprise)
 
+**Status:** Bearer middleware shipped (ADR-1001 Sprint 2.2). Route handlers ship in ADR-1002 onward.
+
+#### Auth model
+
 ```
-Authorization: Bearer cs_live_xxxxxxxxxxxxxxxx
+Authorization: Bearer cs_live_<base64url-32-bytes>
 ```
 
-| Route | Method | Scopes |
+Every `/api/v1/*` request (except `/api/v1/deletion-receipts/*`, which uses HMAC callback verification) passes through the **Bearer gate** in `app/src/proxy.ts` (Next.js 16 proxy — runs on Node.js, not Edge):
+
+1. Proxy parses the `Authorization` header. Missing or non-`cs_live_` → 401.
+2. Proxy calls `public.rpc_api_key_verify(p_plaintext)` via a service-role Supabase client. The RPC computes `SHA-256(plaintext)` and matches against `api_keys.key_hash` (active key) or `api_keys.previous_key_hash` (dual-window rotation). Returns a JSONB context object or null.
+3. If null: a secondary query checks whether a row with that hash exists but has `revoked_at IS NOT NULL` → 410 (Gone). Otherwise → 401.
+4. On success: the proxy stamps five request headers — `x-api-key-id`, `x-api-account-id`, `x-api-org-id`, `x-api-scopes` (comma-separated), `x-api-rate-tier` — and calls `NextResponse.next({ request: { headers } })`.
+5. Route handlers read context via `getApiContext()` from `app/src/lib/api/context.ts`. Per-handler scope enforcement uses `assertScope(context, 'read:consent')` which returns a 403 problem+json response if the key lacks the scope.
+
+All error responses are **RFC 7807 problem+json** (`Content-Type: application/problem+json`):
+
+| Status | Trigger |
+|--------|---------|
+| 401 | Missing/malformed/invalid Bearer token |
+| 403 | Key is valid but lacks the required scope |
+| 410 | Key has been revoked |
+| 429 | Rate limit exceeded (Sprint 2.4) |
+
+#### `cs_api` Postgres role
+
+A minimum-privilege Postgres role (`cs_api`) created in migration `20260520000001_api_keys_v2.sql`:
+- EXECUTE on `public.rpc_api_key_verify` only
+- No direct table DML
+- Intended for future direct-connection poolers (PgBouncer, Supavisor); the current Next.js proxy uses `service_role` for the REST API call because Supabase REST does not support custom Postgres roles
+
+#### API key lifecycle
+
+Keys are issued, rotated, and revoked via SECURITY DEFINER RPCs (`rpc_api_key_create`, `rpc_api_key_rotate`, `rpc_api_key_revoke`). Plaintext is returned only at creation time — `key_hash` (SHA-256 hex) is stored. Rotation preserves the key `id`, moves the old hash to `previous_key_hash` with a 24-hour expiry window, and issues a new plaintext. Revocation sets `revoked_at` and clears `previous_key_hash` so both plaintexts stop working immediately.
+
+Usage is logged in `public.api_request_log` (day-partitioned, 90-day retention).
+
+#### Canary / internal
+
+`GET /api/v1/_ping` — returns `{ ok: true, org_id, account_id, scopes, rate_tier }` from the proxy-injected headers. Used to smoke-test key issuance end-to-end.
+
+#### Route table
+
+| Route | Method | Required scope |
 |---|---|---|
+| /api/v1/_ping | GET | *(any valid key)* |
 | /api/v1/consent/events | GET | read:consent |
 | /api/v1/consent/score | GET | read:score |
 | /api/v1/tracker/violations | GET | read:tracker |
@@ -765,11 +806,15 @@ Authorization: Bearer cs_live_xxxxxxxxxxxxxxxx
 | /api/v1/audit/export | GET | read:audit |
 | /api/v1/security/scans | GET | read:security |
 | /api/v1/probes/results | GET | read:probes |
-| /api/v1/artefacts | GET | (DEPA) `read:artefacts` |
-| /api/v1/artefacts/[id] | GET | (DEPA) `read:artefacts` |
-| /api/v1/artefacts/[id]/revoke | POST | (DEPA) `write:artefacts` |
-| /api/v1/expiry/upcoming | GET | (DEPA) `read:artefacts` |
-| /api/v1/purpose-definitions | GET | (DEPA) `read:consent` |
+| /api/v1/artefacts | GET | (DEPA) read:artefacts |
+| /api/v1/artefacts/[id] | GET | (DEPA) read:artefacts |
+| /api/v1/artefacts/[id]/revoke | POST | (DEPA) write:artefacts |
+| /api/v1/expiry/upcoming | GET | (DEPA) read:artefacts |
+| /api/v1/purpose-definitions | GET | (DEPA) read:consent |
+
+#### Rate-tier mapping (Sprint 2.4)
+
+Rate windows are stored in `public.plans` and enforced per `api_keys.rate_tier`. The ADR-0010 rate limiter integrates at Sprint 2.4. The `x-api-rate-tier` header is already injected by the proxy for handler use.
 
 ---
 

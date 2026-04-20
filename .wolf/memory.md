@@ -2658,3 +2658,12 @@
 | 06:52 | Created admin/src/app/(operator)/billing/disputes/actions.ts | — | ~2121 |
 | 06:53 | ADR-1001 Sprint 2.2 — Bearer middleware + request context | app/src/lib/api/auth.ts, context.ts, proxy.ts, api/v1/_ping/route.ts, tests/integration/api-middleware.test.ts | 6/6 tests PASS, build clean | ~2600 tok |
 | 06:53 | Created admin/src/app/(operator)/billing/disputes/page.tsx | — | ~1350 |
+| 06:53 | Created admin/src/app/(operator)/billing/disputes/[disputeId]/page.tsx | — | ~1794 |
+| 06:53 | Session end: 22 writes across 14 files (ADR-0050-admin-account-aware-billing.md, auth.ts, context.ts, proxy.ts, route.ts) | 14 reads | ~54360 tok |
+| 06:54 | Created admin/src/app/(operator)/billing/disputes/[disputeId]/dispute-actions.tsx | — | ~1283 |
+| 06:54 | Edited admin/src/app/(operator)/layout.tsx | 2→3 lines | ~71 |
+| 06:55 | Edited docs/architecture/consentshield-definitive-architecture.md | expanded (+45 lines) | ~1058 |
+| 06:55 | Created tests/billing/dispute-webhook.test.ts | — | ~1842 |
+| 06:55 | Edited docs/architecture/consentshield-complete-schema-design.md | modified api_keys_scopes_valid() | ~1041 |
+| 06:55 | Created tests/billing/evidence-bundle.test.ts | — | ~1758 |
+| 06:55 | Edited docs/changelogs/CHANGELOG-docs.md | expanded (+9 lines) | ~299 |

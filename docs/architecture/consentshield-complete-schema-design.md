@@ -601,19 +601,74 @@ create table consent_probes (
   updated_at        timestamptz default now()
 );
 
--- API keys
+-- API keys (v2 — ADR-1001 Sprint 2.1; migrations 20260520000001–20260520000003)
+-- Plaintext is returned once at creation; only the SHA-256 hex hash is stored.
+-- Rotation preserves `id`, moves old hash to previous_key_hash for a 24h window.
+-- Revocation sets revoked_at and clears previous_key_hash (both plaintexts stop).
 create table api_keys (
-  id              uuid primary key default gen_random_uuid(),
-  org_id          uuid not null references organisations(id) on delete cascade,
-  key_hash        text not null unique,        -- SHA-256 of the key (never store plaintext)
-  key_prefix      text not null,               -- first 8 chars: 'cs_live_xxxxxxxx'
-  name            text not null,
-  scopes          text[] not null default '{}',
-  last_used_at    timestamptz,
-  expires_at      timestamptz,
-  is_active       boolean not null default true,
-  created_at      timestamptz default now()
+  id                       uuid primary key default gen_random_uuid(),
+  account_id               uuid not null references accounts(id) on delete cascade,
+  org_id                   uuid references organisations(id) on delete cascade,  -- null = account-scoped
+  key_hash                 text not null unique,   -- SHA-256 hex of plaintext (never stored)
+  key_prefix               text not null,          -- 'cs_live_xxxxxxxx' (first 16 chars)
+  name                     text not null,
+  scopes                   text[] not null default '{}'
+                             check (api_keys_scopes_valid(scopes)),
+  rate_tier                text not null default 'starter',
+  is_active                boolean not null generated always as (revoked_at is null) stored,
+  last_used_at             timestamptz,
+  previous_key_hash        text,                   -- set during dual-window rotation
+  previous_key_expires_at  timestamptz,
+  last_rotated_at          timestamptz,
+  created_by               uuid references auth.users(id) on delete set null,
+  revoked_at               timestamptz,
+  revoked_by               uuid references auth.users(id) on delete set null,
+  created_at               timestamptz not null default now()
 );
+
+-- Scope allow-list enforced at DDL boundary.
+create function api_keys_scopes_valid(scopes text[]) returns boolean language sql immutable as $$
+  select scopes <@ array['read:consent','write:consent','read:score','read:tracker',
+    'read:rights','write:rights','read:deletion','write:deletion',
+    'read:audit','read:security','read:probes','read:artefacts','write:artefacts']
+$$;
+
+-- Day-partitioned usage audit (90-day retention; pg_cron drops old partitions weekly).
+create table api_request_log (
+  id              uuid not null default gen_random_uuid(),
+  occurred_at     timestamptz not null default now(),
+  key_id          uuid references api_keys(id) on delete set null,
+  account_id      uuid,
+  org_id          uuid,
+  route           text not null,
+  method          text not null,
+  status          integer not null,
+  latency_ms      integer,
+  response_bytes  integer,
+  user_agent      text
+) partition by range (occurred_at);
+
+-- cs_api Postgres role — minimum privilege for the Bearer verify path.
+-- Granted: EXECUTE on rpc_api_key_verify only; no direct table DML.
+-- Used by future direct-connection poolers; the Next.js proxy currently uses
+-- service_role for the Supabase REST API call (REST does not support custom roles).
+-- create role cs_api nologin;
+-- grant execute on function public.rpc_api_key_verify(text) to cs_api;
+
+-- RPCs (SECURITY DEFINER, search_path = public, extensions, pg_catalog):
+--   rpc_api_key_create(account_id, org_id, scopes[], rate_tier, name) → jsonb
+--     Returns { id, plaintext, prefix, scopes, rate_tier, created_at }. Plaintext returned once only.
+--   rpc_api_key_rotate(key_id) → jsonb
+--     Returns { id, new_plaintext, new_prefix, rotated_at }. Old hash held in previous_key_hash 24h.
+--   rpc_api_key_revoke(key_id) → void
+--     Sets revoked_at, clears previous_key_hash.
+--   rpc_api_key_verify(plaintext) → jsonb | null    ← service_role only
+--     Returns { id, account_id, org_id, scopes, rate_tier, name, prefix } or null.
+--     Called by proxy.ts on every /api/v1/* request.
+
+-- RLS: account_owner/account_viewer see all account keys; org_admin sees org-scoped keys.
+-- authenticated role has no INSERT/UPDATE/DELETE (flows via SECURITY DEFINER RPCs).
+-- is_account_member() and is_org_member() SECURITY DEFINER helpers bypass RLS recursion.
 
 -- GDPR configuration
 create table gdpr_configurations (

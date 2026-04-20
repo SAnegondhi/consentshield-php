@@ -71,6 +71,26 @@
       "count": 1,
       "tokens": 5778,
       "first_read": "2026-04-20T01:21:22.870Z"
+    },
+    "/Users/sudhindra/projects/aiSpirit/consent-sheild/admin/src/app/(operator)/layout.tsx": {
+      "count": 1,
+      "tokens": 2265,
+      "first_read": "2026-04-20T01:24:05.500Z"
+    },
+    "/Users/sudhindra/projects/aiSpirit/consent-sheild/docs/architecture/consentshield-definitive-architecture.md": {
+      "count": 1,
+      "tokens": 15903,
+      "first_read": "2026-04-20T01:24:46.866Z"
+    },
+    "/Users/sudhindra/projects/aiSpirit/consent-sheild/docs/architecture/consentshield-complete-schema-design.md": {
+      "count": 1,
+      "tokens": 31827,
+      "first_read": "2026-04-20T01:25:20.919Z"
+    },
+    "/Users/sudhindra/projects/aiSpirit/consent-sheild/docs/changelogs/CHANGELOG-docs.md": {
+      "count": 1,
+      "tokens": 4121,
+      "first_read": "2026-04-20T01:25:48.723Z"
     }
   },
   "files_written": [
@@ -199,6 +219,54 @@
       "action": "create",
       "tokens": 1350,
       "at": "2026-04-20T01:23:16.398Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/admin/src/app/(operator)/billing/disputes/[disputeId]/page.tsx",
+      "action": "create",
+      "tokens": 1794,
+      "at": "2026-04-20T01:23:43.542Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/admin/src/app/(operator)/billing/disputes/[disputeId]/dispute-actions.tsx",
+      "action": "create",
+      "tokens": 1283,
+      "at": "2026-04-20T01:24:02.779Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/admin/src/app/(operator)/layout.tsx",
+      "action": "edit",
+      "tokens": 71,
+      "at": "2026-04-20T01:24:09.018Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/docs/architecture/consentshield-definitive-architecture.md",
+      "action": "edit",
+      "tokens": 1133,
+      "at": "2026-04-20T01:25:17.925Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/tests/billing/dispute-webhook.test.ts",
+      "action": "create",
+      "tokens": 1842,
+      "at": "2026-04-20T01:25:27.163Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/docs/architecture/consentshield-complete-schema-design.md",
+      "action": "edit",
+      "tokens": 1115,
+      "at": "2026-04-20T01:25:45.248Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/tests/billing/evidence-bundle.test.ts",
+      "action": "create",
+      "tokens": 1758,
+      "at": "2026-04-20T01:25:55.217Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/docs/changelogs/CHANGELOG-docs.md",
+      "action": "edit",
+      "tokens": 320,
+      "at": "2026-04-20T01:25:59.407Z"
     }
   ],
   "edit_counts": {
@@ -216,11 +284,19 @@
     "admin/src/lib/billing/r2-disputes.ts": 1,
     "admin/src/lib/billing/build-evidence-bundle.ts": 1,
     "admin/src/app/(operator)/billing/disputes/actions.ts": 1,
-    "admin/src/app/(operator)/billing/disputes/page.tsx": 1
+    "admin/src/app/(operator)/billing/disputes/page.tsx": 1,
+    "admin/src/app/(operator)/billing/disputes/[disputeId]/page.tsx": 1,
+    "admin/src/app/(operator)/billing/disputes/[disputeId]/dispute-actions.tsx": 1,
+    "admin/src/app/(operator)/layout.tsx": 1,
+    "docs/architecture/consentshield-definitive-architecture.md": 1,
+    "tests/billing/dispute-webhook.test.ts": 1,
+    "docs/architecture/consentshield-complete-schema-design.md": 1,
+    "tests/billing/evidence-bundle.test.ts": 1,
+    "docs/changelogs/CHANGELOG-docs.md": 1
   },
-  "anatomy_hits": 14,
+  "anatomy_hits": 18,
   "anatomy_misses": 0,
   "repeated_reads_warned": 5,
   "cerebrum_warnings": 0,
-  "stop_count": 4
+  "stop_count": 5
 }

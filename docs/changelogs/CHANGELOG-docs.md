@@ -2,6 +2,15 @@
 
 Documentation changes.
 
+## [ADR-1001 Sprint 2.2] — 2026-04-20
+
+**ADR:** ADR-1001 — Truth-in-Marketing + Public API Foundation
+**Sprint:** Sprint 2.2 — Bearer middleware + request context
+
+### Changed
+- `docs/architecture/consentshield-definitive-architecture.md` §10.3 — expanded from a bare route table to a full compliance-API section: auth model (Bearer gate in proxy.ts, 5-step verify flow, RFC 7807 error table), `cs_api` Postgres role description, key lifecycle summary (issue/rotate/revoke), canary endpoint, rate-tier mapping stub (Sprint 2.4), updated route table with _ping.
+- `docs/architecture/consentshield-complete-schema-design.md` — replaced the stale Phase-3 scaffolding `api_keys` definition with the Sprint 2.1 v2 schema: all new columns (account_id, rate_tier, created_by, revoked_at, revoked_by, previous_key_hash, previous_key_expires_at, last_rotated_at), generated `is_active` column, scope allow-list CHECK function. Added `api_request_log` day-partitioned table. Added `cs_api` role description + RPC call-signature inventory.
+
 ## [ADR-1001 Sprint 1.2] — 2026-04-19
 
 **ADR:** ADR-1001 — v2 Whitepaper Phase 1 (Truth-in-marketing + Public API foundation)

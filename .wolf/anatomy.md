@@ -1,7 +1,7 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-04-20T01:23:16.392Z
-> Files: 761 tracked | Anatomy hits: 0 | Misses: 0
+> Auto-maintained by OpenWolf. Last scanned: 2026-04-20T01:25:59.400Z
+> Files: 765 tracked | Anatomy hits: 0 | Misses: 0
 
 ## ../../../../../tmp/
 
@@ -124,7 +124,7 @@
 ## admin/src/app/(operator)/
 
 - `actions.ts` — Exports refreshPlatformMetrics (~167 tok)
-- `layout.tsx` — Operator shell — visual spec: docs/admin/design/consentshield-admin-screens.html. (~2265 tok)
+- `layout.tsx` — Operator shell — visual spec: docs/admin/design/consentshield-admin-screens.html. (~2288 tok)
 - `page.tsx` — ADR-0028 Sprint 2.1 — Operations Dashboard. (~1660 tok)
 
 ## admin/src/app/(operator)/accounts/
@@ -165,6 +165,11 @@
 
 - `actions.ts` — Exports DisputeRow, listDisputes, getDisputeDetail, assembleEvidenceBundle, markDisputeState (~2121 tok)
 - `page.tsx` — statusBadge — renders table (~1350 tok)
+
+## admin/src/app/(operator)/billing/disputes/[disputeId]/
+
+- `dispute-actions.tsx` — STATE_OPTIONS (~1283 tok)
+- `page.tsx` — inr (~1794 tok)
 
 ## admin/src/app/(operator)/billing/export/
 
@@ -819,8 +824,8 @@
 
 ## docs/architecture/
 
-- `consentshield-complete-schema-design.md` — ConsentShield — Complete Schema Design (~31827 tok)
-- `consentshield-definitive-architecture.md` — ConsentShield — Definitive Architecture Reference (~15903 tok)
+- `consentshield-complete-schema-design.md` — ConsentShield — Complete Schema Design (~34644 tok)
+- `consentshield-definitive-architecture.md` — ConsentShield — Definitive Architecture Reference (~17711 tok)
 - `consentshield-testing-strategy.md` — ConsentShield — The Testing Question (~8766 tok)
 - `nextjs-16-reference.md` — Next.js 16 — Project Reference (~1408 tok)
 
@@ -828,7 +833,7 @@
 
 - `CHANGELOG-api.md` — Changelog — API (~6363 tok)
 - `CHANGELOG-dashboard.md` — Changelog — Dashboard (~12311 tok)
-- `CHANGELOG-docs.md` — Changelog — Documentation (~4121 tok)
+- `CHANGELOG-docs.md` — Changelog — Documentation (~4378 tok)
 - `CHANGELOG-edge-functions.md` — Changelog — Edge Functions (~3003 tok)
 - `CHANGELOG-infra.md` — Changelog — Infrastructure (~3667 tok)
 - `CHANGELOG-schema.md` — Changelog — Schema (~22322 tok)
@@ -1390,6 +1395,8 @@
 
 ## tests/billing/
 
+- `dispute-webhook.test.ts` — Declares service (~1842 tok)
+- `evidence-bundle.test.ts` — EvidenceInput: buildInput (~1758 tok)
 - `gst-computation.test.ts` — ADR-0050 Sprint 2.2 — public.billing_compute_gst. (~1232 tok)
 - `gst-statement.test.ts` — service: nextGstin, setAccountBillingProfile, createIssuer, issueInvoice, finalizeInvoice (~2856 tok)
 - `invoice-export-authz.test.ts` — service: nextGstin, populateBilling, createIssuer, issueAndFinalize (~3426 tok)
