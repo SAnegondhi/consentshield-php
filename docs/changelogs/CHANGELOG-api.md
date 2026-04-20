@@ -397,3 +397,14 @@ Service-role key is now only used by migrations.
 
 ### Tested
 - [x] `cd app && bunx tsc --noEmit` — PASS
+
+## [ADR-0054 Sprint 1.1] — 2026-04-20
+
+**ADR:** ADR-0054 — Customer-facing billing portal
+**Sprint:** Phase 1, Sprint 1.1
+
+### Added
+- `app/src/app/api/billing/invoices/[invoiceId]/pdf/route.ts` — GET handler that calls `get_account_invoice_pdf_key` (enforces scope via SECURITY DEFINER RPC), presigns a 15-minute R2 URL, and 302-redirects. Returns 401 if unauthenticated, 403 on role denial, 404 on not-found/void/unavailable.
+
+### Note
+- Route path is `/api/billing/*`, not `/api/orgs/[orgId]/billing/*` — invoices are account-scoped, not org-scoped. The caller's account context is resolved server-side via the RPC, not URL parameter.

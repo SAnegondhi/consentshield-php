@@ -710,3 +710,14 @@ Combined: 42 (app) + 135 (rls/admin/depa) + 1 (admin smoke) = **178/178**.
 
 ### Tested
 - [x] `cd admin && bun run build` — PASS (disputes + [disputeId] routes compile clean)
+
+## [ADR-0054 Sprint 1.1] — 2026-04-20
+
+**ADR:** ADR-0054 — Customer-facing billing portal
+**Sprint:** Phase 1, Sprint 1.1
+
+### Added
+- `app/src/app/(dashboard)/dashboard/settings/billing/page.tsx` — Settings → Billing page. Role-gated (account_owner / account_viewer only); org-level roles see a "Not available for your role" state, not a leak. Current plan card (deep-link to /dashboard/billing for plan change), read-only billing profile, invoice history table with Download links.
+
+### Changed
+- `app/src/components/dashboard-nav.tsx` — Added "Billing settings" nav item under the settings sub-group.

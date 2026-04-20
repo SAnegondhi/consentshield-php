@@ -2,7 +2,7 @@
 
 (c) 2026 Sudhindra Anegondhi a.d.sudhindra@gmail.com
 
-**Status:** Proposed
+**Status:** In Progress (Sprint 1.1 shipped 2026-04-20)
 **Date:** 2026-04-20
 **Phases:** 1
 **Sprints:** 2
@@ -99,7 +99,9 @@ Rationale: billing is an **account-level** concern. Organisation-level roles hav
   - download audit row created
 - [ ] Manual: log in as test account_owner, navigate to Settings → Billing, verify 4 invoices render, click Download on a paid invoice, confirm PDF opens.
 
-**Status:** `[ ] planned`
+**Status:** `[x] complete — 2026-04-20`
+
+Note: the PDF download route lives at `/api/billing/invoices/[invoiceId]/pdf` (not `/api/orgs/[orgId]/...`) because invoices are account-scoped, not org-scoped. `tests/billing/customer-invoice-reads.test.ts` — 9/9 PASS covering list_account_invoices / get_account_billing_profile / get_account_invoice_pdf_key across both accounts (scope), void state, and non-existent ids.
 
 #### Sprint 1.2 — Write path (billing profile edit)
 

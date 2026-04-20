@@ -1110,3 +1110,19 @@ Closes four blocking findings from the 2026-04-14 review.
 ### Tested
 - [x] `tests/billing/dispute-webhook.test.ts` — 5/5 PASS (created/won/lost/closed upsert, anon access)
 - [x] `tests/billing/evidence-bundle.test.ts` — 8/8 PASS (ZIP contents, PDF handling, counts, determinism)
+
+## [ADR-0054 Sprint 1.1] — 2026-04-20
+
+**ADR:** ADR-0054 — Customer-facing billing portal
+**Sprint:** Phase 1, Sprint 1.1
+
+### Added
+- `20260610000001_customer_billing_portal_reads.sql` — three SECURITY DEFINER RPCs callable by `authenticated`:
+  - `public.list_account_invoices()` — invoice rows + issuer_legal_name + account_legal_name, scoped to caller's account
+  - `public.get_account_billing_profile()` — billing profile JSON scoped to caller's account
+  - `public.get_account_invoice_pdf_key(uuid)` — resolves pdf_r2_key for a single invoice scoped to caller's account; raises on cross-account, void, or non-existent
+- All three raise `access_denied` when caller's `current_account_role()` is not in (`account_owner`, `account_viewer`).
+- No direct GRANT SELECT on `public.invoices` for authenticated — all customer reads remain RPC-mediated.
+
+### Tested
+- [x] `tests/billing/customer-invoice-reads.test.ts` — 9/9 PASS (scope isolation, void state, not-found enumeration prevention, billing profile isolation)
