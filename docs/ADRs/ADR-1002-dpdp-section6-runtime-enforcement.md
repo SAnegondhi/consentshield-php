@@ -85,21 +85,37 @@ bunx vitest run tests/depa/
 **Estimated effort:** 2 days
 
 **Deliverables:**
-- [ ] `app/src/app/api/v1/consent/verify/route.ts` handler
-- [ ] Query parsing: `property_id`, `data_principal_identifier`, `identifier_type`, `purpose_code` — reject missing with 422
-- [ ] Helper `app/src/lib/consent/verify.ts`: single query against `consent_artefact_index` (no JOIN to `consent_artefacts` on hot path); returns the §5.1 response shape
-- [ ] Status resolution logic: active index row → `granted`; revocation row present → `revoked` + revocation_record_id; expired artefact → `expired`; absent → `never_consented`
-- [ ] `evaluated_at` set server-side (never trust client)
-- [ ] Scope gate: `read:consent`
+- [x] `app/src/app/api/v1/consent/verify/route.ts` handler — scope gate → 422 / 400 (account-scoped key) / 404 / 422 (invalid identifier) / 200
+- [x] Query parsing: `property_id`, `data_principal_identifier`, `identifier_type`, `purpose_code` — 422 on any missing (single response lists all missing names)
+- [x] `app/src/lib/consent/verify.ts` — typed wrapper around `rpc_consent_verify` via the service-role client (same carve-out pattern as `verifyBearerToken` + `logApiRequest`); maps error codes to `property_not_found` / `invalid_identifier` / `unknown`
+- [x] `rpc_consent_verify` SECURITY DEFINER RPC — migration 20260710000001 — validates property ownership (P0001 / `property_not_found`), calls `hash_data_principal_identifier` (propagates 22023 for empty / unknown-type), picks best index row (active > expired > revoked; newest first), builds §5.1 envelope
+- [x] Status resolution in the RPC: active + expires_at < now → `expired`; `validity_state='revoked'` → `revoked` + pointer; missing row → `never_consented`; otherwise → `granted`
+- [x] `evaluated_at` stamped server-side via `now()` inside the RPC — clients cannot influence it
+- [x] Scope gate: `read:consent` (via direct context-scope check; 403 problem+json on miss)
+- [x] OpenAPI stub extended at `app/public/openapi.yaml` — VerifyResponse schema + full `/consent/verify` path entry with 200/401/403/404/410/422/429
 
 **Testing plan:**
-- [ ] Fixture: an org with 4 artefacts in different states (active/revoked/expired/absent) → 4 GET calls return the right 4 statuses
-- [ ] Timestamp fields are ISO 8601 and null-valid per spec
-- [ ] Wrong scope → 403
-- [ ] Cross-org identifier (property belongs to different org) → 404
-- [ ] One-shot perf test in staging on 50M-row index: p99 < 50 ms captured as baseline
+- [x] 4-state fixture (`granted`, `revoked`, `expired`, `never_consented`) — all four return correct status
+- [x] Timestamps ISO 8601; null-valid for absent fields per envelope
+- [x] Cross-org property (owned by other org) → `property_not_found` → 404
+- [x] Empty identifier → `invalid_identifier` → 422
+- [x] Unknown identifier_type (`passport`) → `invalid_identifier` → 422
+- [x] identifier_type mismatch (email granted, verify as phone) → `never_consented` (different hash across types)
+- [x] Cross-org isolation: same identifier in two orgs produces different hashes → verify in other org returns `never_consented`
+- [ ] Wrong-scope 403 — handler-level assertion is in code; exercised at integration level once Sprint 1.3 brings more scope variety
+- [ ] 50M-row index p99 < 50 ms — staging perf probe deferred to Sprint 3.1 end-to-end stage (no prod-like volumes available)
 
-**Status:** `[ ] planned`
+### Test Results — 2026-04-20
+
+```
+bunx vitest run tests/integration/consent-verify.test.ts
+9/9 PASS (8.66s)
+
+cd app && bun run build — PASS; /api/v1/consent/verify in route manifest
+bun run lint — PASS (0 errors, 0 warnings)
+```
+
+**Status:** `[x] complete — 2026-04-20`
 
 #### Sprint 1.3: `POST /v1/consent/verify/batch`
 

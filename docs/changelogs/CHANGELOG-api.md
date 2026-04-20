@@ -2,6 +2,21 @@
 
 API route changes.
 
+## [ADR-1002 Sprint 1.2] — 2026-04-20
+
+**ADR:** ADR-1002 — DPDP §6 runtime enforcement
+**Sprint:** Sprint 1.2 — `GET /v1/consent/verify` route + helper + OpenAPI
+
+### Added
+- `app/src/app/api/v1/consent/verify/route.ts` — GET handler. Reads proxy-injected API context, enforces `read:consent` scope (403), validates query params (422 with explicit list of missing names), rejects account-scoped keys (400), maps RPC errors to 404 / 422 / 500. Always calls `logApiRequest`.
+- `app/src/lib/consent/verify.ts` — `verifyConsent(...)` helper wrapping `rpc_consent_verify` via the service-role client. Returns a typed envelope (`VerifyEnvelope`) or a typed error (`property_not_found` | `invalid_identifier` | `unknown`).
+- `app/public/openapi.yaml` — added `VerifyResponse` schema + `/consent/verify` GET path entry (required query params, `bearerAuth` with `read:consent`, response shapes for 200/401/403/404/410/422/429).
+
+### Tested
+- [x] 9/9 PASS — `tests/integration/consent-verify.test.ts`
+- [x] `cd app && bun run build` — PASS; `/api/v1/consent/verify` in route manifest
+- [x] `bun run lint` — PASS (0 errors, 0 warnings)
+
 ## [ADR-1001 Sprint 3.1] — 2026-04-20
 
 **ADR:** ADR-1001 — Truth-in-Marketing + Public API Foundation

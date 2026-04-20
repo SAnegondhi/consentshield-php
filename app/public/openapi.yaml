@@ -65,6 +65,46 @@ components:
           type: string
           example: starter
 
+    VerifyResponse:
+      type: object
+      required: [property_id, identifier_type, purpose_code, status, evaluated_at]
+      properties:
+        property_id:
+          type: string
+          format: uuid
+        identifier_type:
+          type: string
+          enum: [email, phone, pan, aadhaar, custom]
+        purpose_code:
+          type: string
+          example: marketing
+        status:
+          type: string
+          enum: [granted, revoked, expired, never_consented]
+        active_artefact_id:
+          type: string
+          nullable: true
+          description: Present only when status=granted. Opaque identifier.
+        revoked_at:
+          type: string
+          format: date-time
+          nullable: true
+          description: Present only when status=revoked.
+        revocation_record_id:
+          type: string
+          format: uuid
+          nullable: true
+          description: Pointer to artefact_revocations row. Present only when status=revoked.
+        expires_at:
+          type: string
+          format: date-time
+          nullable: true
+          description: Artefact expiry timestamp. Null for never_consented.
+        evaluated_at:
+          type: string
+          format: date-time
+          description: Server-side ISO 8601 timestamp at which this verification was computed.
+
   responses:
     Unauthorized:
       description: Missing, malformed, or invalid API key.
@@ -117,5 +157,74 @@ paths:
           $ref: "#/components/responses/Unauthorized"
         "410":
           $ref: "#/components/responses/Gone"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
+
+  /consent/verify:
+    get:
+      operationId: consentVerify
+      summary: Single-identifier consent verification
+      description: >
+        DPDP §6 runtime check. Given a data principal identifier, property,
+        and purpose code, returns whether consent is currently granted,
+        revoked, expired, or never recorded. Identifier is hashed server-side
+        with the org's per-org salt — plaintext is never stored.
+      tags: [Consent]
+      security:
+        - bearerAuth: [read:consent]
+      parameters:
+        - in: query
+          name: property_id
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - in: query
+          name: data_principal_identifier
+          required: true
+          schema:
+            type: string
+          description: "Caller's identifier for the data principal (email, phone, PAN, etc.). Hashed server-side; never stored."
+        - in: query
+          name: identifier_type
+          required: true
+          schema:
+            type: string
+            enum: [email, phone, pan, aadhaar, custom]
+          description: "Determines normalisation rule: email=trim+lowercase; phone/aadhaar=digits only; pan=trim+uppercase; custom=trim. Callers MUST use the same type at record-time and verify-time."
+        - in: query
+          name: purpose_code
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Verification envelope.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VerifyResponse"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          description: Key is valid but lacks the read:consent scope.
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "404":
+          description: property_id does not belong to the key's org.
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "410":
+          $ref: "#/components/responses/Gone"
+        "422":
+          description: Missing query param / empty identifier / unknown identifier_type.
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
         "429":
           $ref: "#/components/responses/TooManyRequests"

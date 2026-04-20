@@ -33,7 +33,7 @@
       "first_read": "2026-04-20T02:15:06.067Z"
     },
     "/Users/sudhindra/projects/aiSpirit/consent-sheild/docs/ADRs/ADR-index.md": {
-      "count": 3,
+      "count": 4,
       "tokens": 2141,
       "first_read": "2026-04-20T03:06:35.880Z"
     },
@@ -143,13 +143,13 @@
       "first_read": "2026-04-20T04:08:01.725Z"
     },
     "/Users/sudhindra/projects/aiSpirit/consent-sheild/docs/changelogs/CHANGELOG-api.md": {
-      "count": 1,
-      "tokens": 6363,
+      "count": 2,
+      "tokens": 7360,
       "first_read": "2026-04-20T04:23:31.116Z"
     },
     "/Users/sudhindra/projects/aiSpirit/consent-sheild/docs/changelogs/CHANGELOG-schema.md": {
-      "count": 2,
-      "tokens": 23804,
+      "count": 3,
+      "tokens": 25018,
       "first_read": "2026-04-20T04:23:31.925Z"
     },
     "/Users/sudhindra/projects/aiSpirit/consent-sheild/app/src/app/(dashboard)/dashboard/support-sessions/page.tsx": {
@@ -213,8 +213,8 @@
       "first_read": "2026-04-20T05:06:18.932Z"
     },
     "/Users/sudhindra/projects/aiSpirit/consent-sheild/admin/src/app/(operator)/billing/disputes/actions.ts": {
-      "count": 1,
-      "tokens": 2121,
+      "count": 3,
+      "tokens": 2287,
       "first_read": "2026-04-20T05:11:21.472Z"
     },
     "/Users/sudhindra/projects/aiSpirit/consent-sheild/docs/changelogs/CHANGELOG-edge-functions.md": {
@@ -226,6 +226,11 @@
       "count": 1,
       "tokens": 1758,
       "first_read": "2026-04-20T05:12:10.394Z"
+    },
+    "/Users/sudhindra/projects/aiSpirit/consent-sheild/admin/src/app/(operator)/billing/disputes/[disputeId]/page.tsx": {
+      "count": 2,
+      "tokens": 1794,
+      "first_read": "2026-04-20T05:35:17.943Z"
     }
   },
   "files_written": [
@@ -954,6 +959,204 @@
       "action": "edit",
       "tokens": 583,
       "at": "2026-04-20T05:12:08.966Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/tests/billing/evidence-bundle.test.ts",
+      "action": "edit",
+      "tokens": 578,
+      "at": "2026-04-20T05:12:22.816Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/tests/billing/evidence-ledger-triggers.test.ts",
+      "action": "create",
+      "tokens": 2417,
+      "at": "2026-04-20T05:13:02.365Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/supabase/migrations/20260630000002_evidence_ledger_grant_fix.sql",
+      "action": "create",
+      "tokens": 112,
+      "at": "2026-04-20T05:20:08.301Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/supabase/migrations/20260630000003_fix_invoice_issued_trigger.sql",
+      "action": "create",
+      "tokens": 714,
+      "at": "2026-04-20T05:20:47.731Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/tests/billing/evidence-ledger-triggers.test.ts",
+      "action": "edit",
+      "tokens": 247,
+      "at": "2026-04-20T05:21:22.461Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/tests/billing/evidence-ledger-triggers.test.ts",
+      "action": "edit",
+      "tokens": 146,
+      "at": "2026-04-20T05:21:30.213Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/docs/ADRs/ADR-0051-billing-evidence-ledger.md",
+      "action": "create",
+      "tokens": 1839,
+      "at": "2026-04-20T05:22:27.022Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/docs/ADRs/ADR-index.md",
+      "action": "edit",
+      "tokens": 117,
+      "at": "2026-04-20T05:22:45.438Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/supabase/migrations/20260701000001_evidence_ledger_sprint_1_2.sql",
+      "action": "create",
+      "tokens": 1839,
+      "at": "2026-04-20T05:33:17.081Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/tests/billing/evidence-ledger-sprint12.test.ts",
+      "action": "create",
+      "tokens": 1743,
+      "at": "2026-04-20T05:34:08.015Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/supabase/migrations/20260701000002_rpc_consent_verify.sql",
+      "action": "create",
+      "tokens": 1159,
+      "at": "2026-04-20T05:34:10.032Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/tests/billing/evidence-ledger-sprint12.test.ts",
+      "action": "edit",
+      "tokens": 34,
+      "at": "2026-04-20T05:34:35.725Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/tests/billing/evidence-ledger-sprint12.test.ts",
+      "action": "edit",
+      "tokens": 146,
+      "at": "2026-04-20T05:34:42.365Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/app/src/lib/consent/verify.ts",
+      "action": "create",
+      "tokens": 586,
+      "at": "2026-04-20T05:34:54.201Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/tests/billing/evidence-ledger-sprint12.test.ts",
+      "action": "edit",
+      "tokens": 35,
+      "at": "2026-04-20T05:35:02.013Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/app/src/app/api/v1/consent/verify/route.ts",
+      "action": "create",
+      "tokens": 1134,
+      "at": "2026-04-20T05:35:13.444Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/admin/src/app/(operator)/billing/disputes/actions.ts",
+      "action": "edit",
+      "tokens": 122,
+      "at": "2026-04-20T05:35:53.817Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/admin/src/app/(operator)/billing/disputes/actions.ts",
+      "action": "edit",
+      "tokens": 290,
+      "at": "2026-04-20T05:36:06.957Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/tests/integration/consent-verify.test.ts",
+      "action": "create",
+      "tokens": 3744,
+      "at": "2026-04-20T05:36:10.910Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/admin/src/app/(operator)/billing/disputes/actions.ts",
+      "action": "edit",
+      "tokens": 71,
+      "at": "2026-04-20T05:36:11.982Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/admin/src/app/(operator)/billing/disputes/actions.ts",
+      "action": "edit",
+      "tokens": 19,
+      "at": "2026-04-20T05:36:17.241Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/admin/src/app/(operator)/billing/disputes/actions.ts",
+      "action": "edit",
+      "tokens": 42,
+      "at": "2026-04-20T05:36:23.462Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/admin/src/app/(operator)/billing/disputes/[disputeId]/page.tsx",
+      "action": "edit",
+      "tokens": 19,
+      "at": "2026-04-20T05:36:28.791Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/tests/integration/consent-verify.test.ts",
+      "action": "edit",
+      "tokens": 198,
+      "at": "2026-04-20T05:36:40.370Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/admin/src/app/(operator)/billing/disputes/[disputeId]/page.tsx",
+      "action": "edit",
+      "tokens": 1128,
+      "at": "2026-04-20T05:36:46.430Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/docs/ADRs/ADR-0051-billing-evidence-ledger.md",
+      "action": "edit",
+      "tokens": 24,
+      "at": "2026-04-20T05:37:18.303Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/app/public/openapi.yaml",
+      "action": "edit",
+      "tokens": 611,
+      "at": "2026-04-20T05:37:25.362Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/docs/ADRs/ADR-0051-billing-evidence-ledger.md",
+      "action": "edit",
+      "tokens": 538,
+      "at": "2026-04-20T05:37:38.555Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/app/public/openapi.yaml",
+      "action": "edit",
+      "tokens": 922,
+      "at": "2026-04-20T05:37:41.699Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/docs/ADRs/ADR-index.md",
+      "action": "edit",
+      "tokens": 57,
+      "at": "2026-04-20T05:37:43.969Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/docs/ADRs/ADR-1002-dpdp-section6-runtime-enforcement.md",
+      "action": "edit",
+      "tokens": 756,
+      "at": "2026-04-20T05:38:11.478Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/docs/changelogs/CHANGELOG-schema.md",
+      "action": "edit",
+      "tokens": 337,
+      "at": "2026-04-20T05:38:25.239Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/docs/changelogs/CHANGELOG-api.md",
+      "action": "edit",
+      "tokens": 344,
+      "at": "2026-04-20T05:38:40.199Z"
     }
   ],
   "edit_counts": {
@@ -966,7 +1169,7 @@
     "tests/billing/dispute-webhook.test.ts": 1,
     "docs/ADRs/ADR-0050-admin-account-aware-billing.md": 1,
     "docs/STATUS.md": 2,
-    "docs/ADRs/ADR-index.md": 6,
+    "docs/ADRs/ADR-index.md": 8,
     "docs/design/screen designs and ux/consentshield-screens.html": 5,
     "docs/ADRs/ADR-0054-customer-billing-portal.md": 5,
     "supabase/migrations/20260601000001_api_request_log.sql": 2,
@@ -980,7 +1183,7 @@
     "app/src/app/(dashboard)/dashboard/settings/billing/page.tsx": 4,
     "tests/billing/customer-invoice-reads.test.ts": 3,
     "app/src/app/(dashboard)/dashboard/settings/api-keys/[id]/usage/page.tsx": 1,
-    "app/public/openapi.yaml": 1,
+    "app/public/openapi.yaml": 3,
     "supabase/migrations/20260610000002_customer_billing_portal_writes.sql": 1,
     "app/src/app/(dashboard)/dashboard/settings/billing/profile-form.tsx": 1,
     "app/src/app/(dashboard)/dashboard/settings/billing/actions.ts": 1,
@@ -995,8 +1198,8 @@
     "app/src/app/(dashboard)/dashboard/dpia/[dpiaId]/page.tsx": 1,
     "app/src/app/(dashboard)/dashboard/dpia/[dpiaId]/detail-actions.tsx": 1,
     "docs/architecture/consentshield-definitive-architecture.md": 2,
-    "docs/changelogs/CHANGELOG-api.md": 2,
-    "docs/changelogs/CHANGELOG-schema.md": 2,
+    "docs/changelogs/CHANGELOG-api.md": 3,
+    "docs/changelogs/CHANGELOG-schema.md": 3,
     "supabase/migrations/20260620000002_data_auditor_engagements.sql": 1,
     "tests/rls/auditor-engagements.test.ts": 1,
     "app/src/app/(dashboard)/dashboard/auditors/actions.ts": 1,
@@ -1021,18 +1224,30 @@
     "supabase/migrations/20260620000005_assert_org_not_suspended.sql": 1,
     "app/src/components/suspended-banner.tsx": 1,
     "tests/rls/org-suspension-gate.test.ts": 1,
-    "docs/ADRs/ADR-1002-dpdp-section6-runtime-enforcement.md": 3,
+    "docs/ADRs/ADR-1002-dpdp-section6-runtime-enforcement.md": 4,
     "supabase/migrations/20260601000002_consent_artefact_index_identifier.sql": 1,
     "supabase/functions/process-consent-event/index.ts": 1,
     "tests/depa/artefact-index-identifier.test.ts": 2,
     "supabase/migrations/20260630000001_billing_evidence_ledger.sql": 1,
     "admin/src/lib/billing/build-evidence-bundle.ts": 3,
-    "admin/src/app/(operator)/billing/disputes/actions.ts": 2,
-    "docs/changelogs/CHANGELOG-edge-functions.md": 1
+    "admin/src/app/(operator)/billing/disputes/actions.ts": 7,
+    "docs/changelogs/CHANGELOG-edge-functions.md": 1,
+    "tests/billing/evidence-bundle.test.ts": 1,
+    "tests/billing/evidence-ledger-triggers.test.ts": 3,
+    "supabase/migrations/20260630000002_evidence_ledger_grant_fix.sql": 1,
+    "supabase/migrations/20260630000003_fix_invoice_issued_trigger.sql": 1,
+    "docs/ADRs/ADR-0051-billing-evidence-ledger.md": 3,
+    "supabase/migrations/20260701000001_evidence_ledger_sprint_1_2.sql": 1,
+    "tests/billing/evidence-ledger-sprint12.test.ts": 4,
+    "supabase/migrations/20260701000002_rpc_consent_verify.sql": 1,
+    "app/src/lib/consent/verify.ts": 1,
+    "app/src/app/api/v1/consent/verify/route.ts": 1,
+    "tests/integration/consent-verify.test.ts": 2,
+    "admin/src/app/(operator)/billing/disputes/[disputeId]/page.tsx": 2
   },
-  "anatomy_hits": 44,
+  "anatomy_hits": 45,
   "anatomy_misses": 0,
-  "repeated_reads_warned": 27,
+  "repeated_reads_warned": 33,
   "cerebrum_warnings": 0,
-  "stop_count": 21
+  "stop_count": 23
 }

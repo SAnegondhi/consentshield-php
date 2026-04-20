@@ -6337,6 +6337,118 @@
       "related_bugs": [],
       "occurrences": 1,
       "last_seen": "2026-04-20T05:11:36.505Z"
+    },
+    {
+      "id": "bug-396",
+      "timestamp": "2026-04-20T05:12:22.818Z",
+      "error_message": "Type error",
+      "file": "tests/billing/evidence-bundle.test.ts",
+      "root_cause": "Missing or incorrect type annotation",
+      "fix": "Added type assertion/annotation",
+      "tags": [
+        "auto-detected",
+        "type-fix",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-20T05:12:22.818Z"
+    },
+    {
+      "id": "bug-397",
+      "timestamp": "2026-04-20T05:34:35.727Z",
+      "error_message": "Incorrect value in code",
+      "file": "tests/billing/evidence-ledger-sprint12.test.ts",
+      "root_cause": "Had 'evid-sprint12-test.example'",
+      "fix": "Changed to 'Sprint 1.2 test property'",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 2,
+      "last_seen": "2026-04-20T05:35:02.015Z"
+    },
+    {
+      "id": "bug-398",
+      "timestamp": "2026-04-20T05:36:23.464Z",
+      "error_message": "Significant refactor of ",
+      "file": "admin/src/app/(operator)/billing/disputes/actions.ts",
+      "root_cause": "8 lines replaced/restructured",
+      "fix": "Rewrote 17→8 lines (8 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-20T05:36:23.464Z"
+    },
+    {
+      "id": "bug-399",
+      "timestamp": "2026-04-20T05:36:28.792Z",
+      "error_message": "Wrong reference: result should be ledger",
+      "file": "admin/src/app/(operator)/billing/disputes/[disputeId]/page.tsx",
+      "root_cause": "Used \"result\" instead of \"ledger\"",
+      "fix": "Changed result → ledger",
+      "tags": [
+        "auto-detected",
+        "wrong-reference",
+        "tsx"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-20T05:36:28.792Z"
+    },
+    {
+      "id": "bug-400",
+      "timestamp": "2026-04-20T05:36:46.431Z",
+      "error_message": "Type error",
+      "file": "admin/src/app/(operator)/billing/disputes/[disputeId]/page.tsx",
+      "root_cause": "Missing or incorrect type annotation",
+      "fix": "Added type assertion/annotation",
+      "tags": [
+        "auto-detected",
+        "type-fix",
+        "tsx"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-20T05:36:46.431Z"
+    },
+    {
+      "id": "bug-401",
+      "timestamp": "2026-04-20T05:37:38.557Z",
+      "error_message": "Significant refactor of ",
+      "file": "docs/ADRs/ADR-0051-billing-evidence-ledger.md",
+      "root_cause": "7 lines replaced/restructured",
+      "fix": "Rewrote 11→20 lines (7 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-20T05:37:38.557Z"
+    },
+    {
+      "id": "bug-402",
+      "timestamp": "2026-04-20T05:38:11.480Z",
+      "error_message": "Significant refactor of ",
+      "file": "docs/ADRs/ADR-1002-dpdp-section6-runtime-enforcement.md",
+      "root_cause": "12 lines replaced/restructured",
+      "fix": "Rewrote 20→36 lines (12 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-20T05:38:11.480Z"
     }
   ]
 }

@@ -2821,3 +2821,38 @@
 | 10:41 | Edited admin/src/app/(operator)/billing/disputes/actions.ts | added nullish coalescing | ~103 |
 | 10:41 | Edited docs/changelogs/CHANGELOG-edge-functions.md | expanded (+11 lines) | ~181 |
 | 10:42 | Edited docs/ADRs/ADR-1002-dpdp-section6-runtime-enforcement.md | expanded (+13 lines) | ~544 |
+| 10:42 | Edited tests/billing/evidence-bundle.test.ts | expanded (+43 lines) | ~578 |
+| 10:42 | Session end: 122 writes across 55 files (actions.ts, api-keys-panel.tsx, page.tsx, dashboard-nav.tsx, ADR-1001-truth-in-marketing-and-public-api-foundation.md) | 45 reads | ~356591 tok |
+| 10:43 | Created tests/billing/evidence-ledger-triggers.test.ts | — | ~2417 |
+| 10:50 | Created supabase/migrations/20260630000002_evidence_ledger_grant_fix.sql | — | ~104 |
+| 10:50 | Created supabase/migrations/20260630000003_fix_invoice_issued_trigger.sql | — | ~667 |
+| 10:51 | Edited tests/billing/evidence-ledger-triggers.test.ts | added 1 condition(s) | ~247 |
+| 10:51 | Edited tests/billing/evidence-ledger-triggers.test.ts | 9→10 lines | ~146 |
+| 10:52 | Created docs/ADRs/ADR-0051-billing-evidence-ledger.md | — | ~1717 |
+| 10:52 | Edited docs/ADRs/ADR-index.md | 2→3 lines | ~109 |
+| 10:53 | Session end: 129 writes across 59 files (actions.ts, api-keys-panel.tsx, page.tsx, dashboard-nav.tsx, ADR-1001-truth-in-marketing-and-public-api-foundation.md) | 45 reads | ~362183 tok |
+| 11:03 | Created supabase/migrations/20260701000001_evidence_ledger_sprint_1_2.sql | — | ~1716 |
+| 11:04 | Created tests/billing/evidence-ledger-sprint12.test.ts | — | ~1743 |
+| 11:04 | Created supabase/migrations/20260701000002_rpc_consent_verify.sql | — | ~1082 |
+| 11:04 | Edited tests/billing/evidence-ledger-sprint12.test.ts | "evid-sprint12-test.exampl" → "Sprint 1.2 test property" | ~34 |
+| 11:04 | Edited tests/billing/evidence-ledger-sprint12.test.ts | 16→16 lines | ~146 |
+| 11:04 | Created app/src/lib/consent/verify.ts | — | ~586 |
+| 11:05 | Edited tests/billing/evidence-ledger-sprint12.test.ts | "evid-sprint12-test2.examp" → "Sprint 1.2 test property " | ~35 |
+| 11:05 | Created app/src/app/api/v1/consent/verify/route.ts | — | ~1134 |
+| 11:05 | Edited admin/src/app/(operator)/billing/disputes/actions.ts | modified getDisputeDetail() | ~122 |
+| 11:06 | Edited admin/src/app/(operator)/billing/disputes/actions.ts | modified limit() | ~290 |
+| 11:06 | Created tests/integration/consent-verify.test.ts | — | ~3744 |
+| 11:06 | Edited admin/src/app/(operator)/billing/disputes/actions.ts | 4→4 lines | ~71 |
+| 11:06 | Edited admin/src/app/(operator)/billing/disputes/actions.ts | removed 11 lines | ~19 |
+| 11:06 | Edited admin/src/app/(operator)/billing/disputes/actions.ts | reduced (-9 lines) | ~42 |
+| 11:06 | Edited admin/src/app/(operator)/billing/disputes/[disputeId]/page.tsx | inline fix | ~19 |
+| 11:06 | Edited tests/integration/consent-verify.test.ts | 17→16 lines | ~198 |
+| 11:06 | Edited admin/src/app/(operator)/billing/disputes/[disputeId]/page.tsx | CSS: hover | ~1128 |
+| 11:07 | Edited docs/ADRs/ADR-0051-billing-evidence-ledger.md | 4→4 lines | ~23 |
+| 11:07 | Edited app/public/openapi.yaml | expanded (+40 lines) | ~611 |
+| 11:07 | Edited docs/ADRs/ADR-0051-billing-evidence-ledger.md | expanded (+9 lines) | ~502 |
+| 11:07 | Edited app/public/openapi.yaml | expanded (+69 lines) | ~922 |
+| 11:07 | Edited docs/ADRs/ADR-index.md | inline fix | ~53 |
+| 11:08 | Edited docs/ADRs/ADR-1002-dpdp-section6-runtime-enforcement.md | expanded (+16 lines) | ~706 |
+| 11:08 | Edited docs/changelogs/CHANGELOG-schema.md | expanded (+13 lines) | ~315 |
+| 11:08 | Edited docs/changelogs/CHANGELOG-api.md | expanded (+15 lines) | ~321 |
