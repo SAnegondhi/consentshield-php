@@ -2,6 +2,22 @@
 
 Next.js UI changes.
 
+## [ADR-1001 Sprint 2.3] — 2026-04-20
+
+**ADR:** ADR-1001 — Truth in marketing and public API foundation
+**Sprint:** Sprint 2.3 — Dashboard UI for API key management
+
+### Added
+- `app/src/app/(dashboard)/dashboard/settings/api-keys/page.tsx` — server page; fetches account role, org, account's API keys, and plan_code; renders locked card for non-owners.
+- `app/src/app/(dashboard)/dashboard/settings/api-keys/api-keys-panel.tsx` — client component with full key management UI: active/revoked table, empty state, create modal (name + scope multiselect + rate_tier read-only), plaintext-reveal modal (shown once, dismiss requires checkbox), rotate modal (dual-window notice in row while `previous_key_expires_at` is in future), revoke confirmation modal.
+- `app/src/app/(dashboard)/dashboard/settings/api-keys/actions.ts` — `createApiKey`, `rotateApiKey`, `revokeApiKey` server actions; each revalidates the page on success.
+- Nav entry: `API keys` added to `app/src/components/dashboard-nav.tsx`.
+
+### Tested
+- [x] `cd app && bun run build` — PASS; `/dashboard/settings/api-keys` in route manifest.
+- [x] `bun run lint` — PASS (0 errors, 0 warnings).
+- [ ] Manual flow: mint → copy → `/v1/_ping` → 200 (pending dev server run).
+
 ## [ADR-0050 Sprint 2.3] — 2026-04-19
 
 **ADR:** ADR-0050 — Admin account-aware billing

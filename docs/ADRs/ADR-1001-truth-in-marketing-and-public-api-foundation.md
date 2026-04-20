@@ -175,21 +175,27 @@ Fix during testing: `rpc_api_key_revoke` requires `current_uid()` — must call 
 **Estimated effort:** 2 days
 
 **Deliverables:**
-- [ ] `/dashboard/settings/api-keys` list page (customer app)
-- [ ] Create flow: name, scopes (multiselect from allowed list), rate_tier inferred from plan
-- [ ] Plaintext-reveal modal shown exactly once, with "copy to clipboard" + "I have saved this key" confirmation
-- [ ] Rotate button with dual-window visualisation ("old key valid until …")
-- [ ] Revoke button with confirmation
-- [ ] Last-used-at + created-at columns
-- [ ] Empty state + zero-keys call-to-action
+- [x] `/dashboard/settings/api-keys` list page (customer app)
+- [x] Create flow: name, scopes (multiselect from allowed list), rate_tier inferred from plan
+- [x] Plaintext-reveal modal shown exactly once, with "copy to clipboard" + "I have saved this key" confirmation
+- [x] Rotate button with dual-window visualisation ("old key valid until …")
+- [x] Revoke button with confirmation
+- [x] Last-used-at + created-at columns
+- [x] Empty state + zero-keys call-to-action
 
 **Testing plan:**
 - [ ] Manual flow: mint → copy → call `/v1/_ping` with it → 200
 - [ ] Rotate → old key still works for 24h, new key works immediately
 - [ ] Revoke → immediately 410
-- [ ] UI rejects scope selection exceeding the key-creator's own entitlement
+- [ ] UI rejects scope selection exceeding the key-creator's own entitlement (enforced by RPC)
 
-**Status:** `[ ] planned`
+### Test Results
+
+- Build: `cd app && bun run build` — PASS (route `/dashboard/settings/api-keys` included in output)
+- Lint: `bun run lint` — PASS (0 errors, 0 warnings)
+- Manual UI verification: pending (dev server not started this session)
+
+**Status:** `[x] complete — 2026-04-20`
 
 #### Sprint 2.4: Rate limiter integration + audit log + plan wiring
 

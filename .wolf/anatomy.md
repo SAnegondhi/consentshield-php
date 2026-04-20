@@ -1,7 +1,7 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-04-20T01:35:39.847Z
-> Files: 765 tracked | Anatomy hits: 0 | Misses: 0
+> Auto-maintained by OpenWolf. Last scanned: 2026-04-20T02:15:16.893Z
+> Files: 768 tracked | Anatomy hits: 0 | Misses: 0
 
 ## ../../../../../tmp/
 
@@ -83,7 +83,7 @@
 
 ## .claude/
 
-- `session-handoff.md` — Session Handoff — 2026-04-20 (ADR-1001 Sprint 2.1) (~2810 tok)
+- `session-handoff.md` — Session Handoff — 2026-04-20 (ADR-1001 Sprints 2.2 + 2.3 wireframe) (~2883 tok)
 
 ## .github/workflows/
 
@@ -541,6 +541,12 @@
 
 - `page.tsx` — RightsRequestDetailPage — renders table (~5598 tok)
 
+## app/src/app/(dashboard)/dashboard/settings/api-keys/
+
+- `actions.ts` — API routes: GET (4 endpoints) (~636 tok)
+- `api-keys-panel.tsx` — ALL_SCOPES — renders form (~6028 tok)
+- `page.tsx` — dynamic (~810 tok)
+
 ## app/src/app/(dashboard)/dashboard/settings/members/
 
 - `actions.ts` — Exports InviteMemberInput, InviteResult, inviteMember, revokeInvitation + 4 more (~1464 tok)
@@ -649,7 +655,7 @@
 
 ## app/src/components/
 
-- `dashboard-nav.tsx` — navItems (~701 tok)
+- `dashboard-nav.tsx` — navItems (~719 tok)
 - `otp-boxes.tsx` — OtpBoxes (~345 tok)
 - `suspended-banner.tsx` — ADR-0029 Sprint 4.1 — customer-side suspension banner. (~537 tok)
 
@@ -799,7 +805,7 @@
 - `ADR-0048-admin-accounts-and-observability.md` — ADR-0048: Admin Accounts panel + ADR-0033/34 deviation closeout (~2261 tok)
 - `ADR-0049-security-observability-ingestion.md` — ADR-0049: Security observability ingestion — rate_limit_events + sentry_events (~2365 tok)
 - `ADR-0050-admin-account-aware-billing.md` — ADR-0050: Admin account-aware billing — issuer entities, invoices, GST, dispute workspace (~12164 tok)
-- `ADR-1001-truth-in-marketing-and-public-api-foundation.md` — ADR-1001: Truth-in-Marketing + Public API Foundation (~5196 tok)
+- `ADR-1001-truth-in-marketing-and-public-api-foundation.md` — ADR-1001: Truth-in-Marketing + Public API Foundation (~5265 tok)
 - `ADR-1002-dpdp-section6-runtime-enforcement.md` — ADR-1002: DPDP §6 Runtime Enforcement — Verify, Record, Artefact Ops, Deletion API (~2942 tok)
 - `ADR-1003-processor-posture-and-healthcare-unlock.md` — ADR-1003: Processor Posture + Healthcare Category Unlock (~3365 tok)
 - `ADR-1004-statutory-retention-material-change-silent-failure.md` — ADR-1004: Statutory Retention + Material-Change Re-consent + Silent-Failure Detection (~3856 tok)
@@ -832,7 +838,7 @@
 ## docs/changelogs/
 
 - `CHANGELOG-api.md` — Changelog — API (~6363 tok)
-- `CHANGELOG-dashboard.md` — Changelog — Dashboard (~12311 tok)
+- `CHANGELOG-dashboard.md` — Changelog — Dashboard (~12908 tok)
 - `CHANGELOG-docs.md` — Changelog — Documentation (~4378 tok)
 - `CHANGELOG-edge-functions.md` — Changelog — Edge Functions (~3003 tok)
 - `CHANGELOG-infra.md` — Changelog — Infrastructure (~3667 tok)

@@ -5985,6 +5985,86 @@
       "related_bugs": [],
       "occurrences": 1,
       "last_seen": "2026-04-20T01:21:47.332Z"
+    },
+    {
+      "id": "bug-374",
+      "timestamp": "2026-04-20T01:24:09.020Z",
+      "error_message": "Incorrect value in code",
+      "file": "admin/src/app/(operator)/layout.tsx",
+      "root_cause": "Had 'Abuse & Security'",
+      "fix": "Changed to 'Disputes'",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "tsx"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-20T01:24:09.020Z"
+    },
+    {
+      "id": "bug-375",
+      "timestamp": "2026-04-20T01:25:17.926Z",
+      "error_message": "Significant refactor of ",
+      "file": "docs/architecture/consentshield-definitive-architecture.md",
+      "root_cause": "7 lines replaced/restructured",
+      "fix": "Rewrote 24→69 lines (7 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-20T01:25:17.926Z"
+    },
+    {
+      "id": "bug-376",
+      "timestamp": "2026-04-20T01:25:45.250Z",
+      "error_message": "Significant refactor of ",
+      "file": "docs/architecture/consentshield-complete-schema-design.md",
+      "root_cause": "11 lines replaced/restructured",
+      "fix": "Rewrote 13→68 lines (11 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-20T01:25:45.250Z"
+    },
+    {
+      "id": "bug-377",
+      "timestamp": "2026-04-20T02:14:17.611Z",
+      "error_message": "CSS fix: href",
+      "file": "app/src/components/dashboard-nav.tsx",
+      "root_cause": "href: '/dashboard/settings/members', label: 'Team & invites' → '/dashboard/settings/api-keys', label: 'API keys'",
+      "fix": "Changed href: '/dashboard/settings/members', label: 'Team & invites' → '/dashboard/settings/api-keys', label: 'API keys'",
+      "tags": [
+        "auto-detected",
+        "style-fix",
+        "tsx"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-20T02:14:17.611Z"
+    },
+    {
+      "id": "bug-378",
+      "timestamp": "2026-04-20T02:15:03.306Z",
+      "error_message": "Significant refactor of ",
+      "file": "docs/ADRs/ADR-1001-truth-in-marketing-and-public-api-foundation.md",
+      "root_cause": "9 lines replaced/restructured",
+      "fix": "Rewrote 16→22 lines (9 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-20T02:15:03.306Z"
     }
   ]
 }

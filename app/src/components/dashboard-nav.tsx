@@ -21,6 +21,7 @@ const navItems = [
   { href: '/dashboard/support', label: 'Support' },
   { href: '/dashboard/support-sessions', label: 'Support sessions' },
   { href: '/dashboard/settings/members', label: 'Team & invites' },
+  { href: '/dashboard/settings/api-keys', label: 'API keys' },
 ]
 
 export function DashboardNav() {
