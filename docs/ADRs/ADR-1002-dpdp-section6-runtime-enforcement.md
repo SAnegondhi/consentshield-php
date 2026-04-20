@@ -1,6 +1,6 @@
 # ADR-1002: DPDP §6 Runtime Enforcement — Verify, Record, Artefact Ops, Deletion API
 
-**Status:** Proposed
+**Status:** In Progress
 **Date proposed:** 2026-04-19
 **Date completed:** —
 **Related plan:** `docs/plans/ConsentShield-V2-Whitepaper-Closure-Plan.md` Phase 2
@@ -47,7 +47,40 @@ Every endpoint has a matching entry in `app/public/openapi.yaml`. The whitepaper
 
 ### Phase 1: Verification endpoints (G-037)
 
-#### Sprint 1.1: `GET /v1/consent/verify`
+> **Scope correction — 2026-04-20.** The original Sprint 1.1 assumed `consent_artefact_index` already carried `property_id`, `identifier_hash`, `identifier_type`, and a revocation pointer. It doesn't — the table is a pre-DEPA stub with only `(org_id, artefact_id, validity_state, expires_at, framework, purpose_code)`, and the current revocation cascade trigger **deletes** the row on revoke (so `verify` can't distinguish `revoked` from `never_consented`). Sprint 1.1 is split into a schema/pipeline half (new Sprint 1.1) and a handler half (new Sprint 1.2). Former Sprint 1.2 is renumbered to Sprint 1.3.
+
+#### Sprint 1.1: Extend `consent_artefact_index` + pipeline writes
+
+**Estimated effort:** 3 days
+
+**Deliverables:**
+- [x] Migration `20260701000001_consent_artefact_index_identifier.sql` — extends `consent_artefact_index` with six nullable columns (`property_id`, `identifier_hash`, `identifier_type`, `consent_event_id`, `revoked_at`, `revocation_record_id`) + partial hot-path index.
+- [x] `public.hash_data_principal_identifier(p_org_id, p_identifier, p_identifier_type)` — per-type normalisation + per-org salted SHA-256. Granted to `authenticated`, `service_role`, `cs_orchestrator`.
+- [x] Replace `trg_artefact_revocation_cascade`: DELETE from index → UPDATE (validity_state='revoked', revoked_at, revocation_record_id). Revoked rows remain queryable.
+- [x] `process-consent-event` Edge Function populates `property_id` and `consent_event_id` at index insert time.
+
+**Testing plan:**
+- [x] 9/9 PASS — `tests/depa/artefact-index-identifier.test.ts`: hash determinism within an org; per-type normalisation (email: trim+lowercase; phone: digits-only; pan: uppercase+trim); per-org salt produces different hashes for the same identifier across orgs; empty-identifier rejection; phone-no-digits rejection; unknown-identifier-type rejection; revocation cascade UPDATEs index row (validity_state + revoked_at + revocation_record_id + preserves property_id/consent_event_id).
+- [x] 24/24 DEPA suite PASS — no regression in `consent-event-pipeline`, `revocation-pipeline`, `expiry-pipeline`, `score`, or the new test.
+
+### Test Results — 2026-04-20
+
+```
+bunx vitest run tests/depa/artefact-index-identifier.test.ts
+9/9 PASS (8.65s)
+
+bunx vitest run tests/depa/
+24/24 PASS (53.31s)
+```
+
+### Architecture Changes
+
+- `docs/architecture/consentshield-complete-schema-design.md` — updated `consent_artefact_index` DDL to reflect the extended shape + partial index.
+- Revocation cascade semantic change: rows preserved post-revoke, not deleted. This means `/v1/consent/verify` (Sprint 1.2) can distinguish `revoked` from `never_consented`. No existing consumer depended on DELETE semantics (grep-verified).
+
+**Status:** `[x] complete — 2026-04-20`
+
+#### Sprint 1.2: `GET /v1/consent/verify`
 
 **Estimated effort:** 2 days
 
@@ -68,7 +101,7 @@ Every endpoint has a matching entry in `app/public/openapi.yaml`. The whitepaper
 
 **Status:** `[ ] planned`
 
-#### Sprint 1.2: `POST /v1/consent/verify/batch`
+#### Sprint 1.3: `POST /v1/consent/verify/batch`
 
 **Estimated effort:** 2 days
 

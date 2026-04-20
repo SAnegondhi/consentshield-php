@@ -6257,6 +6257,86 @@
       "related_bugs": [],
       "occurrences": 1,
       "last_seen": "2026-04-20T04:40:41.317Z"
+    },
+    {
+      "id": "bug-391",
+      "timestamp": "2026-04-20T04:58:55.176Z",
+      "error_message": "Significant refactor of ",
+      "file": "docs/ADRs/ADR-1002-dpdp-section6-runtime-enforcement.md",
+      "root_cause": "2 lines replaced/restructured",
+      "fix": "Rewrote 24→44 lines (2 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-20T04:58:55.176Z"
+    },
+    {
+      "id": "bug-392",
+      "timestamp": "2026-04-20T05:09:33.135Z",
+      "error_message": "Missing guard clause",
+      "file": "tests/depa/artefact-index-identifier.test.ts",
+      "root_cause": "No early return/throw for edge case: wpErr",
+      "fix": "Added guard clause: if (wpErr)",
+      "tags": [
+        "auto-detected",
+        "guard-clause",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-20T05:09:33.135Z"
+    },
+    {
+      "id": "bug-393",
+      "timestamp": "2026-04-20T05:10:59.063Z",
+      "error_message": "Null/undefined access in ",
+      "file": "admin/src/lib/billing/build-evidence-bundle.ts",
+      "root_cause": "Property access on potentially null/undefined value",
+      "fix": "Added null safety (optional chaining or null check)",
+      "tags": [
+        "auto-detected",
+        "null-safety",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-20T05:10:59.063Z"
+    },
+    {
+      "id": "bug-394",
+      "timestamp": "2026-04-20T05:11:01.345Z",
+      "error_message": "Significant refactor of ",
+      "file": "docs/architecture/consentshield-complete-schema-design.md",
+      "root_cause": "6 lines replaced/restructured",
+      "fix": "Rewrote 9→29 lines (6 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-20T05:11:01.345Z"
+    },
+    {
+      "id": "bug-395",
+      "timestamp": "2026-04-20T05:11:36.505Z",
+      "error_message": "Null/undefined access in ",
+      "file": "admin/src/app/(operator)/billing/disputes/actions.ts",
+      "root_cause": "Property access on potentially null/undefined value",
+      "fix": "Added null safety (optional chaining or null check)",
+      "tags": [
+        "auto-detected",
+        "null-safety",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-20T05:11:36.505Z"
     }
   ]
 }

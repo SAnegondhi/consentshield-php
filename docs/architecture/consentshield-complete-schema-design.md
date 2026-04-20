@@ -346,15 +346,35 @@ create table notification_channels (
 -- CONSENT ARTEFACT INDEX — active consent validation cache
 -- No personal data. TTL-based. Operational state only.
 -- ═══════════════════════════════════════════════════════════
+-- ADR-1002 Sprint 1.1 extends this table with identifier-based lookup
+-- columns so /v1/consent/verify can resolve without a consent_artefacts JOIN.
+-- All new columns nullable: Mode A (web banner) consent is anonymous and
+-- leaves identifier_hash / identifier_type null; only Mode B (/v1/consent/record,
+-- ADR-1002 Sprint 2.1) populates them. Revocation cascade UPDATEs the row
+-- (validity_state='revoked', revoked_at, revocation_record_id) rather than
+-- DELETing it, so verify can distinguish revoked from never_consented.
 create table consent_artefact_index (
-  id                  uuid primary key default gen_random_uuid(),
-  org_id              uuid not null references organisations(id) on delete cascade,
-  artefact_id         text not null,
-  validity_state      text not null default 'active',  -- 'active' | 'revoked' | 'expired'
-  expires_at          timestamptz not null,
-  created_at          timestamptz default now(),
+  id                    uuid primary key default gen_random_uuid(),
+  org_id                uuid not null references organisations(id) on delete cascade,
+  property_id           uuid references web_properties(id) on delete cascade,
+  artefact_id           text not null,
+  consent_event_id      uuid references consent_events(id) on delete set null,
+  validity_state        text not null default 'active',  -- 'active' | 'revoked' | 'expired'
+  framework             text not null default 'abdm',    -- 'dpdp' | 'abdm' | 'gdpr'
+  purpose_code          text,
+  identifier_hash       text,                            -- hash_data_principal_identifier() output
+  identifier_type       text check (identifier_type in ('email','phone','pan','aadhaar','custom')),
+  expires_at            timestamptz not null,
+  revoked_at            timestamptz,
+  revocation_record_id  uuid references artefact_revocations(id) on delete set null,
+  created_at            timestamptz default now(),
   unique (org_id, artefact_id)
 );
+
+-- Hot-path partial index for identifier-based verify.
+create index idx_consent_artefact_index_identifier_hot
+  on consent_artefact_index (org_id, property_id, identifier_hash, purpose_code)
+  where validity_state = 'active' and identifier_hash is not null;
 ```
 
 ### 3.2 Buffer Tables (Category B — transient, deliver then delete)

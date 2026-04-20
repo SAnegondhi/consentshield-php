@@ -33,8 +33,8 @@
       "first_read": "2026-04-20T02:15:06.067Z"
     },
     "/Users/sudhindra/projects/aiSpirit/consent-sheild/docs/ADRs/ADR-index.md": {
-      "count": 2,
-      "tokens": 2085,
+      "count": 3,
+      "tokens": 2141,
       "first_read": "2026-04-20T03:06:35.880Z"
     },
     "/Users/sudhindra/projects/aiSpirit/consent-sheild/docs/architecture/consentshield-definitive-architecture.md": {
@@ -148,8 +148,8 @@
       "first_read": "2026-04-20T04:23:31.116Z"
     },
     "/Users/sudhindra/projects/aiSpirit/consent-sheild/docs/changelogs/CHANGELOG-schema.md": {
-      "count": 1,
-      "tokens": 22322,
+      "count": 2,
+      "tokens": 23804,
       "first_read": "2026-04-20T04:23:31.925Z"
     },
     "/Users/sudhindra/projects/aiSpirit/consent-sheild/app/src/app/(dashboard)/dashboard/support-sessions/page.tsx": {
@@ -181,6 +181,51 @@
       "count": 1,
       "tokens": 3034,
       "first_read": "2026-04-20T04:37:49.908Z"
+    },
+    "/Users/sudhindra/projects/aiSpirit/consent-sheild/app/src/components/suspended-banner.tsx": {
+      "count": 1,
+      "tokens": 537,
+      "first_read": "2026-04-20T04:45:12.936Z"
+    },
+    "/Users/sudhindra/projects/aiSpirit/consent-sheild/supabase/functions/process-consent-event/index.ts": {
+      "count": 2,
+      "tokens": 2459,
+      "first_read": "2026-04-20T04:47:52.073Z"
+    },
+    "/Users/sudhindra/projects/aiSpirit/consent-sheild/supabase/functions/process-artefact-revocation/index.ts": {
+      "count": 1,
+      "tokens": 2871,
+      "first_read": "2026-04-20T04:51:54.611Z"
+    },
+    "/Users/sudhindra/projects/aiSpirit/consent-sheild/docs/ADRs/ADR-1002-dpdp-section6-runtime-enforcement.md": {
+      "count": 1,
+      "tokens": 2942,
+      "first_read": "2026-04-20T04:58:30.185Z"
+    },
+    "/Users/sudhindra/projects/aiSpirit/consent-sheild/tests/depa/revocation-pipeline.test.ts": {
+      "count": 1,
+      "tokens": 4831,
+      "first_read": "2026-04-20T05:04:19.518Z"
+    },
+    "/Users/sudhindra/projects/aiSpirit/consent-sheild/admin/src/lib/billing/build-evidence-bundle.ts": {
+      "count": 4,
+      "tokens": 1138,
+      "first_read": "2026-04-20T05:06:18.932Z"
+    },
+    "/Users/sudhindra/projects/aiSpirit/consent-sheild/admin/src/app/(operator)/billing/disputes/actions.ts": {
+      "count": 1,
+      "tokens": 2121,
+      "first_read": "2026-04-20T05:11:21.472Z"
+    },
+    "/Users/sudhindra/projects/aiSpirit/consent-sheild/docs/changelogs/CHANGELOG-edge-functions.md": {
+      "count": 1,
+      "tokens": 3003,
+      "first_read": "2026-04-20T05:11:39.041Z"
+    },
+    "/Users/sudhindra/projects/aiSpirit/consent-sheild/tests/billing/evidence-bundle.test.ts": {
+      "count": 1,
+      "tokens": 1758,
+      "first_read": "2026-04-20T05:12:10.394Z"
     }
   },
   "files_written": [
@@ -783,6 +828,132 @@
       "action": "edit",
       "tokens": 318,
       "at": "2026-04-20T04:41:28.855Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/supabase/migrations/20260620000005_assert_org_not_suspended.sql",
+      "action": "create",
+      "tokens": 1746,
+      "at": "2026-04-20T04:44:43.962Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/app/src/components/suspended-banner.tsx",
+      "action": "create",
+      "tokens": 804,
+      "at": "2026-04-20T04:45:22.193Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/tests/rls/org-suspension-gate.test.ts",
+      "action": "create",
+      "tokens": 1395,
+      "at": "2026-04-20T04:45:44.708Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/docs/ADRs/ADR-1002-dpdp-section6-runtime-enforcement.md",
+      "action": "edit",
+      "tokens": 1062,
+      "at": "2026-04-20T04:58:55.175Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/docs/ADRs/ADR-1002-dpdp-section6-runtime-enforcement.md",
+      "action": "edit",
+      "tokens": 22,
+      "at": "2026-04-20T04:59:00.171Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/docs/STATUS.md",
+      "action": "create",
+      "tokens": 3658,
+      "at": "2026-04-20T05:00:30.874Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/docs/ADRs/ADR-index.md",
+      "action": "edit",
+      "tokens": 48,
+      "at": "2026-04-20T05:02:21.895Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/supabase/migrations/20260601000002_consent_artefact_index_identifier.sql",
+      "action": "create",
+      "tokens": 2075,
+      "at": "2026-04-20T05:02:59.532Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/supabase/functions/process-consent-event/index.ts",
+      "action": "edit",
+      "tokens": 239,
+      "at": "2026-04-20T05:04:02.820Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/tests/depa/artefact-index-identifier.test.ts",
+      "action": "create",
+      "tokens": 2758,
+      "at": "2026-04-20T05:06:21.390Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/tests/depa/artefact-index-identifier.test.ts",
+      "action": "edit",
+      "tokens": 224,
+      "at": "2026-04-20T05:09:33.133Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/supabase/migrations/20260630000001_billing_evidence_ledger.sql",
+      "action": "create",
+      "tokens": 3899,
+      "at": "2026-04-20T05:10:09.842Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/admin/src/lib/billing/build-evidence-bundle.ts",
+      "action": "edit",
+      "tokens": 222,
+      "at": "2026-04-20T05:10:51.341Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/admin/src/lib/billing/build-evidence-bundle.ts",
+      "action": "edit",
+      "tokens": 176,
+      "at": "2026-04-20T05:10:59.061Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/docs/architecture/consentshield-complete-schema-design.md",
+      "action": "edit",
+      "tokens": 525,
+      "at": "2026-04-20T05:11:01.343Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/admin/src/lib/billing/build-evidence-bundle.ts",
+      "action": "edit",
+      "tokens": 58,
+      "at": "2026-04-20T05:11:13.538Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/admin/src/app/(operator)/billing/disputes/actions.ts",
+      "action": "edit",
+      "tokens": 193,
+      "at": "2026-04-20T05:11:28.730Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/docs/changelogs/CHANGELOG-schema.md",
+      "action": "edit",
+      "tokens": 642,
+      "at": "2026-04-20T05:11:35.154Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/admin/src/app/(operator)/billing/disputes/actions.ts",
+      "action": "edit",
+      "tokens": 103,
+      "at": "2026-04-20T05:11:36.503Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/docs/changelogs/CHANGELOG-edge-functions.md",
+      "action": "edit",
+      "tokens": 194,
+      "at": "2026-04-20T05:11:46.020Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/docs/ADRs/ADR-1002-dpdp-section6-runtime-enforcement.md",
+      "action": "edit",
+      "tokens": 583,
+      "at": "2026-04-20T05:12:08.966Z"
     }
   ],
   "edit_counts": {
@@ -794,8 +965,8 @@
     "docs/changelogs/CHANGELOG-dashboard.md": 2,
     "tests/billing/dispute-webhook.test.ts": 1,
     "docs/ADRs/ADR-0050-admin-account-aware-billing.md": 1,
-    "docs/STATUS.md": 1,
-    "docs/ADRs/ADR-index.md": 5,
+    "docs/STATUS.md": 2,
+    "docs/ADRs/ADR-index.md": 6,
     "docs/design/screen designs and ux/consentshield-screens.html": 5,
     "docs/ADRs/ADR-0054-customer-billing-portal.md": 5,
     "supabase/migrations/20260601000001_api_request_log.sql": 2,
@@ -825,7 +996,7 @@
     "app/src/app/(dashboard)/dashboard/dpia/[dpiaId]/detail-actions.tsx": 1,
     "docs/architecture/consentshield-definitive-architecture.md": 2,
     "docs/changelogs/CHANGELOG-api.md": 2,
-    "docs/changelogs/CHANGELOG-schema.md": 1,
+    "docs/changelogs/CHANGELOG-schema.md": 2,
     "supabase/migrations/20260620000002_data_auditor_engagements.sql": 1,
     "tests/rls/auditor-engagements.test.ts": 1,
     "app/src/app/(dashboard)/dashboard/auditors/actions.ts": 1,
@@ -835,7 +1006,7 @@
     "app/src/app/(dashboard)/dashboard/auditors/[engagementId]/page.tsx": 1,
     "app/src/app/(dashboard)/dashboard/auditors/[engagementId]/actions-panel.tsx": 1,
     "app/src/app/api/orgs/[orgId]/audit-export/route.ts": 1,
-    "docs/architecture/consentshield-complete-schema-design.md": 1,
+    "docs/architecture/consentshield-complete-schema-design.md": 2,
     "supabase/migrations/20260620000003_enrich_support_sessions.sql": 1,
     "app/src/app/(dashboard)/dashboard/support-sessions/page.tsx": 1,
     "tests/integration/api-keys.e2e.test.ts": 2,
@@ -846,11 +1017,22 @@
     "app/src/app/(dashboard)/dashboard/settings/account/actions.ts": 1,
     "app/src/app/(dashboard)/dashboard/settings/account/page.tsx": 1,
     "app/src/app/(dashboard)/dashboard/settings/account/industry-editor.tsx": 1,
-    "docs/reviews/2026-04-20-api-key-security-review.md": 1
+    "docs/reviews/2026-04-20-api-key-security-review.md": 1,
+    "supabase/migrations/20260620000005_assert_org_not_suspended.sql": 1,
+    "app/src/components/suspended-banner.tsx": 1,
+    "tests/rls/org-suspension-gate.test.ts": 1,
+    "docs/ADRs/ADR-1002-dpdp-section6-runtime-enforcement.md": 3,
+    "supabase/migrations/20260601000002_consent_artefact_index_identifier.sql": 1,
+    "supabase/functions/process-consent-event/index.ts": 1,
+    "tests/depa/artefact-index-identifier.test.ts": 2,
+    "supabase/migrations/20260630000001_billing_evidence_ledger.sql": 1,
+    "admin/src/lib/billing/build-evidence-bundle.ts": 3,
+    "admin/src/app/(operator)/billing/disputes/actions.ts": 2,
+    "docs/changelogs/CHANGELOG-edge-functions.md": 1
   },
-  "anatomy_hits": 35,
+  "anatomy_hits": 44,
   "anatomy_misses": 0,
-  "repeated_reads_warned": 21,
+  "repeated_reads_warned": 27,
   "cerebrum_warnings": 0,
-  "stop_count": 16
+  "stop_count": 21
 }

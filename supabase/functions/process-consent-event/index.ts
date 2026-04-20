@@ -226,9 +226,15 @@ async function processEvent(
 
       // Populate the validity cache. ON CONFLICT protects against
       // concurrent inserts (the unique is (org_id, artefact_id)).
+      // ADR-1002 Sprint 1.1 — also stamp property_id and consent_event_id
+      // so /v1/consent/verify can resolve artefacts by property. Mode B's
+      // identifier_hash + identifier_type are populated by the record
+      // endpoint (Sprint 2.1), not here — web-channel consent is anonymous.
       await supabase.from('consent_artefact_index').insert({
         org_id: typedEvent.org_id,
+        property_id: typedEvent.property_id,
         artefact_id: artefactId,
+        consent_event_id: typedEvent.id,
         validity_state: 'active',
         expires_at: expiresAt === 'infinity' ? null : expiresAt,
         framework: typedPd.framework,

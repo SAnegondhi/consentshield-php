@@ -2,6 +2,29 @@
 
 Database migrations, RLS policies, roles.
 
+## [ADR-1002 Sprint 1.1] — 2026-04-20
+
+**ADR:** ADR-1002 — DPDP §6 runtime enforcement
+**Sprint:** Sprint 1.1 — Extend `consent_artefact_index` for identifier-based lookup
+
+### Added
+- `20260701000001_consent_artefact_index_identifier.sql`:
+  - Extends `public.consent_artefact_index` with six nullable columns: `property_id` (FK → `web_properties`), `identifier_hash`, `identifier_type` (enum: `email|phone|pan|aadhaar|custom`), `consent_event_id` (FK → `consent_events`), `revoked_at`, `revocation_record_id` (FK → `artefact_revocations`).
+  - Partial hot-path index `idx_consent_artefact_index_identifier_hot` on `(org_id, property_id, identifier_hash, purpose_code)` where `validity_state='active' AND identifier_hash IS NOT NULL`.
+  - `public.hash_data_principal_identifier(p_org_id, p_identifier, p_identifier_type)` SECURITY DEFINER function — normalises per type (email: trim+lowercase; phone/aadhaar: digits only; pan: uppercase+trim; custom: trim) and returns SHA-256 hex salted with the org's `encryption_salt`. Granted to `authenticated`, `service_role`, `cs_orchestrator`. Single source of truth for write-time and read-time hashing.
+
+### Changed
+- `trg_artefact_revocation_cascade()` trigger function — was `DELETE FROM consent_artefact_index WHERE artefact_id = new.artefact_id`; now `UPDATE ... SET validity_state='revoked', revoked_at=now(), revocation_record_id=new.id`. Revoked rows remain queryable so `/v1/consent/verify` can return `revoked` instead of `never_consented`.
+- `cs_orchestrator` gets UPDATE on the new columns (`validity_state`, `revoked_at`, `revocation_record_id`) for scheduled-job use.
+
+### Scope note
+Original ADR-1002 Sprint 1.1 was split into a schema half (this entry) and a handler half (new Sprint 1.2). Rationale in ADR-1002.
+
+### Tested
+- [x] 9/9 PASS — `tests/depa/artefact-index-identifier.test.ts` (hash determinism, per-type normalisation, per-org salt, empty-rejection, revocation cascade UPDATEs index row with all fields)
+- [x] 24/24 DEPA suite PASS — no regression in consent-event-pipeline or revocation-pipeline tests
+- [x] `bunx supabase db push` — PASS (migration applied to remote)
+
 ## [ADR-1001 Sprint 2.4] — 2026-04-20
 
 **ADR:** ADR-1001 — Truth-in-marketing + Public API foundation

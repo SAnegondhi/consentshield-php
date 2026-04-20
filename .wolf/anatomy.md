@@ -1,7 +1,7 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-04-20T04:41:28.848Z
-> Files: 807 tracked | Anatomy hits: 0 | Misses: 0
+> Auto-maintained by OpenWolf. Last scanned: 2026-04-20T05:12:08.958Z
+> Files: 812 tracked | Anatomy hits: 0 | Misses: 0
 
 ## ../../../../../tmp/
 
@@ -163,7 +163,7 @@
 
 ## admin/src/app/(operator)/billing/disputes/
 
-- `actions.ts` — Exports DisputeRow, listDisputes, getDisputeDetail, assembleEvidenceBundle, markDisputeState (~2121 tok)
+- `actions.ts` — Exports DisputeRow, listDisputes, getDisputeDetail, assembleEvidenceBundle, markDisputeState (~2287 tok)
 - `page.tsx` — statusBadge — renders table (~1350 tok)
 
 ## admin/src/app/(operator)/billing/disputes/[disputeId]/
@@ -423,7 +423,7 @@
 
 ## admin/src/lib/billing/
 
-- `build-evidence-bundle.ts` — ADR-0050 Sprint 3.2 — Pure evidence bundle assembly for dispute workspace. (~971 tok)
+- `build-evidence-bundle.ts` — ADR-0050 Sprint 3.2 — Pure evidence bundle assembly for dispute workspace. (~1149 tok)
 - `build-export-zip.ts` — ADR-0050 Sprint 3.1 — Pure ZIP+CSV assembly for invoice export. (~964 tok)
 - `r2-disputes.ts` — ADR-0050 Sprint 3.2 — R2 helpers for dispute evidence bundles. (~630 tok)
 - `r2-invoices.ts` — ADR-0050 Sprint 2.2 — R2 invoice-upload wrapper. (~864 tok)
@@ -711,7 +711,7 @@
 
 - `dashboard-nav.tsx` — navItems (~793 tok)
 - `otp-boxes.tsx` — OtpBoxes (~345 tok)
-- `suspended-banner.tsx` — ADR-0029 Sprint 4.1 — customer-side suspension banner. (~537 tok)
+- `suspended-banner.tsx` — ADR-0029 Sprint 4.1 + 2026-04-20 follow-up — customer-side suspension banner. (~804 tok)
 
 ## app/src/components/support/
 
@@ -806,7 +806,7 @@
 
 - `FEATURE-INVENTORY.md` — ConsentShield — Complete Feature Inventory (~9665 tok)
 - `ROADMAP-phase2.md` — ConsentShield — Phase 2 Roadmap (~3150 tok)
-- `STATUS.md` — ConsentShield Status (~3581 tok)
+- `STATUS.md` — ConsentShield Status (~3201 tok)
 - `V2-BACKLOG.md` — V2 Backlog — Deferred Items for Post-Phase-2 Review (~1378 tok)
 - `WHITEPAPER-AUDIT.md` — ConsentShield Integration Whitepaper — Critical Audit vs. Implementation (~4878 tok)
 
@@ -864,7 +864,7 @@
 - `ADR-0054-customer-billing-portal.md` — ADR-0054 — Customer-facing billing portal (invoice history + billing profile) (~3086 tok)
 - `ADR-0057-sectoral-template-switcher.md` — ADR-0057 — Customer-facing sectoral template switcher (Settings → Account) (~1395 tok)
 - `ADR-1001-truth-in-marketing-and-public-api-foundation.md` — ADR-1001: Truth-in-Marketing + Public API Foundation (~5650 tok)
-- `ADR-1002-dpdp-section6-runtime-enforcement.md` — ADR-1002: DPDP §6 Runtime Enforcement — Verify, Record, Artefact Ops, Deletion API (~2942 tok)
+- `ADR-1002-dpdp-section6-runtime-enforcement.md` — ADR-1002: DPDP §6 Runtime Enforcement — Verify, Record, Artefact Ops, Deletion API (~3630 tok)
 - `ADR-1003-processor-posture-and-healthcare-unlock.md` — ADR-1003: Processor Posture + Healthcare Category Unlock (~3365 tok)
 - `ADR-1004-statutory-retention-material-change-silent-failure.md` — ADR-1004: Statutory Retention + Material-Change Re-consent + Silent-Failure Detection (~3856 tok)
 - `ADR-1005-operations-maturity.md` — ADR-1005: Operations Maturity — Webhook Reference, Support Model, Status Page, Multi-channel Alerts, (~3575 tok)
@@ -888,7 +888,7 @@
 
 ## docs/architecture/
 
-- `consentshield-complete-schema-design.md` — ConsentShield — Complete Schema Design (~34777 tok)
+- `consentshield-complete-schema-design.md` — ConsentShield — Complete Schema Design (~35125 tok)
 - `consentshield-definitive-architecture.md` — ConsentShield — Definitive Architecture Reference (~18069 tok)
 - `consentshield-testing-strategy.md` — ConsentShield — The Testing Question (~8766 tok)
 - `nextjs-16-reference.md` — Next.js 16 — Project Reference (~1408 tok)
@@ -898,9 +898,9 @@
 - `CHANGELOG-api.md` — Changelog — API (~7360 tok)
 - `CHANGELOG-dashboard.md` — Changelog — Dashboard (~13819 tok)
 - `CHANGELOG-docs.md` — Changelog — Documentation (~4378 tok)
-- `CHANGELOG-edge-functions.md` — Changelog — Edge Functions (~3003 tok)
+- `CHANGELOG-edge-functions.md` — Changelog — Edge Functions (~3148 tok)
 - `CHANGELOG-infra.md` — Changelog — Infrastructure (~3667 tok)
-- `CHANGELOG-schema.md` — Changelog — Schema (~23804 tok)
+- `CHANGELOG-schema.md` — Changelog — Schema (~25018 tok)
 - `CHANGELOG-worker.md` — Changelog — Worker (~1897 tok)
 
 ## docs/design/
@@ -1246,7 +1246,7 @@
 
 ## supabase/functions/process-consent-event/
 
-- `index.ts` — Supabase Edge Function: process-consent-event (~2459 tok)
+- `index.ts` — Supabase Edge Function: process-consent-event (~2569 tok)
 
 ## supabase/functions/run-consent-probes/
 
@@ -1405,11 +1405,14 @@
 - `20260530000001_billing_disputes.sql` — Migration: ADR-0050 Sprint 3.2 — public.disputes table + dispute-upsert RPC + admin RPCs (~2808 tok)
 - `20260601000001_api_request_log.sql` — ADR-1001 Sprint 2.4 — rate-tier plan columns + request-log RPCs (~992 tok)
 - `20260601000001_customer_billing_portal_reads.sql` — Migration: ADR-0054 Sprint 1.1 — Customer billing portal (read path). (~2008 tok)
+- `20260601000002_consent_artefact_index_identifier.sql` — ADR-1002 Sprint 1.1 — Extend consent_artefact_index for identifier-based lookup. (~1936 tok)
 - `20260610000002_customer_billing_portal_writes.sql` — Migration: ADR-0054 Sprint 1.2 — Customer billing portal (write path). (~1706 tok)
 - `20260620000001_dpia_records.sql` — Migration: ADR-0046 Phase 2 Sprint 2.1 — DPIA records schema + RPCs. (~2760 tok)
 - `20260620000002_data_auditor_engagements.sql` — Migration: ADR-0046 Phase 3 — Data Auditor Engagements. (~2810 tok)
 - `20260620000003_enrich_support_sessions.sql` — Migration: ADR-0029 follow-up — enriched customer-facing support sessions. (~741 tok)
 - `20260620000004_update_org_industry.sql` — Migration: ADR-0057 Sprint 1.1 — `public.update_org_industry(p_org_id, p_industry)`. (~364 tok)
+- `20260620000005_assert_org_not_suspended.sql` — Migration: ADR-0048 follow-up — `public.assert_org_not_suspended(p_org_id)`. (~1629 tok)
+- `20260630000001_billing_evidence_ledger.sql` — Migration: ADR-0051 Sprint 1.1 — billing.evidence_ledger + trigger capture. (~3639 tok)
 
 ## supabase/seed/
 
@@ -1487,6 +1490,7 @@
 
 ## tests/depa/
 
+- `artefact-index-identifier.test.ts` — ADR-1002 Sprint 1.1 — consent_artefact_index extension tests. (~2830 tok)
 - `consent-event-pipeline.test.ts` — ADR-0021 Sprint 1.1 — process-consent-event pipeline integration tests. (~3428 tok)
 - `expiry-pipeline.test.ts` — ADR-0023 + ADR-0037 — expiry pipeline integration tests. (~4529 tok)
 - `revocation-pipeline.test.ts` — ADR-0022 Sprint 1.4 — process-artefact-revocation pipeline integration tests. (~4831 tok)
@@ -1523,6 +1527,7 @@
 - `depa-purpose-crud.test.ts` — ADR-0024 Sprint 1.4 — RLS cross-tenant isolation for Purpose Definitions (~1430 tok)
 - `helpers.ts` — Exports getServiceClient, getAnonClient, TestOrg, createTestOrg + 3 more (~1275 tok)
 - `isolation.test.ts` — Declares admin (~2328 tok)
+- `org-suspension-gate.test.ts` — ADR-0048 follow-up — public.assert_org_not_suspended gate on compliance (~1395 tok)
 - `sectoral-template-apply.test.ts` — ADR-0030 Sprint 3.1 — customer-side sectoral-template application. (~1784 tok)
 - `support-tickets.test.ts` — ADR-0032 Sprint 2.1 — customer-side support access isolation. (~1536 tok)
 - `update-org-industry.test.ts` — ADR-0057 Sprint 1.1 — public.update_org_industry. (~667 tok)

@@ -2,6 +2,17 @@
 
 Supabase Edge Function changes.
 
+## [ADR-1002 Sprint 1.1] — 2026-04-20
+
+**ADR:** ADR-1002 — DPDP §6 runtime enforcement
+**Sprint:** Sprint 1.1 — Index pipeline writes
+
+### Changed
+- `supabase/functions/process-consent-event/index.ts` — index insert now stamps `property_id` + `consent_event_id` (both derivable from the `consent_events` row). `identifier_hash` + `identifier_type` remain null for web-channel events; Sprint 2.1 (`/v1/consent/record`) will populate them for Mode B server-to-server consent.
+
+### Tested
+- [x] 24/24 DEPA suite PASS (no regression in consent-event-pipeline or revocation-pipeline)
+
 ## ADR-0039 Sprint 1.3 — 2026-04-17
 
 **ADR:** ADR-0039 — Connector OAuth (Mailchimp + HubSpot)
