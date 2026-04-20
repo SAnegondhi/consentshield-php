@@ -7009,6 +7009,118 @@
       "related_bugs": [],
       "occurrences": 1,
       "last_seen": "2026-04-20T12:04:54.473Z"
+    },
+    {
+      "id": "bug-438",
+      "timestamp": "2026-04-20T12:43:07.144Z",
+      "error_message": "Significant refactor of ",
+      "file": "docs/ADRs/ADR-0501-marketing-site-scaffold.md",
+      "root_cause": "3 lines replaced/restructured",
+      "fix": "Rewrote 5→44 lines (3 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-20T12:43:07.144Z"
+    },
+    {
+      "id": "bug-439",
+      "timestamp": "2026-04-20T12:55:01.626Z",
+      "error_message": "Significant refactor of ",
+      "file": "docs/ADRs/ADR-0501-marketing-site-scaffold.md",
+      "root_cause": "3 lines replaced/restructured",
+      "fix": "Rewrote 4→19 lines (3 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-20T12:55:01.626Z"
+    },
+    {
+      "id": "bug-440",
+      "timestamp": "2026-04-20T12:59:46.274Z",
+      "error_message": "CSS fix: marginTop",
+      "file": "marketing/src/components/sections/cta-band.tsx",
+      "root_cause": "marginTop: 14 → 14,",
+      "fix": "Changed marginTop: 14 → 14,",
+      "tags": [
+        "auto-detected",
+        "style-fix",
+        "tsx"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-20T12:59:46.274Z"
+    },
+    {
+      "id": "bug-441",
+      "timestamp": "2026-04-20T13:02:57.211Z",
+      "error_message": "Significant refactor of ",
+      "file": "docs/ADRs/ADR-0501-marketing-site-scaffold.md",
+      "root_cause": "3 lines replaced/restructured",
+      "fix": "Rewrote 4→12 lines (3 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-20T13:02:57.211Z"
+    },
+    {
+      "id": "bug-442",
+      "timestamp": "2026-04-20T13:32:01.245Z",
+      "error_message": "Significant refactor of ",
+      "file": "docs/ADRs/ADR-0501-marketing-site-scaffold.md",
+      "root_cause": "4 lines replaced/restructured",
+      "fix": "Rewrote 5→17 lines (4 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-20T13:32:01.245Z"
+    },
+    {
+      "id": "bug-443",
+      "timestamp": "2026-04-20T13:32:59.065Z",
+      "error_message": "Significant refactor of ",
+      "file": "app/src/app/api/v1/deletion/trigger/route.ts",
+      "root_cause": "3 lines replaced/restructured",
+      "fix": "Rewrote 7→9 lines (3 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-20T13:32:59.065Z"
+    },
+    {
+      "id": "bug-444",
+      "timestamp": "2026-04-20T13:34:32.145Z",
+      "error_message": "Significant refactor of ",
+      "file": "docs/ADRs/ADR-1002-dpdp-section6-runtime-enforcement.md",
+      "root_cause": "12 lines replaced/restructured",
+      "fix": "Rewrote 16→39 lines (12 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-20T13:34:32.145Z"
     }
   ]
 }

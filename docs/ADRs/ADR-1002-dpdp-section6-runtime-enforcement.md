@@ -292,21 +292,44 @@ bun run lint — PASS
 **Estimated effort:** 2 days
 
 **Deliverables:**
-- [ ] `POST /v1/deletion/trigger` body: `{ property_id, data_principal, reason, purpose_codes?, deadline? }`
-  - `reason='consent_revoked'` or `'consent_expired'`: require `purpose_codes`; creates `artefact_revocations` rows for matching artefacts and lets the cascade fire
-  - `reason='erasure_request'`: sweeps all active artefacts for the principal (equivalent to DPDP §13 rights request)
-  - `reason='retention_expired'`: data-scope-driven, accepts an explicit scope override
-- [ ] `GET /v1/deletion/receipts` filters: `status`, `connector_id`, `artefact_id`, `issued_after`, `issued_before`
-- [ ] Response to POST: array of receipt IDs + initial status
-- [ ] Scopes: `write:deletion`, `read:deletion`
+- [x] `POST /v1/deletion/trigger` — handler reads body `{ property_id, data_principal_identifier, identifier_type, reason, purpose_codes?, scope_override?, actor_type?, actor_ref? }`. Scope `write:deletion`. Body-shape validation at the route layer (422 with precise detail); maps RPC errors to 404 / 422 / 501.
+- [x] `rpc_deletion_trigger(org, property, identifier, identifier_type, reason, purpose_codes, scope_override, actor_type, actor_ref)` SECURITY DEFINER — migration 20260801000003. Validates property ownership (P0001), mode (`consent_revoked|erasure_request|retention_expired`), purpose_codes requirement for consent_revoked, actor_type; hashes the identifier; collects matching active artefacts via `consent_artefact_index`; loops and inserts `artefact_revocations` rows. The ADR-0022 cascade + Sprint 1.1 index-preservation + process-artefact-revocation Edge Function handle the rest asynchronously (deletion_receipts fan-out).
+- [x] Response to POST (202): `{ reason, revoked_artefact_ids, revoked_count, initial_status: "pending", note: "deletion_receipts created asynchronously" }`. Does **not** include receipt IDs because the pipeline is async; callers poll `/v1/deletion/receipts` with `artefact_id` or `issued_after` for observation.
+- [x] `retention_expired` mode deferred — returns 501 `retention_mode_not_yet_implemented`. Data-scope-driven sweep orchestration is a distinct design problem; tracked for a follow-up ADR.
+- [x] `GET /v1/deletion/receipts` — cursor-paginated list. Filters: `status`, `connector_id`, `artefact_id` (joined through `deletion_receipts.trigger_id → artefact_revocations.id`), `issued_after`, `issued_before`. Scope `read:deletion`.
+- [x] `rpc_deletion_receipts_list` RPC + `listDeletionReceipts` + `triggerDeletion` TS helpers + typed error kinds.
+- [x] OpenAPI: `DeletionTriggerRequest` / `DeletionTriggerResponse` / `DeletionReceiptRow` / `DeletionReceiptsResponse` schemas + two new path entries with full response matrices.
 
 **Testing plan:**
-- [ ] Trigger with `reason=consent_revoked` + purpose_code → matching artefact revoked; `deletion_receipts` rows created
-- [ ] Trigger with `reason=erasure_request` → every active artefact for principal swept
-- [ ] Missing required fields per reason → 422
-- [ ] List filters compose correctly (status + artefact_id + date range)
+- [x] Trigger `consent_revoked` with partial purpose_codes → only the matching artefacts revoked; other purposes for the same identifier stay active.
+- [x] Trigger `erasure_request` → every active artefact for the principal swept (all 3 test purposes).
+- [x] Re-trigger when no active artefacts remain → 0 revoked; no error.
+- [x] `consent_revoked` without `purpose_codes` → `purpose_codes_required_for_consent_revoked` (422).
+- [x] `retention_expired` → `retention_mode_not_yet_implemented` (501).
+- [x] Unknown reason → `unknown_reason` (422).
+- [x] Cross-org property → `property_not_found` (404).
+- [x] Unknown `identifier_type` → `invalid_identifier` (422).
+- [x] Receipts list: filter by `artefact_id` (joined through artefact_revocations) returns seeded fixture.
+- [x] Filter by `status=pending` / `connector_id`.
+- [x] Bad cursor → `bad_cursor` (422).
+- [x] Cross-org isolation on receipts.
+- [x] Date-range filter with ancient window → empty list.
+- [ ] Live Edge Function fan-out observation (deletion_receipts created asynchronously per `purpose_connector_mappings`) — deferred to manual verification against staging with a real connector fixture; the integration-tier receipts-list tests work off directly-seeded receipt rows.
 
-**Status:** `[ ] planned`
+### Test Results — 2026-04-20
+
+```
+bunx vitest run tests/integration/deletion-api.test.ts
+14/14 PASS (12.14s)
+
+bunx vitest run tests/integration/ tests/depa/
+111/111 PASS (125.22s) — no regressions
+
+cd app && bun run build — PASS; /api/v1/deletion/trigger + /api/v1/deletion/receipts in route manifest
+bun run lint — PASS
+```
+
+**Status:** `[x] complete — 2026-04-20`
 
 ### Phase 5: Exit gate
 

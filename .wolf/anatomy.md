@@ -1,7 +1,7 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-04-20T12:36:42.013Z
-> Files: 876 tracked | Anatomy hits: 0 | Misses: 0
+> Auto-maintained by OpenWolf. Last scanned: 2026-04-20T13:35:00.450Z
+> Files: 907 tracked | Anatomy hits: 0 | Misses: 0
 
 ## ../../../../../tmp/
 
@@ -463,7 +463,7 @@
 
 ## app/public/
 
-- `openapi.yaml` (~7814 tok)
+- `openapi.yaml` (~9669 tok)
 
 ## app/sandbox-scripts/
 
@@ -725,6 +725,14 @@
 
 - `route.ts` — ADR-1002 Sprint 1.3 — POST /v1/consent/verify/batch (~1676 tok)
 
+## app/src/app/api/v1/deletion/receipts/
+
+- `route.ts` — ADR-1002 Sprint 4.1 — GET /v1/deletion/receipts (~766 tok)
+
+## app/src/app/api/v1/deletion/trigger/
+
+- `route.ts` — ADR-1002 Sprint 4.1 — POST /v1/deletion/trigger (~1850 tok)
+
 ## app/src/app/api/webhooks/razorpay/
 
 - `route.ts` — ADR-0050 Sprint 2.1 chunk 3 — verbatim Razorpay webhook preservation. (~2417 tok)
@@ -783,6 +791,7 @@
 
 ## app/src/lib/consent/
 
+- `deletion.ts` — ADR-1002 Sprint 4.1 — deletion helpers. (~1293 tok)
 - `read.ts` — ADR-1002 Sprint 3.1 — server-side helpers for artefact + event read endpoints. (~1401 tok)
 - `record.ts` — ADR-1002 Sprint 2.1 — server-side helper for /v1/consent/record. (~790 tok)
 - `revoke.ts` — ADR-1002 Sprint 3.2 — revoke helper. (~532 tok)
@@ -906,9 +915,9 @@
 - `ADR-0055-account-scoped-impersonation.md` — ADR-0055 — Account-scoped impersonation (~1701 tok)
 - `ADR-0056-account-scoped-feature-flags.md` — ADR-0056 — Per-account feature-flag targeting (~1570 tok)
 - `ADR-0057-sectoral-template-switcher.md` — ADR-0057 — Customer-facing sectoral template switcher (Settings → Account) (~1395 tok)
-- `ADR-0501-marketing-site-scaffold.md` — ADR-0501 — ConsentShield marketing site (`marketing/`) (~2242 tok)
+- `ADR-0501-marketing-site-scaffold.md` — ADR-0501 — ConsentShield marketing site (`marketing/`) (~3964 tok)
 - `ADR-1001-truth-in-marketing-and-public-api-foundation.md` — ADR-1001: Truth-in-Marketing + Public API Foundation (~5650 tok)
-- `ADR-1002-dpdp-section6-runtime-enforcement.md` — ADR-1002: DPDP §6 Runtime Enforcement — Verify, Record, Artefact Ops, Deletion API (~6072 tok)
+- `ADR-1002-dpdp-section6-runtime-enforcement.md` — ADR-1002: DPDP §6 Runtime Enforcement — Verify, Record, Artefact Ops, Deletion API (~6703 tok)
 - `ADR-1003-processor-posture-and-healthcare-unlock.md` — ADR-1003: Processor Posture + Healthcare Category Unlock (~3365 tok)
 - `ADR-1004-statutory-retention-material-change-silent-failure.md` — ADR-1004: Statutory Retention + Material-Change Re-consent + Silent-Failure Detection (~3856 tok)
 - `ADR-1005-operations-maturity.md` — ADR-1005: Operations Maturity — Webhook Reference, Support Model, Status Page, Multi-channel Alerts, (~3575 tok)
@@ -939,13 +948,13 @@
 
 ## docs/changelogs/
 
-- `CHANGELOG-api.md` — Changelog — API (~9241 tok)
+- `CHANGELOG-api.md` — Changelog — API (~9619 tok)
 - `CHANGELOG-dashboard.md` — Changelog — Dashboard (~16200 tok)
 - `CHANGELOG-docs.md` — Changelog — Documentation (~4378 tok)
 - `CHANGELOG-edge-functions.md` — Changelog — Edge Functions (~3148 tok)
 - `CHANGELOG-infra.md` — Changelog — Infrastructure (~3667 tok)
-- `CHANGELOG-marketing.md` — Changelog — Marketing (~600 tok)
-- `CHANGELOG-schema.md` — Changelog — Schema (~28296 tok)
+- `CHANGELOG-marketing.md` — Changelog — Marketing (~2604 tok)
+- `CHANGELOG-schema.md` — Changelog — Schema (~28722 tok)
 - `CHANGELOG-worker.md` — Changelog — Worker (~1897 tok)
 
 ## docs/design/
@@ -1020,16 +1029,69 @@
 
 ## marketing/src/app/
 
-- `globals.css` — Styles: 2 rules, 2 vars (~70 tok)
-- `layout.tsx` — dmSans (~430 tok)
-- `page.tsx` — Home (~117 tok)
+- `globals.css` — Styles: 92 rules, 27 vars (~15204 tok)
+- `layout.tsx` — dmSans (~513 tok)
+- `page.tsx` — metadata (~569 tok)
 - `robots.ts` — Marketing site — fully crawlable. Contrast with admin/src/app/robots.ts, (~95 tok)
+
+## marketing/src/app/contact/
+
+- `page.tsx` — metadata (~2093 tok)
+
+## marketing/src/app/depa/
+
+- `page.tsx` — metadata (~736 tok)
+
+## marketing/src/app/dpa/
+
+- `page.tsx` — metadata (~12537 tok)
+
+## marketing/src/app/pricing/
+
+- `page.tsx` — metadata (~774 tok)
+
+## marketing/src/app/privacy/
+
+- `page.tsx` — metadata (~4667 tok)
+
+## marketing/src/app/product/
+
+- `page.tsx` — metadata (~2626 tok)
+
+## marketing/src/app/solutions/
+
+- `page.tsx` — metadata (~470 tok)
+
+## marketing/src/app/terms/
+
+- `page.tsx` — metadata (~4555 tok)
 
 ## marketing/src/components/
 
 - `footer.tsx` — Footer (~1119 tok)
 - `logo.tsx` — Logo (shield icon + "ConsentShield" wordmark) — used by nav and footer. (~483 tok)
 - `nav.tsx` — Nav (~511 tok)
+
+## marketing/src/components/sections/
+
+- `arch-promo.tsx` — Architecture Brief promo card. Appears on the Product page (inline), (~1294 tok)
+- `bfsi-callout.tsx` — BfsiCallout (~368 tok)
+- `capability-layer.tsx` — CapabilityLayer (~220 tok)
+- `contact-form.tsx` — ContactForm — renders form (~1593 tok)
+- `contrast.tsx` — Contrast (~567 tok)
+- `cta-band.tsx` — Reusable CTA band section — used by home, product, depa, solutions pages. (~333 tok)
+- `depa-compare.tsx` — ROWS (~978 tok)
+- `depa-hero.tsx` — DepaHero (~1266 tok)
+- `depa-moat.tsx` — PRINCIPLES (~773 tok)
+- `dpa-signing-card.tsx` — DpaSigningCard — renders form (~1597 tok)
+- `home-hero.tsx` — HomeHero (~613 tok)
+- `legal-layout.tsx` — LegalLayout (~544 tok)
+- `price-table.tsx` — GROUPS (~1936 tok)
+- `price-toggle.tsx` — PriceToggle (~262 tok)
+- `pricing-preview.tsx` — TIERS (~1005 tok)
+- `solutions-tabs.tsx` — SECTORS (~4221 tok)
+- `story.tsx` — Story (~1279 tok)
+- `timeline.tsx` — ENTRIES (~660 tok)
 
 ## marketing/src/lib/
 
@@ -1504,6 +1566,7 @@
 - `20260725000001_account_scoped_impersonation.sql` — Migration: ADR-0055 Sprint 1.1 — account-scoped impersonation. (~1943 tok)
 - `20260730000001_account_scoped_feature_flags.sql` — Migration: ADR-0056 Sprint 1.1 — per-account feature-flag targeting. (~2550 tok)
 - `20260801000002_rpc_artefact_revoke.sql` — ADR-1002 Sprint 3.2 — rpc_artefact_revoke RPC. (~1093 tok)
+- `20260801000003_rpc_deletion.sql` — ADR-1002 Sprint 4.1 — Deletion API RPCs. (~2609 tok)
 
 ## supabase/seed/
 
@@ -1607,6 +1670,7 @@
 - `consent-revoke.test.ts` — ADR-1002 Sprint 3.2 — revoke endpoint integration tests. (~2726 tok)
 - `consent-verify-batch.test.ts` — ADR-1002 Sprint 1.3 — /v1/consent/verify/batch integration tests. (~3283 tok)
 - `consent-verify.test.ts` — ADR-1002 Sprint 1.2 — /v1/consent/verify integration tests. (~3716 tok)
+- `deletion-api.test.ts` — ADR-1002 Sprint 4.1 — deletion trigger + receipts list integration tests. (~3484 tok)
 
 ## tests/rbac/
 

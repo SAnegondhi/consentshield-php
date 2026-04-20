@@ -349,6 +349,70 @@ components:
           type: boolean
           description: true when the artefact was already revoked and this response is a replay of the original revocation.
 
+    DeletionTriggerRequest:
+      type: object
+      required: [property_id, data_principal_identifier, identifier_type, reason]
+      properties:
+        property_id:               { type: string, format: uuid }
+        data_principal_identifier: { type: string }
+        identifier_type:           { type: string, enum: [email, phone, pan, aadhaar, custom] }
+        reason:
+          type: string
+          enum: [consent_revoked, erasure_request, retention_expired]
+          description: "`consent_revoked` requires purpose_codes; `erasure_request` sweeps all active artefacts for the principal; `retention_expired` is not yet implemented (returns 501)."
+        purpose_codes:
+          type: array
+          items: { type: string }
+          description: Required when reason=consent_revoked.
+        scope_override:
+          type: array
+          items: { type: string }
+          description: Optional data-scope override for retention_expired (future).
+        actor_type:
+          type: string
+          enum: [user, operator, system]
+        actor_ref:
+          type: string
+
+    DeletionTriggerResponse:
+      type: object
+      required: [reason, revoked_artefact_ids, initial_status]
+      properties:
+        reason:               { type: string, enum: [consent_revoked, erasure_request, retention_expired] }
+        revoked_artefact_ids: { type: array, items: { type: string } }
+        revoked_count:        { type: integer, nullable: true }
+        initial_status:       { type: string, example: pending }
+        note:                 { type: string }
+
+    DeletionReceiptRow:
+      type: object
+      required: [id, trigger_type, target_system, status, created_at]
+      properties:
+        id:             { type: string, format: uuid }
+        trigger_type:   { type: string }
+        trigger_id:     { type: string, format: uuid, nullable: true }
+        artefact_id:    { type: string, nullable: true }
+        connector_id:   { type: string, format: uuid, nullable: true }
+        target_system:  { type: string }
+        status:         { type: string }
+        retry_count:    { type: integer }
+        failure_reason: { type: string, nullable: true }
+        requested_at:   { type: string, format: date-time, nullable: true }
+        confirmed_at:   { type: string, format: date-time, nullable: true }
+        created_at:     { type: string, format: date-time }
+
+    DeletionReceiptsResponse:
+      type: object
+      required: [items, next_cursor]
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/DeletionReceiptRow"
+        next_cursor:
+          type: string
+          nullable: true
+
   responses:
     Unauthorized:
       description: Missing, malformed, or invalid API key.
@@ -669,6 +733,108 @@ paths:
         "410": { $ref: "#/components/responses/Gone" }
         "422":
           description: Bad cursor, limit, date, or source.
+          content:
+            application/problem+json:
+              schema: { $ref: "#/components/schemas/Problem" }
+        "429": { $ref: "#/components/responses/TooManyRequests" }
+
+  /deletion/trigger:
+    post:
+      operationId: deletionTrigger
+      summary: Trigger deletion orchestration for a data principal
+      description: >
+        Inserts `artefact_revocations` rows for every active artefact matching
+        the scope. The ADR-0022 cascade + process-artefact-revocation Edge
+        Function then create `deletion_receipts` asynchronously.
+        `retention_expired` mode is not yet implemented (returns 501).
+      tags: [Deletion]
+      security:
+        - bearerAuth: [write:deletion]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DeletionTriggerRequest"
+      responses:
+        "202":
+          description: Revocations inserted; deletion_receipts are being created asynchronously.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DeletionTriggerResponse"
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403":
+          description: Key is valid but lacks write:deletion scope.
+          content:
+            application/problem+json:
+              schema: { $ref: "#/components/schemas/Problem" }
+        "404":
+          description: property_id does not belong to the key's org.
+          content:
+            application/problem+json:
+              schema: { $ref: "#/components/schemas/Problem" }
+        "410": { $ref: "#/components/responses/Gone" }
+        "422":
+          description: Invalid body, missing purpose_codes for consent_revoked, or unknown reason/actor_type/identifier.
+          content:
+            application/problem+json:
+              schema: { $ref: "#/components/schemas/Problem" }
+        "429": { $ref: "#/components/responses/TooManyRequests" }
+        "501":
+          description: retention_expired mode is not yet implemented.
+          content:
+            application/problem+json:
+              schema: { $ref: "#/components/schemas/Problem" }
+
+  /deletion/receipts:
+    get:
+      operationId: deletionReceiptsList
+      summary: List deletion receipts
+      description: >
+        Cursor-paginated list with filters on status, connector, source
+        artefact_id, and issue date range.
+      tags: [Deletion]
+      security:
+        - bearerAuth: [read:deletion]
+      parameters:
+        - in: query
+          name: status
+          schema: { type: string }
+        - in: query
+          name: connector_id
+          schema: { type: string, format: uuid }
+        - in: query
+          name: artefact_id
+          schema: { type: string }
+        - in: query
+          name: issued_after
+          schema: { type: string, format: date-time }
+        - in: query
+          name: issued_before
+          schema: { type: string, format: date-time }
+        - in: query
+          name: cursor
+          schema: { type: string }
+        - in: query
+          name: limit
+          schema: { type: integer, minimum: 1, maximum: 200, default: 50 }
+      responses:
+        "200":
+          description: Paged list envelope.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DeletionReceiptsResponse"
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403":
+          description: Key is valid but lacks read:deletion scope.
+          content:
+            application/problem+json:
+              schema: { $ref: "#/components/schemas/Problem" }
+        "410": { $ref: "#/components/responses/Gone" }
+        "422":
+          description: Bad cursor, limit, or date.
           content:
             application/problem+json:
               schema: { $ref: "#/components/schemas/Problem" }

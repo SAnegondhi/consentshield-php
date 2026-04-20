@@ -88,7 +88,7 @@
       "first_read": "2026-04-20T11:56:59.759Z"
     },
     "/Users/sudhindra/projects/aiSpirit/consent-sheild/docs/design/screen designs and ux/marketing-site/consentshield-site-v2.html": {
-      "count": 5,
+      "count": 15,
       "tokens": 0,
       "first_read": "2026-04-20T12:15:29.790Z"
     },
@@ -96,6 +96,16 @@
       "count": 1,
       "tokens": 0,
       "first_read": "2026-04-20T12:22:39.332Z"
+    },
+    "/Users/sudhindra/projects/aiSpirit/consent-sheild/docs/ADRs/ADR-0501-marketing-site-scaffold.md": {
+      "count": 1,
+      "tokens": 3309,
+      "first_read": "2026-04-20T12:55:13.980Z"
+    },
+    "/Users/sudhindra/projects/aiSpirit/consent-sheild/supabase/migrations/20260413000004_buffer_tables.sql": {
+      "count": 1,
+      "tokens": 2639,
+      "first_read": "2026-04-20T13:26:02.164Z"
     }
   },
   "files_written": [
@@ -470,10 +480,388 @@
       "action": "create",
       "tokens": 1119,
       "at": "2026-04-20T12:36:42.020Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/marketing/src/app/globals.css",
+      "action": "create",
+      "tokens": 15204,
+      "at": "2026-04-20T12:40:50.856Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/marketing/src/app/layout.tsx",
+      "action": "create",
+      "tokens": 513,
+      "at": "2026-04-20T12:41:02.640Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/marketing/src/app/page.tsx",
+      "action": "create",
+      "tokens": 782,
+      "at": "2026-04-20T12:41:16.054Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/marketing/src/app/product/page.tsx",
+      "action": "create",
+      "tokens": 253,
+      "at": "2026-04-20T12:41:25.895Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/marketing/src/app/depa/page.tsx",
+      "action": "create",
+      "tokens": 257,
+      "at": "2026-04-20T12:41:32.479Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/marketing/src/app/solutions/page.tsx",
+      "action": "create",
+      "tokens": 222,
+      "at": "2026-04-20T12:41:39.619Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/marketing/src/app/pricing/page.tsx",
+      "action": "create",
+      "tokens": 210,
+      "at": "2026-04-20T12:41:45.980Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/marketing/src/app/contact/page.tsx",
+      "action": "create",
+      "tokens": 237,
+      "at": "2026-04-20T12:41:51.779Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/marketing/src/app/terms/page.tsx",
+      "action": "create",
+      "tokens": 158,
+      "at": "2026-04-20T12:41:56.632Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/marketing/src/app/privacy/page.tsx",
+      "action": "create",
+      "tokens": 157,
+      "at": "2026-04-20T12:42:00.919Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/marketing/src/app/dpa/page.tsx",
+      "action": "create",
+      "tokens": 194,
+      "at": "2026-04-20T12:42:06.358Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/docs/ADRs/ADR-0501-marketing-site-scaffold.md",
+      "action": "edit",
+      "tokens": 37,
+      "at": "2026-04-20T12:42:35.397Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/docs/ADRs/ADR-0501-marketing-site-scaffold.md",
+      "action": "edit",
+      "tokens": 894,
+      "at": "2026-04-20T12:43:07.142Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/docs/changelogs/CHANGELOG-marketing.md",
+      "action": "edit",
+      "tokens": 766,
+      "at": "2026-04-20T12:43:26.695Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/marketing/src/components/sections/cta-band.tsx",
+      "action": "create",
+      "tokens": 192,
+      "at": "2026-04-20T12:50:45.440Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/marketing/src/components/sections/home-hero.tsx",
+      "action": "create",
+      "tokens": 613,
+      "at": "2026-04-20T12:50:58.032Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/marketing/src/components/sections/contrast.tsx",
+      "action": "create",
+      "tokens": 567,
+      "at": "2026-04-20T12:51:09.718Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/marketing/src/components/sections/story.tsx",
+      "action": "create",
+      "tokens": 1279,
+      "at": "2026-04-20T12:51:30.689Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/marketing/src/components/sections/depa-moat.tsx",
+      "action": "create",
+      "tokens": 773,
+      "at": "2026-04-20T12:51:49.038Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/marketing/src/components/sections/timeline.tsx",
+      "action": "create",
+      "tokens": 660,
+      "at": "2026-04-20T12:52:16.503Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/marketing/src/components/sections/pricing-preview.tsx",
+      "action": "create",
+      "tokens": 1005,
+      "at": "2026-04-20T12:52:34.484Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/marketing/src/app/page.tsx",
+      "action": "create",
+      "tokens": 569,
+      "at": "2026-04-20T12:52:46.864Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/marketing/src/components/sections/capability-layer.tsx",
+      "action": "create",
+      "tokens": 220,
+      "at": "2026-04-20T12:52:59.880Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/marketing/src/components/sections/arch-promo.tsx",
+      "action": "create",
+      "tokens": 1294,
+      "at": "2026-04-20T12:53:20.661Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/marketing/src/app/product/page.tsx",
+      "action": "create",
+      "tokens": 2626,
+      "at": "2026-04-20T12:54:15.840Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/docs/ADRs/ADR-0501-marketing-site-scaffold.md",
+      "action": "edit",
+      "tokens": 37,
+      "at": "2026-04-20T12:54:39.035Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/docs/ADRs/ADR-0501-marketing-site-scaffold.md",
+      "action": "edit",
+      "tokens": 495,
+      "at": "2026-04-20T12:55:01.624Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/docs/ADRs/ADR-0501-marketing-site-scaffold.md",
+      "action": "edit",
+      "tokens": 67,
+      "at": "2026-04-20T12:55:19.971Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/docs/changelogs/CHANGELOG-marketing.md",
+      "action": "edit",
+      "tokens": 507,
+      "at": "2026-04-20T12:55:35.845Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/marketing/src/components/sections/cta-band.tsx",
+      "action": "edit",
+      "tokens": 333,
+      "at": "2026-04-20T12:59:46.272Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/marketing/src/components/sections/depa-hero.tsx",
+      "action": "create",
+      "tokens": 1266,
+      "at": "2026-04-20T13:00:08.256Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/marketing/src/components/sections/depa-compare.tsx",
+      "action": "create",
+      "tokens": 978,
+      "at": "2026-04-20T13:00:28.423Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/marketing/src/app/depa/page.tsx",
+      "action": "create",
+      "tokens": 736,
+      "at": "2026-04-20T13:00:42.979Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/marketing/src/components/sections/solutions-tabs.tsx",
+      "action": "create",
+      "tokens": 4221,
+      "at": "2026-04-20T13:02:03.008Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/marketing/src/app/solutions/page.tsx",
+      "action": "create",
+      "tokens": 470,
+      "at": "2026-04-20T13:02:21.329Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/docs/ADRs/ADR-0501-marketing-site-scaffold.md",
+      "action": "edit",
+      "tokens": 38,
+      "at": "2026-04-20T13:02:43.063Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/docs/ADRs/ADR-0501-marketing-site-scaffold.md",
+      "action": "edit",
+      "tokens": 336,
+      "at": "2026-04-20T13:02:57.209Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/docs/changelogs/CHANGELOG-marketing.md",
+      "action": "edit",
+      "tokens": 528,
+      "at": "2026-04-20T13:03:11.131Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/marketing/src/components/sections/price-toggle.tsx",
+      "action": "create",
+      "tokens": 262,
+      "at": "2026-04-20T13:23:00.163Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/marketing/src/components/sections/price-table.tsx",
+      "action": "create",
+      "tokens": 1936,
+      "at": "2026-04-20T13:23:35.752Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/marketing/src/components/sections/bfsi-callout.tsx",
+      "action": "create",
+      "tokens": 368,
+      "at": "2026-04-20T13:23:45.868Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/marketing/src/app/pricing/page.tsx",
+      "action": "create",
+      "tokens": 774,
+      "at": "2026-04-20T13:24:02.284Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/marketing/src/components/sections/contact-form.tsx",
+      "action": "create",
+      "tokens": 1593,
+      "at": "2026-04-20T13:24:33.136Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/marketing/src/app/contact/page.tsx",
+      "action": "create",
+      "tokens": 2093,
+      "at": "2026-04-20T13:25:02.297Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/marketing/src/components/sections/legal-layout.tsx",
+      "action": "create",
+      "tokens": 544,
+      "at": "2026-04-20T13:25:23.438Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/marketing/src/app/terms/page.tsx",
+      "action": "create",
+      "tokens": 4555,
+      "at": "2026-04-20T13:26:29.489Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/marketing/src/app/privacy/page.tsx",
+      "action": "create",
+      "tokens": 4667,
+      "at": "2026-04-20T13:27:36.498Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/supabase/migrations/20260801000003_rpc_deletion.sql",
+      "action": "create",
+      "tokens": 2795,
+      "at": "2026-04-20T13:27:41.307Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/marketing/src/components/sections/dpa-signing-card.tsx",
+      "action": "create",
+      "tokens": 1597,
+      "at": "2026-04-20T13:28:08.567Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/app/src/lib/consent/deletion.ts",
+      "action": "create",
+      "tokens": 1293,
+      "at": "2026-04-20T13:28:10.037Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/app/src/app/api/v1/deletion/trigger/route.ts",
+      "action": "create",
+      "tokens": 1792,
+      "at": "2026-04-20T13:28:42.142Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/app/src/app/api/v1/deletion/receipts/route.ts",
+      "action": "create",
+      "tokens": 766,
+      "at": "2026-04-20T13:28:57.822Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/tests/integration/deletion-api.test.ts",
+      "action": "create",
+      "tokens": 3484,
+      "at": "2026-04-20T13:29:48.151Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/marketing/src/app/dpa/page.tsx",
+      "action": "create",
+      "tokens": 12537,
+      "at": "2026-04-20T13:31:10.695Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/docs/ADRs/ADR-0501-marketing-site-scaffold.md",
+      "action": "edit",
+      "tokens": 39,
+      "at": "2026-04-20T13:31:39.863Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/docs/ADRs/ADR-0501-marketing-site-scaffold.md",
+      "action": "edit",
+      "tokens": 591,
+      "at": "2026-04-20T13:32:01.243Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/docs/changelogs/CHANGELOG-marketing.md",
+      "action": "edit",
+      "tokens": 664,
+      "at": "2026-04-20T13:32:16.795Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/app/src/app/api/v1/deletion/trigger/route.ts",
+      "action": "edit",
+      "tokens": 145,
+      "at": "2026-04-20T13:32:59.063Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/app/public/openapi.yaml",
+      "action": "edit",
+      "tokens": 905,
+      "at": "2026-04-20T13:33:41.307Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/app/public/openapi.yaml",
+      "action": "edit",
+      "tokens": 1094,
+      "at": "2026-04-20T13:33:57.977Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/docs/ADRs/ADR-1002-dpdp-section6-runtime-enforcement.md",
+      "action": "edit",
+      "tokens": 1035,
+      "at": "2026-04-20T13:34:32.144Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/docs/changelogs/CHANGELOG-schema.md",
+      "action": "edit",
+      "tokens": 517,
+      "at": "2026-04-20T13:34:48.199Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/docs/changelogs/CHANGELOG-api.md",
+      "action": "edit",
+      "tokens": 455,
+      "at": "2026-04-20T13:35:00.458Z"
     }
   ],
   "edit_counts": {
-    "docs/changelogs/CHANGELOG-api.md": 2,
+    "docs/changelogs/CHANGELOG-api.md": 3,
     "admin/src/components/flags/feature-flags-tab.tsx": 12,
     "admin/src/components/flags/flags-tabs.tsx": 2,
     "admin/src/app/(operator)/flags/page.tsx": 4,
@@ -485,10 +873,10 @@
     "app/src/lib/consent/revoke.ts": 1,
     "app/src/app/api/v1/consent/artefacts/[id]/revoke/route.ts": 1,
     "tests/integration/consent-revoke.test.ts": 1,
-    "app/public/openapi.yaml": 2,
-    "docs/ADRs/ADR-1002-dpdp-section6-runtime-enforcement.md": 1,
-    "docs/changelogs/CHANGELOG-schema.md": 1,
-    "docs/ADRs/ADR-0501-marketing-site-scaffold.md": 3,
+    "app/public/openapi.yaml": 4,
+    "docs/ADRs/ADR-1002-dpdp-section6-runtime-enforcement.md": 2,
+    "docs/changelogs/CHANGELOG-schema.md": 2,
+    "docs/ADRs/ADR-0501-marketing-site-scaffold.md": 12,
     "marketing/package.json": 1,
     "marketing/next.config.ts": 1,
     "marketing/tsconfig.json": 1,
@@ -496,21 +884,52 @@
     "marketing/eslint.config.mjs": 1,
     "marketing/vercel.json": 1,
     "marketing/.gitignore": 1,
-    "marketing/src/app/layout.tsx": 1,
-    "marketing/src/app/globals.css": 1,
-    "marketing/src/app/page.tsx": 1,
+    "marketing/src/app/layout.tsx": 2,
+    "marketing/src/app/globals.css": 2,
+    "marketing/src/app/page.tsx": 3,
     "marketing/src/app/robots.ts": 1,
     "marketing/public/downloads/.gitkeep": 1,
     "package.json": 1,
-    "docs/changelogs/CHANGELOG-marketing.md": 1,
+    "docs/changelogs/CHANGELOG-marketing.md": 5,
     "marketing/src/lib/routes.ts": 1,
     "marketing/src/components/logo.tsx": 1,
     "marketing/src/components/nav.tsx": 1,
-    "marketing/src/components/footer.tsx": 1
+    "marketing/src/components/footer.tsx": 1,
+    "marketing/src/app/product/page.tsx": 2,
+    "marketing/src/app/depa/page.tsx": 2,
+    "marketing/src/app/solutions/page.tsx": 2,
+    "marketing/src/app/pricing/page.tsx": 2,
+    "marketing/src/app/contact/page.tsx": 2,
+    "marketing/src/app/terms/page.tsx": 2,
+    "marketing/src/app/privacy/page.tsx": 2,
+    "marketing/src/app/dpa/page.tsx": 2,
+    "marketing/src/components/sections/cta-band.tsx": 2,
+    "marketing/src/components/sections/home-hero.tsx": 1,
+    "marketing/src/components/sections/contrast.tsx": 1,
+    "marketing/src/components/sections/story.tsx": 1,
+    "marketing/src/components/sections/depa-moat.tsx": 1,
+    "marketing/src/components/sections/timeline.tsx": 1,
+    "marketing/src/components/sections/pricing-preview.tsx": 1,
+    "marketing/src/components/sections/capability-layer.tsx": 1,
+    "marketing/src/components/sections/arch-promo.tsx": 1,
+    "marketing/src/components/sections/depa-hero.tsx": 1,
+    "marketing/src/components/sections/depa-compare.tsx": 1,
+    "marketing/src/components/sections/solutions-tabs.tsx": 1,
+    "marketing/src/components/sections/price-toggle.tsx": 1,
+    "marketing/src/components/sections/price-table.tsx": 1,
+    "marketing/src/components/sections/bfsi-callout.tsx": 1,
+    "marketing/src/components/sections/contact-form.tsx": 1,
+    "marketing/src/components/sections/legal-layout.tsx": 1,
+    "supabase/migrations/20260801000003_rpc_deletion.sql": 1,
+    "marketing/src/components/sections/dpa-signing-card.tsx": 1,
+    "app/src/lib/consent/deletion.ts": 1,
+    "app/src/app/api/v1/deletion/trigger/route.ts": 2,
+    "app/src/app/api/v1/deletion/receipts/route.ts": 1,
+    "tests/integration/deletion-api.test.ts": 1
   },
-  "anatomy_hits": 17,
+  "anatomy_hits": 19,
   "anatomy_misses": 2,
-  "repeated_reads_warned": 9,
+  "repeated_reads_warned": 19,
   "cerebrum_warnings": 0,
-  "stop_count": 6
+  "stop_count": 11
 }

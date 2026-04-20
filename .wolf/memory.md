@@ -3049,3 +3049,71 @@
 | 18:06 | Created marketing/src/components/logo.tsx | — | ~483 |
 | 18:06 | Created marketing/src/components/nav.tsx | — | ~511 |
 | 18:06 | Created marketing/src/components/footer.tsx | — | ~1119 |
+| 18:09 | Session end: 62 writes across 32 files (CHANGELOG-api.md, feature-flags-tab.tsx, flags-tabs.tsx, page.tsx, ADR-0056-account-scoped-feature-flags.md) | 19 reads | ~67302 tok |
+| 18:10 | Created marketing/src/app/globals.css | — | ~15204 |
+| 18:11 | Created marketing/src/app/layout.tsx | — | ~513 |
+| 18:11 | Created marketing/src/app/page.tsx | — | ~782 |
+| 18:11 | Created marketing/src/app/product/page.tsx | — | ~253 |
+| 18:11 | Created marketing/src/app/depa/page.tsx | — | ~257 |
+| 18:11 | Created marketing/src/app/solutions/page.tsx | — | ~222 |
+| 18:11 | Created marketing/src/app/pricing/page.tsx | — | ~210 |
+| 18:11 | Created marketing/src/app/contact/page.tsx | — | ~237 |
+| 18:11 | Created marketing/src/app/terms/page.tsx | — | ~158 |
+| 18:12 | Created marketing/src/app/privacy/page.tsx | — | ~157 |
+| 18:12 | Created marketing/src/app/dpa/page.tsx | — | ~194 |
+| 18:12 | Edited docs/ADRs/ADR-0501-marketing-site-scaffold.md | 2→2 lines | ~34 |
+| 18:13 | Edited docs/ADRs/ADR-0501-marketing-site-scaffold.md | expanded (+39 lines) | ~835 |
+| 18:13 | Edited docs/changelogs/CHANGELOG-marketing.md | expanded (+32 lines) | ~715 |
+| 18:18 | Session end: 76 writes across 32 files (CHANGELOG-api.md, feature-flags-tab.tsx, flags-tabs.tsx, page.tsx, ADR-0056-account-scoped-feature-flags.md) | 19 reads | ~87186 tok |
+| 18:20 | Created marketing/src/components/sections/cta-band.tsx | — | ~192 |
+| 18:20 | Created marketing/src/components/sections/home-hero.tsx | — | ~613 |
+| 18:21 | Created marketing/src/components/sections/contrast.tsx | — | ~567 |
+| 18:21 | Created marketing/src/components/sections/story.tsx | — | ~1279 |
+| 18:21 | Created marketing/src/components/sections/depa-moat.tsx | — | ~773 |
+| 18:22 | Created marketing/src/components/sections/timeline.tsx | — | ~660 |
+| 18:22 | Created marketing/src/components/sections/pricing-preview.tsx | — | ~1005 |
+| 18:22 | Created marketing/src/app/page.tsx | — | ~569 |
+| 18:22 | Created marketing/src/components/sections/capability-layer.tsx | — | ~220 |
+| 18:23 | Created marketing/src/components/sections/arch-promo.tsx | — | ~1294 |
+| 18:24 | Created marketing/src/app/product/page.tsx | — | ~2626 |
+| 18:24 | Edited docs/ADRs/ADR-0501-marketing-site-scaffold.md | 2→2 lines | ~34 |
+| 18:25 | Edited docs/ADRs/ADR-0501-marketing-site-scaffold.md | expanded (+15 lines) | ~462 |
+| 18:25 | Edited docs/ADRs/ADR-0501-marketing-site-scaffold.md | 6→4 lines | ~62 |
+| 18:25 | Edited docs/changelogs/CHANGELOG-marketing.md | expanded (+23 lines) | ~473 |
+| 18:28 | Session end: 91 writes across 41 files (CHANGELOG-api.md, feature-flags-tab.tsx, flags-tabs.tsx, page.tsx, ADR-0056-account-scoped-feature-flags.md) | 20 reads | ~101399 tok |
+| 18:29 | Edited marketing/src/components/sections/cta-band.tsx | modified CtaBand() | ~333 |
+| 18:30 | Created marketing/src/components/sections/depa-hero.tsx | — | ~1266 |
+| 18:30 | Created marketing/src/components/sections/depa-compare.tsx | — | ~978 |
+| 18:30 | Created marketing/src/app/depa/page.tsx | — | ~736 |
+| 18:32 | Created marketing/src/components/sections/solutions-tabs.tsx | — | ~4221 |
+| 18:32 | Created marketing/src/app/solutions/page.tsx | — | ~470 |
+| 18:32 | Edited docs/ADRs/ADR-0501-marketing-site-scaffold.md | 2→2 lines | ~36 |
+| 18:32 | Edited docs/ADRs/ADR-0501-marketing-site-scaffold.md | expanded (+8 lines) | ~314 |
+| 18:33 | Edited docs/changelogs/CHANGELOG-marketing.md | expanded (+19 lines) | ~493 |
+| 18:51 | Session end: 100 writes across 44 files (CHANGELOG-api.md, feature-flags-tab.tsx, flags-tabs.tsx, page.tsx, ADR-0056-account-scoped-feature-flags.md) | 20 reads | ~110305 tok |
+| 18:53 | Created marketing/src/components/sections/price-toggle.tsx | — | ~262 |
+| 18:53 | Created marketing/src/components/sections/price-table.tsx | — | ~1936 |
+| 18:53 | Created marketing/src/components/sections/bfsi-callout.tsx | — | ~368 |
+| 18:54 | Created marketing/src/app/pricing/page.tsx | — | ~774 |
+| 18:54 | Created marketing/src/components/sections/contact-form.tsx | — | ~1593 |
+| 18:55 | Created marketing/src/app/contact/page.tsx | — | ~2093 |
+| 18:55 | Created marketing/src/components/sections/legal-layout.tsx | — | ~544 |
+| 18:56 | Created marketing/src/app/terms/page.tsx | — | ~4555 |
+| 18:57 | Created marketing/src/app/privacy/page.tsx | — | ~4667 |
+| 18:57 | Created supabase/migrations/20260801000003_rpc_deletion.sql | — | ~2609 |
+| 18:58 | Created marketing/src/components/sections/dpa-signing-card.tsx | — | ~1597 |
+| 18:58 | Created app/src/lib/consent/deletion.ts | — | ~1293 |
+| 18:58 | Created app/src/app/api/v1/deletion/trigger/route.ts | — | ~1792 |
+| 18:58 | Created app/src/app/api/v1/deletion/receipts/route.ts | — | ~766 |
+| 18:59 | Created tests/integration/deletion-api.test.ts | — | ~3484 |
+| 19:01 | Created marketing/src/app/dpa/page.tsx | — | ~12537 |
+| 19:01 | Edited docs/ADRs/ADR-0501-marketing-site-scaffold.md | 2→2 lines | ~36 |
+| 19:02 | Edited docs/ADRs/ADR-0501-marketing-site-scaffold.md | expanded (+12 lines) | ~551 |
+| 19:02 | Edited docs/changelogs/CHANGELOG-marketing.md | expanded (+26 lines) | ~620 |
+| 19:02 | Session end: 119 writes across 53 files (CHANGELOG-api.md, feature-flags-tab.tsx, flags-tabs.tsx, page.tsx, ADR-0056-account-scoped-feature-flags.md) | 21 reads | ~155294 tok |
+| 19:02 | Edited app/src/app/api/v1/deletion/trigger/route.ts | 7→9 lines | ~145 |
+| 19:03 | Edited app/public/openapi.yaml | expanded (+64 lines) | ~905 |
+| 19:03 | Edited app/public/openapi.yaml | expanded (+102 lines) | ~1094 |
+| 19:04 | Edited docs/ADRs/ADR-1002-dpdp-section6-runtime-enforcement.md | modified POST() | ~966 |
+| 19:04 | Edited docs/changelogs/CHANGELOG-schema.md | expanded (+15 lines) | ~483 |
+| 19:05 | Edited docs/changelogs/CHANGELOG-api.md | expanded (+17 lines) | ~424 |

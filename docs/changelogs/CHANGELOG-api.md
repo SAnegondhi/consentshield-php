@@ -2,6 +2,23 @@
 
 API route changes.
 
+## [ADR-1002 Sprint 4.1] — 2026-04-20
+
+**ADR:** ADR-1002 — DPDP §6 runtime enforcement
+**Sprint:** Sprint 4.1 — Deletion API (`POST /v1/deletion/trigger` + `GET /v1/deletion/receipts`)
+
+### Added
+- `app/src/app/api/v1/deletion/trigger/route.ts` — POST. Scope `write:deletion`. Body validation (missing fields list; reason enum; purpose_codes / scope_override array + element-type; actor_type enum; actor_ref). Maps RPC errors: 404 property_not_found; 501 retention_mode_not_yet_implemented; 422 on unknown_reason / purpose_codes_required_for_consent_revoked / unknown_actor_type / invalid_identifier. Returns 202 on success (deletion_receipts created asynchronously).
+- `app/src/app/api/v1/deletion/receipts/route.ts` — GET. Scope `read:deletion`. Optional filters: status, connector_id, artefact_id, issued_after, issued_before, cursor, limit. ISO date + limit validation at route layer.
+- `app/src/lib/consent/deletion.ts` — `triggerDeletion` + `listDeletionReceipts` helpers; typed envelopes (`DeletionTriggerEnvelope`, `DeletionReceiptRow`) + error kinds.
+- `app/public/openapi.yaml` — `DeletionTriggerRequest` / `DeletionTriggerResponse` / `DeletionReceiptRow` / `DeletionReceiptsResponse` schemas + two new path entries (`/deletion/trigger`, `/deletion/receipts`).
+
+### Tested
+- [x] 14/14 PASS — `tests/integration/deletion-api.test.ts`
+- [x] 111/111 full integration + DEPA — no regressions
+- [x] `cd app && bun run build` — PASS; both routes in manifest
+- [x] `bun run lint` — PASS (0 errors, 0 warnings)
+
 ## [ADR-1002 Sprint 3.2] — 2026-04-20
 
 **ADR:** ADR-1002 — DPDP §6 runtime enforcement

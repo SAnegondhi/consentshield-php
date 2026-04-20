@@ -2,6 +2,21 @@
 
 Database migrations, RLS policies, roles.
 
+## [ADR-1002 Sprint 4.1] — 2026-04-20
+
+**ADR:** ADR-1002 — DPDP §6 runtime enforcement
+**Sprint:** Sprint 4.1 — Deletion API RPCs
+
+### Added
+- `20260801000003_rpc_deletion.sql`:
+  - `public.rpc_deletion_trigger(org, property, identifier, identifier_type, reason, purpose_codes[], scope_override[], actor_type, actor_ref) returns jsonb` — SECURITY DEFINER. Modes: `consent_revoked` (requires purpose_codes) sweeps active artefacts matching (property, identifier, purpose_codes); `erasure_request` sweeps ALL active artefacts for (property, identifier); `retention_expired` raises `retention_mode_not_yet_implemented`. Inserts `artefact_revocations` rows; the ADR-0022 cascade + process-artefact-revocation Edge Function fan out asynchronously to deletion_receipts. Returns `{ reason, revoked_artefact_ids, revoked_count, initial_status, note }`.
+  - `public.rpc_deletion_receipts_list(org, status, connector_id, artefact_id, issued_after, issued_before, cursor, limit) returns jsonb` — SECURITY DEFINER. Keyset cursor pagination on (created_at, id). Filter by `artefact_id` joins through `artefact_revocations.id → deletion_receipts.trigger_id`. Raises `bad_cursor` (22023).
+  - Grants: both RPCs to `service_role` only.
+
+### Tested
+- [x] 14/14 PASS — `tests/integration/deletion-api.test.ts`: consent_revoked partial purpose sweep; erasure_request full sweep; re-trigger with no actives → 0 revoked; purpose_codes requirement for consent_revoked; retention_expired → 501; unknown reason; cross-org property; unknown identifier_type; receipts filter by artefact_id / status / connector_id; bad cursor; cross-org isolation; ancient-window empty.
+- [x] 111/111 full integration + DEPA suite — no regressions.
+
 ## [ADR-1002 Sprint 3.2] — 2026-04-20
 
 **ADR:** ADR-1002 — DPDP §6 runtime enforcement
