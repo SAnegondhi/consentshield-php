@@ -69,6 +69,7 @@ All Architecture Decision Records for ConsentShield, in chronological order.
 | ADR-1006 | v2 Whitepaper Phase 6 — Developer experience (Node/Python/Java/Go client libraries + OpenAPI + CI drift check) | Proposed | 2026-04-19 | 4 | 7 |
 | ADR-1007 | v2 Whitepaper Phase 7 — Connector ecosystem expansion (CleverTap, Razorpay, WebEngage/MoEngage, Intercom/Freshdesk, Shopify/WooCommerce, Segment) + WordPress + Shopify plugins | Proposed | 2026-04-19 | 3 | 9 |
 | ADR-1008 | v2 Whitepaper Phase 8 — Scale + audit polish + P3 hardening (load tests, verify SLO, audit CSV, tracker corpus, multi-channel re-consent, HMAC rotation, SOC 2, React Native, WYSIWYG decision) | Proposed | 2026-04-19 | 3 | 10 |
+| ADR-0501 | ConsentShield marketing site (`marketing/`) — Bun workspace sibling; scaffold → content → downloads (PDF/DOCX/MD) → security hardening | In Progress | 2026-04-21 | 4 | 4+ |
 
 <!--
 When adding a new ADR:
@@ -76,10 +77,12 @@ When adding a new ADR:
 2. Add a row to this table
 3. Keep status updated as work progresses
 
-ADR-0019 is the DEPA roadmap charter (authored 2026-04-17, Proposed).
-ADR-0020..0025 execute the charter: schema skeleton, process-consent-event,
-process-artefact-revocation, expiry pipeline, purpose-definition admin UI,
-DEPA score. Pending.
-ADR-0026..0036 are reserved for the admin platform roadmap (monorepo,
-admin schema, then per-panel admin ADRs).
+ADR number ranges (kept non-overlapping so parallel tracks don't collide):
+- 0001..0019 — Phase 1 customer app + DEPA roadmap charter
+- 0020..0025 — DEPA execution
+- 0026..0049 — admin platform (monorepo, schema, per-panel admin ADRs)
+- 0050..0057 — admin-billing + admin-extensibility (issuers, invoices, GST,
+  disputes, account-scoped impersonation, account-scoped feature flags)
+- 0501+       — marketing site (consentshield.in)
+- 1001+       — v2 whitepaper (public API + connector ecosystem)
 -->

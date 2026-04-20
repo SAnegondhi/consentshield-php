@@ -1,0 +1,7 @@
+@import "tailwindcss";
+
+@theme {
+  /* Brand tokens — filled in when the user-provided HTML lands (ADR-0501 Phase 2). */
+  --font-sans: var(--font-dm-sans), system-ui, sans-serif;
+  --font-mono: var(--font-dm-mono), ui-monospace, monospace;
+}
