@@ -33,6 +33,11 @@ export interface DisputeRow {
   resolved_reason: string | null
   opened_at: string
   updated_at: string
+  // ADR-0052 contest fields
+  contest_summary: string | null
+  contest_packet_r2_key: string | null
+  contest_packet_prepared_at: string | null
+  contest_razorpay_response: Record<string, unknown> | null
 }
 
 export async function listDisputes(): Promise<
@@ -46,7 +51,8 @@ export async function listDisputes(): Promise<
        invoice_id, status, amount_paise, currency, reason_code, phase,
        deadline_at, evidence_bundle_r2_key, evidence_assembled_at,
        submitted_at, resolved_at, resolved_reason, opened_at, updated_at,
-       accounts(name)`,
+       contest_summary, contest_packet_r2_key, contest_packet_prepared_at,
+       contest_razorpay_response, accounts(name)`,
     )
     .order('opened_at', { ascending: false })
 
@@ -84,7 +90,8 @@ export async function getDisputeDetail(disputeId: string): Promise<
        invoice_id, status, amount_paise, currency, reason_code, phase,
        deadline_at, evidence_bundle_r2_key, evidence_assembled_at,
        submitted_at, resolved_at, resolved_reason, opened_at, updated_at,
-       accounts(name)`,
+       contest_summary, contest_packet_r2_key, contest_packet_prepared_at,
+       contest_razorpay_response, accounts(name)`,
     )
     .eq('id', disputeId)
     .single()
@@ -238,6 +245,41 @@ export async function assembleEvidenceBundle(
     presignedUrl: upload.presignedUrl,
     sha256: upload.sha256,
   }
+}
+
+// ADR-0052 Sprint 1.1 — contest preparation + manual submit tracking.
+// Sprint 1.2 will add actual Razorpay API integration via the existing
+// `admin/src/lib/razorpay/client.ts` module.
+export async function prepareContestPacket(
+  disputeId: string,
+  summary: string,
+  packetR2Key: string | null = null,
+): Promise<{ ok: true } | { error: string }> {
+  const supabase = await createServerClient()
+  const { error } = await supabase
+    .schema('admin')
+    .rpc('billing_dispute_prepare_contest', {
+      p_dispute_id: disputeId,
+      p_summary: summary,
+      p_packet_r2_key: packetR2Key,
+    })
+  if (error) return { error: error.message }
+  return { ok: true }
+}
+
+export async function markContestSubmitted(
+  disputeId: string,
+  response: Record<string, unknown> | null = null,
+): Promise<{ ok: true } | { error: string }> {
+  const supabase = await createServerClient()
+  const { error } = await supabase
+    .schema('admin')
+    .rpc('billing_dispute_mark_contest_submitted', {
+      p_dispute_id: disputeId,
+      p_response: response,
+    })
+  if (error) return { error: error.message }
+  return { ok: true }
 }
 
 export async function markDisputeState(

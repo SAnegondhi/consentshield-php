@@ -831,3 +831,14 @@ Combined: 42 (app) + 135 (rls/admin/depa) + 1 (admin smoke) = **178/178**.
 
 ### Changed
 - `admin/src/app/(operator)/billing/disputes/actions.ts` — `getDisputeDetail` returns `ledger: LedgerEventRow[]`; `assembleEvidenceBundle` now reuses that ledger instead of re-fetching.
+
+## [ADR-0052 Sprint 1.1] — 2026-04-20
+
+**ADR:** ADR-0052 — Razorpay dispute contest submission
+
+### Added
+- `admin/src/app/(operator)/billing/disputes/[disputeId]/dispute-actions.tsx` — Razorpay contest section: prepare-packet flow (summary textarea, disabled until evidence bundle assembled) → review saved summary → "Mark submitted to Razorpay" (manual). Re-edit supported before submission.
+
+### Changed
+- `admin/src/app/(operator)/billing/disputes/actions.ts` — added `prepareContestPacket` + `markContestSubmitted` server actions; `DisputeRow` extended with contest fields; `listDisputes` + `getDisputeDetail` select them.
+- Dispute detail page passes the new contest props to `DisputeActions`.

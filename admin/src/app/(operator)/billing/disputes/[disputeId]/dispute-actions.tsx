@@ -1,12 +1,20 @@
 'use client'
 
 import { useState, useTransition } from 'react'
-import { assembleEvidenceBundle, markDisputeState } from '../actions'
+import {
+  assembleEvidenceBundle,
+  markDisputeState,
+  prepareContestPacket,
+  markContestSubmitted,
+} from '../actions'
 
 interface Props {
   disputeId: string
   currentStatus: string
   hasEvidence: boolean
+  contestSummary: string | null
+  contestPacketPreparedAt: string | null
+  contestSubmittedAt: string | null
 }
 
 const STATE_OPTIONS = [
@@ -16,7 +24,14 @@ const STATE_OPTIONS = [
   { value: 'closed', label: 'Mark Closed' },
 ]
 
-export function DisputeActions({ disputeId, currentStatus, hasEvidence }: Props) {
+export function DisputeActions({
+  disputeId,
+  currentStatus,
+  hasEvidence,
+  contestSummary,
+  contestPacketPreparedAt,
+  contestSubmittedAt,
+}: Props) {
   const [isPending, startTransition] = useTransition()
   const [assembleResult, setAssembleResult] = useState<{
     presignedUrl?: string
@@ -27,7 +42,15 @@ export function DisputeActions({ disputeId, currentStatus, hasEvidence }: Props)
   const [reason, setReason] = useState('')
   const [newStatus, setNewStatus] = useState(STATE_OPTIONS[0].value)
 
+  // Contest state
+  const [showContestForm, setShowContestForm] = useState(false)
+  const [summaryDraft, setSummaryDraft] = useState(contestSummary ?? '')
+  const [contestError, setContestError] = useState<string | null>(null)
+  const [contestSaved, setContestSaved] = useState(false)
+
   const isResolved = ['won', 'lost', 'closed'].includes(currentStatus)
+  const packetPrepared = !!contestPacketPreparedAt
+  const submittedToRazorpay = !!contestSubmittedAt
 
   function handleAssemble() {
     setAssembleResult(null)
@@ -47,6 +70,37 @@ export function DisputeActions({ disputeId, currentStatus, hasEvidence }: Props)
       const result = await markDisputeState(disputeId, newStatus, reason)
       if ('error' in result) {
         setStateError(result.error)
+      } else {
+        window.location.reload()
+      }
+    })
+  }
+
+  function handlePrepareContest() {
+    setContestError(null)
+    setContestSaved(false)
+    if (summaryDraft.trim().length < 20) {
+      setContestError('Contest summary must be at least 20 characters.')
+      return
+    }
+    startTransition(async () => {
+      const result = await prepareContestPacket(disputeId, summaryDraft.trim())
+      if ('error' in result) {
+        setContestError(result.error)
+      } else {
+        setContestSaved(true)
+        setShowContestForm(false)
+        window.location.reload()
+      }
+    })
+  }
+
+  function handleMarkSubmitted() {
+    setContestError(null)
+    startTransition(async () => {
+      const result = await markContestSubmitted(disputeId, null)
+      if ('error' in result) {
+        setContestError(result.error)
       } else {
         window.location.reload()
       }
@@ -87,6 +141,95 @@ export function DisputeActions({ disputeId, currentStatus, hasEvidence }: Props)
           </div>
         )}
       </div>
+
+      {/* Contest preparation + submit (ADR-0052 Sprint 1.1) */}
+      {!isResolved && (
+        <div className="space-y-2 border-t pt-4">
+          <label className="block text-sm font-medium text-gray-700">Razorpay contest</label>
+
+          {packetPrepared && !showContestForm && (
+            <div className="rounded border bg-amber-50 border-amber-200 px-3 py-2 text-xs space-y-1">
+              <div className="font-medium text-amber-800">
+                Contest packet prepared{' '}
+                {new Date(contestPacketPreparedAt!).toLocaleString('en-IN')}
+              </div>
+              {contestSummary && (
+                <div className="text-amber-900 whitespace-pre-line">{contestSummary}</div>
+              )}
+              {submittedToRazorpay ? (
+                <div className="pt-1 text-green-700">
+                  ✓ Marked submitted {new Date(contestSubmittedAt!).toLocaleString('en-IN')}
+                </div>
+              ) : (
+                <button
+                  onClick={handleMarkSubmitted}
+                  disabled={isPending}
+                  className="mt-2 px-3 py-1 text-xs rounded bg-amber-600 text-white hover:bg-amber-700 disabled:opacity-50"
+                >
+                  {isPending ? 'Saving…' : 'Mark submitted to Razorpay'}
+                </button>
+              )}
+            </div>
+          )}
+
+          {!showContestForm && !packetPrepared && (
+            <button
+              onClick={() => setShowContestForm(true)}
+              disabled={!hasEvidence || isPending}
+              className="px-3 py-1.5 text-sm rounded-md bg-purple-600 text-white hover:bg-purple-700 disabled:opacity-50"
+              title={!hasEvidence ? 'Assemble evidence bundle first' : undefined}
+            >
+              Prepare contest packet
+            </button>
+          )}
+
+          {!showContestForm && packetPrepared && !submittedToRazorpay && (
+            <button
+              onClick={() => setShowContestForm(true)}
+              disabled={isPending}
+              className="px-3 py-1 text-xs rounded border border-gray-200 bg-white hover:bg-gray-50 disabled:opacity-50"
+            >
+              Re-edit summary
+            </button>
+          )}
+
+          {showContestForm && (
+            <div className="space-y-2">
+              <textarea
+                value={summaryDraft}
+                onChange={(e) => setSummaryDraft(e.target.value)}
+                placeholder="Contest summary — at least 20 chars. Reference bundle exhibits (subscription event, invoice email receipt, etc.). Rule 3: no customer PII in the summary."
+                rows={4}
+                className="w-full text-sm border rounded px-3 py-2 resize-y"
+              />
+              {contestError && <p className="text-sm text-red-600">{contestError}</p>}
+              <div className="flex gap-2">
+                <button
+                  onClick={handlePrepareContest}
+                  disabled={isPending}
+                  className="px-3 py-1.5 text-sm rounded bg-purple-600 text-white hover:bg-purple-700 disabled:opacity-50"
+                >
+                  {isPending ? 'Saving…' : 'Save contest packet'}
+                </button>
+                <button
+                  onClick={() => {
+                    setShowContestForm(false)
+                    setSummaryDraft(contestSummary ?? '')
+                    setContestError(null)
+                  }}
+                  disabled={isPending}
+                  className="px-3 py-1.5 text-sm rounded border hover:bg-gray-50 disabled:opacity-50"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          )}
+          {contestSaved && (
+            <p className="text-xs text-green-700">Contest packet saved.</p>
+          )}
+        </div>
+      )}
 
       {/* State transition */}
       {!isResolved && (

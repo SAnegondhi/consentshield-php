@@ -1265,3 +1265,13 @@ Closes four blocking findings from the 2026-04-14 review.
 
 ### Tested
 - [x] `tests/billing/evidence-ledger-sprint12.test.ts` — 4/4 PASS (customer_signup, rights_request_filed, banner_published on transition, no-fire on unrelated banner update)
+
+## [ADR-0052 Sprint 1.1] — 2026-04-20
+
+**ADR:** ADR-0052 — Razorpay dispute contest submission
+
+### Added
+- `20260715000001_dispute_contest_fields.sql` — 4 new columns on `public.disputes` (`contest_summary`, `contest_packet_r2_key`, `contest_packet_prepared_at`, `contest_razorpay_response`); `admin.billing_dispute_prepare_contest` + `admin.billing_dispute_mark_contest_submitted` SECURITY DEFINER RPCs (platform_operator+).
+
+### Tested
+- [x] `tests/billing/dispute-contest.test.ts` — 9/9 PASS (no-bundle refusal, resolved-status refusal, summary length guard, support denied on both, packet-required for submit, manual vs auto response recording)

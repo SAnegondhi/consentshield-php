@@ -117,6 +117,9 @@ export default async function DisputeDetailPage({
         disputeId={dispute.id}
         currentStatus={dispute.status}
         hasEvidence={!!dispute.evidence_bundle_r2_key}
+        contestSummary={dispute.contest_summary}
+        contestPacketPreparedAt={dispute.contest_packet_prepared_at}
+        contestSubmittedAt={dispute.submitted_at}
       />
 
       {/* Webhook event timeline */}
