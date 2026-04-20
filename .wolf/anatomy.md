@@ -1,6 +1,6 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-04-20T01:25:59.400Z
+> Auto-maintained by OpenWolf. Last scanned: 2026-04-20T01:35:39.847Z
 > Files: 765 tracked | Anatomy hits: 0 | Misses: 0
 
 ## ../../../../../tmp/
@@ -871,7 +871,7 @@
 - `ARCHITECTURE-ALIGNMENT-2026-04-16.md` — Screen Designs — Architecture Alignment (~5513 tok)
 - `consentshield-mobile.html` — iOS wireframes spec, 3 flows (rights monitor, breach trigger, clinic ABDM Month 6+). M1/M2/M3 drift items deferred to ABDM/mobile/BFSI ADRs. (~17068 tok)
 - `consentshield-next-steps.md` — Strategic decisions log April 2026 + 2026-04-16 addendum noting DEPA architecture has moved on. (~2784 tok)
-- `consentshield-screens.html` — ConsentShield — Screen Designs & UX Flows (~30282 tok)
+- `consentshield-screens.html` — ConsentShield — Screen Designs & UX Flows (~35515 tok)
 - `consentshield-site.html` — ConsentShield — India's DEPA-native DPDP compliance platform (~55978 tok)
 
 ## docs/ops/

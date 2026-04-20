@@ -250,3 +250,24 @@ For every DEPA ADR sprint:
 4. Once the code matches the wireframe, tick the "Code shipped" column in §4 with the commit hash.
 
 When the architecture changes (any future amendment to the source-of-truth docs), add a new section §8, §9, etc. with the date, the architecture diff summary, and the screen drift table. Do not delete §3; old drift items become historical record.
+
+## 8. ADR-1001 Sprint 2.3 — API keys panel (2026-04-20)
+
+**Architecture diff:** ADR-1001 Sprint 2.2 delivered the Bearer middleware for `/api/v1/*`. Sprint 2.3 adds the dashboard UI surface through which customers issue, rotate, and revoke their `cs_live_*` keys.
+
+**Wireframe changes in this pass (`consentshield-screens.html`):**
+
+| Item | Change |
+|------|--------|
+| Settings nav | Added "API keys" item between "Team members" and "Integrations" |
+| Settings panel content | Added `#api-keys-section` with full key list table (active, dual-window, revoked states) |
+| Empty state | Zero-key CTA pointing to "+ New key" button |
+| Create modal | `#key-create-modal` — name field, scope multiselect (all 13 allowed scopes as checkboxes), rate_tier read-only from plan |
+| Plaintext reveal modal | `#key-reveal-modal` — monospace key display, copy button, amber warning, "I have saved this key" checkbox gates the Dismiss button |
+| Rotate confirm modal | `#key-rotate-modal` — explains 24h dual-window before confirming |
+| Revoke confirm modal | `#key-revoke-modal` — red warning, immediate + irreversible |
+| Dual-window notice | In-row amber chip showing "Previous key valid until [date]" + "Revoke old key now" link |
+| CSS additions | `.key-table`, `.key-prefix`, `.key-plaintext-box`, `.key-modal-overlay`, `.key-modal`, `.key-scope-grid`, `.key-scope-chip`, `.dual-window-notice` |
+| JS additions | `showKeyCreateModal`, `hideKeyCreateModal`, `showKeyRevealModal`, `hideKeyRevealModal`, `showRotateConfirm`, `showRevokeConfirm` |
+
+**Reconciliation:** Wireframe is now the spec for Sprint 2.3 code. Tick "Code shipped" in §4 with the commit hash once `/dashboard/settings/api-keys` ships.
