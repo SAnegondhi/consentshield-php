@@ -1,7 +1,7 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-04-20T04:19:51.413Z
-> Files: 785 tracked | Anatomy hits: 0 | Misses: 0
+> Auto-maintained by OpenWolf. Last scanned: 2026-04-20T04:34:42.830Z
+> Files: 798 tracked | Anatomy hits: 0 | Misses: 0
 
 ## ../../../../../tmp/
 
@@ -501,13 +501,39 @@
 
 - `page.tsx` — ArtefactDetailPage (~2896 tok)
 
+## app/src/app/(dashboard)/dashboard/auditors/
+
+- `actions.ts` — Exports RegistrationCategory, createEngagement, completeEngagement, terminateEngagement, updateEngag (~769 tok)
+- `page.tsx` — dynamic — renders table (~2528 tok)
+
+## app/src/app/(dashboard)/dashboard/auditors/[engagementId]/
+
+- `actions-panel.tsx` — EngagementActions (~2681 tok)
+- `page.tsx` — dynamic (~1591 tok)
+
+## app/src/app/(dashboard)/dashboard/auditors/new/
+
+- `form.tsx` — CATEGORIES (~1665 tok)
+- `page.tsx` — dynamic (~389 tok)
+
 ## app/src/app/(dashboard)/dashboard/billing/
 
 - `page.tsx` — BillingPage (~1899 tok)
 
 ## app/src/app/(dashboard)/dashboard/dpia/
 
+- `actions.ts` — Exports createDpia, publishDpia, supersedeDpia (~572 tok)
 - `page.tsx` — dynamic — renders table (~3358 tok)
+
+## app/src/app/(dashboard)/dashboard/dpia/[dpiaId]/
+
+- `detail-actions.tsx` — DpiaDetailActions (~1156 tok)
+- `page.tsx` — dynamic (~2128 tok)
+
+## app/src/app/(dashboard)/dashboard/dpia/new/
+
+- `form.tsx` — NewDpiaForm (~2318 tok)
+- `page.tsx` — dynamic (~376 tok)
 
 ## app/src/app/(dashboard)/dashboard/enforcement/
 
@@ -633,7 +659,7 @@
 
 ## app/src/app/api/orgs/[orgId]/audit-export/
 
-- `route.ts` — ADR-0017 Phase 1: authenticated users in an org can download an (~2755 tok)
+- `route.ts` — ADR-0017 Phase 1: authenticated users in an org can download an (~3306 tok)
 
 ## app/src/app/api/orgs/[orgId]/billing/checkout/
 
@@ -677,7 +703,7 @@
 
 ## app/src/components/
 
-- `dashboard-nav.tsx` — navItems (~739 tok)
+- `dashboard-nav.tsx` — navItems (~773 tok)
 - `otp-boxes.tsx` — OtpBoxes (~345 tok)
 - `suspended-banner.tsx` — ADR-0029 Sprint 4.1 — customer-side suspension banner. (~537 tok)
 
@@ -824,7 +850,7 @@
 - `ADR-0043-customer-app-auth-only.md` — ADR-0043: Customer App is Auth-Only (Drop Public Landing) (~750 tok)
 - `ADR-0044-customer-rbac.md` — ADR-0044: Customer RBAC — 4-Level Hierarchy + 5-Role Model + Invitation-Only Signup (v2) (~5563 tok)
 - `ADR-0045-admin-user-lifecycle.md` — ADR-0045 — Admin user lifecycle (invite + role change) (~3049 tok)
-- `ADR-0046-significant-data-fiduciary.md` — ADR-0046: Significant Data Fiduciary (SDF) Foundation (~3333 tok)
+- `ADR-0046-significant-data-fiduciary.md` — ADR-0046: Significant Data Fiduciary (SDF) Foundation (~4807 tok)
 - `ADR-0047-customer-membership-lifecycle.md` — ADR-0047 — Customer membership lifecycle (role change + remove) + single-account-per-identity invari (~3944 tok)
 - `ADR-0048-admin-accounts-and-observability.md` — ADR-0048: Admin Accounts panel + ADR-0033/34 deviation closeout (~2261 tok)
 - `ADR-0049-security-observability-ingestion.md` — ADR-0049: Security observability ingestion — rate_limit_events + sentry_events (~2365 tok)
@@ -838,7 +864,7 @@
 - `ADR-1006-developer-experience-and-openapi.md` — ADR-1006: Developer Experience — Client Libraries + OpenAPI Spec + CI Drift Check (~2658 tok)
 - `ADR-1007-connector-ecosystem-expansion.md` — ADR-1007: Connector Ecosystem Expansion + Platform Plugins (~2738 tok)
 - `ADR-1008-scale-audit-polish-and-p3-hardening.md` — ADR-1008: Scale + Audit Polish + P3 Hardening (~3065 tok)
-- `ADR-index.md` — ADR Index (~2114 tok)
+- `ADR-index.md` — ADR Index (~2113 tok)
 - `ADR-template.md` — ADR-NNNN: Title (~423 tok)
 - `adr-workflow.md` — ADR Workflow Rules (~557 tok)
 
@@ -855,19 +881,19 @@
 
 ## docs/architecture/
 
-- `consentshield-complete-schema-design.md` — ConsentShield — Complete Schema Design (~34644 tok)
-- `consentshield-definitive-architecture.md` — ConsentShield — Definitive Architecture Reference (~17711 tok)
+- `consentshield-complete-schema-design.md` — ConsentShield — Complete Schema Design (~34777 tok)
+- `consentshield-definitive-architecture.md` — ConsentShield — Definitive Architecture Reference (~18069 tok)
 - `consentshield-testing-strategy.md` — ConsentShield — The Testing Question (~8766 tok)
 - `nextjs-16-reference.md` — Next.js 16 — Project Reference (~1408 tok)
 
 ## docs/changelogs/
 
-- `CHANGELOG-api.md` — Changelog — API (~6363 tok)
+- `CHANGELOG-api.md` — Changelog — API (~6942 tok)
 - `CHANGELOG-dashboard.md` — Changelog — Dashboard (~13819 tok)
 - `CHANGELOG-docs.md` — Changelog — Documentation (~4378 tok)
 - `CHANGELOG-edge-functions.md` — Changelog — Edge Functions (~3003 tok)
 - `CHANGELOG-infra.md` — Changelog — Infrastructure (~3667 tok)
-- `CHANGELOG-schema.md` — Changelog — Schema (~22322 tok)
+- `CHANGELOG-schema.md` — Changelog — Schema (~23804 tok)
 - `CHANGELOG-worker.md` — Changelog — Worker (~1897 tok)
 
 ## docs/design/
@@ -902,7 +928,7 @@
 - `ARCHITECTURE-ALIGNMENT-2026-04-16.md` — Screen Designs — Architecture Alignment (~5513 tok)
 - `consentshield-mobile.html` — iOS wireframes spec, 3 flows (rights monitor, breach trigger, clinic ABDM Month 6+). M1/M2/M3 drift items deferred to ABDM/mobile/BFSI ADRs. (~17068 tok)
 - `consentshield-next-steps.md` — Strategic decisions log April 2026 + 2026-04-16 addendum noting DEPA architecture has moved on. (~2784 tok)
-- `consentshield-screens.html` — ConsentShield — Screen Designs & UX Flows (~40871 tok)
+- `consentshield-screens.html` — ConsentShield — Screen Designs & UX Flows (~42748 tok)
 - `consentshield-site.html` — ConsentShield — India's DEPA-native DPDP compliance platform (~55978 tok)
 
 ## docs/ops/
@@ -1373,6 +1399,7 @@
 - `20260601000001_customer_billing_portal_reads.sql` — Migration: ADR-0054 Sprint 1.1 — Customer billing portal (read path). (~2008 tok)
 - `20260610000002_customer_billing_portal_writes.sql` — Migration: ADR-0054 Sprint 1.2 — Customer billing portal (write path). (~1706 tok)
 - `20260620000001_dpia_records.sql` — Migration: ADR-0046 Phase 2 Sprint 2.1 — DPIA records schema + RPCs. (~2760 tok)
+- `20260620000002_data_auditor_engagements.sql` — Migration: ADR-0046 Phase 3 — Data Auditor Engagements. (~2810 tok)
 
 ## supabase/seed/
 
@@ -1480,6 +1507,7 @@
 ## tests/rls/
 
 - `api-keys.test.ts` — Declares key (~2381 tok)
+- `auditor-engagements.test.ts` — ADR-0046 Phase 3 — Data Auditor Engagements CRUD + lifecycle. (~2033 tok)
 - `depa-isolation.test.ts` — ADR-0020 Sprint 1.1 — DEPA RLS isolation tests. (~3131 tok)
 - `depa-purpose-crud.test.ts` — ADR-0024 Sprint 1.4 — RLS cross-tenant isolation for Purpose Definitions (~1430 tok)
 - `helpers.ts` — Exports getServiceClient, getAnonClient, TestOrg, createTestOrg + 3 more (~1275 tok)

@@ -665,6 +665,12 @@ create table api_request_log (
 --   rpc_api_key_verify(plaintext) → jsonb | null    ← service_role only
 --     Returns { id, account_id, org_id, scopes, rate_tier, name, prefix } or null.
 --     Called by proxy.ts on every /api/v1/* request.
+--   rpc_api_request_log_insert(key_id, org_id, account_id, route, method, status, latency_ms) → void
+--     ← service_role only. Fire-and-forget insert into api_request_log; exceptions swallowed.
+--     Called by route handlers via logApiRequest() helper (ADR-1001 Sprint 2.4).
+--   rpc_api_key_usage(key_id, days=7) → table(day, request_count, p50_ms, p95_ms)
+--     ← authenticated. Checks caller is account_owner/account_viewer for the key's account.
+--     Powers /dashboard/settings/api-keys/[id]/usage (ADR-1001 Sprint 2.4).
 
 -- RLS: account_owner/account_viewer see all account keys; org_admin sees org-scoped keys.
 -- authenticated role has no INSERT/UPDATE/DELETE (flows via SECURITY DEFINER RPCs).

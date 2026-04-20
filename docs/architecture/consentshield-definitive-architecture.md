@@ -763,8 +763,10 @@ Every `/api/v1/*` request (except `/api/v1/deletion-receipts/*`, which uses HMAC
 1. Proxy parses the `Authorization` header. Missing or non-`cs_live_` → 401.
 2. Proxy calls `public.rpc_api_key_verify(p_plaintext)` via a service-role Supabase client. The RPC computes `SHA-256(plaintext)` and matches against `api_keys.key_hash` (active key) or `api_keys.previous_key_hash` (dual-window rotation). Returns a JSONB context object or null.
 3. If null: a secondary query checks whether a row with that hash exists but has `revoked_at IS NOT NULL` → 410 (Gone). Otherwise → 401.
-4. On success: the proxy stamps five request headers — `x-api-key-id`, `x-api-account-id`, `x-api-org-id`, `x-api-scopes` (comma-separated), `x-api-rate-tier` — and calls `NextResponse.next({ request: { headers } })`.
-5. Route handlers read context via `getApiContext()` from `app/src/lib/api/context.ts`. Per-handler scope enforcement uses `assertScope(context, 'read:consent')` which returns a 403 problem+json response if the key lacks the scope.
+4. On success: the proxy checks the rate limit for the key's tier (via the ADR-0010 Upstash-backed `checkRateLimit`, bucket = `api_key:<key_id>`, 1-hour window). Exceeded → 429 with `Retry-After` + `X-RateLimit-Limit` headers.
+5. On success: the proxy stamps six request headers — `x-api-key-id`, `x-api-account-id`, `x-api-org-id`, `x-api-scopes` (comma-separated), `x-api-rate-tier`, `x-cs-t` (epoch ms, for latency tracking) — and calls `NextResponse.next({ request: { headers } })`.
+6. Route handlers read context via `getApiContext()` from `app/src/lib/api/context.ts`. Per-handler scope enforcement uses `assertScope(context, 'read:consent')` which returns a 403 problem+json response if the key lacks the scope.
+7. Each route handler calls `logApiRequest(context, route, method, statusCode, latencyMs)` (fire-and-forget) which inserts a row via `rpc_api_request_log_insert` using the service-role client. Failures are silently swallowed so logging never affects the response.
 
 All error responses are **RFC 7807 problem+json** (`Content-Type: application/problem+json`):
 
@@ -773,7 +775,7 @@ All error responses are **RFC 7807 problem+json** (`Content-Type: application/pr
 | 401 | Missing/malformed/invalid Bearer token |
 | 403 | Key is valid but lacks the required scope |
 | 410 | Key has been revoked |
-| 429 | Rate limit exceeded (Sprint 2.4) |
+| 429 | Rate limit exceeded — per `api_keys.rate_tier` → `public.plans.api_rate_limit_per_hour` |
 
 #### `cs_api` Postgres role
 
@@ -812,9 +814,22 @@ Usage is logged in `public.api_request_log` (day-partitioned, 90-day retention).
 | /api/v1/expiry/upcoming | GET | (DEPA) read:artefacts |
 | /api/v1/purpose-definitions | GET | (DEPA) read:consent |
 
-#### Rate-tier mapping (Sprint 2.4)
+#### Rate-tier mapping (ADR-1001 Sprint 2.4 — shipped)
 
-Rate windows are stored in `public.plans` and enforced per `api_keys.rate_tier`. The ADR-0010 rate limiter integrates at Sprint 2.4. The `x-api-rate-tier` header is already injected by the proxy for handler use.
+Rate windows are defined in `public.plans.api_rate_limit_per_hour` + `api_burst` (migration 20260601000001) and enforced at proxy time per `api_keys.rate_tier`. A static mirror in `app/src/lib/api/rate-limits.ts` avoids a per-request DB query in middleware.
+
+| Tier | Requests / hour | Burst |
+|------|----------------|-------|
+| trial / trial_starter / starter / sandbox | 100 | 20 |
+| growth | 1 000 | 100 |
+| pro | 10 000 | 500 |
+| enterprise | 100 000 | 2 000 |
+
+#### Request audit log
+
+Every `/api/v1/*` route handler records a row in `public.api_request_log` (day-partitioned, 90-day retention via pg_cron) via `rpc_api_request_log_insert` (SECURITY DEFINER, service_role grant). The RPC accepts `(key_id, org_id, account_id, route, method, status, latency_ms)`. Failures are swallowed server-side so logging never breaks a response.
+
+`rpc_api_key_usage(key_id, days=7)` — SECURITY DEFINER, `authenticated` grant — returns `(day, request_count, p50_ms, p95_ms)` for the usage dashboard at `/dashboard/settings/api-keys/[id]/usage`.
 
 ---
 

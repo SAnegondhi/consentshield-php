@@ -6145,6 +6145,70 @@
       "related_bugs": [],
       "occurrences": 1,
       "last_seen": "2026-04-20T04:05:18.381Z"
+    },
+    {
+      "id": "bug-384",
+      "timestamp": "2026-04-20T04:21:30.851Z",
+      "error_message": "CSS fix: href",
+      "file": "app/src/components/dashboard-nav.tsx",
+      "root_cause": "href: '/dashboard/rights', label: 'Rights Requests' → '/dashboard/dpia', label: 'DPIA Records'",
+      "fix": "Changed href: '/dashboard/rights', label: 'Rights Requests' → '/dashboard/dpia', label: 'DPIA Records'",
+      "tags": [
+        "auto-detected",
+        "style-fix",
+        "tsx"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-20T04:21:30.851Z"
+    },
+    {
+      "id": "bug-385",
+      "timestamp": "2026-04-20T04:23:48.644Z",
+      "error_message": "Significant refactor of ",
+      "file": "docs/architecture/consentshield-definitive-architecture.md",
+      "root_cause": "3 lines replaced/restructured",
+      "fix": "Rewrote 11→13 lines (3 removed) | Also: #### Rate-tier mapping (Sprint 2.4); Rate windows are stored in `public.plans` and enfo",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 2,
+      "last_seen": "2026-04-20T04:24:07.693Z"
+    },
+    {
+      "id": "bug-386",
+      "timestamp": "2026-04-20T04:31:07.280Z",
+      "error_message": "CSS fix: href",
+      "file": "app/src/components/dashboard-nav.tsx",
+      "root_cause": "href: '/dashboard/dpia', label: 'DPIA Records' → '/dashboard/auditors', label: 'Auditor Engagements'",
+      "fix": "Changed href: '/dashboard/dpia', label: 'DPIA Records' → '/dashboard/auditors', label: 'Auditor Engagements'",
+      "tags": [
+        "auto-detected",
+        "style-fix",
+        "tsx"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-20T04:31:07.280Z"
+    },
+    {
+      "id": "bug-387",
+      "timestamp": "2026-04-20T04:32:43.000Z",
+      "error_message": "Missing await",
+      "file": "app/src/app/api/orgs/[orgId]/audit-export/route.ts",
+      "root_cause": "Async call without await — returned Promise instead of value",
+      "fix": "Added await to async call",
+      "tags": [
+        "auto-detected",
+        "async-fix",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-20T04:32:43.000Z"
     }
   ]
 }
