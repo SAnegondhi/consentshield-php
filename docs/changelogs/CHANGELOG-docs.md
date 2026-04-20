@@ -283,3 +283,10 @@ Source-of-truth docs now match the ADRs that shipped in the 2026-04-17/18 window
 - `docs/STATUS.md` — Full rewrite to 2026-04-20 snapshot: 50 ADRs completed, both apps inventoried, test suite counts, immediate next steps.
 - `docs/ADRs/ADR-index.md` — ADR-0050 status updated from In Progress → Completed.
 - `docs/ADRs/ADR-0050-admin-account-aware-billing.md` — Sprint 3.1 and 3.2 statuses flipped to complete; search-scope test skip rationale and account_id best-effort note appended.
+
+## [STATUS refresh — late 2026-04-20] — 2026-04-20
+
+**ADR:** various close-outs
+
+### Changed
+- `docs/STATUS.md` — refreshed to reflect ADR-0051 close-out: 53 completed ADRs, latest commit `b9c28e9`, 150 migrations, 199 commits. Evidence ledger + dispute ledger viewer called out in the admin panel inventory. ADR-1002 in progress (Terminal B). Immediate-next list trimmed to ADR-0052 + 0053.
