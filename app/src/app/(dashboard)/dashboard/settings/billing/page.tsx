@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { createServerClient } from '@/lib/supabase/server'
+import { BillingProfileForm } from './profile-form'
 
 export const dynamic = 'force-dynamic'
 
@@ -84,7 +85,6 @@ export default async function BillingSettingsPage() {
 
   const profile = profileRes.data as BillingProfile
   const invoices = (invoicesRes.data ?? []) as InvoiceRow[]
-  const canEdit = profile.role === 'account_owner'
 
   return (
     <main className="p-8 max-w-5xl">
@@ -115,42 +115,8 @@ export default async function BillingSettingsPage() {
         </div>
       </section>
 
-      {/* Billing profile (read-only in Sprint 1.1) */}
-      <section className="mb-6 rounded-lg border border-gray-200 bg-white p-5">
-        <div className="mb-3 flex items-center justify-between">
-          <h2 className="text-sm font-semibold text-gray-700">Billing profile</h2>
-          {canEdit && (
-            <span className="text-xs text-gray-400">Edit coming in Sprint 1.2</span>
-          )}
-        </div>
-        <dl className="grid grid-cols-2 gap-x-6 gap-y-4 text-sm">
-          <div>
-            <dt className="text-xs uppercase tracking-wide text-gray-500">Legal name</dt>
-            <dd className="mt-0.5">{profile.billing_legal_name ?? <span className="text-gray-400 italic">not set</span>}</dd>
-          </div>
-          <div>
-            <dt className="text-xs uppercase tracking-wide text-gray-500">GSTIN</dt>
-            <dd className="mt-0.5 font-mono text-xs">{profile.billing_gstin ?? <span className="font-sans text-gray-400 italic">not registered</span>}</dd>
-          </div>
-          <div>
-            <dt className="text-xs uppercase tracking-wide text-gray-500">Registered state</dt>
-            <dd className="mt-0.5">{profile.billing_state_code ?? <span className="text-gray-400 italic">not set</span>}</dd>
-          </div>
-          <div>
-            <dt className="text-xs uppercase tracking-wide text-gray-500">Billing email</dt>
-            <dd className="mt-0.5">{profile.billing_email ?? <span className="text-gray-400 italic">not set</span>}</dd>
-          </div>
-          <div className="col-span-2">
-            <dt className="text-xs uppercase tracking-wide text-gray-500">Billing address</dt>
-            <dd className="mt-0.5 whitespace-pre-line">{profile.billing_address ?? <span className="text-gray-400 italic">not set</span>}</dd>
-          </div>
-          {profile.billing_profile_updated_at && (
-            <div className="col-span-2 text-xs text-gray-400">
-              Last updated {new Date(profile.billing_profile_updated_at).toLocaleString('en-IN')}
-            </div>
-          )}
-        </dl>
-      </section>
+      {/* Billing profile — editable for account_owner */}
+      <BillingProfileForm profile={profile} />
 
       {/* Invoice history */}
       <section className="rounded-lg border border-gray-200 bg-white p-5">

@@ -2,7 +2,7 @@
 
 (c) 2026 Sudhindra Anegondhi a.d.sudhindra@gmail.com
 
-**Status:** In Progress (Sprint 1.1 shipped 2026-04-20)
+**Status:** Completed — 2026-04-20
 **Date:** 2026-04-20
 **Phases:** 1
 **Sprints:** 2
@@ -131,7 +131,11 @@ Note: the PDF download route lives at `/api/billing/invoices/[invoiceId]/pdf` (n
   - Omitting optional GSTIN (null) succeeds
 - [ ] Manual: log in as account_owner, edit GSTIN to a new valid value, Save, refresh page, confirm persisted. Try invalid GSTIN, confirm error surfaces.
 
-**Status:** `[ ] planned`
+**Status:** `[x] complete — 2026-04-20`
+
+Note: account_viewer role enforcement for the write RPC is guaranteed by the `current_account_role() != 'account_owner'` raise at the top of the function — `account_viewer` + `org_admin` + any other role all raise `access_denied`. Verified by the server-side guard; UI also hides the Edit button for non-owner roles. `tests/billing/customer-billing-profile-update.test.ts` — 8/8 PASS.
+
+A new `public.account_audit_log` table was added for non-membership account events. It complements ADR-0047's `membership_audit_log`. Future account-scoped events (e.g., plan changes initiated by the customer) will extend the `action` CHECK.
 
 ---
 

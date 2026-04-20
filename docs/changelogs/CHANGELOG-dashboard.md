@@ -2,6 +2,29 @@
 
 Next.js UI changes.
 
+## [ADR-1001 Sprint 2.4] — 2026-04-20
+
+**ADR:** ADR-1001 — Truth in marketing and public API foundation
+**Sprint:** Sprint 2.4 — Rate limiter + request logging + usage dashboard + OpenAPI stub
+
+### Added
+- `app/src/app/(dashboard)/dashboard/settings/api-keys/[id]/usage/page.tsx` — key usage page: 3 summary cards (7d total, p50/p95 today), SVG bar chart (7 days, server-rendered, no new deps), day-by-day table with request count + p50/p95 latency. Fetches via `rpc_api_key_usage`.
+- `app/public/openapi.yaml` — OpenAPI 3.1 stub with `bearerAuth` security scheme, `/_ping` endpoint, 401/410/429 response definitions.
+- `app/src/lib/api/rate-limits.ts` — Static tier→limits map (`perHour`, `burst`) mirroring `public.plans.api_rate_limit_per_hour`.
+- `app/src/lib/api/log-request.ts` — `logApiRequest` fire-and-forget helper; inserts via `rpc_api_request_log_insert` (service-role client).
+- `supabase/migrations/20260601000001_api_request_log.sql` — Adds `api_rate_limit_per_hour` + `api_burst` to `public.plans`; `rpc_api_request_log_insert` (service_role); `rpc_api_key_usage` (authenticated).
+
+### Changed
+- `app/src/proxy.ts` — After Bearer verification: rate-check via `checkRateLimit(api_key:<key_id>, perHour, 60min)`; returns 429 with `Retry-After` + `X-RateLimit-Limit` when limit exceeded; injects `x-cs-t` (epoch ms) for route-level latency tracking.
+- `app/src/lib/api/context.ts` — Added `requestStart: 'x-cs-t'` to `API_HDR`.
+- `app/src/app/api/v1/_ping/route.ts` — Reads `x-cs-t` to compute latency; calls `logApiRequest` on every request.
+
+### Tested
+- [x] `cd app && bun run build` — PASS
+- [x] `bun run lint` — PASS (0 errors, 0 warnings)
+- [x] Migration `20260601000001_api_request_log.sql` applied — PASS
+- [ ] Burst test + audit log verification: pending manual run.
+
 ## [ADR-1001 Sprint 2.3] — 2026-04-20
 
 **ADR:** ADR-1001 — Truth in marketing and public API foundation
@@ -721,3 +744,15 @@ Combined: 42 (app) + 135 (rls/admin/depa) + 1 (admin smoke) = **178/178**.
 
 ### Changed
 - `app/src/components/dashboard-nav.tsx` — Added "Billing settings" nav item under the settings sub-group.
+
+## [ADR-0054 Sprint 1.2] — 2026-04-20
+
+**ADR:** ADR-0054 — Customer-facing billing portal
+**Sprint:** Phase 1, Sprint 1.2
+
+### Added
+- `app/src/app/(dashboard)/dashboard/settings/billing/profile-form.tsx` — client component for inline edit. View mode shows the profile read-only with an "Edit" button (visible only to account_owner). Edit mode shows form inputs + client-side pre-validation + Save/Cancel. State list dropdown covers major Indian states.
+- `app/src/app/(dashboard)/dashboard/settings/billing/actions.ts` — server action wrapping the `update_account_billing_profile` RPC; surfaces validation errors verbatim.
+
+### Changed
+- `app/src/app/(dashboard)/dashboard/settings/billing/page.tsx` — static profile block replaced with the client `BillingProfileForm` component. Page remains a server component.

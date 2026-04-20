@@ -1126,3 +1126,16 @@ Closes four blocking findings from the 2026-04-14 review.
 
 ### Tested
 - [x] `tests/billing/customer-invoice-reads.test.ts` — 9/9 PASS (scope isolation, void state, not-found enumeration prevention, billing profile isolation)
+
+## [ADR-0054 Sprint 1.2] — 2026-04-20
+
+**ADR:** ADR-0054 — Customer-facing billing portal
+**Sprint:** Phase 1, Sprint 1.2
+
+### Added
+- `20260610000002_customer_billing_portal_writes.sql`:
+  - `public.account_audit_log` table + RLS policy (account_owner of the account + admin identities can SELECT); cs_orchestrator has INSERT.
+  - `public.update_account_billing_profile(legal_name, gstin, state_code, address, email)` SECURITY DEFINER RPC. Restricted to `account_owner`. Validates legal_name length, GSTIN format, 2-digit Indian state code, address length, email format. Writes before/after JSON to `account_audit_log`.
+
+### Tested
+- [x] `tests/billing/customer-billing-profile-update.test.ts` — 8/8 PASS (happy path + audit row, cross-account isolation, empty GSTIN null-stored, all 5 validation failures)
