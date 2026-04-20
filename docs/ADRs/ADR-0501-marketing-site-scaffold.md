@@ -2,7 +2,7 @@
 
 (c) 2026 Sudhindra Anegondhi a.d.sudhindra@gmail.com
 
-**Status:** In Progress (Sprint 1.1 shipped 2026-04-21; Phases 2–4 deferred per scope)
+**Status:** In Progress (Sprint 1.1 + Sprint 2.1 shipped 2026-04-21; Sprints 2.2–2.5 + Phases 3–4 pending)
 **Date:** 2026-04-21
 **Phases:** 4
 **Sprints:** 4+ (Phase 1 has one sprint; later phases sized once content + formats land)
@@ -80,11 +80,50 @@ Ship a clean, buildable, lintable, indexable empty shell. No real content.
 - `cd marketing && bun run lint` — clean.
 - `cd marketing && bun run dev --port 3002` — not yet run in this sprint; manual smoke scheduled alongside first HTML drop.
 
-### Phase 2 — Content (sprint 2.x — count TBD once HTML lands)
+### Phase 2 — Content
 
-User authors HTML per page; we translate to typed Next.js routes under `src/app/**/page.tsx`. Shared layout chrome (nav, footer) lifts into `src/components/`. The user-provided HTML is the normative spec; drift is recorded in a per-page alignment note under `docs/marketing/design/`.
+User-authored HTML spec: `docs/design/screen designs and ux/marketing-site/consentshield-site-v2.html` (3052 lines, single-file SPA). Content is decomposed into one `src/app/<slug>/page.tsx` per in-doc page; shared layout chrome lifts into `src/components/`. The HTML is the normative spec; drift is recorded in an alignment note (TBD) under `docs/marketing/design/`.
 
-**Status:** `[ ] deferred — awaiting user HTML`
+Sprint breakdown:
+
+#### Sprint 2.1 — Foundations (shipped 2026-04-21)
+
+**Deliverables:**
+
+- [x] Copy `ConsentShield-Architecture-Brief.pdf` + `.docx` + `.md` into `marketing/public/downloads/` (MD renamed for consistent stem across formats).
+- [x] Mirror admin brand kit (12 SVGs) into `marketing/public/brand/`; `favicon.ico` + `icon.svg` mirrored to `marketing/src/app/` so Next.js App Router auto-serves them.
+- [x] `marketing/src/app/globals.css` — full CSS port (~714 lines) from the HTML's `<style>` block. Class names preserved verbatim; `:root` typography aliases point to next/font CSS vars (`--font-dm-sans`, `--font-jetbrains-mono`).
+- [x] `marketing/src/lib/routes.ts` — route enum + nav-link list + download-brief path constants.
+- [x] `marketing/src/components/logo.tsx` — shield SVG + wordmark; light/dark variant.
+- [x] `marketing/src/components/nav.tsx` — sticky, scroll-shadow client component; active-link state via `usePathname()`; replaces the HTML's data-nav click handler.
+- [x] `marketing/src/components/footer.tsx` — 5-column server component with `<Link>` navigation + Architecture Brief download.
+- [x] `marketing/src/app/layout.tsx` — swaps DM_Mono → JetBrains_Mono to match spec; wraps children in `<Nav/>` + `<Footer/>`.
+- [x] `marketing/src/app/page.tsx` — home; hero section only (remaining sections land in 2.2).
+- [x] 8 stub routes: `/product`, `/depa`, `/solutions`, `/pricing`, `/contact`, `/terms`, `/privacy`, `/dpa`. Each renders a hero with per-page metadata + a "Content ships in Sprint 2.x" placeholder. Every nav link now resolves.
+- [x] `cd marketing && bun run build` — 12 static routes + `/icon.svg` + `/robots.txt`. 1.4s cold.
+- [x] `cd marketing && bun run lint` — clean.
+
+**Status:** `[x] complete — 2026-04-21`
+
+#### Sprint 2.2 — Home + Product (pending)
+
+- Home body: contrast, story, depa-moat, timeline, pricing-preview, cta-band.
+- Product page: product-hero + 4 capability-layers + arch-promo card (PDF download) + cta-band.
+
+#### Sprint 2.3 — DEPA + Solutions (pending)
+
+- DEPA: depa-hero (with shield SVG), depa-compare table, cta-band with brief download.
+- Solutions: sol-hero, sol-tabs (client component — SaaS/Edtech/D2C/Healthcare/BFSI), 5 sol-panels.
+
+#### Sprint 2.4 — Pricing + Contact + Legal (pending)
+
+- Pricing: price-hero with monthly/annual toggle (client component), 4-tier price-table, BFSI callout.
+- Contact: contact options grid + contact form (form submission itself deferred to Phase 4 with Turnstile + BotID).
+- Legal: terms, privacy, dpa (dpa includes the digital-execution signing card).
+
+#### Sprint 2.5 — How-it-works demo modal (pending)
+
+- Client-component modal, 7 frames, play/pause/next/prev, esc-to-close, backdrop-click-to-close. Portal into body.
 
 ### Phase 3 — Download pipeline
 

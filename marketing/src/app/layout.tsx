@@ -1,25 +1,28 @@
 import type { Metadata } from 'next'
-import { DM_Sans, DM_Mono } from 'next/font/google'
+import { DM_Sans, JetBrains_Mono } from 'next/font/google'
+import { Nav } from '@/components/nav'
+import { Footer } from '@/components/footer'
 import './globals.css'
 
 const dmSans = DM_Sans({
   variable: '--font-dm-sans',
   subsets: ['latin'],
-  weight: ['300', '400', '500', '600'],
+  weight: ['300', '400', '500', '600', '700'],
   display: 'swap',
 })
 
-const dmMono = DM_Mono({
-  variable: '--font-dm-mono',
+const jetbrainsMono = JetBrains_Mono({
+  variable: '--font-jetbrains-mono',
   subsets: ['latin'],
   weight: ['400', '500'],
   display: 'swap',
 })
 
 export const metadata: Metadata = {
-  title: 'ConsentShield — India\'s DPDP Compliance Enforcement Engine',
+  title:
+    "ConsentShield — India's DPDP compliance enforcement engine",
   description:
-    'ConsentShield turns DPDP Act consent into enforceable, auditable compliance events. Stateless oracle — process, deliver, delete.',
+    'ConsentShield is the DEPA-native compliance engine for India\'s DPDP Act. Collect consent as artefacts, enforce it in real time, prove it with an audit trail the DPB can read.',
   metadataBase: new URL('https://consentshield.in'),
   openGraph: {
     title: 'ConsentShield',
@@ -40,16 +43,25 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${dmSans.variable} ${dmMono.variable} h-full antialiased`}
+      className={`${dmSans.variable} ${jetbrainsMono.variable} h-full`}
     >
       <head>
-        <link rel="preconnect" href="https://api.fontshare.com" crossOrigin="" />
+        <link rel="preconnect" href="https://api.fontshare.com" />
+        <link
+          rel="preconnect"
+          href="https://cdn.fontshare.com"
+          crossOrigin=""
+        />
         <link
           rel="stylesheet"
-          href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700&display=swap"
+          href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700,900&display=swap"
         />
       </head>
-      <body className="min-h-full font-sans">{children}</body>
+      <body>
+        <Nav />
+        {children}
+        <Footer />
+      </body>
     </html>
   )
 }

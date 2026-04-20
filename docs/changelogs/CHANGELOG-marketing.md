@@ -2,6 +2,38 @@
 
 Public marketing site (`marketing/` workspace → `consentshield.in`). New in 2026-04-21.
 
+## [ADR-0501 Sprint 2.1] — 2026-04-21
+
+**ADR:** ADR-0501 — ConsentShield marketing site
+**Sprint:** Phase 2 Sprint 2.1 — Foundations (downloads + chrome + globals + route skeleton)
+
+### Added
+- `marketing/public/downloads/ConsentShield-Architecture-Brief.{pdf,docx,md}` — three-format content package, copied from `docs/design/screen designs and ux/marketing-site/`. MD renamed from `architecture-brief.md` to match the PDF/DOCX stem.
+- `marketing/public/brand/*.svg` (12 files) + `marketing/src/app/favicon.ico` + `marketing/src/app/icon.svg` — mirrored from `admin/public/brand/` and `admin/src/app/` so the two surfaces share the same brand identity.
+- `marketing/src/lib/routes.ts` — route enum, nav-link list, `DOWNLOAD_BRIEF` constants.
+- `marketing/src/components/logo.tsx` — inlined shield + "ConsentShield" wordmark SVG matching HTML spec; `variant="light" | "dark"` for nav vs. footer.
+- `marketing/src/components/nav.tsx` — client component; sticky; scroll-shadow via `window.scrollY`; active-link derived from `usePathname()` (replaces the HTML's data-nav JS).
+- `marketing/src/components/footer.tsx` — 5-column server component; all `data-nav` jumps swapped for `<Link>`; Architecture Brief PDF download link.
+- `marketing/src/app/globals.css` — **full CSS port (~714 lines)** from the HTML spec's `<style>` block. Class names preserved verbatim so HTML ↔ React drift stays grep-able. `:root` typography aliases point to next/font CSS vars.
+- `marketing/src/app/layout.tsx` — DM Sans + JetBrains Mono via `next/font/google`; Satoshi via Fontshare CDN; wraps children in `<Nav/>` + `<Footer/>`.
+- `marketing/src/app/page.tsx` — home route with hero section only.
+- `marketing/src/app/{product,depa,solutions,pricing,contact,terms,privacy,dpa}/page.tsx` — 8 stub routes; each has per-page metadata + a hero + "Content ships in Sprint 2.x" marker. Every nav link now resolves to a real page.
+
+### Changed
+- `marketing/src/app/layout.tsx` — swapped DM_Mono → JetBrains_Mono to match the HTML spec's `--mono` font.
+
+### Removed
+- `marketing/public/downloads/.gitkeep` — replaced by the three real download files.
+
+### Tested
+- [x] `cd marketing && bun run build` — 12 routes static; clean. Turbopack cold build 1.4s.
+- [x] `cd marketing && bun run lint` — 0 errors, 0 warnings.
+
+### Deferred (ADR-0501)
+- Sprints 2.2–2.5: page body ports.
+- Phase 3: PDF/DOCX/MD generation pipeline (content for Architecture Brief is delivered manually for now; per-page downloadable packets come later).
+- Phase 4: security hardening.
+
 ## [ADR-0501 Sprint 1.1] — 2026-04-21
 
 **ADR:** ADR-0501 — ConsentShield marketing site (`marketing/`)
