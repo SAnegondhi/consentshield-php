@@ -1177,3 +1177,10 @@ Closes four blocking findings from the 2026-04-14 review.
 
 ### Tested
 - [x] `tests/rls/auditor-engagements.test.ts` — 11/11 PASS (create happy path, cross-org denied, RLS read isolation, complete lifecycle + end-before-start guard, terminate with reason, reason-required guard, update on active + terminated-frozen guard)
+
+## [ADR-0029 follow-up — support sessions enrichment] — 2026-04-20
+
+**ADR:** ADR-0029 — Admin organisations (customer follow-up)
+
+### Added
+- `20260620000003_enrich_support_sessions.sql` — `public.list_org_support_sessions(status, limit)` SECURITY DEFINER RPC that joins `admin.admin_users.display_name` into the customer-visible session list and computes `duration_seconds` server-side. Replaces direct queries to `public.org_support_sessions` view so customers see the operator's human-readable name instead of a raw UUID.

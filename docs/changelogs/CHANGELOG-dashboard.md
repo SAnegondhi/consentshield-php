@@ -786,3 +786,10 @@ Combined: 42 (app) + 135 (rls/admin/depa) + 1 (admin smoke) = **178/178**.
 
 ### Changed
 - `app/src/components/dashboard-nav.tsx` — "Auditor Engagements" nav entry after DPIA Records.
+
+## [ADR-0029 follow-up — support sessions UX] — 2026-04-20
+
+**ADR:** ADR-0029 — Admin organisations (customer follow-up)
+
+### Changed
+- `app/src/app/(dashboard)/dashboard/support-sessions/page.tsx` — rewritten to call the new `list_org_support_sessions` RPC. Adds operator display name (replaces raw UUID), duration column ("12 min"), status filter chips, KPI strip (total / active-now / completed), action-count hint per session, and a footer note explaining full action logs are available via support request.
