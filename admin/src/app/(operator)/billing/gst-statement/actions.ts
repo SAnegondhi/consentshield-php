@@ -152,3 +152,25 @@ function csvFilename(env: StatementEnvelope): string {
     : env.scope.issuer_id?.slice(0, 8) ?? 'issuer'
   return `gst-statement-${tag}-${env.scope.fy_start}-to-${env.scope.fy_end}.csv`
 }
+
+// ADR-0053 Sprint 1.1 — GSTR-1 JSON export.
+export async function generateGstr1Json(input: {
+  issuerId: string
+  periodMmyyyy: string
+}): Promise<{ json: string; filename: string } | { error: string }> {
+  const supabase = await createServerClient()
+  const { data, error } = await supabase
+    .schema('admin')
+    .rpc('billing_gstr1_json', {
+      p_issuer_id: input.issuerId,
+      p_period_mmyyyy: input.periodMmyyyy,
+    })
+
+  if (error) return { error: error.message }
+  if (!data) return { error: 'empty response' }
+
+  const envelope = data as { gstin: string; fp: string }
+  const json = JSON.stringify(data, null, 2)
+  const filename = `gstr1-${envelope.gstin}-${envelope.fp}.json`
+  return { json, filename }
+}

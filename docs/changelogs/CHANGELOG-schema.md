@@ -1307,3 +1307,15 @@ Closes four blocking findings from the 2026-04-14 review.
 
 ### Tested
 - [x] `tests/billing/dispute-contest.test.ts` — 9/9 PASS (no-bundle refusal, resolved-status refusal, summary length guard, support denied on both, packet-required for submit, manual vs auto response recording)
+
+## [ADR-0053 Sprint 1.1] — 2026-04-20
+
+**ADR:** ADR-0053 — GSTR-1 JSON export
+
+### Added
+- `20260722000001_billing_gstr1_json.sql` — `admin.billing_gstr1_json(p_issuer_id, p_period_mmyyyy)` SECURITY DEFINER RPC. GSTN Offline-Utility v3.2 envelope: gstin / fp / version / b2b / b2cl / b2cs / hsn / doc_issue + empty cdnr/cdnur/exp/nil. Scope: operator → active issuer only; owner → any issuer. Audit-logged every call.
+- `20260722000002_fix_gstr1_nested_agg.sql` — two-step CTE for B2B + B2CL (Postgres nested-aggregate fix).
+- `20260722000003_fix_gstr1_b2cs_agg.sql` — two-step CTE for B2CS.
+
+### Tested
+- [x] `tests/billing/gstr1-json.test.ts` — 11/11 PASS (shape, B2B/B2CL/B2CS classification, HSN aggregation, void exclusion, doc_issue range, operator/owner scope, invalid period, support denied)

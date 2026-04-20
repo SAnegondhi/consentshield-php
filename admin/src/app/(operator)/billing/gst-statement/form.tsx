@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from 'react'
 
-import { generateGstStatement } from './actions'
+import { generateGstStatement, generateGstr1Json } from './actions'
 
 interface IssuerOption {
   id: string
@@ -47,6 +47,11 @@ export function GstStatementForm({
   const [error, setError] = useState<string | null>(null)
   const [pending, startTransition] = useTransition()
 
+  // ADR-0053 — GSTR-1 JSON export. Defaults to previous month.
+  const [gstr1Period, setGstr1Period] = useState(previousMonthMmyyyy())
+  const [gstr1Error, setGstr1Error] = useState<string | null>(null)
+  const [gstr1Pending, startGstr1Transition] = useTransition()
+
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
     setError(null)
@@ -78,6 +83,30 @@ export function GstStatementForm({
     a.click()
     a.remove()
     URL.revokeObjectURL(url)
+  }
+
+  function onGstr1Download() {
+    setGstr1Error(null)
+    if (!issuerId) {
+      setGstr1Error('Select an issuer before downloading GSTR-1 JSON.')
+      return
+    }
+    startGstr1Transition(async () => {
+      const res = await generateGstr1Json({ issuerId, periodMmyyyy: gstr1Period })
+      if ('error' in res) {
+        setGstr1Error(res.error)
+        return
+      }
+      const blob = new Blob([res.json], { type: 'application/json' })
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = res.filename
+      document.body.appendChild(a)
+      a.click()
+      a.remove()
+      URL.revokeObjectURL(url)
+    })
   }
 
   return (
@@ -167,8 +196,57 @@ export function GstStatementForm({
           </div>
         </div>
       ) : null}
+
+      {/* ADR-0053 Sprint 1.1 — GSTR-1 JSON export */}
+      <div className="border-t border-[color:var(--border)] px-4 py-4">
+        <h3 className="text-sm font-semibold">GSTR-1 JSON (monthly filing)</h3>
+        <p className="mt-1 text-xs text-text-3">
+          Downloads a GSTN-Offline-Utility-compatible JSON for the selected issuer + month.
+          Upload to the Offline Utility for validation, then to the GSTN portal.
+        </p>
+        <div className="mt-3 flex flex-wrap items-end gap-3">
+          <label className="flex flex-col text-[11px] text-text-3">
+            <span className="mb-1">Period (MMYYYY)</span>
+            <input
+              type="text"
+              value={gstr1Period}
+              onChange={(e) => setGstr1Period(e.target.value)}
+              placeholder="042026"
+              pattern="^(0[1-9]|1[0-2])[0-9]{4}$"
+              maxLength={6}
+              className="w-28 rounded border border-[color:var(--border-mid)] bg-white px-2 py-1 font-mono text-sm"
+            />
+          </label>
+          <button
+            type="button"
+            onClick={onGstr1Download}
+            disabled={gstr1Pending || !issuerId}
+            className="rounded border border-[color:var(--border)] bg-white px-3 py-1.5 text-xs font-medium text-text-1 hover:bg-bg disabled:opacity-50"
+          >
+            {gstr1Pending ? 'Generating…' : 'Download GSTR-1 JSON ↓'}
+          </button>
+        </div>
+        {!issuerId ? (
+          <p className="mt-2 text-[11px] text-text-3">
+            Select a specific issuer above (not &quot;All issuers&quot;) to enable GSTR-1 export.
+          </p>
+        ) : null}
+        {gstr1Error ? (
+          <p className="mt-2 rounded border border-red-200 bg-red-50 p-2 text-xs text-red-800">
+            {gstr1Error}
+          </p>
+        ) : null}
+      </div>
     </section>
   )
+}
+
+function previousMonthMmyyyy(): string {
+  const d = new Date()
+  d.setUTCDate(1)
+  d.setUTCMonth(d.getUTCMonth() - 1)
+  const mm = String(d.getUTCMonth() + 1).padStart(2, '0')
+  return `${mm}${d.getUTCFullYear()}`
 }
 
 function Stat({ label, value }: { label: string; value: number | string }) {

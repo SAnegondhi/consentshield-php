@@ -849,3 +849,13 @@ Combined: 42 (app) + 135 (rls/admin/depa) + 1 (admin smoke) = **178/178**.
 
 ### Added
 - Dispute detail page now surfaces both "Submit to Razorpay" (auto via Documents + Contest APIs) and "Mark submitted manually" (out-of-band fallback) when packet is prepared.
+
+## [ADR-0053 Sprint 1.1] — 2026-04-20
+
+**ADR:** ADR-0053 — GSTR-1 JSON export
+
+### Added
+- `admin/src/app/(operator)/billing/gst-statement/form.tsx` — new "GSTR-1 JSON (monthly filing)" block with MMYYYY period input (defaults to previous month) + download button. Disabled when issuer dropdown is "All issuers" (JSON is per-issuer).
+
+### Changed
+- `admin/src/app/(operator)/billing/gst-statement/actions.ts` — added `generateGstr1Json` server action wrapping `admin.billing_gstr1_json`; produces `gstr1-<gstin>-<MMYYYY>.json` filename.

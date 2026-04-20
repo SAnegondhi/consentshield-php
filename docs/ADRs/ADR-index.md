@@ -56,6 +56,7 @@ All Architecture Decision Records for ConsentShield, in chronological order.
 | ADR-0050 | Admin account-aware billing — issuer entities + invoices + GST + dispute workspace | Completed | 2026-04-20 | 3 | 6 |
 | ADR-0051 | Billing evidence ledger — chargeback-defense capture points (triggers on audit_log / webhook_events / invoices / accounts / rights_requests / banners) | Completed | 2026-04-20 | 1 | 2 |
 | ADR-0052 | Razorpay dispute contest submission — prepare packet + auto-submit via Razorpay Documents + Contest APIs | Completed | 2026-04-20 | 1 | 2 |
+| ADR-0053 | GSTR-1 JSON export (monthly filing) — GSTN Offline-Utility v3.2 shape; b2b / b2cl / b2cs / hsn / doc_issue | Completed | 2026-04-20 | 1 | 1 |
 | ADR-0054 | Customer-facing billing portal (invoice history + billing profile) | Completed | 2026-04-20 | 1 | 2 |
 | ADR-0057 | Customer-facing sectoral template switcher (Settings → Account) | Completed | 2026-04-20 | 1 | 1 |
 | ADR-1001 | v2 Whitepaper Phase 1 — Truth-in-marketing + Public API foundation (`cs_live_*` keys + Bearer middleware) | Completed | 2026-04-19 | 3 | 7 |
