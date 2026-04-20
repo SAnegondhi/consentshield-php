@@ -227,4 +227,26 @@ Phase 2 Sprint 2.2 (customer UI at `/dashboard/dpia`) — shipped below.
 
 **Status:** `[x] complete — 2026-04-20`
 
-Phase 2 complete. Phases 3 (`data_auditor_engagements`) and 4 (DPIA export extension) remain — charter-only.
+Phase 2 complete. Phase 3 shipped 2026-04-20 (below). Phase 4 (DPIA export extension to ADR-0017 audit ZIP) is next.
+
+## Phase 3 — shipped 2026-04-20
+
+**Deliverables:**
+
+- [x] `supabase/migrations/20260620000002_data_auditor_engagements.sql`:
+  - `public.data_auditor_engagements` table — org-scoped, RLS via `effective_org_role()`. Columns: auditor_name, registration_category (enum: ca_firm / sebi_registered / iso_27001_certified_cb / dpdp_empanelled / rbi_empanelled / other), registration_ref (URL, not PAN), scope, engagement_start, engagement_end, attestation_ref (customer-held audit report URL), status (active / completed / terminated), notes, terminated_reason, audit timestamps. Rule 3 respected: category declarations + URL refs only; never actual PAN values or report bytes.
+  - Four SECURITY DEFINER RPCs:
+    - `create_auditor_engagement()` — org_admin / admin effective; creates in active state.
+    - `complete_auditor_engagement(id, end_date, attestation_ref)` — active → completed with end date validation.
+    - `terminate_auditor_engagement(id, end_date, reason)` — active → terminated with mandatory reason.
+    - `update_auditor_engagement(id, scope, notes, attestation_ref)` — edits scope/notes/attestation on active + completed rows (terminated rows frozen).
+- [x] Wireframe: `consentshield-screens.html` — new `<div id="panel-auditors">` with KPI bar, status filter chips, engagements table, and a new-engagement form sketch. Nav entry with SDF badge after DPIA Records.
+- [x] `app/src/app/(dashboard)/dashboard/auditors/page.tsx` — list with KPI cards (active / completed / terminated), status filters, table.
+- [x] `app/src/app/(dashboard)/dashboard/auditors/new/` — create form (page + client component) with full category picker.
+- [x] `app/src/app/(dashboard)/dashboard/auditors/[engagementId]/` — detail page + action panel (3 modes: complete, terminate with reason, update scope/notes/attestation). Role-gated via `effective_org_role`.
+- [x] `app/src/components/dashboard-nav.tsx` — "Auditor Engagements" nav entry after DPIA Records.
+- [x] `tests/rls/auditor-engagements.test.ts` — 11/11 PASS: create happy path, cross-org denied, RLS read isolation, complete lifecycle, end-before-start guard, terminate with reason, reason-required guard, update on active, cannot-update-terminated.
+
+**Status:** `[x] complete — 2026-04-20`
+
+Phase 4 (DPIA export extension — fold DPIA records + auditor engagements into the ADR-0017 audit ZIP) remains.

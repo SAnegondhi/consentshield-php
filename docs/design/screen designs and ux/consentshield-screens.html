@@ -396,6 +396,12 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:14
         DPIA Records
         <span class="nav-badge">SDF</span>
       </div>
+      <!-- ADR-0046 Phase 3 — Data Auditor Engagements. -->
+      <div class="nav-item" onclick="showPanel('auditors')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 11l-3-3m0 0l-3 3m3-3v12"/></svg>
+        Auditor Engagements
+        <span class="nav-badge">SDF</span>
+      </div>
       <div class="nav-item" onclick="showPanel('onboarding')">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
         Onboarding Flow
@@ -1500,6 +1506,130 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:14
           <div style="grid-column:1 / -1;display:flex;gap:8px;justify-content:flex-end;margin-top:8px">
             <button class="btn btn-secondary btn-sm">Save as draft</button>
             <button class="btn btn-primary btn-sm">Publish DPIA</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─────────── ADR-0046 Phase 3 — Auditor Engagements ─────────── -->
+  <!--
+    Route: /dashboard/auditors
+    Visibility: same role model as DPIA (org_admin / account_owner can write;
+                any org member reads). Nav item visible to SDF-flagged orgs.
+    RPCs consumed:
+      public.create_auditor_engagement(...)     (Phase 3)
+      public.complete_auditor_engagement(...)   (Phase 3)
+      public.terminate_auditor_engagement(...)  (Phase 3)
+      public.update_auditor_engagement(...)     (Phase 3)
+    Rule 3: `registration_category` is a category declaration (ca_firm, sebi_registered,
+    etc.) — never the actual PAN / firm-registration number. Attestation ref is a URL to
+    the customer-held audit report, never the bytes.
+  -->
+  <div id="panel-auditors" class="panel">
+    <div class="topbar">
+      <div class="topbar-title">Auditor Engagements <span class="pill pill-navy" style="font-size:10px;margin-left:6px">SDF</span></div>
+      <div class="topbar-actions">
+        <span style="font-size:11px;color:var(--text-3)">1 active · 2 completed</span>
+        <button class="btn btn-primary btn-sm">+ New engagement</button>
+      </div>
+    </div>
+    <div class="content-area">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">Engagements</div>
+          <div style="display:flex;gap:6px;flex-wrap:wrap">
+            <span class="pill pill-green" style="cursor:pointer">Status: Active</span>
+            <span class="pill pill-gray" style="cursor:pointer">Status: Completed</span>
+            <span class="pill pill-red" style="cursor:pointer">Status: Terminated</span>
+          </div>
+        </div>
+        <div style="overflow-x:auto">
+          <table class="inv-table">
+            <thead>
+              <tr>
+                <th>Auditor</th>
+                <th>Registration category</th>
+                <th>Scope</th>
+                <th>Start</th>
+                <th>End</th>
+                <th>Status</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>KPMG India</strong></td>
+                <td><span class="pill pill-gray" style="font-size:10px">ca_firm</span></td>
+                <td style="font-size:12px">Annual DPDP compliance audit for FY 2025-26</td>
+                <td style="font-size:12px">Jan 12, 2026</td>
+                <td style="font-size:12px;color:var(--text-3)">—</td>
+                <td><span class="pill pill-green">Active</span></td>
+                <td style="text-align:right"><button class="btn btn-secondary btn-sm">Manage</button></td>
+              </tr>
+              <tr>
+                <td><strong>Deloitte</strong></td>
+                <td><span class="pill pill-gray" style="font-size:10px">ca_firm</span></td>
+                <td style="font-size:12px">FY 2024-25 independent data audit</td>
+                <td style="font-size:12px">Apr 1, 2025</td>
+                <td style="font-size:12px">Mar 28, 2026</td>
+                <td><span class="pill pill-gray">Completed</span></td>
+                <td style="text-align:right"><button class="btn btn-secondary btn-sm">View</button></td>
+              </tr>
+              <tr style="opacity:.7">
+                <td><strong>Other Firm LLP</strong></td>
+                <td><span class="pill pill-gray" style="font-size:10px">other</span></td>
+                <td style="font-size:12px">Scope misalignment — terminated</td>
+                <td style="font-size:12px">Feb 1, 2026</td>
+                <td style="font-size:12px">Feb 20, 2026</td>
+                <td><span class="pill pill-red">Terminated</span></td>
+                <td style="text-align:right"><button class="btn btn-secondary btn-sm">View</button></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- New engagement form sketch -->
+      <div class="card" style="margin-top:14px">
+        <div class="card-header">
+          <div class="card-title">New engagement (form sketch)</div>
+          <span style="font-size:11px;color:var(--text-3)">Rule 3 reminder — category only, no PAN values</span>
+        </div>
+        <div style="padding:14px;display:grid;grid-template-columns:1fr 1fr;gap:14px">
+          <div>
+            <label style="font-size:12px;font-weight:500;display:block;margin-bottom:4px">Auditor name <span style="color:var(--red)">*</span></label>
+            <input class="config-input" placeholder="e.g. KPMG India" style="width:100%">
+          </div>
+          <div>
+            <label style="font-size:12px;font-weight:500;display:block;margin-bottom:4px">Registration category <span style="color:var(--red)">*</span></label>
+            <select class="config-input" style="width:100%;padding:7px 10px">
+              <option>ca_firm</option>
+              <option>sebi_registered</option>
+              <option>iso_27001_certified_cb</option>
+              <option>dpdp_empanelled</option>
+              <option>rbi_empanelled</option>
+              <option>other</option>
+            </select>
+          </div>
+          <div style="grid-column:1 / -1">
+            <label style="font-size:12px;font-weight:500;display:block;margin-bottom:4px">Scope <span style="color:var(--red)">*</span></label>
+            <textarea class="config-input" rows="2" style="width:100%;resize:vertical" placeholder="What this audit covers (e.g. Annual DPDP compliance for FY 2025-26)"></textarea>
+          </div>
+          <div>
+            <label style="font-size:12px;font-weight:500;display:block;margin-bottom:4px">Registration reference</label>
+            <input class="config-input" placeholder="Public URL e.g. icai.org/member/12345" style="width:100%">
+          </div>
+          <div>
+            <label style="font-size:12px;font-weight:500;display:block;margin-bottom:4px">Start date <span style="color:var(--red)">*</span></label>
+            <input type="date" class="config-input" style="width:100%" value="2026-04-14">
+          </div>
+          <div style="grid-column:1 / -1">
+            <label style="font-size:12px;font-weight:500;display:block;margin-bottom:4px">Attestation reference (on completion)</label>
+            <input class="config-input" placeholder="URL to customer-stored audit report (added later, on complete)" style="width:100%">
+          </div>
+          <div style="grid-column:1 / -1;display:flex;gap:8px;justify-content:flex-end;margin-top:8px">
+            <button class="btn btn-primary btn-sm">Create engagement</button>
           </div>
         </div>
       </div>

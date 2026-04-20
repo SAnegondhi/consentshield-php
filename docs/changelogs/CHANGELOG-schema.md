@@ -2,6 +2,20 @@
 
 Database migrations, RLS policies, roles.
 
+## [ADR-1001 Sprint 2.4] — 2026-04-20
+
+**ADR:** ADR-1001 — Truth-in-marketing + Public API foundation
+**Sprint:** Sprint 2.4 — Rate-tier plan columns + request-log RPCs
+
+### Added
+- `20260601000001_api_request_log.sql`:
+  - `public.plans.api_rate_limit_per_hour int NOT NULL DEFAULT 100` + `api_burst int NOT NULL DEFAULT 20`. Seeded: starter/trial/sandbox=100/20, growth=1000/100, pro=10000/500, enterprise=100000/2000.
+  - `rpc_api_request_log_insert(key_id, org_id, account_id, route, method, status, latency)` — SECURITY DEFINER, `service_role` grant. Inserts into `public.api_request_log`; silently swallows exceptions so logging never breaks a response.
+  - `rpc_api_key_usage(key_id, days=7)` → `(day, request_count, p50_ms, p95_ms)` — SECURITY DEFINER, `authenticated` grant. Checks caller is account_owner or account_viewer before querying.
+
+### Tested
+- [x] `bunx supabase db push` — PASS (migration applied to remote)
+
 ## [ADR-1001 Sprint 2.1] — 2026-04-20
 
 **ADR:** ADR-1001 — Truth-in-marketing + Public API foundation
@@ -1152,3 +1166,14 @@ Closes four blocking findings from the 2026-04-14 review.
 
 ### Tested
 - [x] `tests/rls/dpia-records.test.ts` — 10/10 PASS (create happy path, cross-org create refused, RLS read isolation, publish lifecycle, re-publish guard, supersede with replacement, cross-org replacement refused)
+
+## [ADR-0046 Phase 3] — 2026-04-20
+
+**ADR:** ADR-0046 — Significant Data Fiduciary foundation
+**Sprint:** Phase 3 — Data Auditor Engagements
+
+### Added
+- `20260620000002_data_auditor_engagements.sql` — `public.data_auditor_engagements` table + RLS via `effective_org_role`; 4 SECURITY DEFINER RPCs (create / complete / terminate / update). Registration category is a 6-value enum (ca_firm / sebi_registered / iso_27001_certified_cb / dpdp_empanelled / rbi_empanelled / other); Rule 3 respected — never PAN values or report bytes.
+
+### Tested
+- [x] `tests/rls/auditor-engagements.test.ts` — 11/11 PASS (create happy path, cross-org denied, RLS read isolation, complete lifecycle + end-before-start guard, terminate with reason, reason-required guard, update on active + terminated-frozen guard)

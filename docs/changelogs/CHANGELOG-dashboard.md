@@ -771,3 +771,18 @@ Combined: 42 (app) + 135 (rls/admin/depa) + 1 (admin smoke) = **178/178**.
 
 ### Changed
 - `app/src/components/dashboard-nav.tsx` — "DPIA Records" nav item added after Rights Requests.
+
+## [ADR-0046 Phase 3] — 2026-04-20
+
+**ADR:** ADR-0046 — Significant Data Fiduciary foundation
+**Sprint:** Phase 3 — Auditor engagements customer UI
+
+### Added
+- Wireframe: `consentshield-screens.html` — `<div id="panel-auditors">` + nav entry (SDF badge) after DPIA Records.
+- `app/src/app/(dashboard)/dashboard/auditors/page.tsx` — list w/ KPI strip (active / completed / terminated), status filter chips.
+- `app/src/app/(dashboard)/dashboard/auditors/new/` — create form (page + client form with 6-category picker).
+- `app/src/app/(dashboard)/dashboard/auditors/[engagementId]/` — detail page + action panel with 3 modes (complete / terminate with reason / update scope+notes+attestation). Role-gated via effective_org_role.
+- `app/src/app/(dashboard)/dashboard/auditors/actions.ts` — server actions wrapping the 4 RPCs.
+
+### Changed
+- `app/src/components/dashboard-nav.tsx` — "Auditor Engagements" nav entry after DPIA Records.
