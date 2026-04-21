@@ -2,6 +2,31 @@
 
 Next.js UI changes.
 
+## [ADR-0058 Sprint 1.3] — 2026-04-21
+
+**ADR:** ADR-0058 — Split-flow customer onboarding
+**Sprint:** Sprint 1.3 — Wizard shell + Steps 1–4
+
+### Added
+- `app/src/app/(public)/onboarding/page.tsx` — server component entry; reads `?token=`, calls `invitation_preview`, branches on state: fresh-token → render `<OnboardingWizard mode="fresh">`; authed-user-with-pending-org → render `<OnboardingWizard mode="resume">` at the last-completed step (acceptance criterion: refresh restores progress); no-token unauthed / invalid / expired / already-accepted / already-onboarded each render a distinct recovery shell.
+- `app/src/app/(public)/onboarding/layout.tsx` — top chrome (ConsentShield wordmark + "Onboarding" pill + "Need help?" mail link).
+- `app/src/app/(public)/onboarding/_components/wizard-types.ts` — `InvitePreview`, `ResumeContext`, `Industry` whitelist, `WIZARD_LABELS`.
+- `app/src/app/(public)/onboarding/_components/step-indicator.tsx` — 7-dot progress bar (done/current/upcoming) with `aria-current="step"`.
+- `app/src/app/(public)/onboarding/_components/onboarding-wizard.tsx` — client orchestrator. Holds wizard state; renders the active step component; post-Step-4 shows a `<ComingSoonShell>` that links to `/dashboard` (Sprints 1.4 + 1.5 will populate Steps 5–7).
+- `app/src/app/(public)/onboarding/_components/step-1-welcome.tsx` — `signInWithOtp` (email from `invitation_preview.invited_email`) → OTP → `verifyOtp` → `accept_invitation` → `supabase.auth.refreshSession()`. The refresh is load-bearing: `apply_sectoral_template` in Step 4 reads `current_org_id()` from the JWT claim injected by the `custom_access_token_hook`, and the hook only fires on token issuance.
+- `app/src/app/(public)/onboarding/_components/step-2-company.tsx` — industry select (8 whitelisted values) + read-only org name. Calls `update_org_industry` then `set_onboarding_step(2)`.
+- `app/src/app/(public)/onboarding/_components/step-3-data-inventory.tsx` — 3 yes/no toggles (email / payments / analytics). Calls `seed_quick_data_inventory` then `set_onboarding_step(3)`.
+- `app/src/app/(public)/onboarding/_components/step-4-purposes.tsx` — loads `list_sectoral_templates_for_sector(industry)` on mount; card grid with per-row "Use this template" CTA; "Skip for now" fallback. Calls `apply_sectoral_template` then `set_onboarding_step(4)`.
+- `app/src/app/(public)/onboarding/actions.ts` — server-action wrappers over the 5 RPCs (`set_onboarding_step`, `update_org_industry`, `seed_quick_data_inventory`, `apply_sectoral_template`, `list_sectoral_templates_for_sector`). Tagged-union `{ok, data | error}` results.
+
+### Changed
+- `app/src/proxy.ts` — matcher extended with `/onboarding` + `/onboarding/:path*`. Rule 12 enforcement (admin-identity 403 redirect to admin origin) now covers the onboarding surface.
+
+### Tested
+- [x] `cd app && bun run build` — PASS; 48 routes; `/onboarding` dynamic route present.
+- [x] `cd app && bun run lint` — 0 errors, 0 warnings.
+- [ ] Manual dev-server click-through — deferred to Sprint 1.5 polish, where operator-intake lands and both flows can be validated in one pass.
+
 ## [ADR-0056 Sprint 1.2] — 2026-04-21
 
 **ADR:** ADR-0056 — Per-account feature-flag targeting

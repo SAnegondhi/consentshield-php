@@ -2,6 +2,20 @@
 
 API route changes.
 
+## [ADR-0058 Sprint 1.3] — 2026-04-21
+
+**ADR:** ADR-0058 — Split-flow customer onboarding
+**Sprint:** Sprint 1.3 — Wizard shell + Steps 1–4
+
+### Added
+- `app/src/app/(public)/onboarding/actions.ts` — server actions `setOnboardingStep`, `updateIndustry`, `seedDataInventory`, `applyTemplate`, `listTemplatesForSector`. Thin wrappers over the existing RPCs; tagged-union result shape for client island consumption.
+
+### Changed
+- `app/src/proxy.ts` — matcher extended with `/onboarding` + `/onboarding/:path*` so the Rule 12 admin-identity gate covers the onboarding surface.
+
+### Tested
+- [x] Build + lint clean (see CHANGELOG-dashboard.md [ADR-0058 Sprint 1.3]).
+
 ## [ADR-0058 Sprint 1.2] — 2026-04-21
 
 **ADR:** ADR-0058 — Split-flow customer onboarding

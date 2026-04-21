@@ -150,5 +150,12 @@ function escapeHtml(s: string): string {
 }
 
 export const config = {
-  matcher: ['/dashboard/:path*', '/login', '/signup', '/api/v1/:path*'],
+  matcher: [
+    '/dashboard/:path*',
+    '/login',
+    '/signup',
+    '/onboarding',
+    '/onboarding/:path*',
+    '/api/v1/:path*',
+  ],
 }

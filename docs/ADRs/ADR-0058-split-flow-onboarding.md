@@ -2,7 +2,7 @@
 
 (c) 2026 Sudhindra Anegondhi a.d.sudhindra@gmail.com
 
-**Status:** In Progress (Sprints 1.1 + 1.2 shipped 2026-04-21; 1.3–1.5 pending)
+**Status:** In Progress (Sprints 1.1 + 1.2 + 1.3 completed 2026-04-21; 1.4–1.5 pending)
 **Date:** 2026-04-21
 **Phases:** 1
 **Sprints:** 5
@@ -77,19 +77,26 @@ Email template + CTA URL branch on `origin`. Everything else stays as-is.
 
 **Deliverables:**
 
-- [~] `supabase/migrations/20260802000001_invitations_origin.sql` — `alter table public.invitations add column origin text not null default 'operator_invite' check (origin in ('operator_invite','operator_intake','marketing_intake'))`. Backfills any existing rows to `'operator_invite'`. Partial index on `(invited_email, origin) where accepted_at is null and revoked_at is null`.
-- [~] `supabase/migrations/20260802000002_create_signup_intake_rpc.sql` — `public.create_signup_intake(p_email, p_plan_code, p_org_name, p_ip)` SECURITY DEFINER, runs as `cs_orchestrator`. Validates plan_code; checks `auth.users` for existing email; **always returns generic `{status:'ok'}`** (no existence leak per Rule 18); refuses `is_admin=true` identities (Rule 12). Inserts an invitation row with `origin='marketing_intake'` for new emails; logs (no insert) for existing emails.
-- [~] `supabase/migrations/20260802000003_create_operator_intake_rpc.sql` — `admin.create_operator_intake(p_email, p_plan_code, p_org_name)` — same shape as above but gated by `admin.require_admin('platform_operator')`; inserts with `origin='operator_intake'`.
-- [~] `supabase/migrations/20260802000004_seed_quick_data_inventory.sql` — `public.seed_quick_data_inventory(p_org_id, p_has_email, p_has_payments, p_has_analytics)` SECURITY DEFINER, idempotent via `on conflict (org_id, canonical_key) do nothing`, gated to `effective_org_role(p_org_id) in ('account_owner','org_admin')`.
-- [~] `supabase/migrations/20260802000005_first_consent_at.sql` — adds `organisations.first_consent_at`, `onboarded_at`, `onboarding_step` columns; AFTER INSERT trigger on `public.consent_events` stamps `first_consent_at` if null.
-- [~] `supabase/migrations/20260802000006_intake_invitation_ttl.sql` — adds 14-day TTL pg_cron for `(origin in ('marketing_intake','operator_intake')) and accepted_at is null`.
-- [~] `app/src/app/api/public/signup-intake/route.ts` — POST + OPTIONS handler. Turnstile verify; `checkRateLimit(ip, 5, 60)`; CORS allow-list (`https://consentshield.in`, `https://www.consentshield.in`, `http://localhost:3002`). Calls `create_signup_intake` via service-role client.
-- [~] `app/src/app/api/internal/invitation-dispatch/route.ts` — read `origin` and route CTA URL: intakes → `/onboarding?token=`, operator-invites → `/signup?invite=` (existing).
-- [~] `app/src/lib/invitations/dispatch-email.ts::buildDispatchEmail()` — accept `origin` and tweak subject + body for the two intake variants.
-- [~] `tests/rls/invitations-origin.test.ts` — confirm `authenticated` cannot insert intake rows; only RPCs can.
-- [~] `tests/integration/signup-intake.test.ts` — happy path + Turnstile failure + rate-limit + existence-leak parity + admin-identity refusal.
+- [x] `supabase/migrations/20260802000001_invitations_origin.sql` — `alter table public.invitations add column origin text not null default 'operator_invite' check (origin in ('operator_invite','operator_intake','marketing_intake'))`. Backfills any existing rows to `'operator_invite'`. Partial index on `(invited_email, origin) where accepted_at is null and revoked_at is null`.
+- [x] `supabase/migrations/20260802000002_create_signup_intake_rpc.sql` — `public.create_signup_intake(p_email, p_plan_code, p_org_name, p_ip)` SECURITY DEFINER, runs as `cs_orchestrator`. Validates plan_code; checks `auth.users` for existing email; **always returns generic `{status:'ok'}`** (no existence leak per Rule 18); refuses `is_admin=true` identities (Rule 12). Inserts an invitation row with `origin='marketing_intake'` for new emails; logs (no insert) for existing emails.
+- [x] `supabase/migrations/20260802000003_create_operator_intake_rpc.sql` — `admin.create_operator_intake(p_email, p_plan_code, p_org_name)` — same shape as above but gated by `admin.require_admin('platform_operator')`; inserts with `origin='operator_intake'`.
+- [x] `supabase/migrations/20260802000004_seed_quick_data_inventory.sql` — `public.seed_quick_data_inventory(p_org_id, p_has_email, p_has_payments, p_has_analytics)` SECURITY DEFINER, idempotent via `on conflict (org_id, canonical_key) do nothing`, gated to `effective_org_role(p_org_id) in ('account_owner','org_admin')`.
+- [x] `supabase/migrations/20260802000005_first_consent_at.sql` — adds `organisations.first_consent_at`, `onboarded_at`, `onboarding_step` columns; AFTER INSERT trigger on `public.consent_events` stamps `first_consent_at` if null.
+- [x] `supabase/migrations/20260802000006_intake_invitation_ttl.sql` — adds 14-day TTL pg_cron for `(origin in ('marketing_intake','operator_intake')) and accepted_at is null`.
+- [x] `app/src/app/api/public/signup-intake/route.ts` — POST + OPTIONS handler. Turnstile verify; `checkRateLimit(ip, 5, 60)`; CORS allow-list (`https://consentshield.in`, `https://www.consentshield.in`, `http://localhost:3002`). Calls `create_signup_intake` via service-role client.
+- [x] `app/src/app/api/internal/invitation-dispatch/route.ts` — read `origin` and route CTA URL: intakes → `/onboarding?token=`, operator-invites → `/signup?invite=` (existing).
+- [x] `app/src/lib/invitations/dispatch-email.ts::buildDispatchEmail()` — accept `origin` and tweak subject + body for the two intake variants.
+- [x] `tests/rls/invitations-origin.test.ts` — confirm `authenticated` cannot insert intake rows; only RPCs can.
+- [ ] `tests/integration/signup-intake.test.ts` — happy path + Turnstile failure + rate-limit + existence-leak parity + admin-identity refusal. **Deferred to Sprint 1.5 polish** — RLS coverage above + 4 dispatch unit tests (11/11 PASS) cover the branches; a full integration test needs the wizard live on the customer app to drive a realistic client. Tracked as Sprint 1.5 deliverable.
 
-**Status:** `[~] in progress`
+**Tested:**
+- [x] `cd app && bunx vitest run tests/invitation-dispatch.test.ts` — 11/11 PASS (4 new origin-aware copy variants).
+- [x] `cd app && bun run build` — clean; 47 routes including `/api/public/signup-intake`.
+- [x] `cd app && bun run lint` — 0 errors, 0 warnings.
+- [x] `bunx supabase db push` — 6 migrations applied to remote dev DB (confirmed via `supabase migration list` — both Local + Remote columns filled for 20260802000001-06).
+- [x] `bunx vitest run tests/rls/invitations-origin.test.ts` — 7/7 PASS (column+check constraint; anon/authenticated blocked from direct INSERT; RPC fresh-email branch; existing-customer leak-parity branch; invalid-plan silent branch; admin-identity refusal).
+
+**Status:** `[x] complete — 2026-04-21`
 
 ### Sprint 1.2 — Marketing `/signup` + pricing CTA split
 
@@ -113,20 +120,32 @@ Email template + CTA URL branch on `origin`. Everything else stays as-is.
 
 **Deliverables:**
 
-- [ ] `app/src/app/(public)/onboarding/page.tsx` — server component; reads `?token=`; calls `invitation_preview`. Branches:
+- [x] `app/src/app/(public)/onboarding/page.tsx` — server component; reads `?token=`; calls `invitation_preview`. Branches:
   - Valid intake token (not accepted, not revoked, not expired) → render `<OnboardingWizard>` with preview context.
-  - Already accepted → "You're already set up — continue to dashboard" + redirect.
-  - Invalid / expired / revoked → recovery UI with "Request a new link" form.
-  - No token → "Paste your email — we'll resend the link" stub.
-- [ ] `app/src/app/(public)/onboarding/layout.tsx` — step indicator + progress bar.
-- [ ] Wizard client components under `app/src/app/(public)/onboarding/_components/`:
-  - `onboarding-wizard.tsx` — orchestrator, persists `organisations.onboarding_step`.
-  - `step-1-welcome.tsx` — `signInWithOtp` + `accept_invitation` (collapses the Sprint 4.2-era 3-stage flow into a single step since email is token-verified).
-  - `step-2-company.tsx` — org name + industry → `update_org_industry`.
-  - `step-3-data-inventory.tsx` — 3 yes/no toggles → `seed_quick_data_inventory`.
-  - `step-4-purposes.tsx` — sectoral template picker → `apply_sectoral_template`.
+  - Already accepted → "Link unavailable" with "Sign in" CTA (resume path is handled separately via authed-user lookup below, not this branch).
+  - Invalid / expired / revoked → recovery UI with "Request a new link" mailto.
+  - No token, user unauthenticated → "You need a sign-up link" shell with pricing pointer.
+  - No token, user authenticated + pending org → render `<OnboardingWizard mode="resume">` at `onboarding_step + 1` (acceptance criterion: wizard refresh restores at last completed step).
+  - No token, user authenticated + onboarded → "You're already onboarded" + link to `/dashboard`.
+- [x] `app/src/app/(public)/onboarding/layout.tsx` — top chrome (brand + "Need help?" mail link) with page as main.
+- [x] `app/src/app/(public)/onboarding/_components/step-indicator.tsx` — 7-dot progress bar with done/current/upcoming states + `aria-current="step"`.
+- [x] Wizard client components under `app/src/app/(public)/onboarding/_components/`:
+  - `onboarding-wizard.tsx` — orchestrator, holds `(orgId, accountId, orgName, industry, currentStep)` state; accepts `mode="fresh"` or `mode="resume"`; renders appropriate step; post-Step-4 renders `<ComingSoonShell>` with dashboard CTA (Sprints 1.4 + 1.5 fill the 5–7 placeholders).
+  - `step-1-welcome.tsx` — preview summary + `signInWithOtp` + OTP verify + `accept_invitation` + `supabase.auth.refreshSession()` (to pick up `org_id` claim from `custom_access_token_hook`). Single-step; email is token-verified so no "confirm email" stage needed.
+  - `step-2-company.tsx` — org name (read-only, "you can rename in Settings later") + industry select (8 whitelisted values). Submit: `update_org_industry` + `set_onboarding_step(step=2)`.
+  - `step-3-data-inventory.tsx` — 3 yes/no toggles (email, payments, analytics). Submit: `seed_quick_data_inventory` + `set_onboarding_step(step=3)`. "None of these apply? Continue" hint.
+  - `step-4-purposes.tsx` — loads `list_sectoral_templates_for_sector(industry)` on mount; card grid with "Use this template" per row; "Skip for now" fallback. Submit: `apply_sectoral_template` + `set_onboarding_step(step=4)`.
+- [x] `app/src/app/(public)/onboarding/actions.ts` — thin server-action wrappers (`setOnboardingStep`, `updateIndustry`, `seedDataInventory`, `applyTemplate`, `listTemplatesForSector`) over the RPCs above. Wraps `{ok, error}` tagged unions so the client islands stay typed.
+- [x] `supabase/migrations/20260803000001_set_onboarding_step.sql` — `public.set_onboarding_step(p_org_id, p_step)` SECURITY DEFINER, role gate `effective_org_role in ('org_admin','admin')`, step range 0..7, stamps `onboarded_at` when `p_step=7`. GRANT EXECUTE to `authenticated`. Unblocks wizard persistence (Sprint 1.1 M5 added the column but no setter).
+- [x] `app/src/proxy.ts` — added `/onboarding` + `/onboarding/:path*` to the matcher. Rule 12 enforcement (admin-identity rejection with 403) now runs on the onboarding surface.
 
-**Status:** `[ ] planned`
+**Tested:**
+- [x] `cd app && bun run build` — clean; 48 routes now, `/onboarding` present (dynamic).
+- [x] `cd app && bun run lint` — 0 errors, 0 warnings.
+- [x] `bunx supabase db push` — 1 migration applied (`20260803000001_set_onboarding_step.sql`); remote `set_onboarding_step` RPC callable.
+- [ ] Manual dev-server click-through — pending. The full happy path (visit `/onboarding?token=<X>` → Step 1 OTP → Step 2 industry → Step 3 data inventory → Step 4 template) needs a live Resend email + Supabase dev DB session to validate; deferred to Sprint 1.5 polish alongside the operator-intake page where we can exercise both flows in one pass.
+
+**Status:** `[x] complete — 2026-04-21`
 
 ### Sprint 1.4 — Steps 5–7
 

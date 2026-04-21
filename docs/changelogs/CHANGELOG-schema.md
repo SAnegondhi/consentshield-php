@@ -2,6 +2,18 @@
 
 Database migrations, RLS policies, roles.
 
+## [ADR-0058 Sprint 1.3] — 2026-04-21
+
+**ADR:** ADR-0058 — Split-flow customer onboarding
+**Sprint:** Sprint 1.3 — Wizard shell + Steps 1–4
+
+### Added
+- `supabase/migrations/20260803000001_set_onboarding_step.sql` — `public.set_onboarding_step(p_org_id uuid, p_step smallint)` SECURITY DEFINER. Role gate `effective_org_role in ('org_admin','admin')` (account_owner inherits). Step range 0..7 (mirrors column CHECK). Stamps `organisations.onboarded_at` when `p_step=7`. GRANT EXECUTE to `authenticated`; REVOKED from public / anon. Unblocks wizard persistence introduced by Sprint 1.1 M5.
+
+### Tested
+- [x] `bunx supabase db push` — migration applied to remote dev DB.
+- [x] Build + lint clean (see CHANGELOG-dashboard.md [ADR-0058 Sprint 1.3]).
+
 ## [ADR-0058 Sprint 1.1] — 2026-04-21
 
 **ADR:** ADR-0058 — Split-flow customer onboarding
@@ -19,7 +31,8 @@ Database migrations, RLS policies, roles.
 - [x] `cd app && bunx vitest run tests/invitation-dispatch.test.ts` — 11/11 PASS (includes 4 new origin-aware copy tests).
 - [x] `cd app && bun run build` — clean; 47 routes including the new `/api/public/signup-intake`.
 - [x] `cd app && bun run lint` — 0 errors, 0 warnings.
-- [ ] `bunx supabase db push` — pending user authorization (sandbox blocked the auto-apply); migrations + RLS test suite (`tests/rls/invitations-origin.test.ts`) ready to run once applied.
+- [x] `bunx supabase db push` — 6 migrations applied to remote dev DB (`supabase migration list` shows Local + Remote columns both filled for 20260802000001-06).
+- [x] `bunx vitest run tests/rls/invitations-origin.test.ts` — 7/7 PASS (column+check constraint, anon/authenticated INSERT blocked, fresh-email + existing-customer leak-parity branches, invalid-plan silent branch, admin-identity refusal).
 
 ## [ADR-1011 — revoked-key tombstone] — 2026-04-21
 
