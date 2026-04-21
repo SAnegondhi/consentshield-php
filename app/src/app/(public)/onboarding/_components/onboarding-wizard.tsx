@@ -6,6 +6,9 @@ import { Step1Welcome } from './step-1-welcome'
 import { Step2Company } from './step-2-company'
 import { Step3DataInventory } from './step-3-data-inventory'
 import { Step4Purposes } from './step-4-purposes'
+import { Step5Deploy } from './step-5-deploy'
+import { Step6Scores } from './step-6-scores'
+import { Step7FirstConsent } from './step-7-first-consent'
 import type { InvitePreview, ResumeContext } from './wizard-types'
 
 interface WizardState {
@@ -94,30 +97,22 @@ export function OnboardingWizard(props: WizardProps) {
         />
       ) : null}
 
-      {currentStep >= 5 ? <ComingSoonShell /> : null}
-    </div>
-  )
-}
+      {currentStep === 5 && state.orgId ? (
+        <Step5Deploy orgId={state.orgId} onComplete={() => advanceTo(6)} />
+      ) : null}
 
-function ComingSoonShell() {
-  return (
-    <div className="mx-auto max-w-lg rounded-lg border border-gray-200 bg-white p-8 shadow-sm">
-      <h1 className="text-2xl font-semibold">Great progress!</h1>
-      <p className="mt-2 text-sm text-gray-600">
-        You&apos;ve set up your organisation, data inventory, and purpose
-        template. The final three steps — deploy the banner, see your DEPA
-        score, and watch the first consent land — are coming in the next
-        release.
-      </p>
-      <p className="mt-4 text-sm text-gray-700">
-        For now, continue to your dashboard and explore.
-      </p>
-      <a
-        href="/dashboard"
-        className="mt-4 inline-block rounded bg-black px-4 py-2 text-sm font-medium text-white hover:bg-gray-800"
-      >
-        Go to dashboard
-      </a>
+      {currentStep === 6 && state.orgId ? (
+        <Step6Scores orgId={state.orgId} onComplete={() => advanceTo(7)} />
+      ) : null}
+
+      {currentStep >= 7 && state.orgId ? (
+        <Step7FirstConsent
+          orgId={state.orgId}
+          onDone={() => {
+            window.location.href = '/dashboard?welcome=1'
+          }}
+        />
+      ) : null}
     </div>
   )
 }

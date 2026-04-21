@@ -2,7 +2,7 @@
 
 (c) 2026 Sudhindra Anegondhi a.d.sudhindra@gmail.com
 
-**Status:** In Progress (Sprints 1.1 + 1.2 + 1.3 completed 2026-04-21; 1.4–1.5 pending)
+**Status:** In Progress (Sprints 1.1 + 1.2 + 1.3 + 1.4 completed 2026-04-21; 1.5 pending)
 **Date:** 2026-04-21
 **Phases:** 1
 **Sprints:** 5
@@ -151,13 +151,19 @@ Email template + CTA URL branch on `origin`. Everything else stays as-is.
 
 **Deliverables:**
 
-- [ ] `app/src/app/(public)/onboarding/_components/step-5-deploy.tsx` — snippet display + "Verify installation" button.
-- [ ] `app/src/app/api/orgs/[orgId]/onboarding/verify-snippet/route.ts` — server-side fetch of user URL with SSRF defence (RFC1918 + metadata + scheme allow-list); regex scan for `<script[^>]+banner\.js`.
-- [ ] `step-6-scores.tsx` — calls `compute_depa_score(p_org_id)`; renders 3-dimension gauge + Top-3-actions list.
-- [ ] `step-7-first-consent.tsx` — polls `/api/orgs/[orgId]/onboarding/status` every 5s for ≤5 min; on `first_consent_at` non-null → celebrate + advance; on timeout → mark `onboarded_at=now()` and hand off; background dispatcher emails when event eventually fires.
-- [ ] `app/src/app/api/orgs/[orgId]/onboarding/status/route.ts` — RLS-scoped status read.
+- [x] `app/src/app/(public)/onboarding/_components/step-5-deploy.tsx` — URL capture → `web_properties` row → snippet display + copy button → "Verify installation" button. Pre-loads the first existing property on wizard resume. "I'll do this later" fallback still advances (unverified properties can be verified later from Settings → Properties).
+- [x] `app/src/app/api/orgs/[orgId]/onboarding/verify-snippet/route.ts` — SSRF-defended server fetch. Layering: (1) scheme allow-list (http/https only); (2) hostname block-list (`localhost`, `metadata.google.internal`, `instance-data`, `*.internal`, `*.local`); (3) DNS resolution + IP-family check with `node:dns/promises.lookup({all:true})`, refusing RFC1918 + loopback + link-local (169.254/16) + CGNAT (100.64/10) + multicast + reserved; same check applied to both literal IPs in the URL and every DNS-resolved record; (4) 5-second AbortController timeout; (5) 256 KB response cap with early-abort on `<script[^>]+banner\.js` match; (6) `redirect: 'manual'` — redirects never followed. On pass: `UPDATE web_properties SET snippet_verified_at, snippet_last_seen_at`. Response body always `{verified, reason?, verified_at?}` — raw HTML never exposed.
+- [x] `app/src/app/(public)/onboarding/_components/step-6-scores.tsx` — fetches the existing `/api/orgs/[orgId]/depa-score` endpoint (ADR-0025, cache-first with RPC fallback). Renders total gauge (colour-coded at 75/50 thresholds) + 4 dimension tiles (coverage / expiry / freshness / revocation — matches the columns in `depa_compliance_metrics`). Top-3 actions picks the three weakest dimensions and maps each to a canned recommendation.
+- [x] `app/src/app/(public)/onboarding/_components/step-7-first-consent.tsx` — 5-second poll of `/api/orgs/[orgId]/onboarding/status` with client-side 5-minute timeout. On `first_consent_at` non-null → "First consent captured!" + `set_onboarding_step(7)` (which stamps `onboarded_at` via the Sprint 1.3 migration) + redirects to `/dashboard?welcome=1`. On timeout → "No consent yet — that's fine" with same finalise path. Manual "Skip the wait →" link available at any time. Background email on eventual first consent is a Sprint 1.5 deliverable (connector to existing SLA-reminder dispatcher).
+- [x] `app/src/app/api/orgs/[orgId]/onboarding/status/route.ts` — membership-gated read of `organisations (onboarding_step, onboarded_at, first_consent_at)`.
+- [x] `onboarding-wizard.tsx` — extended to route Steps 5–7 (replaced the ComingSoonShell placeholder from Sprint 1.3). Step 7 redirects to `/dashboard?welcome=1` on finalise.
 
-**Status:** `[ ] planned`
+**Tested:**
+- [x] `cd app && bun run build` — clean; 48 routes (onboarding + 2 new API routes under `/api/orgs/[orgId]/onboarding/`).
+- [x] `cd app && bun run lint` — 0 errors, 0 warnings.
+- [ ] Manual dev-server click-through — deferred to Sprint 1.5 polish alongside operator-intake.
+
+**Status:** `[x] complete — 2026-04-21`
 
 ### Sprint 1.5 — Admin operator-intake + polish
 

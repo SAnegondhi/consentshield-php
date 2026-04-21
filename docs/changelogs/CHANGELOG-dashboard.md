@@ -2,6 +2,23 @@
 
 Next.js UI changes.
 
+## [ADR-0058 Sprint 1.4] — 2026-04-21
+
+**ADR:** ADR-0058 — Split-flow customer onboarding
+**Sprint:** Sprint 1.4 — Steps 5–7 (deploy + scores + first-consent watch)
+
+### Added
+- `app/src/app/(public)/onboarding/_components/step-5-deploy.tsx` — Step 5 client island. URL capture → `POST /api/orgs/<org>/properties` → snippet display + copy button → Verify button. Pre-loads the first existing `web_property` for the org so a wizard refresh mid-flow resumes cleanly. "I'll do this later →" advances without verify (unverified properties remain writable from Settings → Properties).
+- `app/src/app/(public)/onboarding/_components/step-6-scores.tsx` — Step 6 client island. Fetches `/api/orgs/<org>/depa-score` (cache-first with RPC fallback per ADR-0025). Renders: total gauge with 75/50 colour thresholds + 4 dimension tiles (coverage / expiry / freshness / revocation) + Top-3 actions (lowest-scoring three dimensions mapped to canned recommendations).
+- `app/src/app/(public)/onboarding/_components/step-7-first-consent.tsx` — Step 7 client island. 5-second poll loop with 5-minute client-side timeout. On first-consent event: displays the captured timestamp + finalises via `set_onboarding_step(7)` (which stamps `onboarded_at`) + redirects to `/dashboard?welcome=1`. On timeout: identical finalise path but with "no consent yet — that's fine" copy. Manual "Skip the wait →" escape hatch.
+
+### Changed
+- `app/src/app/(public)/onboarding/_components/onboarding-wizard.tsx` — wires in `<Step5Deploy>`, `<Step6Scores>`, `<Step7FirstConsent>`. Removed the Sprint 1.3 `<ComingSoonShell>` placeholder. Step 7 redirects to `/dashboard?welcome=1` on `onDone`.
+
+### Tested
+- [x] `cd app && bun run build` — PASS.
+- [x] `cd app && bun run lint` — 0 errors, 0 warnings.
+
 ## [ADR-0058 Sprint 1.3] — 2026-04-21
 
 **ADR:** ADR-0058 — Split-flow customer onboarding

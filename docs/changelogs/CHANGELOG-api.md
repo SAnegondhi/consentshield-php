@@ -2,6 +2,25 @@
 
 API route changes.
 
+## [ADR-0058 Sprint 1.4] — 2026-04-21
+
+**ADR:** ADR-0058 — Split-flow customer onboarding
+**Sprint:** Sprint 1.4 — Onboarding status + snippet-verify routes
+
+### Added
+- `app/src/app/api/orgs/[orgId]/onboarding/status/route.ts` — `GET`. Membership-gated (explicit `org_memberships` check on top of RLS). Returns `{onboarding_step, onboarded_at, first_consent_at}` for Step 7 polling.
+- `app/src/app/api/orgs/[orgId]/onboarding/verify-snippet/route.ts` — `POST`. SSRF-defended server fetch of the user's registered URL with a regex scan for `<script[^>]+banner\.js`. Layering:
+  - Scheme allow-list (http / https only).
+  - Hostname block-list: `localhost`, `0.0.0.0`, `metadata.google.internal`, `instance-data`, `instance-data.ec2.internal`; `*.internal` and `*.local` suffix refused.
+  - DNS resolution via `node:dns/promises.lookup({all:true, verbatim:true})`; every resolved address checked against RFC1918 (10/8, 172.16/12, 192.168/16) + loopback (127/8, ::1) + link-local (169.254/16, fe80:) + CGNAT (100.64/10) + ULA (fc00::/7) + multicast (224/4, ff…) + reserved (0.0.0.0/8, 224+); literal IPs in the URL itself also screened.
+  - 5-second `AbortController` timeout; 256 KB response cap with early-abort on banner-regex match.
+  - `redirect: 'manual'` — redirects never followed; returned as `redirect_not_followed_<status>` reason.
+  - On pass: `UPDATE web_properties SET snippet_verified_at, snippet_last_seen_at` for the caller-owned property. Response body is always `{verified, reason?, verified_at?}` — raw HTML is never exposed.
+
+### Tested
+- [x] Build + lint clean (see CHANGELOG-dashboard.md [ADR-0058 Sprint 1.4]).
+- [ ] Manual / integration test deferred to Sprint 1.5 polish (planned): happy path + `private_ip` + `metadata.google.internal` + `snippet_not_found` + timeout + redirect.
+
 ## [ADR-0058 Sprint 1.3] — 2026-04-21
 
 **ADR:** ADR-0058 — Split-flow customer onboarding
