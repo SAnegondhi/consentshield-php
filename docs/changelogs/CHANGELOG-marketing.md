@@ -2,6 +2,29 @@
 
 Public marketing site (`marketing/` workspace → `consentshield.in`). New in 2026-04-21.
 
+## [ADR-0501 Sprint 4.2] — 2026-04-21
+
+**ADR:** ADR-0501 — ConsentShield marketing site
+**Sprint:** Phase 4 Sprint 4.2 — Contact form real submit + Turnstile
+
+### Added
+- `marketing/src/lib/env.ts` — typed marketing env access with dev fallbacks (Turnstile always-pass test pair when keys unset; Resend no-op when `RESEND_API_KEY` unset).
+- `marketing/src/app/api/contact/route.ts` — Node-runtime POST handler. Shape-validates body; verifies Turnstile token with Cloudflare siteverify (passes forwarded-for IP); emails via raw-fetch to Resend. Error modes: 400 (validation) / 403 (turnstile) / 502 (delivery) / 202 (success). Violation details logged server-side, never echoed to client. No SDK dependency.
+
+### Changed
+- `marketing/src/components/sections/contact-form.tsx` — real submit replaces Sprint 2.4's `preventDefault`. FormData is serialised to JSON (including the Turnstile-injected `cf-turnstile-response`) and POSTed to `/api/contact`. Turnstile widget script loaded once on form mount; widget declaratively rendered via `<div class="cf-turnstile">`. Pending + error states surface inline; 202 flips to the existing acknowledgement UI.
+- `marketing/next.config.ts` — CSP `script-src` and `frame-src` add `https://challenges.cloudflare.com` so the Turnstile widget loads.
+
+### Tested
+- [x] `cd marketing && bun run build` — clean. `/api/contact` shows as dynamic (server-rendered); all other routes static.
+- [x] `cd marketing && bun run lint` — 0 errors, 0 warnings.
+- [x] `bun run check-env` — clean.
+
+### Deferred to Sprint 4.3
+- Sentry client + server init with PII-strip `beforeSend`.
+- Vercel BotID on `/api/contact` (defence-in-depth alongside Turnstile).
+- CSP enforce-mode cutover (after a report-only observation window).
+
 ## [ADR-0501 Sprint 4.1] — 2026-04-21
 
 **ADR:** ADR-0501 — ConsentShield marketing site

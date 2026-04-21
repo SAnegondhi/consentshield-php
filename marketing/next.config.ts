@@ -16,13 +16,17 @@ import type { NextConfig } from 'next'
 //     when we move to enforce mode
 //   · form posts only to self
 //   · no framing (CSP + X-Frame-Options belt-and-suspenders)
+// Cloudflare Turnstile (Sprint 4.2) loads its widget script + renders
+// an iframe in-page for the challenge UI. These exceptions are scoped
+// to `challenges.cloudflare.com` only.
 const CSP_REPORT_ONLY = [
   "default-src 'self'",
-  "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
+  "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://challenges.cloudflare.com",
   "style-src 'self' 'unsafe-inline' https://api.fontshare.com https://cdn.fontshare.com",
   "img-src 'self' data: https:",
   "font-src 'self' https://cdn.fontshare.com data:",
   "connect-src 'self'",
+  "frame-src https://challenges.cloudflare.com",
   "frame-ancestors 'none'",
   "form-action 'self'",
   "base-uri 'self'",

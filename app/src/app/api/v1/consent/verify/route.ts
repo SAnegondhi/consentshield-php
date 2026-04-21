@@ -102,6 +102,7 @@ export async function GET(request: NextRequest) {
   }
 
   const result = await verifyConsent({
+    keyId:          context.key_id,
     orgId:          context.org_id,
     propertyId:     property_id!,
     identifier:     identifier!,
@@ -110,6 +111,15 @@ export async function GET(request: NextRequest) {
   })
 
   if (!result.ok) {
+    if (result.error.kind === 'api_key_binding') {
+      return respond(
+        context,
+        403,
+        problemJson(403, 'Forbidden', 'API key does not authorise access to this organisation'),
+        t0,
+        true,
+      )
+    }
     if (result.error.kind === 'property_not_found') {
       return respond(
         context,

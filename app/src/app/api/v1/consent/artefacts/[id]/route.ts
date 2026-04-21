@@ -28,9 +28,13 @@ export async function GET(_request: NextRequest, ctx: { params: Promise<{ id: st
     )
   }
 
-  const result = await getArtefact({ orgId: context.org_id!, artefactId: id })
+  const result = await getArtefact({ keyId: context.key_id, orgId: context.org_id!, artefactId: id })
 
   if (!result.ok) {
+    if (result.error.kind === 'api_key_binding') {
+      return respondV1(context, ROUTE, 'GET', 403,
+        problemJson(403, 'Forbidden', 'API key does not authorise access to this organisation'), t0, true)
+    }
     return respondV1(context, ROUTE, 'GET', 500,
       problemJson(500, 'Internal Server Error', 'Lookup failed'), t0, true)
   }

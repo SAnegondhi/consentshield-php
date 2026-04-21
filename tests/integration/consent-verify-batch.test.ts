@@ -12,6 +12,7 @@ import { describe, it, expect, beforeAll, afterAll } from 'vitest'
 import { verifyConsentBatch } from '../../app/src/lib/consent/verify'
 import {
   createTestOrg,
+  seedApiKey,
   cleanupTestOrg,
   getServiceClient,
   type TestOrg,
@@ -26,6 +27,7 @@ interface SeededArtefact {
 
 let org: TestOrg
 let otherOrg: TestOrg
+let keyId: string
 let propertyId: string
 let bannerId: string
 let purposeDefinitionId: string
@@ -125,6 +127,7 @@ async function seedArtefact(
 beforeAll(async () => {
   org = await createTestOrg('batchM')
   otherOrg = await createTestOrg('batchO')
+  keyId = (await seedApiKey(org)).keyId
   const admin = getServiceClient()
 
   const { data: prop } = await admin
@@ -204,6 +207,7 @@ describe('verifyConsentBatch — four-state fixture', () => {
   it('returns statuses in input order (5-element mix)', async () => {
     const input = [grantedEmail, revokedEmail, expiredEmail, never1Email, never2Email]
     const r = await verifyConsentBatch({
+      keyId,
       orgId:          org.orgId,
       propertyId,
       identifiers:    input,
@@ -245,6 +249,7 @@ describe('verifyConsentBatch — four-state fixture', () => {
     for (let i = 0; i < 25; i++) input.push(base[i % 5])
 
     const r = await verifyConsentBatch({
+      keyId,
       orgId:          org.orgId,
       propertyId,
       identifiers:    input,
@@ -272,6 +277,7 @@ describe('verifyConsentBatch — error cases', () => {
 
   it('empty identifiers → identifiers_empty', async () => {
     const r = await verifyConsentBatch({
+      keyId,
       orgId:          org.orgId,
       propertyId,
       identifiers:    [],
@@ -286,6 +292,7 @@ describe('verifyConsentBatch — error cases', () => {
   it('10001 identifiers → identifiers_too_large', async () => {
     const ids = Array.from({ length: 10001 }, (_, i) => `fake-${i}@t.test`)
     const r = await verifyConsentBatch({
+      keyId,
       orgId:          org.orgId,
       propertyId,
       identifiers:    ids,
@@ -306,6 +313,7 @@ describe('verifyConsentBatch — error cases', () => {
       .single()
 
     const r = await verifyConsentBatch({
+      keyId,
       orgId:          org.orgId,
       propertyId:     otherProp!.id,
       identifiers:    [grantedEmail],
@@ -319,6 +327,7 @@ describe('verifyConsentBatch — error cases', () => {
 
   it('unknown identifier_type → invalid_identifier', async () => {
     const r = await verifyConsentBatch({
+      keyId,
       orgId:          org.orgId,
       propertyId,
       identifiers:    [grantedEmail],
@@ -332,6 +341,7 @@ describe('verifyConsentBatch — error cases', () => {
 
   it('one bad identifier in the batch fails the whole call (all-or-nothing)', async () => {
     const r = await verifyConsentBatch({
+      keyId,
       orgId:          org.orgId,
       propertyId,
       identifiers:    [grantedEmail, '', never1Email],
@@ -351,6 +361,7 @@ describe('verifyConsentBatch — performance smoke', () => {
     const ids = Array.from({ length: 1000 }, (_, i) => `perf-never-${i}-${Date.now()}@t.test`)
     const t0 = Date.now()
     const r = await verifyConsentBatch({
+      keyId,
       orgId:          org.orgId,
       propertyId,
       identifiers:    ids,

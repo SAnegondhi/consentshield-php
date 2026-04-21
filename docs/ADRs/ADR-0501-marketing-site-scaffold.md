@@ -2,7 +2,7 @@
 
 (c) 2026 Sudhindra Anegondhi a.d.sudhindra@gmail.com
 
-**Status:** In Progress (Phases 1 + 2 + 3 complete 2026-04-21; Phase 4 Sprint 4.1 shipped 2026-04-21; Phase 4 Sprints 4.2–4.3 pending)
+**Status:** In Progress (Phases 1 + 2 + 3 complete 2026-04-21; Phase 4 Sprints 4.1 + 4.2 shipped 2026-04-21; Phase 4 Sprint 4.3 + CSP enforce cutover pending)
 **Date:** 2026-04-21
 **Phases:** 4
 **Sprints:** 4+ (Phase 1 has one sprint; later phases sized once content + formats land)
@@ -229,13 +229,16 @@ Scope narrowed on user direction: **legal pages only** (terms, privacy, dpa). Ma
 
 **Status:** `[x] complete — 2026-04-21`
 
-#### Sprint 4.2 — Contact form real submit + Turnstile (pending)
+#### Sprint 4.2 — Contact form real submit + Turnstile (shipped 2026-04-21)
 
-- `marketing/src/app/api/contact/route.ts` — POST handler; Turnstile verify (`https://challenges.cloudflare.com/turnstile/v0/siteverify`) + Resend send. Dev falls back to Turnstile test pair + Resend no-op.
-- Turnstile widget wired into `contact-form.tsx` client component. Site key from `NEXT_PUBLIC_TURNSTILE_SITE_KEY`.
-- Failure modes: turnstile-failed → 403; resend-failed → 502; validation failure → 400. Success → 202 + client shows existing acknowledgement UI.
+**Deliverables:**
 
-**Status:** `[ ] planned`
+- [x] `marketing/src/lib/env.ts` — typed env access with dev fallbacks. `TURNSTILE_SITE_KEY` / `TURNSTILE_SECRET_KEY` default to Cloudflare's always-pass test pair when unset; `RESEND_ENABLED` gates real send vs server-side log.
+- [x] `marketing/src/app/api/contact/route.ts` — Node-runtime POST handler. Shape-validates body (all fields length-capped; plausible-email regex); verifies Turnstile token against `https://challenges.cloudflare.com/turnstile/v0/siteverify` with the caller's forwarded IP; emails the submission to `CONTACT_INBOX` via Resend (`https://api.resend.com/emails` — no SDK dep, raw `fetch`). Failure modes: validation → 400, turnstile → 403, delivery → 502, success → 202. Violation details logged server-side; never echoed to client.
+- [x] `marketing/src/components/sections/contact-form.tsx` — real submit replaces Sprint 2.4's `preventDefault`. Serialises FormData (including the Turnstile-injected `cf-turnstile-response`), POSTs JSON to `/api/contact`. Loads the Turnstile widget script once on mount (guards against double-inject) and declaratively renders `<div class="cf-turnstile">` with the site key. Pending / error states surface inline; 202 flips the form to the existing acknowledgement UI.
+- [x] `marketing/next.config.ts` — CSP updated: `script-src` + `frame-src` allow `https://challenges.cloudflare.com` for the Turnstile widget.
+
+**Status:** `[x] complete — 2026-04-21`
 
 #### Sprint 4.3 — Sentry + BotID (pending)
 

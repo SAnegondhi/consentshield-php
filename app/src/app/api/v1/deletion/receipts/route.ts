@@ -48,6 +48,7 @@ export async function GET(request: NextRequest) {
   }
 
   const result = await listDeletionReceipts({
+    keyId:        context.key_id,
     orgId:        context.org_id!,
     status,
     connectorId,
@@ -59,6 +60,10 @@ export async function GET(request: NextRequest) {
   })
 
   if (!result.ok) {
+    if (result.error.kind === 'api_key_binding') {
+      return respondV1(context, ROUTE, 'GET', 403,
+        problemJson(403, 'Forbidden', 'API key does not authorise access to this organisation'), t0, true)
+    }
     if (result.error.kind === 'bad_cursor') {
       return respondV1(context, ROUTE, 'GET', 422,
         problemJson(422, 'Unprocessable Entity', 'cursor is malformed'), t0, true)

@@ -82,14 +82,16 @@ The admin service-role carve-out (ADR-0045) remains. It is genuinely required (S
 **Estimated effort:** 0.5 day
 
 **Deliverables:**
-- [ ] Add `p_key_id` param + `assert_api_key_binding` call to: `rpc_consent_verify`, `rpc_consent_verify_batch`, `rpc_artefact_list`, `rpc_artefact_get`, `rpc_event_list`, `rpc_deletion_receipts_list`.
-- [ ] Route handler updates for all read endpoints thread `context.key_id` through.
+- [x] Migration `20260801000005_api_key_binding_reads.sql` — `p_key_id` param + `assert_api_key_binding` call added to `rpc_consent_verify`, `rpc_consent_verify_batch`, `rpc_artefact_list`, `rpc_artefact_get`, `rpc_event_list`, `rpc_deletion_receipts_list`. DROP + CREATE for all six (signature change).
+- [x] Lib helpers updated (`verify.ts`, `read.ts`, `deletion.ts.listDeletionReceipts`); each gains required `keyId` param + `api_key_binding` error kind.
+- [x] Route handlers updated (`verify`, `verify/batch`, `consent/artefacts` list, `consent/artefacts/[id]` detail, `consent/events`, `deletion/receipts`) to thread `context.key_id` + map `api_key_binding` → 403.
+- [x] All five affected test files threaded the new `keyId`; added one explicit cross-org fence test in `consent-verify.test.ts`.
 
 **Testing plan:**
-- [ ] Existing read-path integration tests (consent-verify.test.ts, consent-verify-batch.test.ts, artefact-event-read.test.ts, deletion-api.test.ts receipts subset) continue to pass — 58 tests.
-- [ ] Cross-key attack suite from 1.1 extended to read paths (6 tests).
+- [x] Existing read-path integration tests pass — 100/100 integration suite.
+- [x] Cross-key fence rejects: `verifyConsent` with org-bound keyId but `p_org_id=otherOrg` → `api_key_binding` 403.
 
-**Status:** `[ ] planned`
+**Status:** `[x] complete`
 
 #### Sprint 1.3 — Perf check + Phase 1 sign-off
 **Estimated effort:** 0.25 day

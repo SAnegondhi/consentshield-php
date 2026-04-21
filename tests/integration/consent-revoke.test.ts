@@ -143,6 +143,7 @@ describe('revokeArtefact — happy path', () => {
     if (!rev.ok) return
 
     const v = await verifyConsent({
+      keyId,
       orgId:          org.orgId,
       propertyId,
       identifier,

@@ -21,6 +21,7 @@ let propertyId: string
 let otherPropertyId: string
 let purposeIds: string[] = []
 let keyId: string
+let otherKeyId: string
 
 const PURPOSE_CODES = ['list_p1', 'list_p2', 'list_p3']
 
@@ -34,6 +35,7 @@ beforeAll(async () => {
   org = await createTestOrg('readArt')
   otherOrg = await createTestOrg('readOth')
   keyId = (await seedApiKey(org)).keyId
+  otherKeyId = (await seedApiKey(otherOrg)).keyId
   const admin = getServiceClient()
 
   const { data: prop } = await admin
@@ -163,7 +165,7 @@ afterAll(async () => {
 describe('listArtefacts', () => {
 
   it('returns org-scoped artefacts', async () => {
-    const r = await listArtefacts({ orgId: org.orgId, limit: 100 })
+    const r = await listArtefacts({ keyId, orgId: org.orgId, limit: 100 })
     expect(r.ok).toBe(true)
     if (!r.ok) return
     expect(r.data.items.length).toBeGreaterThanOrEqual(6)
@@ -171,14 +173,14 @@ describe('listArtefacts', () => {
   })
 
   it('filters by property_id', async () => {
-    const r = await listArtefacts({ orgId: org.orgId, propertyId, limit: 50 })
+    const r = await listArtefacts({ keyId, orgId: org.orgId, propertyId, limit: 50 })
     expect(r.ok).toBe(true)
     if (!r.ok) return
     expect(r.data.items.every((i) => i.property_id === propertyId)).toBe(true)
   })
 
   it('filters by purpose_code', async () => {
-    const r = await listArtefacts({ orgId: org.orgId, purposeCode: PURPOSE_CODES[1], limit: 50 })
+    const r = await listArtefacts({ keyId, orgId: org.orgId, purposeCode: PURPOSE_CODES[1], limit: 50 })
     expect(r.ok).toBe(true)
     if (!r.ok) return
     expect(r.data.items.every((i) => i.purpose_code === PURPOSE_CODES[1])).toBe(true)
@@ -186,7 +188,7 @@ describe('listArtefacts', () => {
   })
 
   it('filters by status=revoked', async () => {
-    const r = await listArtefacts({ orgId: org.orgId, status: 'revoked', limit: 50 })
+    const r = await listArtefacts({ keyId, orgId: org.orgId, status: 'revoked', limit: 50 })
     expect(r.ok).toBe(true)
     if (!r.ok) return
     expect(r.data.items.length).toBeGreaterThanOrEqual(1)
@@ -195,7 +197,7 @@ describe('listArtefacts', () => {
   })
 
   it('identifier filter requires both fields', async () => {
-    const r = await listArtefacts({ orgId: org.orgId, identifier: 'foo@bar.test' })
+    const r = await listArtefacts({ keyId, orgId: org.orgId, identifier: 'foo@bar.test' })
     expect(r.ok).toBe(false)
     if (r.ok) return
     expect(r.error.kind).toBe('bad_filters')
@@ -203,13 +205,13 @@ describe('listArtefacts', () => {
 
   it('cursor pagination: 2-page walk sums to full set', async () => {
     const small = 3
-    const p1 = await listArtefacts({ orgId: org.orgId, limit: small })
+    const p1 = await listArtefacts({ keyId, orgId: org.orgId, limit: small })
     expect(p1.ok).toBe(true)
     if (!p1.ok) return
     expect(p1.data.items).toHaveLength(small)
     expect(p1.data.next_cursor).toBeTruthy()
 
-    const p2 = await listArtefacts({ orgId: org.orgId, limit: small, cursor: p1.data.next_cursor! })
+    const p2 = await listArtefacts({ keyId, orgId: org.orgId, limit: small, cursor: p1.data.next_cursor! })
     expect(p2.ok).toBe(true)
     if (!p2.ok) return
     expect(p2.data.items.length).toBeGreaterThan(0)
@@ -221,14 +223,14 @@ describe('listArtefacts', () => {
   })
 
   it('bad cursor → bad_cursor', async () => {
-    const r = await listArtefacts({ orgId: org.orgId, cursor: 'not-base64!!!!' })
+    const r = await listArtefacts({ keyId, orgId: org.orgId, cursor: 'not-base64!!!!' })
     expect(r.ok).toBe(false)
     if (r.ok) return
     expect(r.error.kind).toBe('bad_cursor')
   })
 
   it('cross-org isolation: other org sees none of this orgs artefacts', async () => {
-    const r = await listArtefacts({ orgId: otherOrg.orgId, limit: 100 })
+    const r = await listArtefacts({ keyId: otherKeyId, orgId: otherOrg.orgId, limit: 100 })
     expect(r.ok).toBe(true)
     if (!r.ok) return
     const overlap = r.data.items.filter((i) => firstBatchArtefactIds.includes(i.artefact_id))
@@ -244,7 +246,7 @@ describe('listArtefacts', () => {
 describe('getArtefact', () => {
 
   it('returns the artefact with revocation record when revoked', async () => {
-    const r = await getArtefact({ orgId: org.orgId, artefactId: revokedArtefactId })
+    const r = await getArtefact({ keyId, orgId: org.orgId, artefactId: revokedArtefactId })
     expect(r.ok).toBe(true)
     if (!r.ok) return
     expect(r.data).not.toBeNull()
@@ -256,7 +258,7 @@ describe('getArtefact', () => {
   })
 
   it('returns full replacement chain [A, B, C] regardless of entry point', async () => {
-    const fromB = await getArtefact({ orgId: org.orgId, artefactId: replacedChain.b })
+    const fromB = await getArtefact({ keyId, orgId: org.orgId, artefactId: replacedChain.b })
     expect(fromB.ok).toBe(true)
     if (!fromB.ok || !fromB.data) return
     expect(fromB.data.replacement_chain).toEqual(
@@ -264,26 +266,26 @@ describe('getArtefact', () => {
     )
     expect(fromB.data.replacement_chain).toHaveLength(3)
 
-    const fromC = await getArtefact({ orgId: org.orgId, artefactId: replacedChain.c })
+    const fromC = await getArtefact({ keyId, orgId: org.orgId, artefactId: replacedChain.c })
     expect(fromC.ok).toBe(true)
     if (!fromC.ok || !fromC.data) return
     expect(fromC.data.replacement_chain).toHaveLength(3)
 
-    const fromA = await getArtefact({ orgId: org.orgId, artefactId: replacedChain.a })
+    const fromA = await getArtefact({ keyId, orgId: org.orgId, artefactId: replacedChain.a })
     expect(fromA.ok).toBe(true)
     if (!fromA.ok || !fromA.data) return
     expect(fromA.data.replacement_chain).toHaveLength(3)
   })
 
   it('cross-org artefact_id → null', async () => {
-    const r = await getArtefact({ orgId: otherOrg.orgId, artefactId: firstBatchArtefactIds[1] })
+    const r = await getArtefact({ keyId: otherKeyId, orgId: otherOrg.orgId, artefactId: firstBatchArtefactIds[1] })
     expect(r.ok).toBe(true)
     if (!r.ok) return
     expect(r.data).toBeNull()
   })
 
   it('nonexistent artefact_id → null', async () => {
-    const r = await getArtefact({ orgId: org.orgId, artefactId: 'art_does_not_exist_anywhere' })
+    const r = await getArtefact({ keyId, orgId: org.orgId, artefactId: 'art_does_not_exist_anywhere' })
     expect(r.ok).toBe(true)
     if (!r.ok) return
     expect(r.data).toBeNull()
@@ -298,7 +300,7 @@ describe('getArtefact', () => {
 describe('listEvents', () => {
 
   it('returns recent org-scoped events', async () => {
-    const r = await listEvents({ orgId: org.orgId, limit: 100 })
+    const r = await listEvents({ keyId, orgId: org.orgId, limit: 100 })
     expect(r.ok).toBe(true)
     if (!r.ok) return
     expect(r.data.items.length).toBeGreaterThanOrEqual(2) // 2 from recordConsent in beforeAll
@@ -314,7 +316,7 @@ describe('listEvents', () => {
   })
 
   it('filter by source=api returns only api events', async () => {
-    const r = await listEvents({ orgId: org.orgId, source: 'api', limit: 50 })
+    const r = await listEvents({ keyId, orgId: org.orgId, source: 'api', limit: 50 })
     expect(r.ok).toBe(true)
     if (!r.ok) return
     expect(r.data.items.every((i) => i.source === 'api')).toBe(true)
@@ -323,7 +325,7 @@ describe('listEvents', () => {
   it('date-range filter includes events in range, excludes out-of-range', async () => {
     const now = Date.now()
     const recent = await listEvents({
-      orgId: org.orgId,
+      keyId, orgId: org.orgId,
       createdAfter: new Date(now - 60 * 60 * 1000).toISOString(),
       limit: 50,
     })
@@ -332,7 +334,7 @@ describe('listEvents', () => {
     expect(recent.data.items.length).toBeGreaterThan(0)
 
     const ancient = await listEvents({
-      orgId: org.orgId,
+      keyId, orgId: org.orgId,
       createdBefore: new Date(now - 365 * 86400_000).toISOString(),
       limit: 50,
     })
@@ -342,14 +344,14 @@ describe('listEvents', () => {
   })
 
   it('bad cursor → bad_cursor', async () => {
-    const r = await listEvents({ orgId: org.orgId, cursor: '###not-base64###' })
+    const r = await listEvents({ keyId, orgId: org.orgId, cursor: '###not-base64###' })
     expect(r.ok).toBe(false)
     if (r.ok) return
     expect(r.error.kind).toBe('bad_cursor')
   })
 
   it('cross-org isolation: other org sees no events of this org', async () => {
-    const r = await listEvents({ orgId: otherOrg.orgId, limit: 100 })
+    const r = await listEvents({ keyId: otherKeyId, orgId: otherOrg.orgId, limit: 100 })
     expect(r.ok).toBe(true)
     if (!r.ok) return
     for (const row of r.data.items) {

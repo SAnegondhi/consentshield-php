@@ -2,6 +2,25 @@
 
 Database migrations, RLS policies, roles.
 
+## [ADR-1009 Sprint 1.2] — 2026-04-20
+
+**ADR:** ADR-1009 — v1 API role hardening
+**Sprint:** Phase 1 Sprint 1.2 — DB tenant fence on read RPCs
+
+### Changed
+- `20260801000005_api_key_binding_reads.sql` — DROP + CREATE on six read RPCs with `p_key_id uuid` as the first parameter and `assert_api_key_binding(p_key_id, p_org_id)` at the top of every body:
+  - `rpc_consent_verify`
+  - `rpc_consent_verify_batch`
+  - `rpc_artefact_list`
+  - `rpc_artefact_get`
+  - `rpc_event_list`
+  - `rpc_deletion_receipts_list`
+- Grants preserved on `service_role` only (Phase 2 will re-target to `cs_api`).
+
+### Tested
+- [x] 100/100 integration suite PASS (up from 99 with one new `api_key_binding` fence test in consent-verify).
+- [x] Full integration + DEPA suite — see CHANGELOG-api § Sprint 1.2 for the counts.
+
 ## [ADR-1009 Sprint 1.1] — 2026-04-20
 
 **ADR:** ADR-1009 — v1 API role hardening

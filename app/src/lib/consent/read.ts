@@ -33,12 +33,14 @@ export interface ArtefactListEnvelope {
 }
 
 export type ArtefactListError =
+  | { kind: 'api_key_binding'; detail: string }
   | { kind: 'bad_cursor' }
   | { kind: 'bad_filters'; detail: string }
   | { kind: 'invalid_identifier'; detail: string }
   | { kind: 'unknown'; detail: string }
 
 export async function listArtefacts(params: {
+  keyId: string
   orgId: string
   propertyId?: string
   identifier?: string
@@ -51,6 +53,7 @@ export async function listArtefacts(params: {
   limit?: number
 }): Promise<{ ok: true; data: ArtefactListEnvelope } | { ok: false; error: ArtefactListError }> {
   const { data, error } = await serviceClient().rpc('rpc_artefact_list', {
+    p_key_id:          params.keyId,
     p_org_id:          params.orgId,
     p_property_id:     params.propertyId ?? null,
     p_identifier:      params.identifier ?? null,
@@ -65,6 +68,8 @@ export async function listArtefacts(params: {
 
   if (error) {
     const msg = error.message ?? ''
+    if (error.code === '42501' || msg.includes('api_key_') || msg.includes('org_id_missing') || msg.includes('org_not_found'))
+      return { ok: false, error: { kind: 'api_key_binding', detail: msg } }
     if (msg.includes('bad_cursor'))                       return { ok: false, error: { kind: 'bad_cursor' } }
     if (msg.includes('identifier_requires_both_fields'))  return { ok: false, error: { kind: 'bad_filters', detail: 'Both identifier and identifier_type must be supplied together' } }
     if (msg.includes('identifier') || error.code === '22023') return { ok: false, error: { kind: 'invalid_identifier', detail: msg } }
@@ -89,14 +94,24 @@ export interface ArtefactDetail extends ArtefactListItem {
 }
 
 export async function getArtefact(params: {
+  keyId: string
   orgId: string
   artefactId: string
-}): Promise<{ ok: true; data: ArtefactDetail | null } | { ok: false; error: { kind: 'unknown'; detail: string } }> {
+}): Promise<
+  { ok: true; data: ArtefactDetail | null } |
+  { ok: false; error: { kind: 'api_key_binding'; detail: string } | { kind: 'unknown'; detail: string } }
+> {
   const { data, error } = await serviceClient().rpc('rpc_artefact_get', {
+    p_key_id:      params.keyId,
     p_org_id:      params.orgId,
     p_artefact_id: params.artefactId,
   })
-  if (error) return { ok: false, error: { kind: 'unknown', detail: error.message ?? '' } }
+  if (error) {
+    const msg = error.message ?? ''
+    if (error.code === '42501' || msg.includes('api_key_') || msg.includes('org_id_missing') || msg.includes('org_not_found'))
+      return { ok: false, error: { kind: 'api_key_binding', detail: msg } }
+    return { ok: false, error: { kind: 'unknown', detail: msg } }
+  }
   return { ok: true, data: data as ArtefactDetail | null }
 }
 
@@ -120,10 +135,12 @@ export interface EventListEnvelope {
 }
 
 export type EventListError =
+  | { kind: 'api_key_binding'; detail: string }
   | { kind: 'bad_cursor' }
   | { kind: 'unknown'; detail: string }
 
 export async function listEvents(params: {
+  keyId: string
   orgId: string
   propertyId?: string
   createdAfter?: string
@@ -133,6 +150,7 @@ export async function listEvents(params: {
   limit?: number
 }): Promise<{ ok: true; data: EventListEnvelope } | { ok: false; error: EventListError }> {
   const { data, error } = await serviceClient().rpc('rpc_event_list', {
+    p_key_id:         params.keyId,
     p_org_id:         params.orgId,
     p_property_id:    params.propertyId ?? null,
     p_created_after:  params.createdAfter ?? null,
@@ -144,6 +162,8 @@ export async function listEvents(params: {
 
   if (error) {
     const msg = error.message ?? ''
+    if (error.code === '42501' || msg.includes('api_key_') || msg.includes('org_id_missing') || msg.includes('org_not_found'))
+      return { ok: false, error: { kind: 'api_key_binding', detail: msg } }
     if (msg.includes('bad_cursor')) return { ok: false, error: { kind: 'bad_cursor' } }
     return { ok: false, error: { kind: 'unknown', detail: msg } }
   }

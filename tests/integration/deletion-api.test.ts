@@ -325,7 +325,7 @@ describe('listDeletionReceipts', () => {
 
   it('returns seeded receipt when filtered by artefact_id', async () => {
     const r = await listDeletionReceipts({
-      orgId: org.orgId,
+      keyId, orgId: org.orgId,
       artefactId: seededReceiptArtefactId,
       limit: 50,
     })
@@ -337,7 +337,7 @@ describe('listDeletionReceipts', () => {
 
   it('filter by status=pending', async () => {
     const r = await listDeletionReceipts({
-      orgId: org.orgId,
+      keyId, orgId: org.orgId,
       status: 'pending',
       limit: 50,
     })
@@ -349,7 +349,7 @@ describe('listDeletionReceipts', () => {
 
   it('filter by connector_id', async () => {
     const r = await listDeletionReceipts({
-      orgId: org.orgId,
+      keyId, orgId: org.orgId,
       connectorId: seededConnectorId,
       limit: 50,
     })
@@ -360,7 +360,7 @@ describe('listDeletionReceipts', () => {
 
   it('bad cursor → bad_cursor', async () => {
     const r = await listDeletionReceipts({
-      orgId: org.orgId,
+      keyId, orgId: org.orgId,
       cursor: '####nope###',
     })
     expect(r.ok).toBe(false)
@@ -370,7 +370,7 @@ describe('listDeletionReceipts', () => {
 
   it('cross-org isolation', async () => {
     const r = await listDeletionReceipts({
-      orgId: otherOrg.orgId,
+      keyId: otherKeyId, orgId: otherOrg.orgId,
       limit: 100,
     })
     expect(r.ok).toBe(true)
@@ -381,7 +381,7 @@ describe('listDeletionReceipts', () => {
 
   it('date range filter with ancient window returns empty', async () => {
     const r = await listDeletionReceipts({
-      orgId: org.orgId,
+      keyId, orgId: org.orgId,
       issuedBefore: new Date(Date.now() - 365 * 86400_000).toISOString(),
     })
     expect(r.ok).toBe(true)

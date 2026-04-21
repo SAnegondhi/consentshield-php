@@ -16,6 +16,7 @@ import {
   createTestOrg,
   cleanupTestOrg,
   getServiceClient,
+  seedApiKey,
   type TestOrg,
 } from '../rls/helpers'
 
@@ -33,6 +34,8 @@ interface Fixture {
 let org: TestOrg
 let otherOrg: TestOrg
 let f: Fixture
+let keyId: string
+let otherKeyId: string
 
 const PURPOSE_CODE = 'verify_test_marketing'
 
@@ -119,6 +122,8 @@ async function seedArtefact(
 beforeAll(async () => {
   org = await createTestOrg('vfyMain')
   otherOrg = await createTestOrg('vfyOther')
+  keyId = (await seedApiKey(org)).keyId
+  otherKeyId = (await seedApiKey(otherOrg)).keyId
   const admin = getServiceClient()
 
   // Property + banner
@@ -234,6 +239,7 @@ describe('verifyConsent — four status states', () => {
 
   it('granted — active row with future expires_at', async () => {
     const r = await verifyConsent({
+      keyId,
       orgId:          org.orgId,
       propertyId:     f.propertyId,
       identifier:     f.grantedIdentifier,
@@ -259,6 +265,7 @@ describe('verifyConsent — four status states', () => {
 
   it('revoked — index row preserved, returns pointer to artefact_revocations', async () => {
     const r = await verifyConsent({
+      keyId,
       orgId:          org.orgId,
       propertyId:     f.propertyId,
       identifier:     f.revokedIdentifier,
@@ -275,6 +282,7 @@ describe('verifyConsent — four status states', () => {
 
   it('expired — active row with past expires_at reports expired', async () => {
     const r = await verifyConsent({
+      keyId,
       orgId:          org.orgId,
       propertyId:     f.propertyId,
       identifier:     f.expiredIdentifier,
@@ -290,6 +298,7 @@ describe('verifyConsent — four status states', () => {
 
   it('never_consented — no matching row', async () => {
     const r = await verifyConsent({
+      keyId,
       orgId:          org.orgId,
       propertyId:     f.propertyId,
       identifier:     `nobody-${Date.now()}@verify.test`,
@@ -322,6 +331,7 @@ describe('verifyConsent — errors', () => {
       .single()
 
     const r = await verifyConsent({
+      keyId,
       orgId:          org.orgId,
       propertyId:     otherProp!.id,
       identifier:     f.grantedIdentifier,
@@ -335,6 +345,7 @@ describe('verifyConsent — errors', () => {
 
   it('invalid_identifier when identifier is empty', async () => {
     const r = await verifyConsent({
+      keyId,
       orgId:          org.orgId,
       propertyId:     f.propertyId,
       identifier:     '',
@@ -348,6 +359,7 @@ describe('verifyConsent — errors', () => {
 
   it('invalid_identifier for unknown identifier_type', async () => {
     const r = await verifyConsent({
+      keyId,
       orgId:          org.orgId,
       propertyId:     f.propertyId,
       identifier:     'user@example.com',
@@ -365,6 +377,7 @@ describe('verifyConsent — errors', () => {
     // (digits-only), the timestamp digits in the email string produce a
     // valid but different hash. No match → never_consented.
     const r = await verifyConsent({
+      keyId,
       orgId:          org.orgId,
       propertyId:     f.propertyId,
       identifier:     f.grantedIdentifier,
@@ -376,6 +389,20 @@ describe('verifyConsent — errors', () => {
     expect(r.data.status).toBe('never_consented')
   })
 
+  it('ADR-1009 fence: org-bound key + p_org_id=otherOrg → api_key_binding', async () => {
+    const r = await verifyConsent({
+      keyId,                        // key bound to org
+      orgId:          otherOrg.orgId, // caller tries to pretend they're otherOrg
+      propertyId:     f.propertyId,
+      identifier:     f.grantedIdentifier,
+      identifierType: 'email',
+      purposeCode:    f.purposeCode,
+    })
+    expect(r.ok).toBe(false)
+    if (r.ok) return
+    expect(r.error.kind).toBe('api_key_binding')
+  })
+
   it('cross-org isolation: identifier granted in org A returns never_consented in org B (different salt)', async () => {
     const admin = getServiceClient()
     const { data: otherProp } = await admin
@@ -385,6 +412,7 @@ describe('verifyConsent — errors', () => {
       .single()
 
     const r = await verifyConsent({
+      keyId:          otherKeyId,
       orgId:          otherOrg.orgId,
       propertyId:     otherProp!.id,
       identifier:     f.grantedIdentifier, // same string granted in org, but different salt in otherOrg

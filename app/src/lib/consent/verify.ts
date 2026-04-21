@@ -21,6 +21,7 @@ export interface VerifyEnvelope {
 }
 
 export type VerifyError =
+  | { kind: 'api_key_binding'; detail: string }
   | { kind: 'property_not_found' }
   | { kind: 'invalid_identifier'; detail: string }
   | { kind: 'unknown'; detail: string }
@@ -43,6 +44,7 @@ export interface VerifyBatchEnvelope {
 }
 
 export type VerifyBatchError =
+  | { kind: 'api_key_binding'; detail: string }
   | { kind: 'property_not_found' }
   | { kind: 'invalid_identifier'; detail: string }
   | { kind: 'identifiers_empty' }
@@ -57,6 +59,7 @@ function serviceClient() {
 }
 
 export async function verifyConsent(params: {
+  keyId: string
   orgId: string
   propertyId: string
   identifier: string
@@ -64,6 +67,7 @@ export async function verifyConsent(params: {
   purposeCode: string
 }): Promise<{ ok: true; data: VerifyEnvelope } | { ok: false; error: VerifyError }> {
   const { data, error } = await serviceClient().rpc('rpc_consent_verify', {
+    p_key_id:          params.keyId,
     p_org_id:          params.orgId,
     p_property_id:     params.propertyId,
     p_identifier:      params.identifier,
@@ -73,6 +77,9 @@ export async function verifyConsent(params: {
 
   if (error) {
     const msg = error.message ?? ''
+    if (error.code === '42501' || msg.includes('api_key_') || msg.includes('org_id_missing') || msg.includes('org_not_found')) {
+      return { ok: false, error: { kind: 'api_key_binding', detail: msg } }
+    }
     if (msg.includes('property_not_found')) {
       return { ok: false, error: { kind: 'property_not_found' } }
     }
@@ -86,6 +93,7 @@ export async function verifyConsent(params: {
 }
 
 export async function verifyConsentBatch(params: {
+  keyId: string
   orgId: string
   propertyId: string
   identifiers: string[]
@@ -93,6 +101,7 @@ export async function verifyConsentBatch(params: {
   purposeCode: string
 }): Promise<{ ok: true; data: VerifyBatchEnvelope } | { ok: false; error: VerifyBatchError }> {
   const { data, error } = await serviceClient().rpc('rpc_consent_verify_batch', {
+    p_key_id:          params.keyId,
     p_org_id:          params.orgId,
     p_property_id:     params.propertyId,
     p_identifier_type: params.identifierType,
@@ -102,6 +111,9 @@ export async function verifyConsentBatch(params: {
 
   if (error) {
     const msg = error.message ?? ''
+    if (error.code === '42501' || msg.includes('api_key_') || msg.includes('org_id_missing') || msg.includes('org_not_found')) {
+      return { ok: false, error: { kind: 'api_key_binding', detail: msg } }
+    }
     if (msg.includes('property_not_found')) {
       return { ok: false, error: { kind: 'property_not_found' } }
     }

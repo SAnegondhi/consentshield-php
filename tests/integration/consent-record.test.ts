@@ -194,6 +194,7 @@ describe('recordConsent — happy path', () => {
     if (!rec.ok) return
 
     const v = await verifyConsent({
+      keyId,
       orgId:          org.orgId,
       propertyId,
       identifier:     email,

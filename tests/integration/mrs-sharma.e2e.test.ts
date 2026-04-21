@@ -120,6 +120,7 @@ describe('Mrs. Sharma — §11 end-to-end', () => {
 
   it('2. verify returns `granted` for marketing before a campaign', async () => {
     const r = await verifyConsent({
+      keyId,
       orgId:          org.orgId,
       propertyId,
       identifier:     sharmaIdentifier,
@@ -142,6 +143,7 @@ describe('Mrs. Sharma — §11 end-to-end', () => {
 
     const t0 = Date.now()
     const r = await verifyConsentBatch({
+      keyId,
       orgId:          org.orgId,
       propertyId,
       identifiers:    ids,
@@ -188,6 +190,7 @@ describe('Mrs. Sharma — §11 end-to-end', () => {
 
   it('5. verify returns `revoked` with revocation_record_id after revoke', async () => {
     const r = await verifyConsent({
+      keyId,
       orgId:          org.orgId,
       propertyId,
       identifier:     sharmaIdentifier,
@@ -203,6 +206,7 @@ describe('Mrs. Sharma — §11 end-to-end', () => {
 
   it('6. artefacts list shows 4 active + 1 revoked for this identity', async () => {
     const r = await listArtefacts({
+      keyId,
       orgId:          org.orgId,
       propertyId,
       identifier:     sharmaIdentifier,
@@ -222,7 +226,7 @@ describe('Mrs. Sharma — §11 end-to-end', () => {
   })
 
   it('7. artefact detail returns envelope + revocation record', async () => {
-    const r = await getArtefact({ orgId: org.orgId, artefactId: marketingArtefactId })
+    const r = await getArtefact({ keyId, orgId: org.orgId, artefactId: marketingArtefactId })
     expect(r.ok).toBe(true)
     if (!r.ok) return
     expect(r.data).not.toBeNull()
@@ -239,6 +243,7 @@ describe('Mrs. Sharma — §11 end-to-end', () => {
 
   it('8. events list surfaces the Mode B record event', async () => {
     const r = await listEvents({
+      keyId,
       orgId:       org.orgId,
       propertyId,
       source:      'api',
@@ -318,6 +323,7 @@ describe('Mrs. Sharma — §11 end-to-end', () => {
     })
 
     const r = await listDeletionReceipts({
+      keyId,
       orgId:      org.orgId,
       artefactId: analyticsArtefactId,
       limit:      10,

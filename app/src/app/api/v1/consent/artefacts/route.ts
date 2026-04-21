@@ -56,6 +56,7 @@ export async function GET(request: NextRequest) {
   }
 
   const result = await listArtefacts({
+    keyId:          context.key_id,
     orgId:          context.org_id!,
     propertyId:     property_id,
     identifier,
@@ -70,6 +71,9 @@ export async function GET(request: NextRequest) {
 
   if (!result.ok) {
     switch (result.error.kind) {
+      case 'api_key_binding':
+        return respondV1(context, ROUTE, 'GET', 403,
+          problemJson(403, 'Forbidden', 'API key does not authorise access to this organisation'), t0, true)
       case 'bad_cursor':
         return respondV1(context, ROUTE, 'GET', 422,
           problemJson(422, 'Unprocessable Entity', 'cursor is malformed'), t0, true)

@@ -174,6 +174,7 @@ export async function POST(request: NextRequest) {
   }
 
   const result = await verifyConsentBatch({
+    keyId:          context.key_id,
     orgId:          context.org_id,
     propertyId:     property_id as string,
     identifiers:    ids as string[],
@@ -183,6 +184,14 @@ export async function POST(request: NextRequest) {
 
   if (!result.ok) {
     switch (result.error.kind) {
+      case 'api_key_binding':
+        return respond(
+          context,
+          403,
+          problemJson(403, 'Forbidden', 'API key does not authorise access to this organisation'),
+          t0,
+          true,
+        )
       case 'property_not_found':
         return respond(
           context,

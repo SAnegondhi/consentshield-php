@@ -95,10 +95,12 @@ export interface DeletionReceiptsEnvelope {
 }
 
 export type DeletionReceiptsError =
+  | { kind: 'api_key_binding'; detail: string }
   | { kind: 'bad_cursor' }
   | { kind: 'unknown'; detail: string }
 
 export async function listDeletionReceipts(params: {
+  keyId: string
   orgId: string
   status?: string
   connectorId?: string
@@ -109,6 +111,7 @@ export async function listDeletionReceipts(params: {
   limit?: number
 }): Promise<{ ok: true; data: DeletionReceiptsEnvelope } | { ok: false; error: DeletionReceiptsError }> {
   const { data, error } = await serviceClient().rpc('rpc_deletion_receipts_list', {
+    p_key_id:        params.keyId,
     p_org_id:        params.orgId,
     p_status:        params.status ?? null,
     p_connector_id:  params.connectorId ?? null,
@@ -121,6 +124,8 @@ export async function listDeletionReceipts(params: {
 
   if (error) {
     const msg = error.message ?? ''
+    if (error.code === '42501' || msg.includes('api_key_') || msg.includes('org_id_missing') || msg.includes('org_not_found'))
+      return { ok: false, error: { kind: 'api_key_binding', detail: msg } }
     if (msg.includes('bad_cursor')) return { ok: false, error: { kind: 'bad_cursor' } }
     return { ok: false, error: { kind: 'unknown', detail: msg } }
   }

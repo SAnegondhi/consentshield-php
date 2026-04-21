@@ -2,6 +2,22 @@
 
 API route changes.
 
+## [ADR-1009 Sprint 1.2] — 2026-04-20
+
+**ADR:** ADR-1009 — v1 API role hardening
+**Sprint:** Phase 1 Sprint 1.2 — DB tenant fence on read RPCs
+
+### Changed
+- `app/src/lib/consent/verify.ts` — `verifyConsent` and `verifyConsentBatch` each gain required `keyId` param + `api_key_binding` error kind.
+- `app/src/lib/consent/read.ts` — same change across `listArtefacts`, `getArtefact`, `listEvents`.
+- `app/src/lib/consent/deletion.ts` — same change on `listDeletionReceipts`.
+- `app/src/app/api/v1/consent/verify/route.ts`, `app/src/app/api/v1/consent/verify/batch/route.ts`, `app/src/app/api/v1/consent/artefacts/route.ts`, `app/src/app/api/v1/consent/artefacts/[id]/route.ts`, `app/src/app/api/v1/consent/events/route.ts`, `app/src/app/api/v1/deletion/receipts/route.ts` — each route threads `context.key_id` into its helper and maps `api_key_binding` → 403.
+- Five integration test files updated to pass `keyId` through to read helpers; `consent-verify.test.ts` + `artefact-event-read.test.ts` additionally seed an `otherKeyId` for cross-org cases.
+- New explicit cross-org fence test in `consent-verify.test.ts`: org-bound keyId with `p_org_id=otherOrg` → `api_key_binding` 403.
+
+### Tested
+- [x] 100/100 integration suite PASS.
+
 ## [ADR-1009 Sprint 1.1] — 2026-04-20
 
 **ADR:** ADR-1009 — v1 API role hardening
