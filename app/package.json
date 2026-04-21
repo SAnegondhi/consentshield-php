@@ -4,9 +4,10 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "prebuild": "bun ../scripts/check-env-isolation.ts",
+    "prebuild": "bun ../scripts/check-env-isolation.ts && bun ../scripts/check-no-service-role-in-customer-app.ts",
     "build": "next build",
     "start": "next start",
+    "prelint": "bun ../scripts/check-no-service-role-in-customer-app.ts",
     "lint": "eslint src/",
     "test": "vitest run"
   },

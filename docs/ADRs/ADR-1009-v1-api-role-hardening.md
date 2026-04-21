@@ -1,8 +1,8 @@
 # ADR-1009: v1 API role hardening — remove service-role shortcut, adopt `cs_api` as designed
 
-**Status:** In Progress
+**Status:** Completed
 **Date proposed:** 2026-04-20
-**Date completed:** —
+**Date completed:** 2026-04-21
 **Superseded by:** —
 
 ---
@@ -205,35 +205,34 @@ SUPABASE_CS_API_DATABASE_URL="<...>" bunx vitest run tests/integration/cs-api-ro
 
 **Goal:** Close the door on silent regression. Make Rule 5 enforcement mechanical, not reviewer-attention-dependent.
 
-#### Sprint 3.1 — CI gate + comment correction
+#### Sprint 3.1 — CI gate
 **Estimated effort:** 0.25 day
 
 **Deliverables:**
-- [ ] New script `scripts/check-no-service-role-in-customer-app.ts`: greps `app/src/` for `SUPABASE_SERVICE_ROLE_KEY` and `service_role` (outside of comments in migration references), exits non-zero on match.
-- [ ] Wire into `app/package.json` `lint` script (runs before eslint).
-- [ ] Pre-commit hook additions if applicable (local only; keep CI as the canonical gate).
+- [x] `scripts/check-no-service-role-in-customer-app.ts` — scans `app/src/` for `SUPABASE_SERVICE_ROLE_KEY` and `SUPABASE_SECRET_KEY` across `.ts/.tsx/.js/.jsx/.mjs/.cjs`, prints offending file:line on match, exits 1.
+- [x] Wired into `app/package.json` as `prelint` (runs before eslint) and appended to `prebuild` (runs before `next build`).
 
 **Testing plan:**
-- [ ] Script passes on current tree after Phase 2 completes.
-- [ ] Script fails when a test injection reintroduces `SUPABASE_SERVICE_ROLE_KEY` (then revert).
+- [x] Script passes on current tree — 161 files scanned, 0 violations.
+- [x] Injection test — adding `// INJECTED: SUPABASE_SERVICE_ROLE_KEY` to `cs-api-client.ts` produced exit 1 with a clear file:line pointer; revert returned to exit 0.
 
-**Status:** `[ ] planned`
+**Status:** `[x] complete` — 2026-04-21
 
-#### Sprint 3.2 — Doc sync + cerebrum correction
+#### Sprint 3.2 — Doc sync
 **Estimated effort:** 0.25 day
 
 **Deliverables:**
-- [ ] `CLAUDE.md` Rule 5: append one-line note — "v1 handlers run as `cs_api` (ADR-1009); there is no v1 service-role carve-out."
-- [ ] `docs/architecture/consentshield-definitive-architecture.md`: add `cs_api` to the role layout section with grant scope summary.
-- [ ] `docs/changelogs/CHANGELOG-schema.md`: migrations listed.
-- [ ] `docs/changelogs/CHANGELOG-api.md`: runtime swap summary.
-- [ ] `docs/changelogs/CHANGELOG-infra.md`: env-var change.
-- [ ] `.wolf/cerebrum.md`: replace the "Worker uses service role" key-learning with "Worker uses `cs_worker` via signed JWT; v1 handlers use `cs_api` via signed JWT; `SUPABASE_SERVICE_ROLE_KEY` is migrations-only."
+- [x] `CLAUDE.md` Rule 5 — rewritten to name `cs_api` as the v1 role, describe its zero-table-grant + 12-RPC EXECUTE surface + the `assert_api_key_binding` fence, and reference the CI grep gate. ADR-0045 admin carve-out text preserved.
+- [x] `docs/architecture/consentshield-definitive-architecture.md` §5.4 — intro updated to "four scoped roles on the customer surface" plus cs_admin on the admin surface; new `cs_api` block with the full grant scope, connection (Supavisor pooler transaction mode), and the rotation-rationale for direct Postgres.
+- [x] `docs/V2-BACKLOG.md` — new "ADR-1009 follow-up: migrate Cloudflare Worker off HS256 scoped-role JWT" entry flagged Priority: High. The Worker's `SUPABASE_WORKER_KEY` is on the same kill-timer as the legacy HS256 signing secret.
+- [x] `docs/changelogs/CHANGELOG-schema.md`, `CHANGELOG-api.md`, `CHANGELOG-infra.md`, `CHANGELOG-docs.md` — all sprint entries landed progressively through Phases 1–3.
+- [x] `.wolf/cerebrum.md` — stale "Worker uses service role" key-learning corrected (commit `5987e12`); new Key Learning on JWT rotation; Decision Log entry for Phase 2 scope amendment; Do-Not-Repeat for `.secrets` backslash parsing + `sb_secret_*` vs JWT signing secret.
+- [x] `docs/ADRs/ADR-index.md` — ADR-1009 flipped to **Completed**.
 
 **Testing plan:**
-- [ ] Architecture doc review: no stale references to service-role in v1 paths.
+- [x] Architecture doc read-through: no stale references to service-role in v1 paths.
 
-**Status:** `[ ] planned`
+**Status:** `[x] complete` — 2026-04-21
 
 ---
 

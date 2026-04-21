@@ -182,3 +182,23 @@ No code change, just redeploy.
 **Why accepted.** Querying the DB per API request in middleware is too expensive. The static map is acceptable because plan limits change rarely and via migration (where the TS file change is part of the same PR).
 
 **Shape of v2 fix.** Add a build-time integration test that queries `public.plans` and asserts the TS map values match. Runs in CI on every deploy.
+
+---
+
+## ADR-1009 follow-up: migrate Cloudflare Worker off HS256 scoped-role JWT
+
+**Origin.** ADR-1009 Phase 2 (discovery 2026-04-21).
+
+**Limitation.** `SUPABASE_WORKER_KEY` is an HS256 JWT claiming `role: cs_worker`, signed with the project's legacy HS256 shared secret. Supabase has rotated its project JWT signing keys to ECC P-256; the HS256 key is flagged "Previously used" in the dashboard and will be revoked. When that happens, `SUPABASE_WORKER_KEY` stops working and every banner-serve + consent-event ingestion request breaks.
+
+**Why accepted (for now).** The legacy HS256 key is still alive (Supabase uses it to verify not-yet-expired tokens during the rotation window). The Worker keeps functioning today. This is a timer-driven break, not an immediate outage; we have weeks-to-months of runway.
+
+**Shape of v2 fix.** Follow the ADR-1009 Phase 2 pattern for cs_api:
+
+1. `alter role cs_worker with login` (already is — no change needed).
+2. Rotate the `cs_worker` password, store as `SUPABASE_WORKER_DATABASE_URL` (Supavisor pooler, transaction mode).
+3. Replace the Worker's `fetch(${SUPABASE_URL}/rest/v1/...)` calls with a Postgres client. Cloudflare Workers don't run `postgres.js` cleanly (sockets) — options: (a) Supabase REST via an anon JWT that PostgREST resolves through RLS (but cs_worker has no RLS-friendly anon surface), (b) a Cloudflare Hyperdrive connection, (c) a small Worker-native Postgres client over the Supabase Data API (when released). Research in the ADR.
+4. Update wrangler secrets; deprecate `SUPABASE_WORKER_KEY`.
+5. Same architectural note applies to any future scoped role activated from a Cloudflare Worker context.
+
+**Priority.** High — this is a dated break, not a deferred feature. Promote to ADR before the legacy HS256 key is revoked. Tracking in `.wolf/cerebrum.md` Key Learnings + Decision Log too.

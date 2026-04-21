@@ -2,6 +2,17 @@
 
 Documentation changes.
 
+## [ADR-1009 Sprint 3.2 — ADR complete] — 2026-04-21
+
+**ADR:** ADR-1009 — v1 API role hardening (**COMPLETED**)
+**Sprint:** Phase 3 Sprint 3.2 — doc sync
+
+### Changed
+- `CLAUDE.md` Rule 5 — rewritten to name `cs_api` as the v1 role, describe the direct-Postgres pattern + 12-RPC EXECUTE surface + `assert_api_key_binding` fence, and reference the CI grep gate (`scripts/check-no-service-role-in-customer-app.ts`). The ADR-0045 admin carve-out text is preserved verbatim.
+- `docs/architecture/consentshield-definitive-architecture.md` §5.4 — intro updated from "three scoped roles" to "four scoped roles on the customer surface" (cs_worker / cs_delivery / cs_orchestrator / cs_api), plus cs_admin on the admin surface. Added a full `cs_api` block describing zero table privileges, the 12 RPC EXECUTE surface, the Supavisor pooler connection, and the rationale for direct Postgres over HS256 JWT signing.
+- `docs/V2-BACKLOG.md` — new **ADR-1009 follow-up: migrate Cloudflare Worker off HS256 scoped-role JWT** entry. The Worker's `SUPABASE_WORKER_KEY` is on the same kill-timer as the HS256 signing secret. Priority: High.
+- `docs/ADRs/ADR-index.md` — ADR-1009 status flipped to **Completed**. ADR row rewritten to reflect the scope amendment.
+
 ## [ADR-1002 Sprint 5.1 — ADR complete] — 2026-04-20
 
 **ADR:** ADR-1002 — DPDP §6 runtime enforcement (**COMPLETED**)
