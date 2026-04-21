@@ -12,6 +12,16 @@ Database migrations, RLS policies, roles.
 ### Tested
 - [x] `bunx supabase db push` — applied to remote dev DB.
 
+## [ADR-1013 Sprint 2.2 — cs_orchestrator SELECT on tracker_signatures] — 2026-04-21
+
+**ADR:** ADR-1013 Sprint 2.2
+
+### Added
+- `20260803000010_cs_orchestrator_select_tracker_signatures.sql` — `grant select on public.tracker_signatures to cs_orchestrator`. The legacy HS256 JWT path was BYPASSRLS so it didn't need a table-level SELECT; the pooler LOGIN path does. Audit via `has_table_privilege` confirmed this was the only missing grant across the five tables the run-probes route touches; the `consent_probes` column-level UPDATE grant from migration 20260413000010 is intact.
+
+### Tested
+- [x] `bunx supabase db push` — applied.
+
 ## [ADR-0058 follow-up — cs_orchestrator SELECT on public.plans] — 2026-04-21
 
 **ADR:** ADR-0058 (follow-up)

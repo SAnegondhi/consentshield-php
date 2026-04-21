@@ -2,9 +2,9 @@
 
 (c) 2026 Sudhindra Anegondhi a.d.sudhindra@gmail.com
 
-**Status:** In Progress (Phase 1 + Sprint 2.1 complete 2026-04-21; Sprint 2.2 deferred — single remaining caller, non-blocking)
+**Status:** Completed
 **Date proposed:** 2026-04-21
-**Date completed:** — (pending Sprint 2.2)
+**Date completed:** 2026-04-21
 **Supersedes:** —
 **Depends on:** ADR-1009 (v1 API role hardening — established the direct-Postgres pattern for `cs_api`).
 
@@ -97,17 +97,32 @@ Mirror ADR-1009 Phase 2's `cs_api` migration for `cs_orchestrator` in the Next.j
 
 #### Sprint 2.2 — Migrate `/api/internal/run-probes` off CS_ORCHESTRATOR_ROLE_KEY
 
-**Deferred.** The probe orchestrator (`app/src/app/api/internal/run-probes/route.ts`) is the last Next.js surface still calling `createClient(…, CS_ORCHESTRATOR_ROLE_KEY)`. It's a different domain (ADR-0041 probe runner), uses supabase-js idioms for reads + inserts + updates across five tables, and doesn't share the invitation-domain hot path. Migrating it to `csOrchestrator()` + tagged-template SQL is mechanical but not trivial (~50 lines of supabase-js calls across two functions).
+**Deliverables:**
 
-Not a blocker today because Supabase hasn't revoked the HS256 secret yet. Tracked here as Sprint 2.2; lands whenever the rotation kill-timer forces the issue or the probe codebase gets touched for other reasons.
+- [x] `app/src/app/api/internal/run-probes/route.ts` — rewrote off `createClient(…, CS_ORCHESTRATOR_ROLE_KEY)` onto `csOrchestrator()` + tagged-template SQL. Five operations migrated: `consent_probes` select (due-probe scan with `is_active = true and (next_run_at is null or next_run_at <= now())`), `tracker_signatures` select, `web_properties` select, `consent_probe_runs` insert, `consent_probes` update (last_run_at / last_result / next_run_at). `runProbe` signature changed from `(supabase: SupabaseClient, probe, signatures)` to `(sql: Sql, probe, signatures)`. `jsonb` columns (`consent_state`, `result`, `last_result`) serialised via `JSON.stringify` + `::jsonb` cast to satisfy postgres.js's strict template-parameter typing.
+- [x] `supabase/migrations/20260803000010_cs_orchestrator_select_tracker_signatures.sql` — `grant select on public.tracker_signatures to cs_orchestrator`. The legacy JWT path was BYPASSRLS so it worked without the table grant; the pooler LOGIN path needs the explicit grant. Audit via `has_table_privilege` confirmed this was the only missing grant across the five tables the route touches (consent_probes column-level UPDATE grant from migration 20260413000010 is intact).
+- [x] Removed `SUPABASE_URL` + `ORCHESTRATOR_KEY` consts from the route. Only residual reference to `CS_ORCHESTRATOR_ROLE_KEY` is in the header comment explaining the migration.
 
-**Status:** `[ ] planned`
+**Tested:**
+- [x] `cd app && bun run build / lint` — clean.
+- [x] `bunx supabase db push` — tracker_signatures grant applied.
+- [x] Audit: `grep -rln CS_ORCHESTRATOR_ROLE_KEY app/src` — zero code hits, one comment hit (this header).
+
+**Status:** `[x] complete — 2026-04-21`
+
+---
+
+## ADR close-out (2026-04-21)
+
+With Sprint 2.2 landed, every Next.js-runtime caller of cs_orchestrator is on the direct-Postgres pool. `CS_ORCHESTRATOR_ROLE_KEY` is no longer referenced by any customer-app source code — only by Edge Functions (hosted Supabase pool, separate runtime) and by `docs/architecture/consentshield-definitive-architecture.md` §12 where it's flagged as the Edge-Function-only env var.
+
+The ADR's acceptance criteria are met. Marking **Completed**.
 
 ---
 
 ## Acceptance criteria
 
-- No Next.js-runtime code path references `CS_ORCHESTRATOR_ROLE_KEY` (except `/api/internal/run-probes` — tracked as Sprint 2.2, non-blocking).
+- No Next.js-runtime code path references `CS_ORCHESTRATOR_ROLE_KEY`. ✅ (verified 2026-04-21 via `grep -rln CS_ORCHESTRATOR_ROLE_KEY app/src` — zero code hits)
 - `signup-intake` and `invitation-dispatch` both reach their RPCs via direct-Postgres as `cs_orchestrator`.
 - `cs_orchestrator` password is rotated off the seed placeholder.
 - CI lint + build on `app/` pass.

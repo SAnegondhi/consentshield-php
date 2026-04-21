@@ -213,7 +213,7 @@ If the delivery credential leaks, the attacker can read in-flight buffer rows (m
 Connection patterns differ by runtime:
 
 - **Edge Functions (Deno):** direct Postgres via the Supabase-hosted pool using `CS_ORCHESTRATOR_ROLE_KEY` (HS256 JWT, while the legacy signing secret is still alive; migration to direct-LOGIN tracked alongside ADR-1010 for the Worker).
-- **Next.js runtime (customer app):** direct Postgres via the Supavisor pooler as the LOGIN role `cs_orchestrator.<project-ref>`, using `postgres.js` with `prepare: false`. See `app/src/lib/api/cs-orchestrator-client.ts` (ADR-1013). The HS256 JWT path is retired from the Next.js runtime callers (signup-intake, invitation-dispatch, dispatch helper, lookup-invitation, internal/invites); only the `run-probes` route — a different domain — still uses the JWT pending its own migration.
+- **Next.js runtime (customer app):** direct Postgres via the Supavisor pooler as the LOGIN role `cs_orchestrator.<project-ref>`, using `postgres.js` with `prepare: false`. See `app/src/lib/api/cs-orchestrator-client.ts` (ADR-1013). All six Next.js-runtime callers use this path: signup-intake, invitation-dispatch, dispatch helper, lookup-invitation, internal/invites, run-probes. The HS256 JWT path is fully retired from the Next.js runtime.
 
 Env: `SUPABASE_CS_ORCHESTRATOR_DATABASE_URL` on the customer-app project (parity with `SUPABASE_CS_API_DATABASE_URL`).
 
@@ -949,7 +949,7 @@ SUPABASE_ANON_KEY=<anon key>                         # Client-side Supabase clie
 
 # Scoped database roles (replace single service key)
 SUPABASE_DELIVERY_ROLE_KEY=<cs_delivery password>         # Delivery Edge Function only
-SUPABASE_ORCHESTRATOR_ROLE_KEY=<cs_orchestrator pw>       # Edge Functions + (legacy) /api/internal/run-probes
+SUPABASE_ORCHESTRATOR_ROLE_KEY=<cs_orchestrator pw>       # Edge Functions only (Next.js runtime is on direct-Postgres after ADR-1013)
 SUPABASE_CS_API_DATABASE_URL=<pooler url cs_api>          # Next.js /api/v1/* — ADR-1009
 SUPABASE_CS_ORCHESTRATOR_DATABASE_URL=<pooler url cs_orch>  # Next.js signup-intake + invitation-dispatch + lookup-invitation + internal/invites — ADR-1013
 SUPABASE_SERVICE_ROLE_KEY=<service role key>               # Migrations and emergency admin ONLY

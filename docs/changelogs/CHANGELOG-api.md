@@ -23,6 +23,20 @@ API route changes.
 - [x] `cd app && bun run lint` — 0 errors, 0 warnings.
 - [x] End-to-end — verified 2026-04-21. cs_orchestrator password rotated, `SUPABASE_CS_ORCHESTRATOR_DATABASE_URL` wired, app dev restarted, marketing `/signup` → app `signup-intake` (direct-Postgres as cs_orchestrator) → create_signup_intake RPC → in-process dispatcher → marketing `/api/internal/send-email` relay → Resend → invite email landed in recipient inbox.
 
+## [ADR-1013 Sprint 2.2 + ADR COMPLETED — run-probes direct-Postgres] — 2026-04-21
+
+**ADR:** ADR-1013 — `cs_orchestrator` direct-Postgres migration (Next.js runtime) **(COMPLETED)**
+**Sprint:** Phase 2 Sprint 2.2 — last Next.js JWT caller migrated
+
+### Changed
+- `app/src/app/api/internal/run-probes/route.ts` — migrated off `createClient(…, CS_ORCHESTRATOR_ROLE_KEY)` onto `csOrchestrator()` + `postgres.js` tagged templates. Five operations rewritten: due-probe scan (with `is_active = true and (next_run_at is null or next_run_at <= now())`), tracker_signatures select, web_properties select, consent_probe_runs insert, consent_probes scheduling update. `jsonb` columns serialised via `JSON.stringify` + `::jsonb` cast so postgres.js's strict template-parameter typing accepts the payloads. `runProbe` helper signature changed from `(supabase: SupabaseClient, probe, signatures)` to `(sql: Sql, probe, signatures)`.
+
+### Post-condition
+- `grep -rln CS_ORCHESTRATOR_ROLE_KEY app/src` returns zero code hits (one comment hit in run-probes/route.ts explaining the migration history). Next.js runtime fully off HS256.
+
+### Tested
+- [x] `cd app && bun run build / lint` — clean.
+
 ## [ADR-1013 Sprint 2.1 — remaining invitation-domain callers + doc sync] — 2026-04-21
 
 **ADR:** ADR-1013 — `cs_orchestrator` direct-Postgres migration (Next.js runtime)

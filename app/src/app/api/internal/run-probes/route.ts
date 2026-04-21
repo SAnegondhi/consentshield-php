@@ -1,8 +1,9 @@
 import { NextResponse } from 'next/server'
-import { createClient, SupabaseClient } from '@supabase/supabase-js'
+import type postgres from 'postgres'
 import { Sandbox } from '@vercel/sandbox'
 import { readFileSync, readdirSync, statSync } from 'node:fs'
 import path from 'node:path'
+import { csOrchestrator } from '@/lib/api/cs-orchestrator-client'
 import {
   computeViolations,
   matchSignatures,
@@ -15,9 +16,14 @@ import {
 // active probe due a run, creates an ephemeral Vercel Sandbox, copies in
 // sandbox-scripts/**, runs Playwright scenario, collects stdout JSON,
 // runs signature matching locally, and writes consent_probe_runs row.
+//
+// ADR-1013 Sprint 2.2 — migrated off Supabase REST + HS256 JWT onto
+// the cs_orchestrator direct-Postgres pool (postgres.js). Last Next.js
+// surface to leave the CS_ORCHESTRATOR_ROLE_KEY path; with this commit
+// the Next.js runtime is fully off HS256.
 
-const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL!
-const ORCHESTRATOR_KEY = process.env.CS_ORCHESTRATOR_ROLE_KEY!
+type Sql = ReturnType<typeof postgres>
+
 const PROBE_CRON_SECRET = process.env.PROBE_CRON_SECRET ?? ''
 const VERCEL_TEAM = process.env.VERCEL_TEAM_ID
 const VERCEL_PROJECT = process.env.VERCEL_PROJECT_ID
@@ -33,6 +39,13 @@ interface Probe {
   is_active: boolean
 }
 
+interface SignatureRow {
+  service_slug: string
+  category: string
+  is_functional: boolean
+  detection_rules: unknown
+}
+
 export async function POST(request: Request) {
   const auth = request.headers.get('authorization') ?? ''
   if (!PROBE_CRON_SECRET || !auth.startsWith('Bearer ')) {
@@ -43,35 +56,54 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'unauthorized' }, { status: 401 })
   }
 
-  const supabase: SupabaseClient = createClient(SUPABASE_URL, ORCHESTRATOR_KEY)
+  const sql = csOrchestrator()
 
-  const { data: probes, error: probeErr } = await supabase
-    .from('consent_probes')
-    .select('id, org_id, property_id, probe_type, consent_state, schedule, is_active')
-    .eq('is_active', true)
-    .or(`next_run_at.is.null,next_run_at.lte.${new Date().toISOString()}`)
-    .limit(20)
-  if (probeErr) {
-    return NextResponse.json({ error: probeErr.message }, { status: 500 })
+  let probes: Probe[]
+  try {
+    probes = await sql<Probe[]>`
+      select id, org_id, property_id, probe_type, consent_state,
+             schedule, is_active
+        from public.consent_probes
+       where is_active = true
+         and (next_run_at is null or next_run_at <= now())
+       limit 20
+    `
+  } catch (err) {
+    return NextResponse.json(
+      { error: err instanceof Error ? err.message : 'probe_fetch_failed' },
+      { status: 500 },
+    )
   }
-  if (!probes || probes.length === 0) {
+
+  if (probes.length === 0) {
     return NextResponse.json({ status: 'no_probes_due' }, { status: 200 })
   }
 
-  const { data: sigRows, error: sigErr } = await supabase
-    .from('tracker_signatures')
-    .select('service_slug, category, is_functional, detection_rules')
-    .eq('is_active', true)
-  if (sigErr) {
-    return NextResponse.json({ error: sigErr.message }, { status: 500 })
+  let sigRows: SignatureRow[]
+  try {
+    sigRows = await sql<SignatureRow[]>`
+      select service_slug, category, is_functional, detection_rules
+        from public.tracker_signatures
+       where is_active = true
+    `
+  } catch (err) {
+    return NextResponse.json(
+      { error: err instanceof Error ? err.message : 'signature_fetch_failed' },
+      { status: 500 },
+    )
   }
-  const signatures = (sigRows ?? []) as Signature[]
+  const signatures = sigRows as unknown as Signature[]
 
-  const results: Array<{ probe_id: string; status: string; violations?: number; error?: string }> = []
+  const results: Array<{
+    probe_id: string
+    status: string
+    violations?: number
+    error?: string
+  }> = []
 
-  for (const probe of probes as Probe[]) {
+  for (const probe of probes) {
     try {
-      const r = await runProbe(supabase, probe, signatures)
+      const r = await runProbe(sql, probe, signatures)
       results.push(r)
     } catch (e) {
       results.push({
@@ -82,27 +114,30 @@ export async function POST(request: Request) {
     }
   }
 
-  return NextResponse.json({ processed: probes.length, results }, { status: 200 })
+  return NextResponse.json(
+    { processed: probes.length, results },
+    { status: 200 },
+  )
 }
 
 async function runProbe(
-  supabase: SupabaseClient,
+  sql: Sql,
   probe: Probe,
   signatures: Signature[],
 ): Promise<{ probe_id: string; status: string; violations: number }> {
-  const { data: property } = await supabase
-    .from('web_properties')
-    .select('url')
-    .eq('id', probe.property_id)
-    .single()
-  const propertyRow = property as { url?: string } | null
-  if (!propertyRow?.url) {
+  const propertyRows = await sql<Array<{ url: string | null }>>`
+    select url
+      from public.web_properties
+     where id = ${probe.property_id}
+     limit 1
+  `
+  const propertyUrl = propertyRows[0]?.url
+  if (!propertyUrl) {
     throw new Error('property_not_found_or_no_url')
   }
 
-  const targetUrl = propertyRow.url
   const config = {
-    url: targetUrl,
+    url: propertyUrl,
     consent_cookie_name: 'cs_consent',
     consent_state: probe.consent_state ?? {},
     wait_ms: 3000,
@@ -192,25 +227,36 @@ async function runProbe(
       overall_status: status,
     }
 
-    await supabase.from('consent_probe_runs').insert({
-      org_id: probe.org_id,
-      probe_id: probe.id,
-      property_id: probe.property_id,
-      run_at: new Date().toISOString(),
-      consent_state: probe.consent_state,
-      overall_status: status,
-      result,
-    })
+    const nowIso = new Date().toISOString()
+    const consentStateJson = JSON.stringify(probe.consent_state ?? {})
+    const resultJson = JSON.stringify(result)
+    await sql`
+      insert into public.consent_probe_runs (
+        org_id, probe_id, property_id, run_at, consent_state,
+        overall_status, result
+      ) values (
+        ${probe.org_id},
+        ${probe.id},
+        ${probe.property_id},
+        ${nowIso},
+        ${consentStateJson}::jsonb,
+        ${status},
+        ${resultJson}::jsonb
+      )
+    `
 
-    const nextRun = computeNextRun(probe.schedule)
-    await supabase
-      .from('consent_probes')
-      .update({
-        last_run_at: new Date().toISOString(),
-        last_result: { overall_status: status, violations: violations.length },
-        next_run_at: nextRun.toISOString(),
-      })
-      .eq('id', probe.id)
+    const nextRun = computeNextRun(probe.schedule).toISOString()
+    const lastResultJson = JSON.stringify({
+      overall_status: status,
+      violations: violations.length,
+    })
+    await sql`
+      update public.consent_probes
+         set last_run_at  = ${nowIso},
+             last_result  = ${lastResultJson}::jsonb,
+             next_run_at  = ${nextRun}
+       where id = ${probe.id}
+    `
 
     return { probe_id: probe.id, status, violations: violations.length }
   } finally {

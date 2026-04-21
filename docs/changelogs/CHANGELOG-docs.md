@@ -2,6 +2,20 @@
 
 Documentation changes.
 
+## [ADR-1013 CLOSED — Phase 2 Sprint 2.2 + status flip] — 2026-04-21
+
+**ADR:** ADR-1013 — `cs_orchestrator` direct-Postgres migration (Next.js runtime) **(COMPLETED)**
+
+### Changed
+- `docs/ADRs/ADR-1013-cs-orchestrator-direct-postgres.md` — top-line status flipped to **Completed** (date completed 2026-04-21). Sprint 2.2 deliverables + Tested block populated. Acceptance-criteria line reformatted from "except run-probes, deferred" to "verified via grep — zero hits". New close-out paragraph under the Phase 2 block summarising the final state: Next.js runtime fully off HS256, `CS_ORCHESTRATOR_ROLE_KEY` only referenced now by Edge Functions and the §12 env table.
+- `docs/ADRs/ADR-index.md` — ADR-1013 row flipped to **Completed**; description rewritten to list all six migrated callers.
+- `CLAUDE.md` Rule 5 — removed the "run-probes still on JWT pending Sprint 2.2" carve-out. New text: "Next.js runtime is fully off HS256 (all six callers — signup-intake, invitation-dispatch, dispatch helper, lookup-invitation, internal/invites, run-probes — use csOrchestrator() or csApi())".
+- `docs/architecture/consentshield-definitive-architecture.md` §5.4 — cs_orchestrator Next.js runtime sub-bullet updated to list all six callers; dropped the "run-probes still uses JWT pending its own migration" sentence.
+- `docs/architecture/consentshield-definitive-architecture.md` §12 — `SUPABASE_ORCHESTRATOR_ROLE_KEY` comment narrowed from "Edge Functions + (legacy) /api/internal/run-probes" to "Edge Functions only (Next.js runtime is on direct-Postgres after ADR-1013)".
+
+### Tested
+- `grep -rln CS_ORCHESTRATOR_ROLE_KEY app/src` — zero code hits, one comment hit (run-probes header explaining the migration).
+
 ## [ADR-1013 Sprint 2.1 — doc sync + Rule 5 update] — 2026-04-21
 
 **ADR:** ADR-1013 — `cs_orchestrator` direct-Postgres migration (Next.js runtime)
