@@ -224,15 +224,16 @@ CAN INSERT: audit_log, processing_log, rights_request_events, deletion_receipts,
             withdrawal_verifications, security_scans, consent_probe_runs, delivery_buffer,
             consent_artefacts (DEPA — process-consent-event Edge Function fan-out),
             artefact_revocations (DEPA — system-originated revocations: expiry, regulatory)
-CAN SELECT: organisations, organisation_members, web_properties, integration_connectors,
-            retention_rules, notification_channels, rights_requests, consent_artefact_index,
-            consent_probes, data_inventory,
+CAN SELECT: accounts, account_memberships, organisations, org_memberships, web_properties,
+            plans, tracker_signatures, integration_connectors, retention_rules,
+            notification_channels, rights_requests, consent_artefact_index,
+            consent_probes, data_inventory, invitations,
             consent_events (DEPA — process-consent-event needs the originating event row),
             purpose_definitions (DEPA), purpose_connector_mappings (DEPA),
             consent_artefacts (DEPA), consent_expiry_queue (DEPA),
             depa_compliance_metrics (DEPA)
 CAN UPDATE: rights_requests.status/assignee_id, consent_artefact_index.validity_state,
-            organisations.plan/plan_started_at/razorpay fields,
+            accounts.plan_code/status/razorpay fields (post ADR-0044 — plan lives on account),
             consent_probes scheduling fields, integration_connectors health fields,
             retention_rules check fields, deletion_receipts status fields,
             withdrawal_verifications scan fields,
@@ -240,7 +241,8 @@ CAN UPDATE: rights_requests.status/assignee_id, consent_artefact_index.validity_
             consent_artefacts.status (DEPA — expiry enforcement and replacement only),
             consent_expiry_queue.notified_at/processed_at/superseded (DEPA — expiry pipeline),
             depa_compliance_metrics.* (DEPA — nightly score refresh upsert)
-CANNOT: read tracker_observations directly. Cannot delete any row.
+CANNOT: read tracker_observations directly. Cannot delete any row (except invitations /
+        account_memberships / org_memberships via membership-lifecycle RPCs).
 ```
 
 **Role: cs_api** (used by `/api/v1/*` handlers in the customer app; introduced by ADR-1009 Phase 2)

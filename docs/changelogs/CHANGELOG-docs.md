@@ -2,6 +2,19 @@
 
 Documentation changes.
 
+## [§5.4 cs_orchestrator GRANT list refresh] — 2026-04-21
+
+**ADR:** n/a — doc drift cleanup flagged in the 2026-04-21 session handoff (gotcha #17).
+
+### Changed
+- `docs/architecture/consentshield-definitive-architecture.md` §5.4 `cs_orchestrator` role block:
+  - CAN SELECT: replaced `organisation_members` (renamed to `org_memberships` in migration `20260429000001_rbac_memberships.sql`); added `accounts`, `account_memberships`, `plans`, `tracker_signatures`, `invitations`. `plans` and `tracker_signatures` were granted in migrations `20260803000009` and `20260803000010` respectively during the ADR-0058 / ADR-1013 close-out.
+  - CAN UPDATE: replaced the stale `organisations.plan/plan_started_at/razorpay fields` line with `accounts.plan_code/status/razorpay fields`. Post ADR-0044 the subscription lives on `accounts`, not `organisations`.
+  - CANNOT clause: added the membership-lifecycle DELETE carve-out (invitations / account_memberships / org_memberships via RPCs) so "cannot delete any row" is no longer overstated.
+
+### Tested
+- n/a (doc-only). Accuracy cross-checked against `supabase/migrations/**` grants (`20260413000010`, `20260428000002`, `20260429000001`, `20260430000001`, `20260803000009`, `20260803000010`) and against the schema doc §5.1 full GRANT list.
+
 ## [ADR-1013 CLOSED — Phase 2 Sprint 2.2 + status flip] — 2026-04-21
 
 **ADR:** ADR-1013 — `cs_orchestrator` direct-Postgres migration (Next.js runtime) **(COMPLETED)**
