@@ -1,5 +1,7 @@
+import { Suspense } from 'react'
 import { DashboardNav } from '@/components/dashboard-nav'
 import { SuspendedOrgBanner } from '@/components/suspended-banner'
+import { WelcomeToast } from '@/components/welcome-toast'
 
 export default function DashboardLayout({
   children,
@@ -13,6 +15,9 @@ export default function DashboardLayout({
         <SuspendedOrgBanner />
         <div className="flex-1">{children}</div>
       </div>
+      <Suspense fallback={null}>
+        <WelcomeToast />
+      </Suspense>
     </div>
   )
 }

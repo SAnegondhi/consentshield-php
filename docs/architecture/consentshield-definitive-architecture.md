@@ -723,6 +723,7 @@ Alert types (each independently configurable per channel):
 | cdn.consentshield.in/v1/events | POST | Cloudflare Worker — ingest consent event | HMAC signature + origin validation + rate limit: 200/IP/min |
 | cdn.consentshield.in/v1/observations | POST | Cloudflare Worker — ingest tracker observation | HMAC signature + origin validation + rate limit: 100/IP/min |
 | /api/public/rights-request | POST | Next.js API — submit rights request | Cloudflare Turnstile + email OTP + rate limit: 5/IP/hour |
+| /api/public/signup-intake | POST, OPTIONS | Next.js API — marketing-site signup intake (ADR-0058) | CORS allow-list + Cloudflare Turnstile + per-IP 5/60s + per-email 3/hour + existence-leak parity |
 | /api/v1/deletion-receipts/{id} | POST | Next.js API — deletion callback | HMAC-signed callback URL |
 
 **Rights request submission flow (hardened):**
@@ -742,6 +743,35 @@ Alert types (each independently configurable per channel):
 ```
 
 This ensures the notification email — the one that could be used as a spam vector — only fires after a verified human with access to the provided email address submitted the request.
+
+**Split-flow customer onboarding (ADR-0058 — shipped):**
+
+```
+consentshield.in/pricing → /signup?plan=<code>
+  └─ Turnstile + cross-origin POST
+      → app.consentshield.in/api/public/signup-intake
+          → public.create_signup_intake (cs_orchestrator, SECURITY DEFINER)
+              → INSERT public.invitations (origin='marketing_intake',
+                                            account_id=null, org_id=null,
+                                            plan_code=set, default_org_name=set)
+              → AFTER INSERT trigger → net.http_post → Resend
+              → /onboarding?token=<48hex>
+                  → 7-step wizard:
+                      1. OTP → accept_invitation (creates account + org + memberships)
+                      2. Industry picker → update_org_industry
+                      3. Data inventory (3 yes/no) → seed_quick_data_inventory
+                      4. Sector template → apply_sectoral_template
+                      5. Snippet install + SSRF-defended verify
+                      6. DEPA score review
+                      7. First-consent watch (5-second poll, 5-minute timeout)
+                      → /dashboard?welcome=1
+```
+
+The admin-side `/accounts/new-intake` mirrors the shape but calls `admin.create_operator_intake` with `origin='operator_intake'` — same `public.invitations` row shape, same dispatch pipeline, same wizard. The shared-table design is deliberate: one set of integration tests covers both flows; `origin` is a hint that drives email copy and analytics labelling only.
+
+Invitations with `origin in ('marketing_intake','operator_intake')` expire after 14 days (pg_cron sweep). Wizard progress is persisted via `organisations.onboarding_step` (0..7) so a refresh resumes at the last completed step; step-timing telemetry lands in the append-only `public.onboarding_step_events` buffer. In-wizard plan swap is available from Step 2 onward (Starter ↔ Growth ↔ Pro) via `public.swap_intake_plan`, gated by `onboarded_at is null`.
+
+Rule 12 (identity isolation) enforces that admin identities cannot accept customer intakes — `accept_invitation` refuses any caller whose JWT carries `app_metadata.is_admin = true`, and the customer-app proxy rejects admin identities from `/onboarding` with a 403 + admin-origin hint.
 
 ### 10.2 Authenticated Endpoints (Supabase JWT)
 
@@ -768,6 +798,8 @@ This ensures the notification email — the one that could be used as a spam vec
 | /api/orgs/[orgId]/expiry-queue | GET | (DEPA) List upcoming expiry notifications |
 | /api/orgs/[orgId]/expiry-queue/export | POST | (DEPA) Export expiring session fingerprints for re-consent campaign |
 | /api/orgs/[orgId]/depa-score | GET | (DEPA) Read the cached DEPA compliance score + sub-metrics |
+| /api/orgs/[orgId]/onboarding/status | GET | (ADR-0058) Read onboarding watermarks (onboarding_step, onboarded_at, first_consent_at) — polled by wizard Step 7 |
+| /api/orgs/[orgId]/onboarding/verify-snippet | POST | (ADR-0058) SSRF-defended server fetch of a customer URL + regex scan for `<script[^>]+banner\.js`; stamps `web_properties.snippet_verified_at` on pass |
 
 ### 10.3 Compliance API (API key auth — Pro/Enterprise)
 
@@ -1052,13 +1084,13 @@ If question 5 is yes, write it yourself. A day of work eliminates a permanent su
 
 ## Appendix A — Admin console panels (post-ADR-0048)
 
-`admin.consentshield.in` is a separate Next.js app behind `cs_admin` JWT + AAL2 gate (Rule 21). Thirteen operator surfaces as of ADR-0049:
+`admin.consentshield.in` is a separate Next.js app behind `cs_admin` JWT + AAL2 gate (Rule 21). Thirteen operator surfaces as of ADR-0049 (plus the ADR-0058 operator-intake surface at `/accounts/new-intake`):
 
 | Panel | Route | Primary data | ADR |
 |---|---|---|---|
 | Operations Dashboard | `/` | Metric tiles + health pills | 0028 |
 | Organisations | `/orgs`, `/orgs/[orgId]` | `public.organisations` + members + notes + impersonation | 0029 |
-| Accounts | `/accounts`, `/accounts/[accountId]` | `public.accounts` + orgs + active adjustments + audit | 0048 |
+| Accounts | `/accounts`, `/accounts/[accountId]`, `/accounts/new-intake` | `public.accounts` + orgs + active adjustments + audit; "Invite new account" → `admin.create_operator_intake` (ADR-0058) | 0048 + 0058 |
 | Support Tickets | `/support`, `/support/[ticketId]` | `admin.support_tickets` + internal notes | 0032 |
 | Sectoral Templates | `/templates` (+ new/edit) | `admin.sectoral_templates` | 0030 |
 | Connector Catalogue | `/connectors` (+ new/edit) | `admin.connector_catalogue` | 0031 |

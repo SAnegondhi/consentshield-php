@@ -2,6 +2,57 @@
 
 Public marketing site (`marketing/` workspace → `consentshield.in`). New in 2026-04-21.
 
+## [ADR-0058 Sprint 1.2] — 2026-04-21
+
+**ADR:** ADR-0058 — Split-flow customer onboarding
+**Sprint:** Sprint 1.2 — Marketing `/signup` + pricing CTA split
+
+### Added
+- `marketing/src/app/signup/page.tsx` — server component reading `?plan=<starter|growth|pro>` (whitelisted; default `growth`); renders `<SignupForm>` plus a 3-bullet sidebar explaining the trial + Enterprise routing.
+- `marketing/src/components/sections/signup-form.tsx` — client island; fields email + company + plan; Turnstile widget; cross-origin POST to `${APP_URL}/api/public/signup-intake`; "Check your inbox" success state with "Try a different email" reset.
+
+### Changed
+- `marketing/src/components/sections/pricing-preview.tsx` — per-tier `ctaHref`: Starter / Growth / Pro now route to `/signup?plan=<code>` (self-serve); Enterprise stays at `/contact`. CTA labels unified to "Start free trial" on self-serve tiers.
+- `marketing/src/app/pricing/page.tsx` — final CTA band primary button → `/signup?plan=growth` (was `/contact`).
+- `marketing/next.config.ts` — CSP `connect-src` adds `https://app.consentshield.in http://localhost:3000` so the cross-origin POST to the customer-app intake endpoint isn't blocked.
+- `marketing/src/lib/env.ts` — added typed `APP_URL` (defaults to `http://localhost:3000` in dev; prod via `NEXT_PUBLIC_APP_URL`).
+- `marketing/.env.example` — documents `NEXT_PUBLIC_APP_URL`.
+
+### Tested
+- [x] `cd marketing && bun run build` — clean; 16 routes (`/signup` is dynamic / server-renders the `?plan=` query param; CTAs from pricing/preview surfaces all resolve).
+- [x] `cd marketing && bun run lint` — 0 errors, 0 warnings.
+
+### Pairs with
+- ADR-0058 Sprint 1.1 — public intake endpoint + DB foundations on the customer app.
+
+## [ADR-0501 Sprint 4.3] — 2026-04-21
+
+**ADR:** ADR-0501 — ConsentShield marketing site
+**Sprint:** Phase 4 Sprint 4.3 — Sentry (client + server, PII-stripped)
+
+First commit authored on the new `marketing/phase4` git worktree — Terminals A + B now have independent working trees to prevent further staging collisions (see `.claude/session-handoff.md`).
+
+### Added
+- `marketing/sentry.client.config.ts` — browser Sentry init. DSN via `NEXT_PUBLIC_SENTRY_DSN`; `enabled: !!dsn` so unset DSN is a no-op; `tracesSampleRate: 0.1`; replays disabled; `beforeSend` + `beforeBreadcrumb` strip request body / headers / cookies / query_string per Rule 18.
+- `marketing/sentry.server.config.ts` — server mirror of the client config.
+
+### Changed
+- `marketing/next.config.ts` — default export wrapped with `withSentryConfig` (`org: 'consentshield'`, `project: 'consentshield-marketing'`, tunnel route `/monitoring`, silent outside CI). CSP `connect-src` adds `https://*.ingest.sentry.io https://*.sentry.io`.
+- `marketing/package.json` — `@sentry/nextjs` 10.48.0 (mirrors admin workspace pin).
+- `marketing/.env.example` — Sentry block trimmed: only `NEXT_PUBLIC_SENTRY_DSN` now (removed the redundant `SENTRY_DSN`); added `SENTRY_AUTH_TOKEN` for CI source-map upload.
+
+### Tested
+- [x] `cd marketing && bun run build` — clean. 15 routes / 12 static + 1 dynamic (`/api/contact`) + Sentry tunnel + source-map generation.
+- [x] `cd marketing && bun run lint` — 0 errors, 0 warnings.
+- [x] `bun run check-env` — clean.
+
+### Dependency (per Rule 15)
+- **`@sentry/nextjs` 10.48.0** — same version admin pins. Hand-rolling Next.js + Sentry integration across client / server / edge runtimes + source-map upload is weeks of work and security-critical. Justified.
+
+### Deferred to Sprint 4.4
+- **Vercel BotID.** Turnstile (Sprint 4.2) already gates the only POST surface; BotID would be strict belt-and-suspenders. Revisit when new POST surfaces are added.
+- **CSP enforce-mode cutover.** Report-only observation window first; tightening happens once the violation log is clean.
+
 ## [ADR-0501 Sprint 4.2] — 2026-04-21
 
 **ADR:** ADR-0501 — ConsentShield marketing site

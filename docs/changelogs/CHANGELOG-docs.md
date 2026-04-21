@@ -2,6 +2,22 @@
 
 Documentation changes.
 
+## [ADR-0058 — ADR complete] — 2026-04-21
+
+**ADR:** ADR-0058 — Split-flow customer onboarding (**COMPLETED**)
+
+### Changed
+- `docs/ADRs/ADR-0058-split-flow-onboarding.md` — top-line status flipped to **Completed** (all 5 sprints shipped 2026-04-21). Each sprint's checkbox list flipped to `[x]`. Six `[ ]` entries remain, all explicitly deferred and labelled (manual click-throughs → operator playtest; resend-link form → V2 follow-up pending an ADR-material decision on endpoint vs. CORS; `tests/integration/signup-intake.test.ts` → V2 follow-up pending a headless-browser harness).
+- `docs/ADRs/ADR-index.md` — ADR-0058 row set to **Completed**.
+- `docs/architecture/consentshield-definitive-architecture.md`:
+  - §10.1 gained `/api/public/signup-intake` (POST, OPTIONS) with its CORS + Turnstile + dual-bucket rate-limit protections.
+  - A new "Split-flow customer onboarding (ADR-0058 — shipped)" block sits alongside the rights-request flow diagram, walking the pricing → `/signup` → `/onboarding` → `/dashboard` path and calling out the Rule 12 enforcement points.
+  - §10.2 gained the two onboarding-scoped authenticated endpoints (`status`, `verify-snippet`).
+  - Appendix A — Accounts row expanded to include `/accounts/new-intake` and ADR-0058 in the ADR column; the ADR column now reads "0048 + 0058" and the preceding sentence acknowledges the ADR-0058 operator surface.
+
+### Tested
+- No code changes in this entry; three CHANGELOGs already carry the per-sprint test results (schema / api / dashboard), and the CHANGELOG-marketing entry for Sprint 1.2 is unchanged.
+
 ## [Backlog sweep] — 2026-04-21
 
 ### Added

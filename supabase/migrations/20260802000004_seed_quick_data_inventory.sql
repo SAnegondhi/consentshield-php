@@ -115,13 +115,11 @@ begin
 
   return v_inserted;
 end;
-$$
--- ---statement-boundary---
-revoke execute on function public.seed_quick_data_inventory(uuid, boolean, boolean, boolean) from public
--- ---statement-boundary---
-revoke execute on function public.seed_quick_data_inventory(uuid, boolean, boolean, boolean) from anon
--- ---statement-boundary---
-grant execute on function public.seed_quick_data_inventory(uuid, boolean, boolean, boolean) to authenticated
--- ---statement-boundary---
+$$;
+
+revoke execute on function public.seed_quick_data_inventory(uuid, boolean, boolean, boolean) from public;
+revoke execute on function public.seed_quick_data_inventory(uuid, boolean, boolean, boolean) from anon;
+grant execute on function public.seed_quick_data_inventory(uuid, boolean, boolean, boolean) to authenticated;
+
 comment on function public.seed_quick_data_inventory(uuid, boolean, boolean, boolean) is
-  'ADR-0058 Step 3: 3 yes/no toggles → up to 6 draft data_inventory rows. Idempotent.'
+  'ADR-0058 Step 3: 3 yes/no toggles → up to 6 draft data_inventory rows. Idempotent.';

@@ -9,6 +9,50 @@ type ActionResult<T = undefined> =
   | { ok: true; data?: T }
   | { ok: false; error: string }
 
+type RequiredActionResult<T> =
+  | { ok: true; data: T }
+  | { ok: false; error: string }
+
+// ADR-0058 Sprint 1.5 — operator-initiated intake. Thin wrapper around
+// `admin.create_operator_intake`. The RPC itself validates plan_code,
+// Rule 12 / single-account invariants, and raises loudly on any bad
+// input (caller is an admin who wants feedback).
+export async function createOperatorIntakeAction(input: {
+  email: string
+  planCode: string
+  orgName: string | null
+}): Promise<RequiredActionResult<{ id: string; token: string }>> {
+  const email = input.email.trim().toLowerCase()
+  if (!email || email.length < 5) {
+    return { ok: false, error: 'Valid email required.' }
+  }
+  if (!input.planCode) {
+    return { ok: false, error: 'plan_code required.' }
+  }
+
+  const supabase = await createServerClient()
+  const { data, error } = await supabase
+    .schema('admin')
+    .rpc('create_operator_intake', {
+      p_email: email,
+      p_plan_code: input.planCode,
+      p_org_name: input.orgName,
+    })
+  if (error) return { ok: false, error: error.message }
+
+  const row = Array.isArray(data) ? data[0] : data
+  if (!row || typeof row !== 'object') {
+    return { ok: false, error: 'RPC returned no row.' }
+  }
+  const record = row as { id?: string; token?: string }
+  if (!record.id || !record.token) {
+    return { ok: false, error: 'RPC returned an unexpected shape.' }
+  }
+
+  revalidatePath('/accounts')
+  return { ok: true, data: { id: record.id, token: record.token } }
+}
+
 export async function suspendAccountAction(input: {
   accountId: string
   reason: string

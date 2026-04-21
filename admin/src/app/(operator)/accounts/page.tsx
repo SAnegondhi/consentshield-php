@@ -42,6 +42,12 @@ export default async function AccountsListPage({ searchParams }: PageProps) {
             Billing + plan subject. One account → N organisations.
           </p>
         </div>
+        <Link
+          href="/accounts/new-intake"
+          className="rounded bg-teal px-3 py-1.5 text-xs font-medium text-white hover:bg-teal-dark"
+        >
+          Invite new account
+        </Link>
       </header>
 
       {error ? (

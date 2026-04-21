@@ -33,6 +33,72 @@ API route changes.
 - [x] 6 new integration tests in `tests/integration/introspection.test.ts` (both helpers).
 - [x] 116/116 full integration suite PASS.
 
+## [ADR-0058 Sprint 1.5] — 2026-04-21
+
+**ADR:** ADR-0058 — Split-flow customer onboarding
+**Sprint:** Sprint 1.5 — Admin operator-intake + polish
+
+### Added
+- `app/src/app/(public)/onboarding/actions.ts::logStepCompletion` — server action wrapping `public.log_onboarding_step_event` for wizard step-timing telemetry. Fire-and-forget from the orchestrator.
+- `app/src/app/(public)/onboarding/actions.ts::swapPlan` — server action wrapping `public.swap_intake_plan`. Returns tagged-union result; raw RPC errors surfaced for the in-wizard plan-swap modal.
+- `admin/src/app/(operator)/accounts/actions.ts::createOperatorIntakeAction` — server action wrapping `admin.create_operator_intake`. Returns `{id, token}`. Used by the new-intake page's `<NewIntakeForm>`.
+
+### Tested
+- [x] Build + lint clean (see CHANGELOG-dashboard.md [ADR-0058 Sprint 1.5]).
+
+## [ADR-0058 Sprint 1.4] — 2026-04-21
+
+**ADR:** ADR-0058 — Split-flow customer onboarding
+**Sprint:** Sprint 1.4 — Onboarding status + snippet-verify routes
+
+### Added
+- `app/src/app/api/orgs/[orgId]/onboarding/status/route.ts` — `GET`. Membership-gated (explicit `org_memberships` check on top of RLS). Returns `{onboarding_step, onboarded_at, first_consent_at}` for Step 7 polling.
+- `app/src/app/api/orgs/[orgId]/onboarding/verify-snippet/route.ts` — `POST`. SSRF-defended server fetch of the user's registered URL with a regex scan for `<script[^>]+banner\.js`. Layering:
+  - Scheme allow-list (http / https only).
+  - Hostname block-list: `localhost`, `0.0.0.0`, `metadata.google.internal`, `instance-data`, `instance-data.ec2.internal`; `*.internal` and `*.local` suffix refused.
+  - DNS resolution via `node:dns/promises.lookup({all:true, verbatim:true})`; every resolved address checked against RFC1918 (10/8, 172.16/12, 192.168/16) + loopback (127/8, ::1) + link-local (169.254/16, fe80:) + CGNAT (100.64/10) + ULA (fc00::/7) + multicast (224/4, ff…) + reserved (0.0.0.0/8, 224+); literal IPs in the URL itself also screened.
+  - 5-second `AbortController` timeout; 256 KB response cap with early-abort on banner-regex match.
+  - `redirect: 'manual'` — redirects never followed; returned as `redirect_not_followed_<status>` reason.
+  - On pass: `UPDATE web_properties SET snippet_verified_at, snippet_last_seen_at` for the caller-owned property. Response body is always `{verified, reason?, verified_at?}` — raw HTML is never exposed.
+
+### Tested
+- [x] Build + lint clean (see CHANGELOG-dashboard.md [ADR-0058 Sprint 1.4]).
+- [ ] Manual / integration test deferred to Sprint 1.5 polish (planned): happy path + `private_ip` + `metadata.google.internal` + `snippet_not_found` + timeout + redirect.
+
+## [ADR-0058 Sprint 1.3] — 2026-04-21
+
+**ADR:** ADR-0058 — Split-flow customer onboarding
+**Sprint:** Sprint 1.3 — Wizard shell + Steps 1–4
+
+### Added
+- `app/src/app/(public)/onboarding/actions.ts` — server actions `setOnboardingStep`, `updateIndustry`, `seedDataInventory`, `applyTemplate`, `listTemplatesForSector`. Thin wrappers over the existing RPCs; tagged-union result shape for client island consumption.
+
+### Changed
+- `app/src/proxy.ts` — matcher extended with `/onboarding` + `/onboarding/:path*` so the Rule 12 admin-identity gate covers the onboarding surface.
+
+### Tested
+- [x] Build + lint clean (see CHANGELOG-dashboard.md [ADR-0058 Sprint 1.3]).
+
+## [ADR-0058 Sprint 1.2] — 2026-04-21
+
+**ADR:** ADR-0058 — Split-flow customer onboarding
+**Sprint:** Sprint 1.2 — (marketing-side; see CHANGELOG-marketing.md)
+
+## [ADR-0058 Sprint 1.1] — 2026-04-21
+
+**ADR:** ADR-0058 — Split-flow customer onboarding
+**Sprint:** Sprint 1.1 — Public intake endpoint + origin-aware dispatch
+
+### Added
+- `app/src/app/api/public/signup-intake/route.ts` — `POST` + `OPTIONS`. Mirrors the rights-request pattern: per-IP rate limit (5/60s), per-email rate limit (3/hour) for anti-enumeration, Turnstile verify, then `create_signup_intake` RPC via service-role client. CORS allow-list hard-coded (`https://consentshield.in`, `https://www.consentshield.in`, `http://localhost:3002`). Always returns `{ok:true}` 202 on the success path regardless of internal branch (no existence leak).
+
+### Changed
+- `app/src/app/api/internal/invitation-dispatch/route.ts` — selects `origin` from the invitation row; routes the email CTA URL: `marketing_intake | operator_intake → ${APP_BASE_URL}/onboarding?token=`; `operator_invite` keeps the existing `/signup?invite=` URL.
+- `app/src/lib/invitations/dispatch-email.ts` — `DispatchInput` adds optional `origin`; new copy variants for `marketing_intake` ("Welcome to ConsentShield — continue your setup") and `operator_intake` ("Your ConsentShield account is ready to set up"). Default origin (unset) preserves the legacy `operator_invite` copy verbatim — back-compat for existing call sites.
+
+### Tested
+- [x] `bunx vitest run tests/invitation-dispatch.test.ts` — 11/11 PASS (4 new origin-aware copy tests added; legacy 7 unchanged).
+
 ## [V2 C-2 drift check] — 2026-04-21
 
 **ADR:** ADR-1001 V2 C-2 (no separate ADR; inline implementation)

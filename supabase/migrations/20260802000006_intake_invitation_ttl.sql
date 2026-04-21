@@ -58,19 +58,16 @@ begin
 
   return v_swept;
 end;
-$$
--- ---statement-boundary---
-revoke execute on function public.fn_sweep_expired_intake_invitations() from public
--- ---statement-boundary---
-revoke execute on function public.fn_sweep_expired_intake_invitations() from anon
--- ---statement-boundary---
-revoke execute on function public.fn_sweep_expired_intake_invitations() from authenticated
--- ---statement-boundary---
-grant execute on function public.fn_sweep_expired_intake_invitations() to cs_orchestrator
--- ---statement-boundary---
+$$;
+
+revoke execute on function public.fn_sweep_expired_intake_invitations() from public;
+revoke execute on function public.fn_sweep_expired_intake_invitations() from anon;
+revoke execute on function public.fn_sweep_expired_intake_invitations() from authenticated;
+grant execute on function public.fn_sweep_expired_intake_invitations() to cs_orchestrator;
+
 comment on function public.fn_sweep_expired_intake_invitations() is
-  'ADR-0058: nightly TTL sweep for abandoned marketing/operator intake invitations.'
--- ---statement-boundary---
+  'ADR-0058: nightly TTL sweep for abandoned marketing/operator intake invitations.';
+
 -- pg_cron job. Idempotent: dropping + recreating preserves the schedule.
 do $$
 begin
@@ -83,4 +80,4 @@ begin
       $cron$select public.fn_sweep_expired_intake_invitations();$cron$
     );
   end if;
-end $$
+end $$;

@@ -9,15 +9,15 @@ import { limitsForTier } from '@/lib/api/rate-limits'
 //
 // Rule 12 (CLAUDE.md) — Identity isolation: admin identities
 // (`app_metadata.is_admin === true`) MUST NOT reach any customer-app
-// surface. This proxy rejects any session carrying that claim with a
-// 403 + hint at the admin origin. Non-admin authed users follow the
-// standard /dashboard gate.
+// surface. When we see one, the cookie is a stale leftover from an
+// earlier admin-app session in the same browser (dev), or an attempt
+// to mix identities (prod — very unlikely). Either way, the fix is
+// the same: sign the session out on the response and send the user
+// to /login with a `reason` hint. The customer can sign in again as a
+// customer; the operator can walk away.
 //
 // ADR-1001 Sprint 2.2 — Bearer gate for /api/v1/* (excluding
 // /api/v1/deletion-receipts/* which uses its own HMAC callback scheme).
-
-const ADMIN_ORIGIN =
-  process.env.NEXT_PUBLIC_ADMIN_ORIGIN ?? 'https://admin.consentshield.in'
 
 const PROBLEM_JSON_HEADERS = { 'Content-Type': 'application/problem+json' }
 
@@ -109,20 +109,41 @@ export async function proxy(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser()
 
-  // Rule 12 — reject admin identities on every customer surface the
-  // proxy sees. A signed-in admin who navigates here gets a crisp 403
-  // pointing at the admin origin instead of landing on a dashboard
-  // shell they have no RLS visibility into.
+  // Rule 12 — admin identities never reach the customer app. Sign the
+  // session out AND explicitly clear every Supabase auth cookie the
+  // browser is carrying. We don't rely on signOut()'s setAll-bridge
+  // propagation alone because in middleware context that path is
+  // flaky — cookie clears sometimes land on a response object that
+  // isn't the one we return.
   if (user?.app_metadata?.is_admin === true) {
-    return new NextResponse(
-      `<!doctype html><meta charset="utf-8"><title>Not available for operator accounts</title>` +
-        `<div style="font-family:-apple-system,sans-serif;max-width:520px;margin:80px auto;color:#0F2D5B">` +
-        `<h1 style="font-size:20px">Operator accounts can't use the customer app</h1>` +
-        `<p style="font-size:14px;color:#475569">This sign-in is for a ConsentShield operator. The customer dashboard isn't available for operator identities.</p>` +
-        `<p style="font-size:14px;color:#475569">Go to <a href="${escapeHtml(ADMIN_ORIGIN)}" style="color:#0D7A6B">${escapeHtml(ADMIN_ORIGIN)}</a> instead.</p>` +
-        `</div>`,
-      { status: 403, headers: { 'Content-Type': 'text/html; charset=utf-8' } },
-    )
+    await supabase.auth.signOut()
+    const loginUrl = request.nextUrl.clone()
+    loginUrl.pathname = '/login'
+    loginUrl.search = '?reason=operator_session_cleared'
+    const redirect = NextResponse.redirect(loginUrl)
+    // Every cookie on the incoming request whose name looks like a
+    // Supabase auth token gets cleared on the response. Cookie names
+    // can use either `-` or `_` as separators depending on the SDK
+    // version + project-ref composition — match both. Chunked refresh
+    // tokens land under `…auth-token.0` / `…auth_token_0` etc.
+    for (const cookie of request.cookies.getAll()) {
+      const name = cookie.name
+      const isSupabase = name.startsWith('sb-') || name.startsWith('sb_')
+      const looksAuthy =
+        name.includes('auth-token') ||
+        name.includes('auth_token') ||
+        name.endsWith('-code-verifier') ||
+        name.endsWith('_code_verifier')
+      if (isSupabase && looksAuthy) {
+        redirect.cookies.delete(name)
+      }
+    }
+    // Carry across anything signOut's cookie bridge set (defence in
+    // depth; usually empty after the explicit deletes above).
+    for (const cookie of supabaseResponse.cookies.getAll()) {
+      redirect.cookies.set(cookie)
+    }
+    return redirect
   }
 
   // Protected routes: anything under /dashboard
@@ -143,12 +164,13 @@ export async function proxy(request: NextRequest) {
   return supabaseResponse
 }
 
-function escapeHtml(s: string): string {
-  return s.replace(/[&<>"']/g, (c) =>
-    c === '&' ? '&amp;' : c === '<' ? '&lt;' : c === '>' ? '&gt;' : c === '"' ? '&quot;' : '&#39;',
-  )
-}
-
 export const config = {
-  matcher: ['/dashboard/:path*', '/login', '/signup', '/api/v1/:path*'],
+  matcher: [
+    '/dashboard/:path*',
+    '/login',
+    '/signup',
+    '/onboarding',
+    '/onboarding/:path*',
+    '/api/v1/:path*',
+  ],
 }

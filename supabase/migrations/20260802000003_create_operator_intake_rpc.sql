@@ -82,17 +82,14 @@ begin
 
   return query select v_id, v_token;
 end;
-$$
--- ---statement-boundary---
-revoke execute on function admin.create_operator_intake(text, text, text) from public
--- ---statement-boundary---
-revoke execute on function admin.create_operator_intake(text, text, text) from anon
--- ---statement-boundary---
-grant execute on function admin.create_operator_intake(text, text, text) to authenticated
--- ---statement-boundary---
+$$;
+
+revoke execute on function admin.create_operator_intake(text, text, text) from public;
+revoke execute on function admin.create_operator_intake(text, text, text) from anon;
+grant execute on function admin.create_operator_intake(text, text, text) to authenticated;
 -- The internal admin.require_admin() check inside the function is the
 -- effective gate; granting to authenticated is fine because non-admins
 -- get an exception immediately.
 
 comment on function admin.create_operator_intake(text, text, text) is
-  'ADR-0058: operator-initiated intake for contracted customers. Errors loudly on bad input (caller is an admin).'
+  'ADR-0058: operator-initiated intake for contracted customers. Errors loudly on bad input (caller is an admin).';

@@ -95,17 +95,13 @@ begin
 
   return jsonb_build_object('status', 'ok', 'branch', 'created');
 end;
-$$
--- ---statement-boundary---
-revoke execute on function public.create_signup_intake(text, text, text, inet) from public
--- ---statement-boundary---
-revoke execute on function public.create_signup_intake(text, text, text, inet) from authenticated
--- ---statement-boundary---
-revoke execute on function public.create_signup_intake(text, text, text, inet) from anon
--- ---statement-boundary---
-grant execute on function public.create_signup_intake(text, text, text, inet) to cs_orchestrator
--- ---statement-boundary---
-grant execute on function public.create_signup_intake(text, text, text, inet) to service_role
--- ---statement-boundary---
+$$;
+
+revoke execute on function public.create_signup_intake(text, text, text, inet) from public;
+revoke execute on function public.create_signup_intake(text, text, text, inet) from authenticated;
+revoke execute on function public.create_signup_intake(text, text, text, inet) from anon;
+grant execute on function public.create_signup_intake(text, text, text, inet) to cs_orchestrator;
+grant execute on function public.create_signup_intake(text, text, text, inet) to service_role;
+
 comment on function public.create_signup_intake(text, text, text, inet) is
-  'ADR-0058: marketing-site self-serve intake. Returns generic ok regardless of branch. Service-role only.'
+  'ADR-0058: marketing-site self-serve intake. Returns generic ok regardless of branch. Service-role only.';

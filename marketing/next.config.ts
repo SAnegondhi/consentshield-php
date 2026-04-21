@@ -1,31 +1,24 @@
+import { withSentryConfig } from '@sentry/nextjs'
 import type { NextConfig } from 'next'
 
-// ADR-0501 Phase 4 Sprint 4.1 — security headers.
+// ADR-0501 Phase 4 — security headers + Sentry wiring.
 //
-// CSP ships in *report-only* mode first. It will be flipped to enforce
-// mode (header name `Content-Security-Policy`) in a follow-up sprint
-// once the browser-reported violations (Next.js inline scripts, font
-// preload behaviour) are catalogued. This gives us a zero-risk initial
-// rollout: the browser only reports; nothing breaks.
+// CSP (Sprint 4.1) ships in *report-only* mode first; enforce-mode
+// cutover is a follow-up sprint once the browser-reported violations
+// are catalogued.
 //
-// What the policy allows:
-//   · self-origin for everything by default
-//   · fontshare.com (Satoshi wordmark) — used by layout.tsx
-//   · data: + https: for images (SVG icons + external social cards)
-//   · inline scripts + eval (Next.js runtime) — to be tightened via nonce
-//     when we move to enforce mode
-//   · form posts only to self
-//   · no framing (CSP + X-Frame-Options belt-and-suspenders)
-// Cloudflare Turnstile (Sprint 4.2) loads its widget script + renders
-// an iframe in-page for the challenge UI. These exceptions are scoped
-// to `challenges.cloudflare.com` only.
+// Allowed surfaces beyond 'self':
+//   · fontshare.com (Satoshi wordmark, Sprint 2.1 layout)
+//   · challenges.cloudflare.com (Turnstile widget, Sprint 4.2)
+//   · *.ingest.sentry.io + *.sentry.io (Sentry events, Sprint 4.3)
+
 const CSP_REPORT_ONLY = [
   "default-src 'self'",
   "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://challenges.cloudflare.com",
   "style-src 'self' 'unsafe-inline' https://api.fontshare.com https://cdn.fontshare.com",
   "img-src 'self' data: https:",
   "font-src 'self' https://cdn.fontshare.com data:",
-  "connect-src 'self'",
+  "connect-src 'self' https://*.ingest.sentry.io https://*.sentry.io https://app.consentshield.in http://localhost:3000",
   "frame-src https://challenges.cloudflare.com",
   "frame-ancestors 'none'",
   "form-action 'self'",
@@ -35,10 +28,6 @@ const CSP_REPORT_ONLY = [
 ].join('; ')
 
 const SECURITY_HEADERS = [
-  // HSTS — 2-year max-age + includeSubDomains + preload-ready.
-  // Only emitted on production-like deployments; local dev http:// stays
-  // un-upgraded. Next.js always sends the header regardless of scheme,
-  // but browsers ignore it over http.
   {
     key: 'Strict-Transport-Security',
     value: 'max-age=63072000; includeSubDomains; preload',
@@ -67,4 +56,15 @@ const nextConfig: NextConfig = {
   },
 }
 
-export default nextConfig
+// Sentry wrapping — auto-loads sentry.{server,client,edge}.config.ts from
+// project root. Source-map upload is a no-op in local dev; kicks in when
+// SENTRY_AUTH_TOKEN is provided (Vercel env at deploy time).
+export default withSentryConfig(nextConfig, {
+  org: 'consentshield',
+  project: 'consentshield-marketing',
+  silent: !process.env.CI,
+  widenClientFileUpload: true,
+  tunnelRoute: '/monitoring',
+  disableLogger: true,
+  automaticVercelMonitors: false,
+})

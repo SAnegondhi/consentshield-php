@@ -23,21 +23,21 @@ alter table public.invitations
       'operator_invite',
       'operator_intake',
       'marketing_intake'
-    ))
--- ---statement-boundary---
+    ));
+
 comment on column public.invitations.origin is
-  'ADR-0058: where the invitation came from. Drives email CTA URL + copy.'
--- ---statement-boundary---
+  'ADR-0058: where the invitation came from. Drives email CTA URL + copy.';
+
 -- Backfill: existing rows are operator-invites by definition (no other
 -- creation path existed pre-ADR-0058). The default already covers them
 -- but we set explicitly for clarity in any subsequent re-inserts.
 update public.invitations
    set origin = 'operator_invite'
- where origin is null
--- ---statement-boundary---
+ where origin is null;
+
 -- Partial index for the dispatcher's lookup pattern: pending invites by
 -- email + origin (used to enforce the "one pending intake per email"
 -- soft rule when retries arrive).
 create index if not exists invitations_pending_by_origin_idx
   on public.invitations (lower(invited_email), origin)
-  where accepted_at is null and revoked_at is null
+  where accepted_at is null and revoked_at is null;

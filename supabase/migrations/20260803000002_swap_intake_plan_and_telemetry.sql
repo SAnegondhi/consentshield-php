@@ -70,15 +70,14 @@ begin
      set plan_code = p_new_plan_code
    where id = v_account_id;
 end;
-$$
--- ---statement-boundary---
-revoke execute on function public.swap_intake_plan(uuid, text) from public, anon
--- ---statement-boundary---
-grant  execute on function public.swap_intake_plan(uuid, text) to authenticated
--- ---statement-boundary---
+$$;
+
+revoke execute on function public.swap_intake_plan(uuid, text) from public, anon;
+grant  execute on function public.swap_intake_plan(uuid, text) to authenticated;
+
 comment on function public.swap_intake_plan(uuid, text) is
-  'ADR-0058: in-wizard self-serve plan swap. onboarded_at-gated, whitelisted to starter/growth/pro.'
--- ---statement-boundary---
+  'ADR-0058: in-wizard self-serve plan swap. onboarded_at-gated, whitelisted to starter/growth/pro.';
+
 -- ═══════════════════════════════════════════════════════════
 -- 2 · onboarding_step_events
 -- ═══════════════════════════════════════════════════════════
@@ -89,21 +88,20 @@ create table if not exists public.onboarding_step_events (
   step        smallint    not null check (step between 1 and 7),
   elapsed_ms  int         not null check (elapsed_ms >= 0),
   occurred_at timestamptz not null default now()
-)
--- ---statement-boundary---
-alter table public.onboarding_step_events enable row level security
--- ---statement-boundary---
+);
+
+alter table public.onboarding_step_events enable row level security;
+
 -- No customer-facing read / write policies — the table is written
 -- via the SECURITY DEFINER RPC and read via an admin RPC (to be added
 -- when an admin dashboard surface needs it). RLS-enabled with zero
 -- policies is Rule 13 compliant.
 
 create index if not exists onboarding_step_events_org_idx
-  on public.onboarding_step_events (org_id, occurred_at desc)
--- ---statement-boundary---
+  on public.onboarding_step_events (org_id, occurred_at desc);
 create index if not exists onboarding_step_events_step_idx
-  on public.onboarding_step_events (step, occurred_at desc)
--- ---statement-boundary---
+  on public.onboarding_step_events (step, occurred_at desc);
+
 -- ═══════════════════════════════════════════════════════════
 -- 3 · log_onboarding_step_event
 -- ═══════════════════════════════════════════════════════════
@@ -136,11 +134,10 @@ begin
   insert into public.onboarding_step_events (org_id, step, elapsed_ms)
   values (p_org_id, p_step, p_elapsed_ms);
 end;
-$$
--- ---statement-boundary---
-revoke execute on function public.log_onboarding_step_event(uuid, smallint, int) from public, anon
--- ---statement-boundary---
-grant  execute on function public.log_onboarding_step_event(uuid, smallint, int) to authenticated
--- ---statement-boundary---
+$$;
+
+revoke execute on function public.log_onboarding_step_event(uuid, smallint, int) from public, anon;
+grant  execute on function public.log_onboarding_step_event(uuid, smallint, int) to authenticated;
+
 comment on function public.log_onboarding_step_event(uuid, smallint, int) is
-  'ADR-0058: append-only wizard step telemetry. Elapsed ms from step-enter to step-complete.'
+  'ADR-0058: append-only wizard step telemetry. Elapsed ms from step-enter to step-complete.';

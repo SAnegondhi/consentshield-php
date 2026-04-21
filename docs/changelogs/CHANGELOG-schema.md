@@ -29,6 +29,52 @@ Database migrations, RLS policies, roles.
 ### Tested
 - [x] 6/6 introspection.test.ts PASS; 116/116 full integration PASS.
 
+## [ADR-0058 Sprint 1.5] — 2026-04-21
+
+**ADR:** ADR-0058 — Split-flow customer onboarding
+**Sprint:** Sprint 1.5 — Admin operator-intake + polish
+
+### Added
+- `supabase/migrations/20260803000002_swap_intake_plan_and_telemetry.sql`:
+  - `public.swap_intake_plan(p_org_id, p_new_plan_code)` SECURITY DEFINER. Self-serve tier whitelist (`starter | growth | pro`). Role gate `effective_org_role in ('account_owner','org_admin','admin')`. Refuses when `organisations.onboarded_at is not null` — post-handoff plan changes go through Settings → Billing. Updates `accounts.plan_code` for the org's account_id.
+  - `public.onboarding_step_events` table — append-only telemetry buffer (id / org_id / step (1..7) / elapsed_ms / occurred_at). `enable row level security` with zero policies (writer is the DEFINER RPC below, reader will be a future admin RPC). Indexes on `(org_id, occurred_at desc)` + `(step, occurred_at desc)`.
+  - `public.log_onboarding_step_event(p_org_id, p_step, p_elapsed_ms)` SECURITY DEFINER writer. Role gate `effective_org_role is not null`. Step range 1..7. Fire-and-forget from the customer app.
+
+### Tested
+- [x] `bunx supabase db push` — 1 migration applied to remote dev DB.
+
+## [ADR-0058 Sprint 1.3] — 2026-04-21
+
+**ADR:** ADR-0058 — Split-flow customer onboarding
+**Sprint:** Sprint 1.3 — Wizard shell + Steps 1–4
+
+### Added
+- `supabase/migrations/20260803000001_set_onboarding_step.sql` — `public.set_onboarding_step(p_org_id uuid, p_step smallint)` SECURITY DEFINER. Role gate `effective_org_role in ('org_admin','admin')` (account_owner inherits). Step range 0..7 (mirrors column CHECK). Stamps `organisations.onboarded_at` when `p_step=7`. GRANT EXECUTE to `authenticated`; REVOKED from public / anon. Unblocks wizard persistence introduced by Sprint 1.1 M5.
+
+### Tested
+- [x] `bunx supabase db push` — migration applied to remote dev DB.
+- [x] Build + lint clean (see CHANGELOG-dashboard.md [ADR-0058 Sprint 1.3]).
+
+## [ADR-0058 Sprint 1.1] — 2026-04-21
+
+**ADR:** ADR-0058 — Split-flow customer onboarding
+**Sprint:** Sprint 1.1 — DB foundations + public intake endpoint
+
+### Added
+- `supabase/migrations/20260802000001_invitations_origin.sql` — `public.invitations.origin` column (`operator_invite | operator_intake | marketing_intake`); back-compat default `operator_invite` keeps existing rows + the legacy `create_invitation_from_marketing` RPC working unchanged. Partial index `invitations_pending_by_origin_idx` for the dispatcher's lookup pattern.
+- `supabase/migrations/20260802000002_create_signup_intake_rpc.sql` — `public.create_signup_intake(email, plan_code, org_name, ip)` SECURITY DEFINER. Existence-leak hardened (returns `{status:'ok'}` for every branch); refuses admin identities (Rule 12); only granted to `cs_orchestrator` + `service_role`.
+- `supabase/migrations/20260802000003_create_operator_intake_rpc.sql` — `admin.create_operator_intake(email, plan_code, org_name)`. Operator-facing equivalent: errors loudly (caller is an admin), gated by `admin.require_admin('platform_operator')`.
+- `supabase/migrations/20260802000004_seed_quick_data_inventory.sql` — `public.seed_quick_data_inventory(org_id, has_email, has_payments, has_analytics)` returns the count of newly-inserted rows. Backs Step 3 of the wizard. Idempotent via `WHERE NOT EXISTS` on `(org_id, data_category, source_type='quick_inventory_seed')`. Gated to `account_owner | org_admin` via `effective_org_role`.
+- `supabase/migrations/20260802000005_first_consent_at.sql` — adds `organisations.first_consent_at`, `onboarded_at`, `onboarding_step` columns. AFTER INSERT trigger on `consent_events` stamps `first_consent_at` once. Partial index on pending-onboarding orgs.
+- `supabase/migrations/20260802000006_intake_invitation_ttl.sql` — `public.fn_sweep_expired_intake_invitations()` deletes abandoned intakes older than their 14-day expiry, logs to `admin.admin_audit_log`. pg_cron job `adr-0058-sweep-intakes` schedules nightly at 21:00 UTC (02:30 IST).
+
+### Tested
+- [x] `cd app && bunx vitest run tests/invitation-dispatch.test.ts` — 11/11 PASS (includes 4 new origin-aware copy tests).
+- [x] `cd app && bun run build` — clean; 47 routes including the new `/api/public/signup-intake`.
+- [x] `cd app && bun run lint` — 0 errors, 0 warnings.
+- [x] `bunx supabase db push` — 6 migrations applied to remote dev DB (`supabase migration list` shows Local + Remote columns both filled for 20260802000001-06).
+- [x] `bunx vitest run tests/rls/invitations-origin.test.ts` — 7/7 PASS (column+check constraint, anon/authenticated INSERT blocked, fresh-email + existing-customer leak-parity branches, invalid-plan silent branch, admin-identity refusal).
+
 ## [ADR-1011 — revoked-key tombstone] — 2026-04-21
 
 **ADR:** ADR-1011 — rotate+revoke 401→410 fix (V2 C-1)

@@ -2,7 +2,7 @@
 
 (c) 2026 Sudhindra Anegondhi a.d.sudhindra@gmail.com
 
-**Status:** In Progress (Phases 1 + 2 + 3 complete 2026-04-21; Phase 4 Sprints 4.1 + 4.2 shipped 2026-04-21; Phase 4 Sprint 4.3 + CSP enforce cutover pending)
+**Status:** In Progress (Phases 1 + 2 + 3 complete 2026-04-21; Phase 4 Sprints 4.1 + 4.2 + 4.3 shipped 2026-04-21; BotID + CSP enforce cutover deferred to Sprint 4.4)
 **Date:** 2026-04-21
 **Phases:** 4
 **Sprints:** 4+ (Phase 1 has one sprint; later phases sized once content + formats land)
@@ -240,13 +240,22 @@ Scope narrowed on user direction: **legal pages only** (terms, privacy, dpa). Ma
 
 **Status:** `[x] complete — 2026-04-21`
 
-#### Sprint 4.3 — Sentry + BotID (pending)
+#### Sprint 4.3 — Sentry (shipped 2026-04-21)
 
-- `marketing/sentry.client.config.ts` + `marketing/sentry.server.config.ts` — client + server Sentry init with `beforeSend` PII strip (drop request bodies, headers, cookies, query params). No-ops when `SENTRY_DSN` is unset.
-- Vercel BotID on POST `/api/contact` as a defence-in-depth layer alongside Turnstile.
-- DPA signature persistence is **out of scope** for Phase 4; belongs with the billing/admin schema when Phase 4 of ADR-0501 closes.
+**Deliverables:**
 
-**Status:** `[ ] planned`
+- [x] `marketing/sentry.client.config.ts` — browser-side init. DSN via `NEXT_PUBLIC_SENTRY_DSN`; `enabled: !!dsn` (no-ops when unset); `tracesSampleRate: 0.1`; replays off; `beforeSend` drops `request.headers`, `request.cookies`, `request.data`, `request.query_string`; `beforeBreadcrumb` drops `request_body` / `response_body` from HTTP breadcrumbs. Satisfies CLAUDE.md Rule 18.
+- [x] `marketing/sentry.server.config.ts` — server-side mirror of the client config with the same PII scrubbing hooks.
+- [x] `marketing/next.config.ts` — default export wrapped with `withSentryConfig`: `org: 'consentshield'`, `project: 'consentshield-marketing'`, `tunnelRoute: '/monitoring'` for ad-blocker bypass, `widenClientFileUpload` for better source-map coverage, `silent: !process.env.CI` so CI logs stay readable. CSP updated: `connect-src` adds `https://*.ingest.sentry.io https://*.sentry.io` so browser-side Sentry events can post.
+- [x] `marketing/package.json` — `@sentry/nextjs` 10.48.0 (mirrors admin's pin).
+- [x] `marketing/.env.example` — `NEXT_PUBLIC_SENTRY_DSN` documented; added `SENTRY_AUTH_TOKEN` for CI source-map upload.
+
+**Out of scope — deferred to a Sprint 4.4:**
+- **Vercel BotID.** Turnstile (Sprint 4.2) already gates the only POST surface; BotID would be strict belt-and-suspenders. Track as V2-BACKLOG item tied to any new POST surface introduced after Phase 4.
+- **CSP enforce-mode cutover.** Report-only observation window first.
+- **DPA signature persistence.** Belongs with the billing/admin schema, not the marketing project.
+
+**Status:** `[x] complete — 2026-04-21`
 
 ## Acceptance criteria
 

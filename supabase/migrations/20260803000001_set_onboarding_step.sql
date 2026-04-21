@@ -39,11 +39,10 @@ begin
          onboarded_at = case when p_step = 7 then coalesce(onboarded_at, now()) else onboarded_at end
    where id = p_org_id;
 end;
-$$
--- ---statement-boundary---
-revoke execute on function public.set_onboarding_step(uuid, smallint) from public, anon
--- ---statement-boundary---
-grant execute on function public.set_onboarding_step(uuid, smallint) to authenticated
--- ---statement-boundary---
+$$;
+
+revoke execute on function public.set_onboarding_step(uuid, smallint) from public, anon;
+grant execute on function public.set_onboarding_step(uuid, smallint) to authenticated;
+
 comment on function public.set_onboarding_step(uuid, smallint) is
-  'ADR-0058: wizard-progress setter. Stamps onboarded_at when p_step=7.'
+  'ADR-0058: wizard-progress setter. Stamps onboarded_at when p_step=7.';
