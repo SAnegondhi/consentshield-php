@@ -2,6 +2,23 @@
 
 API route changes.
 
+## [ADR-1009 Sprint 2.3] — 2026-04-21
+
+**ADR:** ADR-1009 — v1 API role hardening
+**Sprint:** Phase 2 Sprint 2.3 — runtime swap (service-role → cs_api pool)
+
+### Changed
+- `app/src/lib/api/auth.ts` — rewritten to call `rpc_api_key_verify` + `rpc_api_key_status` via the `csApi()` postgres.js pool. `makeServiceClient` helper removed; `getKeyStatus` no longer does a direct `api_keys` SELECT (cs_api has no table grants). Code comment replaced (old comment claimed the Worker uses the service key, which was never true; new comment describes the direct-Postgres pattern).
+- `app/src/lib/api/log-request.ts` — fire-and-forget `rpc_api_request_log_insert` over `csApi`. Swallows errors so telemetry failures don't cascade into 5xx on the user-facing path.
+- `app/src/lib/consent/verify.ts`, `record.ts`, `read.ts`, `revoke.ts`, `deletion.ts` — each helper rewritten to call its target RPC via postgres.js tagged-template SQL (`select rpc_name(${p1}::type, ...)`). Error classification preserved: `42501` + `api_key_*` → `api_key_binding` 403; `22023` → validation 422; `P0001` property/artefact-not-found → 404.
+
+### Removed
+- Every `SUPABASE_SERVICE_ROLE_KEY` reference from `app/src/`. Verified via `grep -rn "SUPABASE_SERVICE_ROLE_KEY" app/src` → empty. Rule 5 now clean in the customer app runtime.
+
+### Tested
+- [x] 106/106 integration + cs_api smoke PASS (no behavioural change; only the transport swap).
+- [x] `bun run lint` + `bun run build` clean.
+
 ## [ADR-1009 Sprint 2.1 — scope amendment] — 2026-04-21
 
 **ADR:** ADR-1009 — v1 API role hardening

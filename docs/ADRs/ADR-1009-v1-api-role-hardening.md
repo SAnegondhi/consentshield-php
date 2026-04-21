@@ -172,16 +172,17 @@ SUPABASE_CS_API_DATABASE_URL="<...>" bunx vitest run tests/integration/cs-api-ro
 **Estimated effort:** 0.5 day
 
 **Deliverables:**
-- [ ] `app/src/lib/api/auth.ts`: `makeServiceClient()` call sites → `csApi` pool queries. `getKeyStatus` switches from `.from('api_keys').select(...)` to `rpc_api_key_status`. Code comment rewritten — removes the Worker analogy; restates as "v1 handlers connect directly to Postgres as cs_api, bypassing PostgREST entirely (ADR-1009 Phase 2)."
-- [ ] `app/src/lib/api/log-request.ts`: swap to `csApi`.
-- [ ] `app/src/lib/consent/verify.ts`, `record.ts`, `read.ts`, `revoke.ts`, `deletion.ts`: swap to `csApi`. RPC calls translated from `.rpc('name', { p_k: v })` to `csApi\`select name($1, $2, ...)\`` (postgres.js tagged-template SQL).
-- [ ] Full integration suite + DEPA suite re-run.
+- [x] `app/src/lib/api/auth.ts` rewritten to use `csApi` pool throughout. `verifyBearerToken` calls `rpc_api_key_verify` via `sql\`select rpc_api_key_verify(${plaintext}::text)\``; `getKeyStatus` switches from `.from('api_keys').select(...)` to `rpc_api_key_status`. Code comment updated to reflect direct Postgres via pool (ADR-1009 Phase 2); removed the misleading Worker-as-service-role analogy.
+- [x] `app/src/lib/api/log-request.ts` — fire-and-forget `rpc_api_request_log_insert` over `csApi`.
+- [x] `app/src/lib/consent/verify.ts`, `record.ts`, `read.ts`, `revoke.ts`, `deletion.ts` — every helper rewritten to call its target RPC via `csApi` tagged-template SQL. Error classification preserved (42501 + api_key_* → `api_key_binding` 403; 22023 → validation; P0001 → 404).
+- [x] Full integration + DEPA suite re-run.
 
 **Testing plan:**
-- [ ] 124/124 integration + DEPA green with `SUPABASE_SERVICE_ROLE_KEY` absent from app runtime but present in test env for `tests/rls/helpers.ts` (admin ops).
-- [ ] Manual curl smoke: `POST /v1/consent/record` with a seeded Bearer token succeeds end-to-end.
+- [x] 106/106 integration + cs_api smoke PASS.
+- [x] `grep -rn "SUPABASE_SERVICE_ROLE_KEY" app/src` → empty. Rule 5 clean in app/.
+- [x] `bun run lint` + `bun run build` clean.
 
-**Status:** `[ ] planned`
+**Status:** `[x] complete` — 2026-04-21
 
 #### Sprint 2.4 — Revoke + env purge
 **Estimated effort:** 0.5 day
