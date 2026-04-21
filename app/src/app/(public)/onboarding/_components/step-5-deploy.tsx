@@ -67,24 +67,43 @@ export function Step5Deploy({
     }
 
     setLoading(true)
-    const res = await fetch(`/api/orgs/${orgId}/properties`, {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({
-        name: parsed.hostname,
-        url: parsed.toString(),
-        allowed_origins: [parsed.origin],
-      }),
-    })
-    setLoading(false)
-    const json = (await res.json()) as
-      | { property: Property }
-      | { error: string }
-    if (!res.ok || !('property' in json)) {
-      setError('error' in json ? json.error : `HTTP ${res.status}`)
+    let res: Response
+    try {
+      res = await fetch(`/api/orgs/${orgId}/properties`, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({
+          name: parsed.hostname,
+          url: parsed.toString(),
+          allowed_origins: [parsed.origin],
+        }),
+      })
+    } catch (err) {
+      setLoading(false)
+      setError(err instanceof Error ? err.message : 'Network error.')
       return
     }
-    setProperty(json.property)
+    setLoading(false)
+    // Guard against empty bodies (route threw before writing JSON,
+    // edge-level redirect, etc.) so the user sees the real error
+    // instead of "Unexpected end of JSON input".
+    const raw = await res.text()
+    let parsedBody: { property?: Property; error?: string } | null
+    try {
+      parsedBody = raw ? (JSON.parse(raw) as typeof parsedBody) : null
+    } catch {
+      parsedBody = null
+    }
+    if (!res.ok || !parsedBody?.property) {
+      const hint =
+        parsedBody?.error ??
+        (raw
+          ? `HTTP ${res.status}: ${raw.slice(0, 200)}`
+          : `HTTP ${res.status} (empty body)`)
+      setError(hint)
+      return
+    }
+    setProperty(parsedBody.property)
     setStage('snippet')
   }
 

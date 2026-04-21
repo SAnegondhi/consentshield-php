@@ -30,59 +30,85 @@ export async function POST(
   request: Request,
   { params }: { params: Promise<{ orgId: string }> },
 ) {
-  const { orgId } = await params
-  const supabase = await createServerClient()
+  try {
+    const { orgId } = await params
+    const supabase = await createServerClient()
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
 
-  // Plan gating: check web property limit before creating
-  const gate = await checkPlanLimit(supabase, orgId, 'web_properties')
-  if (!gate.allowed) {
-    return NextResponse.json(
-      {
-        error: `Your ${gate.plan} plan allows ${gate.limit} web ${
-          gate.limit === 1 ? 'property' : 'properties'
-        }. Upgrade to add more.`,
-        code: 'plan_limit_reached',
-        limit: gate.limit,
-        current: gate.current,
-        plan: gate.plan,
-      },
-      { status: 402 },
-    )
-  }
-
-  const body = await request.json()
-  const { name, url, allowed_origins } = body
-
-  if (!name || !url) {
-    return NextResponse.json({ error: 'name and url are required' }, { status: 400 })
-  }
-
-  // Validate allowed_origins format if provided
-  const origins = Array.isArray(allowed_origins) ? allowed_origins : []
-  for (const origin of origins) {
-    try {
-      new URL(origin)
-    } catch {
+    // Plan gating: check web property limit before creating.
+    // `checkPlanLimit` throws on RPC error (e.g. fresh-membership race
+    // during onboarding Step 5 where the JWT's org_id claim arrived
+    // before the membership index settled); wrapper below ensures the
+    // client gets structured JSON instead of an empty 500.
+    const gate = await checkPlanLimit(supabase, orgId, 'web_properties')
+    if (!gate.allowed) {
       return NextResponse.json(
-        { error: `Invalid origin URL: ${origin}` },
+        {
+          error: `Your ${gate.plan} plan allows ${gate.limit} web ${
+            gate.limit === 1 ? 'property' : 'properties'
+          }. Upgrade to add more.`,
+          code: 'plan_limit_reached',
+          limit: gate.limit,
+          current: gate.current,
+          plan: gate.plan,
+        },
+        { status: 402 },
+      )
+    }
+
+    const body = await request.json()
+    const { name, url, allowed_origins } = body as {
+      name?: string
+      url?: string
+      allowed_origins?: unknown
+    }
+
+    if (!name || !url) {
+      return NextResponse.json(
+        { error: 'name and url are required' },
         { status: 400 },
       )
     }
+
+    // Validate allowed_origins format if provided
+    const origins = Array.isArray(allowed_origins)
+      ? (allowed_origins as string[])
+      : []
+    for (const origin of origins) {
+      try {
+        new URL(origin)
+      } catch {
+        return NextResponse.json(
+          { error: `Invalid origin URL: ${origin}` },
+          { status: 400 },
+        )
+      }
+    }
+
+    // RLS check via inserted org_id matches JWT claim
+    const { data, error } = await supabase
+      .from('web_properties')
+      .insert({ org_id: orgId, name, url, allowed_origins: origins })
+      .select('id, name, url, allowed_origins, created_at')
+      .single()
+
+    if (error) {
+      return NextResponse.json({ error: error.message }, { status: 500 })
+    }
+
+    return NextResponse.json({ property: data }, { status: 201 })
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err)
+    console.error('api.orgs.properties.post.failed', msg)
+    return NextResponse.json(
+      { error: msg || 'unexpected_error' },
+      { status: 500 },
+    )
   }
-
-  // RLS check via inserted org_id matches JWT claim
-  const { data, error } = await supabase
-    .from('web_properties')
-    .insert({ org_id: orgId, name, url, allowed_origins: origins })
-    .select('id, name, url, allowed_origins, created_at')
-    .single()
-
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
-
-  return NextResponse.json({ property: data }, { status: 201 })
 }
