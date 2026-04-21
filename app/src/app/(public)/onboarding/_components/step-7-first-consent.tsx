@@ -95,7 +95,7 @@ export function Step7FirstConsent({
         {stage === 'consented'
           ? 'First consent captured!'
           : stage === 'timed_out'
-            ? 'No consent yet — that&rsquo;s fine'
+            ? 'No consent yet — that’s fine'
             : 'Waiting for the first consent event'}
       </h1>
 
