@@ -2,6 +2,20 @@
 
 Database migrations, RLS policies, roles.
 
+## [ADR-1012 Sprint 1.1] — 2026-04-21
+
+**ADR:** ADR-1012 — v1 API DX gap fixes
+**Sprint:** Phase 1 Sprint 1.1 — introspection RPCs
+
+### Added
+- `20260802000007_v1_introspection_rpcs.sql`:
+  - `rpc_api_key_self(p_key_id uuid) returns jsonb` — returns safe metadata subset (id, account_id, org_id, name, key_prefix, scopes, rate_tier, lifecycle timestamps). Excludes key_hash/previous_key_hash/revoked_by. GRANT to cs_api.
+  - `rpc_api_key_usage_self(p_key_id uuid, p_days int default 7) returns table` — per-day request_count + p50/p95 latency, zero-filled. Mirror of dashboard-side `rpc_api_key_usage` without the account-membership authz check (cs_api guarantee is upstream: middleware verified Bearer=p_key_id). GRANT to cs_api.
+- `20260802000008_fix_usage_self_column.sql` — fix-forward: Sprint-1.1 draft referenced `created_at` on api_request_log; the actual column is `occurred_at`.
+
+### Tested
+- [x] 6/6 introspection.test.ts PASS; 116/116 full integration PASS.
+
 ## [ADR-1011 — revoked-key tombstone] — 2026-04-21
 
 **ADR:** ADR-1011 — rotate+revoke 401→410 fix (V2 C-1)

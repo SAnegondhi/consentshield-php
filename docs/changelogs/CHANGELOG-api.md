@@ -2,6 +2,20 @@
 
 API route changes.
 
+## [ADR-1012 Sprint 1.1] — 2026-04-21
+
+**ADR:** ADR-1012 — v1 API DX gap fixes
+**Sprint:** Phase 1 Sprint 1.1 — introspection endpoints
+
+### Added
+- `GET /v1/keys/self` — Bearer token introspection. Returns key metadata (id, account_id, org_id, name, prefix, scopes, rate_tier, lifecycle timestamps). No scope gate. Handler: `app/src/app/api/v1/keys/self/route.ts`. OpenAPI: new path + `KeySelfResponse` schema with request + response examples.
+- `GET /v1/usage` — per-day request_count + p50/p95 latency for the Bearer's last N days (?days=1..30, default 7). No scope gate. Handler: `app/src/app/api/v1/usage/route.ts`. OpenAPI: new path + `UsageResponse` + `UsageDayRow` schemas with a populated example series.
+- `app/src/lib/api/introspection.ts` — `keySelf(params)` and `keyUsageSelf(params)` helpers over the cs_api pool, following the same postgres.js tagged-template pattern as `lib/consent/*.ts`.
+
+### Tested
+- [x] 6 new integration tests in `tests/integration/introspection.test.ts` (both helpers).
+- [x] 116/116 full integration suite PASS.
+
 ## [V2 C-2 drift check] — 2026-04-21
 
 **ADR:** ADR-1001 V2 C-2 (no separate ADR; inline implementation)
