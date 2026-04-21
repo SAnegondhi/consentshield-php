@@ -2,6 +2,19 @@
 
 Database migrations, RLS policies, roles.
 
+## [ADR-0058 follow-up — fix rpc_plan_limit_check auth-schema leak] — 2026-04-21
+
+**ADR:** ADR-0058 (follow-up)
+
+### Changed
+- `20260803000008_plan_limit_check_current_uid.sql` — rewrite `public.rpc_plan_limit_check` to call `public.current_uid()` instead of `auth.uid()`. The function is SECURITY DEFINER owned by `cs_orchestrator` (set 20260414, preserved through the 20260429 RBAC rewrite), and cs_orchestrator has no USAGE on schema `auth`; in DEFINER context the `auth.uid()` call raised `permission denied for schema auth`. Broke onboarding Step 5 POST `/api/orgs/:orgId/properties`. Body otherwise identical to the 20260429 version.
+
+### Verified
+- Audited every `public.*` SECURITY DEFINER function owned by `cs_orchestrator` or `cs_delivery` — no other body matches `auth\.(uid|jwt|role)\(`; this was the last offender.
+
+### Tested
+- [x] `bunx supabase db push` — migration applied to remote dev DB.
+
 ## [ADR-0058 follow-up — drop dispatch trigger + cron] — 2026-04-21
 
 **ADR:** ADR-0058 (follow-up)
