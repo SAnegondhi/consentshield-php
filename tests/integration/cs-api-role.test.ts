@@ -104,16 +104,30 @@ describeIf('cs_api direct-Postgres role — ADR-1009 Phase 2', () => {
     ).rejects.toThrow(/permission denied/i)
   })
 
-  it('cs_api cannot execute a v1 mutation RPC until Sprint 2.2 flips grants', async () => {
-    // rpc_consent_record is granted to service_role, not cs_api (yet). The
-    // call should fail with permission denied. Once Sprint 2.2 lands the
-    // cs_api grant, this assertion inverts and the test moves to the
-    // "cs_api CAN execute" side.
+  it('cs_api can execute v1 RPCs (past Sprint 2.2 grant flip)', async () => {
+    // rpc_consent_verify should now be callable. The fence lets us through
+    // (keyId is bound to org), and then property_not_found fires because the
+    // property UUID is bogus — proving cs_api got past the grant check AND
+    // the ADR-1009 fence check.
     await expect(
-      sql`select rpc_consent_record(
-        ${keyId}::uuid, ${org.orgId}::uuid, '00000000-0000-0000-0000-000000000000'::uuid,
-        'user@example.com', 'email', ARRAY[]::uuid[], null, now(), null
+      sql`select rpc_consent_verify(
+        ${keyId}::uuid, ${org.orgId}::uuid,
+        '00000000-0000-0000-0000-000000000000'::uuid,
+        'user@example.com', 'email', 'marketing'
       )`,
-    ).rejects.toThrow(/permission denied/i)
+    ).rejects.toThrow(/property_not_found/i)
+  })
+
+  it('cs_api blocked on v1 RPC with wrong keyId — fence fires, not grant', async () => {
+    // With a made-up key_id, assert_api_key_binding raises 'api_key_not_found'
+    // (errcode 42501). Confirms the fence still bites even when the grant lets
+    // us execute the outer function.
+    await expect(
+      sql`select rpc_consent_verify(
+        '00000000-0000-0000-0000-000000000001'::uuid, ${org.orgId}::uuid,
+        '00000000-0000-0000-0000-000000000000'::uuid,
+        'user@example.com', 'email', 'marketing'
+      )`,
+    ).rejects.toThrow(/api_key_not_found/i)
   })
 })

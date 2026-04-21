@@ -2,6 +2,18 @@
 
 Database migrations, RLS policies, roles.
 
+## [ADR-1009 Sprint 2.2] — 2026-04-21
+
+**ADR:** ADR-1009 — v1 API role hardening
+**Sprint:** Phase 2 Sprint 2.2 — grant v1 RPCs to `cs_api`
+
+### Added
+- `20260801000008_cs_api_v1_rpc_grants.sql` — `grant execute on function ... to cs_api` for the 9 v1 business RPCs: rpc_consent_verify, rpc_consent_verify_batch, rpc_consent_record, rpc_artefact_list, rpc_artefact_get, rpc_artefact_revoke, rpc_event_list, rpc_deletion_trigger, rpc_deletion_receipts_list. Purely additive — `service_role` grants remain (Sprint 2.4 revokes).
+
+### Tested
+- [x] 6/6 cs-api-role.test.ts PASS (assertion "cs_api cannot execute rpc_consent_record" inverted to "cs_api can execute rpc_consent_verify + fence still rejects a bogus keyId with api_key_not_found").
+- [x] 106/106 full integration suite PASS.
+
 ## [ADR-1009 Sprint 2.1 follow-up] — 2026-04-21
 
 **ADR:** ADR-1009 — v1 API role hardening

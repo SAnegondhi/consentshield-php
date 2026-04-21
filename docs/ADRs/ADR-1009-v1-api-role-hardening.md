@@ -154,14 +154,19 @@ SUPABASE_CS_API_DATABASE_URL="<...>" bunx vitest run tests/integration/cs-api-ro
 **Estimated effort:** 0.5 day
 
 **Deliverables:**
-- [ ] Migration: `grant execute on function <each v1 RPC> to cs_api;` for all 12 v1 RPCs (verify, verify_batch, record, artefact_list, artefact_get, artefact_revoke, event_list, deletion_trigger, deletion_receipts_list, api_key_verify, api_key_status, api_request_log_insert, assert_api_key_binding).
-- [ ] Keep `service_role` grants in place — this sprint is purely additive; Phase 2.4 revokes.
+- [x] Migration `20260801000008_cs_api_v1_rpc_grants.sql` — grants EXECUTE on the 9 v1 business RPCs to `cs_api`:
+  - Reads: `rpc_consent_verify`, `rpc_consent_verify_batch`, `rpc_artefact_list`, `rpc_artefact_get`, `rpc_event_list`, `rpc_deletion_receipts_list`.
+  - Mutations: `rpc_consent_record`, `rpc_artefact_revoke`, `rpc_deletion_trigger`.
+  - Not re-granted here (already granted): `rpc_api_key_verify`, `rpc_api_key_status`, `rpc_api_request_log_insert` (Sprints 2.1 + follow-up).
+  - Not needed: `assert_api_key_binding` — called from SECURITY DEFINER bodies at owner privilege, caller grants irrelevant.
+- [x] `service_role` grants retained — Sprint 2.4 revokes.
+- [x] `cs-api-role.test.ts` inverted: the old "cs_api cannot execute rpc_consent_record" assertion is now "cs_api CAN execute rpc_consent_verify (proves grant)" + a new "fence still fires with bogus keyId → api_key_not_found" companion test.
 
 **Testing plan:**
-- [ ] Direct psql-as-cs_api call to each RPC succeeds (12 smoke assertions).
-- [ ] Direct psql-as-cs_api `select * from consent_events` returns `permission denied for table` (verifies cs_api has zero table privileges).
+- [x] 6/6 cs-api-role.test.ts PASS (5 existing + 1 new fence-still-fires test).
+- [x] 106/106 full integration + cs_api smoke suite — no regression.
 
-**Status:** `[ ] planned`
+**Status:** `[x] complete` — 2026-04-21
 
 #### Sprint 2.3 — Runtime swap
 **Estimated effort:** 0.5 day
