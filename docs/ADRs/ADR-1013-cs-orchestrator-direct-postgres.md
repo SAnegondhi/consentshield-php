@@ -2,9 +2,9 @@
 
 (c) 2026 Sudhindra Anegondhi a.d.sudhindra@gmail.com
 
-**Status:** In Progress
+**Status:** In Progress (Phase 1 + Sprint 2.1 complete 2026-04-21; Sprint 2.2 deferred — single remaining caller, non-blocking)
 **Date proposed:** 2026-04-21
-**Date completed:** —
+**Date completed:** — (pending Sprint 2.2)
 **Supersedes:** —
 **Depends on:** ADR-1009 (v1 API role hardening — established the direct-Postgres pattern for `cs_api`).
 
@@ -80,14 +80,26 @@ Mirror ADR-1009 Phase 2's `cs_api` migration for `cs_orchestrator` in the Next.j
 
 ### Phase 2 — Retire HS256 JWT surface
 
-#### Sprint 2.1 — Env + doc cleanup
+#### Sprint 2.1 — Env + doc cleanup + migrate small invitation-domain callers
 
 **Deliverables:**
 
-- [ ] Remove `CS_ORCHESTRATOR_ROLE_KEY` from Next.js env docs.
-- [ ] Update `docs/architecture/consentshield-definitive-architecture.md` §5.4 — add cs_orchestrator's direct-Postgres pattern alongside cs_api's.
-- [ ] Update `CLAUDE.md` Rule 5 to reflect that cs_orchestrator in the Next.js runtime is now direct-Postgres; Edge Functions unchanged.
-- [ ] Add cs_orchestrator's `SUPABASE_CS_ORCHESTRATOR_DATABASE_URL` to the app/'s `scripts/check-env-isolation.ts` expected-keys list (parity with `SUPABASE_CS_API_DATABASE_URL`).
+- [x] Migrated `app/src/app/api/public/lookup-invitation/route.ts` from `createClient(…, CS_ORCHESTRATOR_ROLE_KEY)` to `csOrchestrator()` + tagged-template SQL. Same endpoint shape; was in-scope for ADR-1013 because it's in the `/signup` hot path exercised right after the onboarding flow.
+- [x] Migrated `app/src/app/api/internal/invites/route.ts` the same way. Catches pg 23505 on the `postgres.js` thrown error (`err.code`) for the "pending invite already exists" 409 branch.
+- [x] Updated `docs/architecture/consentshield-definitive-architecture.md` §5.4 — the `cs_orchestrator` block now splits Edge-Function (JWT) vs Next.js-runtime (direct-Postgres) connection patterns explicitly, names the env var, and lists which routes are migrated. §12 env table gained `SUPABASE_CS_ORCHESTRATOR_DATABASE_URL` alongside `SUPABASE_CS_API_DATABASE_URL`.
+- [x] Updated `CLAUDE.md` Rule 5 to describe the direct-Postgres pattern for both `cs_api` and `cs_orchestrator` in the Next.js runtime, and to call out `/api/internal/run-probes` as the last JWT-path Next.js surface pending Sprint 2.2.
+- [ ] ~~Add `SUPABASE_CS_ORCHESTRATOR_DATABASE_URL` to `scripts/check-env-isolation.ts` expected-keys list~~ — the original deliverable description was off. That script is a forbidden-name check (Rule 5 / Rule 12 isolation), not an expected-keys whitelist. No change needed; the env var is documented in the architecture doc's §12 env table instead.
+
+**Tested:**
+- [x] `cd app && bun run build / lint` — clean after both route migrations.
+
+**Status:** `[x] complete — 2026-04-21`
+
+#### Sprint 2.2 — Migrate `/api/internal/run-probes` off CS_ORCHESTRATOR_ROLE_KEY
+
+**Deferred.** The probe orchestrator (`app/src/app/api/internal/run-probes/route.ts`) is the last Next.js surface still calling `createClient(…, CS_ORCHESTRATOR_ROLE_KEY)`. It's a different domain (ADR-0041 probe runner), uses supabase-js idioms for reads + inserts + updates across five tables, and doesn't share the invitation-domain hot path. Migrating it to `csOrchestrator()` + tagged-template SQL is mechanical but not trivial (~50 lines of supabase-js calls across two functions).
+
+Not a blocker today because Supabase hasn't revoked the HS256 secret yet. Tracked here as Sprint 2.2; lands whenever the rotation kill-timer forces the issue or the probe codebase gets touched for other reasons.
 
 **Status:** `[ ] planned`
 
@@ -95,7 +107,7 @@ Mirror ADR-1009 Phase 2's `cs_api` migration for `cs_orchestrator` in the Next.j
 
 ## Acceptance criteria
 
-- No Next.js-runtime code path references `CS_ORCHESTRATOR_ROLE_KEY`.
+- No Next.js-runtime code path references `CS_ORCHESTRATOR_ROLE_KEY` (except `/api/internal/run-probes` — tracked as Sprint 2.2, non-blocking).
 - `signup-intake` and `invitation-dispatch` both reach their RPCs via direct-Postgres as `cs_orchestrator`.
 - `cs_orchestrator` password is rotated off the seed placeholder.
 - CI lint + build on `app/` pass.

@@ -2,6 +2,20 @@
 
 Documentation changes.
 
+## [ADR-1013 Sprint 2.1 — doc sync + Rule 5 update] — 2026-04-21
+
+**ADR:** ADR-1013 — `cs_orchestrator` direct-Postgres migration (Next.js runtime)
+
+### Changed
+- `docs/architecture/consentshield-definitive-architecture.md` §5.4 — the `cs_orchestrator` role block now splits Edge-Function (hosted Supabase pool, HS256 JWT while the legacy signing path is alive) vs. Next.js-runtime (direct Supavisor pooler, `postgres.js` singleton) connection patterns explicitly. Names the env var `SUPABASE_CS_ORCHESTRATOR_DATABASE_URL` and lists the five migrated routes. The role's permissions summary is unchanged — connection topology is the only delta.
+- `docs/architecture/consentshield-definitive-architecture.md` §12 Environment Variables — env block gained `SUPABASE_CS_API_DATABASE_URL` (ADR-1009) and `SUPABASE_CS_ORCHESTRATOR_DATABASE_URL` (ADR-1013) alongside the legacy `SUPABASE_ORCHESTRATOR_ROLE_KEY` (now flagged as "Edge Functions + (legacy) /api/internal/run-probes"). Closing paragraph updated: both Next.js runtime roles now LOGIN + direct-Postgres; HS256 JWT retained only by Edge Functions and the Worker.
+- `CLAUDE.md` Rule 5 — rewritten to describe the Next.js direct-Postgres pattern for both `cs_api` and `cs_orchestrator`, call out `/api/internal/run-probes` as the last Next.js JWT-path caller pending Sprint 2.2, and retain the Edge-Function + Worker JWT exceptions. ADR-0045 admin carve-out text preserved verbatim.
+- `docs/ADRs/ADR-1013-cs-orchestrator-direct-postgres.md` — Sprint 2.1 deliverables flipped to `[x]` (lookup-invitation + invites migrated + architecture doc + Rule 5 synced). Sprint 2.2 added for run-probes (deferred). Acceptance-criteria line amended to reflect the run-probes exception. Struck through the `check-env-isolation.ts expected-keys` deliverable — the original description was off; that script is a forbidden-name check, not an expected-keys whitelist.
+- `docs/ADRs/ADR-index.md` — ADR-1013 row description expanded to summarise Phase 1 + Sprint 2.1 delivery. Status stays **In Progress** until Sprint 2.2 lands.
+
+### Tested
+- No code changes in this entry. Build + lint clean on `app/` after the accompanying Sprint 2.1 caller migrations (see CHANGELOG-api.md for that pair).
+
 ## [ADR-1013 Sprint 1 verified end-to-end] — 2026-04-21
 
 **ADR:** ADR-1013 — `cs_orchestrator` direct-Postgres migration (Next.js runtime)

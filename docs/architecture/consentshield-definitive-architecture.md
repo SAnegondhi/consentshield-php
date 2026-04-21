@@ -208,7 +208,14 @@ CANNOT: read organisations, integration_connectors, consent_banners, or any oper
 
 If the delivery credential leaks, the attacker can read in-flight buffer rows (minutes of data, hashed/truncated) and export configuration (encrypted credentials they can't decrypt). They cannot access any operational data outside of the DEPA artefact metadata that is already being delivered to the customer.
 
-**Role: cs_orchestrator** (used by all other Edge Functions)
+**Role: cs_orchestrator** (used by Edge Functions + the invitation + signup-intake Next.js routes)
+
+Connection patterns differ by runtime:
+
+- **Edge Functions (Deno):** direct Postgres via the Supabase-hosted pool using `CS_ORCHESTRATOR_ROLE_KEY` (HS256 JWT, while the legacy signing secret is still alive; migration to direct-LOGIN tracked alongside ADR-1010 for the Worker).
+- **Next.js runtime (customer app):** direct Postgres via the Supavisor pooler as the LOGIN role `cs_orchestrator.<project-ref>`, using `postgres.js` with `prepare: false`. See `app/src/lib/api/cs-orchestrator-client.ts` (ADR-1013). The HS256 JWT path is retired from the Next.js runtime callers (signup-intake, invitation-dispatch, dispatch helper, lookup-invitation, internal/invites); only the `run-probes` route — a different domain — still uses the JWT pending its own migration.
+
+Env: `SUPABASE_CS_ORCHESTRATOR_DATABASE_URL` on the customer-app project (parity with `SUPABASE_CS_API_DATABASE_URL`).
 
 The following is a summary of security-relevant permissions. See consentshield-complete-schema-design.md Section 5.1 for the complete GRANT list.
 
@@ -262,7 +269,7 @@ If the cs_api credential leaks, the attacker can execute the 12 whitelisted RPCs
 - Emergency debugging (logged, audited, requires justification)
 - The admin-app `auth.admin.*` carve-out (ADR-0045), scoped to user lifecycle operations behind AAL2 + `admin.require_admin('platform_operator')`.
 
-Each role gets its own Supabase database password (for LOGIN roles) or JWT (for scoped roles on Supabase REST, while the HS256 path is still alive), stored as a separate environment variable.
+Each role gets its own Supabase database password (for LOGIN roles) or JWT (for scoped roles on Supabase REST, while the HS256 path is still alive), stored as a separate environment variable. The Next.js runtime uses LOGIN + direct-Postgres for both `cs_api` (ADR-1009) and `cs_orchestrator` (ADR-1013); the HS256 JWT path is retained only by Edge Functions (cs_orchestrator, cs_delivery) and the Worker (cs_worker, tracked under ADR-1010).
 
 ---
 
@@ -941,9 +948,11 @@ SUPABASE_URL=https://<project>.supabase.co
 SUPABASE_ANON_KEY=<anon key>                         # Client-side Supabase client
 
 # Scoped database roles (replace single service key)
-SUPABASE_DELIVERY_ROLE_KEY=<cs_delivery password>    # Delivery Edge Function only
-SUPABASE_ORCHESTRATOR_ROLE_KEY=<cs_orchestrator pw>  # All other Edge Functions + API routes
-SUPABASE_SERVICE_ROLE_KEY=<service role key>          # Migrations and emergency admin ONLY
+SUPABASE_DELIVERY_ROLE_KEY=<cs_delivery password>         # Delivery Edge Function only
+SUPABASE_ORCHESTRATOR_ROLE_KEY=<cs_orchestrator pw>       # Edge Functions + (legacy) /api/internal/run-probes
+SUPABASE_CS_API_DATABASE_URL=<pooler url cs_api>          # Next.js /api/v1/* — ADR-1009
+SUPABASE_CS_ORCHESTRATOR_DATABASE_URL=<pooler url cs_orch>  # Next.js signup-intake + invitation-dispatch + lookup-invitation + internal/invites — ADR-1013
+SUPABASE_SERVICE_ROLE_KEY=<service role key>               # Migrations and emergency admin ONLY
 
 RAZORPAY_KEY_ID=<key id>
 RAZORPAY_KEY_SECRET=<key secret>

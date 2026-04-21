@@ -23,6 +23,21 @@ API route changes.
 - [x] `cd app && bun run lint` — 0 errors, 0 warnings.
 - [x] End-to-end — verified 2026-04-21. cs_orchestrator password rotated, `SUPABASE_CS_ORCHESTRATOR_DATABASE_URL` wired, app dev restarted, marketing `/signup` → app `signup-intake` (direct-Postgres as cs_orchestrator) → create_signup_intake RPC → in-process dispatcher → marketing `/api/internal/send-email` relay → Resend → invite email landed in recipient inbox.
 
+## [ADR-1013 Sprint 2.1 — remaining invitation-domain callers + doc sync] — 2026-04-21
+
+**ADR:** ADR-1013 — `cs_orchestrator` direct-Postgres migration (Next.js runtime)
+**Sprint:** Phase 2 Sprint 2.1 — env + doc cleanup + small-caller migration
+
+### Changed
+- `app/src/app/api/public/lookup-invitation/route.ts` — migrated off `createClient(…, CS_ORCHESTRATOR_ROLE_KEY)` onto `csOrchestrator()` + tagged-template SQL calling `public.lookup_pending_invitation_by_email`. Same external contract; brings the route into ADR-1013 compliance so it survives Supabase's HS256 rotation.
+- `app/src/app/api/internal/invites/route.ts` — same migration for the HMAC-gated marketing-invite stub route. `postgres.js` throws with `err.code === '23505'` on the unique-violation branch (previously `error.code` from supabase-js); catch reshaped accordingly to preserve the 409 `pending_invite_already_exists` response.
+
+### Scope note
+- `/api/internal/run-probes` still holds a `createClient(…, CS_ORCHESTRATOR_ROLE_KEY)` — tracked as ADR-1013 Sprint 2.2 (deferred, non-blocking single caller in a different domain).
+
+### Tested
+- [x] `cd app && bun run build / lint` — clean.
+
 ## [ADR-0058 Sprint 1.5 close-out — resend-link endpoint] — 2026-04-21
 
 **ADR:** ADR-0058 — Split-flow customer onboarding (Sprint 1.5 `[ ]` resend-link form → `[x]`)

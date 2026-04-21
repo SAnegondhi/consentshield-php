@@ -1,8 +1,10 @@
-import { createClient } from '@supabase/supabase-js'
 import { NextResponse } from 'next/server'
+import { csOrchestrator } from '@/lib/api/cs-orchestrator-client'
 import { checkRateLimit } from '@/lib/rights/rate-limit'
 
 // ADR-0058 follow-up — email-first signup lookup endpoint.
+// ADR-1013 Phase 2 — migrated off Supabase REST + HS256 JWT to the
+// cs_orchestrator direct-Postgres pool.
 //
 // Called from /signup when the visitor has no invite token in the URL.
 // Per-IP 5/60s + per-email 10/hour rate limits mitigate enumeration
@@ -15,9 +17,6 @@ import { checkRateLimit } from '@/lib/rights/rate-limit'
 //   • `marketing_intake | operator_intake` → `/onboarding?token=<token>`
 
 export const dynamic = 'force-dynamic'
-
-const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL!
-const ORCHESTRATOR_KEY = process.env.CS_ORCHESTRATOR_ROLE_KEY!
 
 interface LookupResponse {
   found: boolean
@@ -66,22 +65,25 @@ export async function POST(request: Request) {
     return NextResponse.json(response, { status: 200 })
   }
 
-  const orchestrator = createClient(SUPABASE_URL, ORCHESTRATOR_KEY, {
-    auth: { persistSession: false },
-  })
-
-  const { data, error } = await orchestrator.rpc(
-    'lookup_pending_invitation_by_email',
-    { p_email: email },
-  )
-  if (error) {
+  const sql = csOrchestrator()
+  let rows: Array<{ token: string; origin: string }>
+  try {
+    rows = await sql<Array<{ token: string; origin: string }>>`
+      select token, origin
+        from public.lookup_pending_invitation_by_email(${email})
+    `
+  } catch (err) {
+    console.error(
+      'lookup-invitation.rpc.failed',
+      err instanceof Error ? err.message : String(err),
+    )
     return NextResponse.json(
       { error: 'Lookup temporarily unavailable.' },
       { status: 503 },
     )
   }
 
-  const row = Array.isArray(data) ? data[0] : null
+  const row = rows[0]
   if (!row) {
     const response: LookupResponse = { found: false }
     return NextResponse.json(response)
@@ -89,7 +91,7 @@ export async function POST(request: Request) {
 
   const response: LookupResponse = {
     found: true,
-    token: row.token as string,
+    token: row.token,
     origin: row.origin as LookupResponse['origin'],
   }
   return NextResponse.json(response)

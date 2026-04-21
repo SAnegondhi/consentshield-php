@@ -1,11 +1,14 @@
 import { NextResponse } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
+import { csOrchestrator } from '@/lib/api/cs-orchestrator-client'
 import { verifyPayload } from '@/lib/invitations/marketing-signature'
 
 // ADR-0044 Phase 2.6 — HMAC-gated invite creation for the marketing
 // site. Stub today (no live consumer); the route shape + signature
 // contract is committed so the marketing site can integrate without
 // a round-trip redesign.
+//
+// ADR-1013 Phase 2 — migrated off Supabase REST + HS256 JWT to the
+// cs_orchestrator direct-Postgres pool.
 //
 // Auth model:
 //   * x-cs-signature + x-cs-timestamp headers verified against
@@ -17,11 +20,11 @@ import { verifyPayload } from '@/lib/invitations/marketing-signature'
 //     path). cs_orchestrator is the established scoped role for
 //     trusted server-to-server RPC calls.
 //
-// The AFTER-INSERT trigger on public.invitations (Phase 2.5) fires
-// Resend automatically — this route does not send email itself.
+// The AFTER-INSERT trigger on public.invitations (Phase 2.5) has been
+// retired (ADR-0058 follow-up); callers of this route are expected to
+// fire /api/internal/invitation-dispatch with the returned id if they
+// want an immediate email. No automatic dispatch from here.
 
-const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL!
-const ORCHESTRATOR_KEY = process.env.CS_ORCHESTRATOR_ROLE_KEY!
 const MARKETING_SECRET = process.env.INVITES_MARKETING_SECRET ?? ''
 const APP_BASE_URL =
   process.env.NEXT_PUBLIC_APP_URL ??
@@ -88,34 +91,41 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'trial_days_out_of_range' }, { status: 400 })
   }
 
-  const supabase = createClient(SUPABASE_URL, ORCHESTRATOR_KEY, {
-    auth: { persistSession: false },
-  })
+  const defaultOrgName =
+    typeof body.default_org_name === 'string' && body.default_org_name.trim().length > 0
+      ? body.default_org_name.trim()
+      : null
 
-  const { data, error } = await supabase.rpc('create_invitation_from_marketing', {
-    p_email: email,
-    p_plan_code: body.plan_code,
-    p_trial_days: trialDays,
-    p_default_org_name:
-      typeof body.default_org_name === 'string' && body.default_org_name.trim().length > 0
-        ? body.default_org_name.trim()
-        : null,
-    p_expires_in_days: expiresInDays,
-  })
-
-  if (error) {
+  const sql = csOrchestrator()
+  let row: { id: string; token: string } | undefined
+  try {
+    const rows = await sql<Array<{ id: string; token: string }>>`
+      select *
+        from public.create_invitation_from_marketing(
+          ${email}::text,
+          ${body.plan_code}::text,
+          ${trialDays}::int,
+          ${defaultOrgName}::text,
+          ${expiresInDays}::int
+        )
+    `
+    row = rows[0]
+  } catch (err) {
     // 23505 = unique_violation → pending invite already exists for
-    // this email. That's a client-side duplicate, not a server error.
-    if (error.code === '23505') {
+    // this email. The postgres.js driver surfaces this as an Error
+    // with `code` in the error object.
+    const code = (err as { code?: string })?.code
+    if (code === '23505') {
       return NextResponse.json(
         { error: 'pending_invite_already_exists' },
         { status: 409 },
       )
     }
-    return NextResponse.json({ error: error.message }, { status: 500 })
+    const msg = err instanceof Error ? err.message : 'rpc_failed'
+    console.error('invites.rpc.failed', msg)
+    return NextResponse.json({ error: msg }, { status: 500 })
   }
 
-  const row = Array.isArray(data) ? data[0] : data
   if (!row?.token || !row?.id) {
     return NextResponse.json({ error: 'rpc_returned_no_row' }, { status: 500 })
   }
