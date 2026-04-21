@@ -2,6 +2,20 @@
 
 Database migrations, RLS policies, roles.
 
+## [ADR-0058 Sprint 1.5] — 2026-04-21
+
+**ADR:** ADR-0058 — Split-flow customer onboarding
+**Sprint:** Sprint 1.5 — Admin operator-intake + polish
+
+### Added
+- `supabase/migrations/20260803000002_swap_intake_plan_and_telemetry.sql`:
+  - `public.swap_intake_plan(p_org_id, p_new_plan_code)` SECURITY DEFINER. Self-serve tier whitelist (`starter | growth | pro`). Role gate `effective_org_role in ('account_owner','org_admin','admin')`. Refuses when `organisations.onboarded_at is not null` — post-handoff plan changes go through Settings → Billing. Updates `accounts.plan_code` for the org's account_id.
+  - `public.onboarding_step_events` table — append-only telemetry buffer (id / org_id / step (1..7) / elapsed_ms / occurred_at). `enable row level security` with zero policies (writer is the DEFINER RPC below, reader will be a future admin RPC). Indexes on `(org_id, occurred_at desc)` + `(step, occurred_at desc)`.
+  - `public.log_onboarding_step_event(p_org_id, p_step, p_elapsed_ms)` SECURITY DEFINER writer. Role gate `effective_org_role is not null`. Step range 1..7. Fire-and-forget from the customer app.
+
+### Tested
+- [x] `bunx supabase db push` — 1 migration applied to remote dev DB.
+
 ## [ADR-0058 Sprint 1.3] — 2026-04-21
 
 **ADR:** ADR-0058 — Split-flow customer onboarding

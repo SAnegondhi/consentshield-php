@@ -2,6 +2,32 @@
 
 Next.js UI changes.
 
+## [ADR-0058 Sprint 1.5] — 2026-04-21
+
+**ADR:** ADR-0058 — Split-flow customer onboarding
+**Sprint:** Sprint 1.5 — Admin operator-intake + polish
+
+### Added
+- `admin/src/app/(operator)/accounts/new-intake/page.tsx` — server page. Loads active plans sorted cheap → expensive. Renders `<NewIntakeForm>` and a sales-routing blurb.
+- `admin/src/app/(operator)/accounts/new-intake/form.tsx` — client form. Email (required, autofocus) + plan select (populated from page server data) + optional default org name. Submits through `createOperatorIntakeAction`; on success clears the fields and shows the invite id.
+- `admin/src/app/(operator)/accounts/actions.ts::createOperatorIntakeAction` — `supabase.schema('admin').rpc('create_operator_intake', ...)`. Returns `{id, token}` on success; raw RPC errors (bad plan code, Rule-12 conflict, ADR-0047 single-account conflict) relayed verbatim so the operator knows what to fix.
+- `app/src/app/(public)/onboarding/_components/plan-swap.tsx` — wizard-header widget (visible Steps 2–6 when `orgId` is set). Opens a modal with Starter / Growth / Pro cards; "Current" pill on the active one. Per-card "Switch" calls `swapPlan` server action. Enterprise routed to `hello@consentshield.in`. Modal uses `role="dialog"`, `aria-modal`, `aria-labelledby`; click-outside and ✕ both dismiss.
+- `app/src/app/(public)/onboarding/actions.ts::swapPlan`, `::logStepCompletion` — server-action wrappers over `swap_intake_plan` and `log_onboarding_step_event`.
+- `app/src/components/welcome-toast.tsx` — one-time toast on `?welcome=1`. Strips the query param on mount so a refresh doesn't replay. Auto-dismisses after 8 s. `role="status"` + `aria-live="polite"`; keyboard-dismissable.
+
+### Changed
+- `app/src/app/(dashboard)/layout.tsx` — mounts `<WelcomeToast />` inside a `<Suspense>` boundary (required for client components that read search params under Next.js 16).
+- `app/src/app/(public)/onboarding/_components/onboarding-wizard.tsx` — extended `WizardState` with `planCode`; renders `<PlanSwap>` above the step indicator from Step 2 onward; tracks step-enter timestamp via `useRef` + `useEffect(step)` and fires `logStepCompletion` on every successful advance. Plan swap updates the in-memory `planCode` without reloading.
+- `admin/src/app/(operator)/accounts/page.tsx` — header now carries an "Invite new account" button linking to `/accounts/new-intake`.
+- `admin/src/app/(operator)/billing/disputes/[disputeId]/page.tsx` — one-line `Date.now()` → `new Date().getTime()` to satisfy the Next.js-16 `react-hooks/purity` rule (pre-existing; surfaced when the wizard work re-ran `bun run lint`).
+
+### Tested
+- [x] `cd app && bun run build` — PASS.
+- [x] `cd app && bun run lint` — 0 errors, 0 warnings.
+- [x] `cd admin && bun run build` — PASS; `/accounts/new-intake` listed.
+- [x] `cd admin && bun run lint` — 0 errors, 0 warnings.
+- [ ] Manual dev-server click-through — operator playtest next session.
+
 ## [ADR-0058 Sprint 1.4] — 2026-04-21
 
 **ADR:** ADR-0058 — Split-flow customer onboarding

@@ -2,6 +2,19 @@
 
 API route changes.
 
+## [ADR-0058 Sprint 1.5] — 2026-04-21
+
+**ADR:** ADR-0058 — Split-flow customer onboarding
+**Sprint:** Sprint 1.5 — Admin operator-intake + polish
+
+### Added
+- `app/src/app/(public)/onboarding/actions.ts::logStepCompletion` — server action wrapping `public.log_onboarding_step_event` for wizard step-timing telemetry. Fire-and-forget from the orchestrator.
+- `app/src/app/(public)/onboarding/actions.ts::swapPlan` — server action wrapping `public.swap_intake_plan`. Returns tagged-union result; raw RPC errors surfaced for the in-wizard plan-swap modal.
+- `admin/src/app/(operator)/accounts/actions.ts::createOperatorIntakeAction` — server action wrapping `admin.create_operator_intake`. Returns `{id, token}`. Used by the new-intake page's `<NewIntakeForm>`.
+
+### Tested
+- [x] Build + lint clean (see CHANGELOG-dashboard.md [ADR-0058 Sprint 1.5]).
+
 ## [ADR-0058 Sprint 1.4] — 2026-04-21
 
 **ADR:** ADR-0058 — Split-flow customer onboarding

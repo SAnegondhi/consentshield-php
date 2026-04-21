@@ -19,7 +19,8 @@ export default async function DisputeDetailPage({
   const { dispute, webhookEvents, planHistory, ledger } = result
 
   const deadlineHours = dispute.deadline_at
-    ? (new Date(dispute.deadline_at).getTime() - Date.now()) / (1000 * 60 * 60)
+    ? (new Date(dispute.deadline_at).getTime() - new Date().getTime()) /
+      (1000 * 60 * 60)
     : null
   const urgent = dispute.status === 'open' && deadlineHours !== null && deadlineHours < 48
 

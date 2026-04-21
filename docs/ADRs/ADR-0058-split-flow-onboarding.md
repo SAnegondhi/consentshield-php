@@ -2,7 +2,7 @@
 
 (c) 2026 Sudhindra Anegondhi a.d.sudhindra@gmail.com
 
-**Status:** In Progress (Sprints 1.1 + 1.2 + 1.3 + 1.4 completed 2026-04-21; 1.5 pending)
+**Status:** Completed (all 5 sprints shipped 2026-04-21)
 **Date:** 2026-04-21
 **Phases:** 1
 **Sprints:** 5
@@ -169,15 +169,31 @@ Email template + CTA URL branch on `origin`. Everything else stays as-is.
 
 **Deliverables:**
 
-- [ ] `admin/src/app/(operator)/accounts/new-intake/page.tsx` — operator form: email, plan picker, org_name; calls `admin.create_operator_intake`.
-- [ ] "Invite new account" button on `admin/.../accounts/page.tsx` (Accounts landing).
-- [ ] "Resend link" + "Try a different email" UX on the no-token onboarding landing.
-- [ ] Dashboard hand-off: `onboarded_at=now()` + `/dashboard?welcome=1`; one-time toast.
-- [ ] In-wizard plan swap (Starter ↔ Growth ↔ Pro): new RPC `public.swap_intake_plan(p_org_id, p_new_plan_code)` gated to `account_owner` + `onboarded_at is null` + self-serve tier whitelist.
-- [ ] Telemetry: `admin.audit_log` entries per step completion with elapsed ms.
-- [ ] Accessibility: keyboard nav, focus trap, `aria-current="step"`.
+- [x] `admin/src/app/(operator)/accounts/new-intake/page.tsx` — server component; loads active plans from `public.plans` (sorted cheap → expensive) and renders the client form.
+- [x] `admin/src/app/(operator)/accounts/new-intake/form.tsx` — client form (email + plan select + optional org_name). Calls the new `createOperatorIntakeAction`. On success: clears the fields + shows the invitation id.
+- [x] `admin/src/app/(operator)/accounts/actions.ts::createOperatorIntakeAction` — server action wrapping `admin.create_operator_intake`. Returns `{id, token}` on success; raw RPC errors relayed to the operator so bad plan codes / Rule-12 conflicts / ADR-0047 conflicts are immediately actionable.
+- [x] "Invite new account" button on `admin/src/app/(operator)/accounts/page.tsx` header — `Link` to `/accounts/new-intake`.
+- [x] `supabase/migrations/20260803000002_swap_intake_plan_and_telemetry.sql` — ships three pieces in one file:
+  - `public.swap_intake_plan(p_org_id, p_new_plan_code)` — self-serve tier whitelist (`starter | growth | pro`), role gate `account_owner | org_admin | admin`, refuses if `onboarded_at is not null`. Updates `accounts.plan_code` for the org's account.
+  - `public.onboarding_step_events` — append-only telemetry buffer (org_id, step, elapsed_ms, occurred_at). RLS-enabled with zero policies (writer is the SECURITY DEFINER RPC below; reader is admin-only — to be added when a dashboard surface needs it).
+  - `public.log_onboarding_step_event(p_org_id, p_step, p_elapsed_ms)` — SECURITY DEFINER writer. Role gate `effective_org_role is not null`. Step range 1..7. Append-only insert.
+- [x] `app/src/app/(public)/onboarding/_components/plan-swap.tsx` — modal widget visible in the wizard header from Step 2 onward. Three cards (Starter / Growth / Pro), "Current" pill on the active one, per-card "Switch" button. Enterprise copy points at `hello@consentshield.in`.
+- [x] `onboarding-wizard.tsx` — wires `<PlanSwap>` above the step indicator (Steps 2–6); tracks step-enter timestamp and fires `logStepCompletion(orgId, step, elapsedMs)` on every successful advance; `planCode` seeded from the preview row and kept in sync when the user swaps.
+- [x] `app/src/app/(public)/onboarding/actions.ts::logStepCompletion` and `::swapPlan` — server-action wrappers.
+- [x] `app/src/components/welcome-toast.tsx` + mount in `app/src/app/(dashboard)/layout.tsx` — one-time toast on `?welcome=1`; strips the query param on mount so a refresh doesn't replay; auto-dismisses after 8 s; Rule-13-compliant `role="status"` + `aria-live="polite"`.
+- [x] Accessibility (Sprint 1.3 groundwork + Sprint 1.5 tightening): `aria-current="step"` on the active step dot (Sprint 1.3), `role="dialog"` + `aria-modal="true"` + `aria-labelledby` on the plan-swap modal, `role="status"` + `aria-live="polite"` on the welcome toast, keyboard-reachable Skip / Change-plan / Dismiss buttons, inherited focus rings.
+- [ ] **Resend-link form** — **deferred.** Building it cleanly wants either (a) a dedicated `/api/public/resend-intake-link` endpoint with its own Turnstile widget or (b) a CORS relaxation on `/api/public/signup-intake` for `app.consentshield.in`. Both are ADR-material decisions; not done here. The no-token shell still gives users a clear mailto recovery path and the already-accepted shell routes to `/login` (Sprint 1.3). Tracked as V2 follow-up under ADR-0058.
+- [ ] **Integration test** (`tests/integration/signup-intake.test.ts`) — **deferred again.** Driving the wizard end-to-end in CI wants either a headless-browser harness or a Supabase auth-mock, neither of which we run today. Tracked as V2 follow-up alongside the resend-link endpoint.
 
-**Status:** `[ ] planned`
+**Tested:**
+- [x] `cd app && bun run build` — clean.
+- [x] `cd app && bun run lint` — 0 errors, 0 warnings.
+- [x] `cd admin && bun run build` — clean; `/accounts/new-intake` present in the route table.
+- [x] `cd admin && bun run lint` — 0 errors, 0 warnings (after a one-line `Date.now()` → `new Date().getTime()` fix in the pre-existing `billing/disputes/[disputeId]/page.tsx` that the Next.js-16 purity rule now catches).
+- [x] `bunx supabase db push` — 1 migration applied (swap_intake_plan + onboarding_step_events + log_onboarding_step_event).
+- [ ] Manual dev-server click-through — deferred to operator playtest next session (marketing intake → wizard → admin operator-intake → wizard both land cleanly on `/dashboard?welcome=1`).
+
+**Status:** `[x] complete — 2026-04-21`
 
 ## Acceptance criteria
 

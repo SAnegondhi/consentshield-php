@@ -63,6 +63,37 @@ export async function applyTemplate(
   return { ok: true, data }
 }
 
+// ADR-0058 Sprint 1.5 — log step completion telemetry. Fire-and-forget:
+// callers advance on set_onboarding_step success regardless of whether
+// the telemetry write succeeds.
+export async function logStepCompletion(
+  orgId: string,
+  step: number,
+  elapsedMs: number,
+): Promise<void> {
+  const supabase = await createServerClient()
+  await supabase.rpc('log_onboarding_step_event', {
+    p_org_id: orgId,
+    p_step: step,
+    p_elapsed_ms: elapsedMs,
+  })
+}
+
+// ADR-0058 Sprint 1.5 — in-wizard plan swap. Gated DB-side to
+// self-serve tiers only + `onboarded_at is null`.
+export async function swapPlan(
+  orgId: string,
+  newPlanCode: string,
+): Promise<ActionResult<null>> {
+  const supabase = await createServerClient()
+  const { error } = await supabase.rpc('swap_intake_plan', {
+    p_org_id: orgId,
+    p_new_plan_code: newPlanCode,
+  })
+  if (error) return { ok: false, error: error.message }
+  return { ok: true, data: null }
+}
+
 export async function listTemplatesForSector(
   sector: string,
 ): Promise<
