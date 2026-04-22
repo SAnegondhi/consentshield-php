@@ -69,23 +69,18 @@ Design-wise the public page is deliberately plain — static-feeling, accessible
 - [x] Public-route behaviour: `/status` is not in `proxy.ts` matcher, so the proxy auth gate doesn't fire. Ships without further proxy changes.
 - [ ] `/status` layout override stripping dashboard chrome — currently inherits `(public)/layout.tsx`. Acceptable for v1; can split further if design wants a dedicated chrome.
 
-### Sprint 1.4 — Probe cron + Edge Function (~2h) — **deferred**
-
-Probe-cron wiring is a separate ship. Until it lands, `current_state` is operator-maintained via the admin panel (manual flips on observed degradation). Already usable for real incident comms.
-
-### Sprint 1.4 — Probe cron + Edge Function (~2h)
+### Sprint 1.4 — Probe cron + Edge Function (~2h) — **complete 2026-04-22**
 
 **Deliverables:**
-- [ ] `supabase/functions/run-status-probes/index.ts` — iterates subsystems, hits each health URL (defined in subsystem row), records `status_checks`, updates `current_state` if 3 consecutive failures flip operational → degraded → down.
-- [ ] pg_cron entry `status-probes-5min` scheduled `*/5 * * * *`.
-- [ ] Health-URL mapping (documented in seed + runbook):
-  - `banner_cdn` → `https://<worker-url>/v1/health` (already ADR-0002)
-  - `consent_capture_api` → Worker `/v1/health` (same — Worker is the capture surface)
-  - `verification_api` → `https://app.consentshield.in/api/v1/_ping` (authenticated: use a dedicated probe key)
-  - `deletion_orchestration` → Edge Function health endpoint (new — `supabase/functions/_health`)
-  - `dashboard` → `https://app.consentshield.in` HEAD 200
-  - `notification_channels` → TBD when Sprint 6.1 adapter ships
-- [ ] Cron alerting: if probes fail to run for 30 min, `admin.ops_readiness_flags` gets a row auto-inserted (prevents silent probe failure).
+- [x] `supabase/functions/run-status-probes/index.ts` — iterates subsystems with non-null `health_url`, fetches with 8s timeout, records one `status_checks` row per subsystem, reconciles `current_state` (eager recovery on a single operational probe; failure requires 3 consecutive non-operational checks before auto-flipping; respects manual `maintenance` without stomp).
+- [x] `supabase/functions/health/index.ts` — unauthenticated liveness for the Edge-Functions surface. Named `health` (not `_health`) — Supabase rejects Function names that start with `_`.
+- [x] `app/src/app/api/health/route.ts` — unauthenticated liveness for the customer app (outside `proxy.ts` matcher, so the Bearer gate does not fire). `GET` returns JSON envelope; `HEAD` returns 200 no-body.
+- [x] `supabase/config.toml` — `verify_jwt = false` for both new Functions (cron carries Vault-stored HS256 Bearer; Supabase HS256 rotation 401s at the Functions gateway).
+- [x] Migration `20260804000015_status_probes_cron.sql`:
+  - Updates seeded `health_url`s for `verification_api` and `dashboard` to `https://app.consentshield.in/api/health` (single unauthenticated endpoint; no probe-key provisioning needed). `deletion_orchestration` now points at the new `functions/v1/health`. `notification_channels` stays null until Sprint 6.1 ships the adapters.
+  - Schedules `status-probes-5min` on `*/5 * * * *` calling `run-status-probes`.
+  - Schedules `status-probes-heartbeat-check` on `*/15 * * * *` — pure SQL; inserts `admin.ops_readiness_flags` row (`ADR-1018`, `infra`, `high`) if no `status_checks` row has been written in the last 30 minutes. Idempotent: only inserts when no matching `pending`/`in_progress` flag already exists.
+- [x] Live smoke-test: `curl POST /functions/v1/run-status-probes` returned `{probed: 5, skipped: 1, flipped: 0}` against the seeded 6-subsystem set. `health` endpoint returns 200 JSON.
 
 ### Sprint 1.5 — DNS cutover (~15min, operator step)
 
@@ -106,7 +101,14 @@ Probe-cron wiring is a separate ship. Until it lands, `current_state` is operato
 
 ## Test Results
 
-_Populated per sprint._
+### Sprint 1.4 — 2026-04-22
+
+**Live smoke-test against dev Supabase.** Both Edge Functions deployed to `xlqiakmkdjycfiioslgs`; migration `20260804000015` applied.
+
+- `GET https://xlqiakmkdjycfiioslgs.supabase.co/functions/v1/health` — `200 OK` — `{"ok":true,"surface":"edge_functions","at":"..."}`
+- `POST https://xlqiakmkdjycfiioslgs.supabase.co/functions/v1/run-status-probes` — `200 OK` — `{"ok":true,"probed":5,"skipped":1,"flipped":0}` — 5 subsystems with non-null `health_url` probed; `notification_channels` skipped (null). All checks operational → no state flips. One row per subsystem written to `public.status_checks`.
+
+Consecutive-failure flip path, maintenance-override safety, and heartbeat-check cron are exercised in production once probes accumulate; not in the v1 smoke test.
 
 ---
 

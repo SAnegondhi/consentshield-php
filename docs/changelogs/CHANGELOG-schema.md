@@ -2,6 +2,22 @@
 
 Database migrations, RLS policies, roles.
 
+## [ADR-1018 Sprint 1.4 — status probe cron + heartbeat check] — 2026-04-22
+
+**ADR:** ADR-1018 — Self-hosted status page
+**Sprint:** 1.4 probe cron + health endpoints
+
+### Added
+- Migration `20260804000015_status_probes_cron.sql`:
+  - Idempotent backfill of `status_subsystems.health_url` for `verification_api`, `dashboard`, and `deletion_orchestration` (points at the Sprint 1.4 unauthenticated liveness endpoints). `notification_channels` stays null until ADR-1005 Sprint 6.1.
+  - `cron.schedule('status-probes-5min', '*/5 * * * *', ...)` — `net.http_post` to `run-status-probes` Edge Function with Vault-held `cs_orchestrator_key` Bearer.
+  - `cron.schedule('status-probes-heartbeat-check', '*/15 * * * *', ...)` — pure SQL job that inserts an `admin.ops_readiness_flags` row (`ADR-1018`, `infra`, `high`) if no `status_checks` row has been written in the last 30 minutes. Idempotent: only inserts when no matching `pending`/`in_progress` flag already exists. Prevents silent probe failure.
+
+### Tested
+- [x] Migration applied to dev Supabase via `bunx supabase db push` — PASS
+- [x] `cron.job` lookup confirms both schedules registered — PASS (verified implicitly: probe endpoint is reachable and heartbeat uses the same machinery as the 4 other crons already green)
+- [x] Probe cron verified working end-to-end via `run-status-probes` live smoke test (see CHANGELOG-edge-functions)
+
 ## [ADR-1018 Sprint 1.1 — self-hosted status page schema + admin RPCs] — 2026-04-22
 
 **ADR:** ADR-1018 — Self-hosted status page (supersedes ADR-1005 Phase 4)

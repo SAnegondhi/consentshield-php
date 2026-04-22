@@ -383,6 +383,24 @@ deno_version = 2
 [functions.process-artefact-revocation]
 verify_jwt = false
 
+# ADR-1018 Sprint 1.4 — status-probe infrastructure.
+#
+# run-status-probes is invoked every 5 minutes by pg_cron (20260804000015).
+# The cron carries a Bearer header built from vault.decrypted_secrets; the
+# HS256 rotation (see process-artefact-revocation note above) means the
+# Functions gateway 401s that token. verify_jwt = false lets the probe run;
+# it pulls its own CS_ORCHESTRATOR_ROLE_KEY from Function env to write rows
+# (scoped role, not service role).
+#
+# `health` is a liveness-only function used by run-status-probes to verify
+# the Edge-Functions surface is reachable. No auth, no state, no secrets.
+# (Function names cannot start with `_` in Supabase.)
+[functions.run-status-probes]
+verify_jwt = false
+
+[functions.health]
+verify_jwt = false
+
 [analytics]
 enabled = true
 port = 54327

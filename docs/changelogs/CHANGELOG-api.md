@@ -2,6 +2,18 @@
 
 API route changes.
 
+## [ADR-1018 Sprint 1.4 — /api/_health liveness] — 2026-04-22
+
+**ADR:** ADR-1018 — Self-hosted status page
+**Sprint:** 1.4 probe cron + health endpoints
+
+### Added
+- `GET /api/health` + `HEAD /api/health` — unauthenticated liveness for the customer-app Next.js runtime. Returns `{ ok: true, surface: 'customer_app', at: iso }` + `Cache-Control: no-store`. No DB round-trip, no secrets, no cookies. Used by `run-status-probes` as the probe target for the `verification_api` and `dashboard` subsystems (single unauthenticated endpoint — avoids provisioning a dedicated probe API key). Path is outside `app/src/proxy.ts` matcher, so the Bearer gate does not fire.
+
+### Tested
+- [x] Local `bun run lint` — 0 warnings, 0 errors — PASS
+- [x] Path not in `proxy.ts` matcher (`/api/v1/:path*` is the only `/api` entry in the matcher) — PASS
+
 ## [ADR-1016 — 3 orphan-scope v1 GET endpoints] — 2026-04-22
 
 **ADR:** ADR-1016 — v1 API close-out for `read:audit`, `read:security`, `read:score`

@@ -2,6 +2,26 @@
 
 Supabase Edge Function changes.
 
+## [ADR-1018 Sprint 1.4 — status probe + health] — 2026-04-22
+
+**ADR:** ADR-1018 — Self-hosted status page
+**Sprint:** Sprint 1.4 — Probe cron + Edge Function
+
+### Added
+- `supabase/functions/health/index.ts` — unauthenticated liveness endpoint. Returns `{ ok: true, surface: 'edge_functions', at: iso }`. No DB round-trip, no secrets. Used by `run-status-probes` to probe the `deletion_orchestration` subsystem — verifies the Functions gateway can reach a running Deno isolate. Named `health` (not `_health`) because Supabase Function names cannot start with `_`.
+- `supabase/functions/run-status-probes/index.ts` — reads `public.status_subsystems`, fetches each non-null `health_url` with an 8s timeout, inserts one `status_checks` row per probed subsystem, and reconciles `current_state`:
+  - single `operational` probe eagerly flips a degraded/down subsystem back to `operational`;
+  - 3 consecutive non-`operational` checks required before auto-flipping an `operational` subsystem down (threshold matches ADR-1018 S1.4 spec);
+  - worst-of rule picks `down` when the window contains any `down`/`error`, otherwise `degraded`;
+  - subsystems whose `current_state` is `maintenance` are never auto-modified — manual operator override takes precedence;
+  - HTTP 5xx ⇒ `down`; 4xx ⇒ `degraded`; >2s latency ⇒ `degraded`; timeout/network error ⇒ `error`.
+- `supabase/config.toml` — two new `[functions.*]` blocks with `verify_jwt = false` (mirrors the `process-artefact-revocation` rationale — Supabase HS256 rotation breaks Vault-held Bearer tokens at the gateway; body-level auth remains via the Function's own `CS_ORCHESTRATOR_ROLE_KEY`).
+
+### Tested
+- [x] `curl https://xlqiakmkdjycfiioslgs.supabase.co/functions/v1/health` — `200 OK` — PASS
+- [x] `curl -X POST https://xlqiakmkdjycfiioslgs.supabase.co/functions/v1/run-status-probes` — `200 OK` — `{probed: 5, skipped: 1, flipped: 0}` — PASS
+- [x] `bunx supabase functions deploy health run-status-probes` — both uploaded — PASS
+
 ## [ADR-1004 Sprint 1.4 — process-artefact-revocation exemption wiring] — 2026-04-22
 
 **ADR:** ADR-1004 — Statutory retention + material-change re-consent
