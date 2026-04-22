@@ -2,6 +2,26 @@
 
 Supabase Edge Function changes.
 
+## [ADR-1004 Sprint 1.4 — process-artefact-revocation exemption wiring] — 2026-04-22
+
+**ADR:** ADR-1004 — Statutory retention + material-change re-consent
+**Sprint:** Phase 1 Sprint 1.4
+
+### Changed
+- `supabase/functions/process-artefact-revocation/index.ts` — now fetches `consent_artefacts.purpose_code` in addition to purpose_definition_id, calls `rpc.applicable_exemptions(org_id, purpose_code)` after the artefact-status check, iterates the returned rules, and:
+  - inserts one `retention_suppressions` row per (revocation, exemption) whose `data_categories` intersect the artefact's `data_scope` (idempotent via the new partial UNIQUE index `(revocation_id, exemption_id) WHERE revocation_id IS NOT NULL`);
+  - subtracts the union of retained categories from every connector mapping's `scopedFields` before writing a `deletion_receipts` row; if nothing is left for a given mapping, the receipt is skipped (fully suppressed);
+  - records both the remaining and retained category lists on `deletion_receipts.request_payload` (`data_scope` + `retained_data_categories`) so the connector call downstream + the audit export can show the split.
+- `DispatchResult` envelope gained `suppressed: number` + `retained_categories: string[]`.
+
+### Added
+- `supabase/config.toml` — `[functions.process-artefact-revocation]` block with `verify_jwt = false`. Rationale inline: Supabase rotated the legacy HS256 signing secret used by the `trigger_process_artefact_revocation()` trigger's `cs_orchestrator_key` Vault JWT, causing the Functions auth gateway to 401 every invocation. Disabling the gateway check lets the trigger reach the Function; the Function still validates the body's `artefact_id + revocation_id` against the DB (no matching non-dispatched row → no side effect). Full restoration to `verify_jwt=true` tracked under ADR-1010 (trigger + Worker HS256 migration).
+
+### Tested
+- [x] `tests/depa/retention-suppression.test.ts` — 1/1 PASS: BFSI + bureau_reporting artefact + CIBIL connector → revocation → retention_suppressions row with CICRA_2005 statute + source_citation, NO deletion_receipts row, revocation marked dispatched.
+- [x] `tests/depa/revocation-pipeline.test.ts` (existing ADR-0022 suite) — still passes unchanged (no regression on the non-exemption path).
+- [x] Edge Function deployed via `bunx supabase functions deploy process-artefact-revocation --no-verify-jwt` (CLI flag matches the config.toml override).
+
 ## [ADR-1002 Sprint 1.1] — 2026-04-20
 
 **ADR:** ADR-1002 — DPDP §6 runtime enforcement

@@ -3,6 +3,15 @@
 // revocation to deletion_receipts rows, one per active connector mapped
 // to the artefact's purpose_definition.
 //
+// ADR-1004 Sprint 1.4 — consults applicable_exemptions(org_id,
+// purpose_code) before creating receipts. Categories covered by an
+// active regulatory exemption (e.g. RBI KYC 10-year retention, CICRA
+// 7-year credit data) are stripped from every receipt's data_scope and
+// logged in a retention_suppressions audit row per (revocation,
+// exemption). If after subtraction a mapping has zero categories left,
+// no receipt is created for that connector — the suppression row alone
+// satisfies the audit trail.
+//
 // Primary path: called by the AFTER INSERT trigger
 //   trg_artefact_revocation_dispatch on artefact_revocations (fires
 //   AFTER trg_artefact_revocation cascade so the in-DB state is
@@ -11,12 +20,14 @@
 // Safety-net path: called by safety_net_process_artefact_revocations()
 //   pg_cron every 5 minutes for revocations with dispatched_at IS NULL.
 //
-// Idempotency enforced at three layers (mirrors ADR-0021):
+// Idempotency enforced at four layers (mirrors ADR-0021):
 //   1. UNIQUE (trigger_id, connector_id) WHERE trigger_type =
 //      'consent_revoked' on deletion_receipts.
-//   2. ON CONFLICT detection on insert (code '23505' → already dispatched
+//   2. UNIQUE (revocation_id, exemption_id) WHERE revocation_id IS NOT
+//      NULL on retention_suppressions (ADR-1004 Sprint 1.4).
+//   3. ON CONFLICT detection on insert (code '23505' → already dispatched
 //      by a sibling invocation; continue).
-//   3. Fast-path skip when artefact_revocations.dispatched_at is non-null.
+//   4. Fast-path skip when artefact_revocations.dispatched_at is non-null.
 //
 // Scope note (per ADR-0022): this function only *creates* pending
 // deletion_receipts rows. The actual connector call (webhook / Mailchimp
@@ -47,11 +58,20 @@ interface Artefact {
   id: string
   artefact_id: string
   org_id: string
+  purpose_code: string
   purpose_definition_id: string
   data_scope: string[] | null
   session_fingerprint: string
   status: string
   replaced_by: string | null
+}
+
+interface Exemption {
+  id: string
+  statute: string
+  statute_code: string
+  data_categories: string[] | null
+  source_citation: string | null
 }
 
 interface Revocation {
@@ -77,6 +97,8 @@ interface DispatchResult {
   artefact_id: string
   dispatched: number
   skipped: number
+  suppressed: number
+  retained_categories?: string[]
   reason?: string
 }
 
@@ -140,6 +162,7 @@ async function processRevocation(
       artefact_id: artefactId,
       dispatched: 0,
       skipped: 0,
+      suppressed: 0,
       reason: 'revocation_not_found',
     }
   }
@@ -150,6 +173,7 @@ async function processRevocation(
       artefact_id: artefactId,
       dispatched: 0,
       skipped: 0,
+      suppressed: 0,
       reason: 'already_dispatched',
     }
   }
@@ -160,7 +184,7 @@ async function processRevocation(
   const { data: art, error: artErr } = await supabase
     .from('consent_artefacts')
     .select(
-      'id, artefact_id, org_id, purpose_definition_id, data_scope, session_fingerprint, status, replaced_by',
+      'id, artefact_id, org_id, purpose_code, purpose_definition_id, data_scope, session_fingerprint, status, replaced_by',
     )
     .eq('artefact_id', artefactId)
     .maybeSingle()
@@ -172,6 +196,7 @@ async function processRevocation(
       artefact_id: artefactId,
       dispatched: 0,
       skipped: 0,
+      suppressed: 0,
       reason: 'artefact_not_found',
     }
   }
@@ -187,6 +212,7 @@ async function processRevocation(
       artefact_id: artefactId,
       dispatched: 0,
       skipped: 0,
+      suppressed: 0,
       reason: `artefact_not_revoked_status_${typedArt.status}`,
     }
   }
@@ -200,8 +226,62 @@ async function processRevocation(
       artefact_id: artefactId,
       dispatched: 0,
       skipped: 0,
+      suppressed: 0,
       reason: 'empty_data_scope',
     }
+  }
+
+  // Step 2a — ADR-1004 Sprint 1.4: consult regulatory exemptions engine.
+  // applicable_exemptions returns platform defaults + per-org overrides
+  // applicable to this (org, purpose) tuple, ordered by precedence.
+  const { data: exemptionRows, error: exErr } = await supabase.rpc(
+    'applicable_exemptions',
+    { p_org_id: typedArt.org_id, p_purpose_code: typedArt.purpose_code },
+  )
+  if (exErr) throw new Error(`applicable_exemptions lookup: ${exErr.message}`)
+
+  const exemptions = (exemptionRows ?? []) as Exemption[]
+
+  // Compute the union of exemption categories intersected with this
+  // artefact's data_scope. This is the set of categories that MUST be
+  // retained and stripped from every deletion_receipts row.
+  const retainedByExemption = new Map<string, string[]>()
+  const retainedUnion = new Set<string>()
+  for (const ex of exemptions) {
+    const covers = (ex.data_categories ?? []).filter((c) => artefactScope.includes(c))
+    if (covers.length > 0) {
+      retainedByExemption.set(ex.id, covers)
+      for (const c of covers) retainedUnion.add(c)
+    }
+  }
+
+  // Write one retention_suppressions row per exemption that actually
+  // applied. Idempotent on (revocation_id, exemption_id).
+  let suppressed = 0
+  for (const ex of exemptions) {
+    const covers = retainedByExemption.get(ex.id)
+    if (!covers) continue
+
+    const { error: suppErr } = await supabase
+      .from('retention_suppressions')
+      .insert({
+        org_id: typedArt.org_id,
+        artefact_id: typedArt.artefact_id,
+        artefact_uuid: typedArt.id,
+        revocation_id: typedRev.id,
+        exemption_id: ex.id,
+        suppressed_data_categories: covers,
+        statute: ex.statute,
+        statute_code: ex.statute_code,
+        source_citation: ex.source_citation,
+      })
+
+    if (suppErr) {
+      // 23505 → already recorded by a sibling invocation.
+      if (suppErr.code === '23505') continue
+      throw new Error(`retention_suppressions insert: ${suppErr.message}`)
+    }
+    suppressed++
   }
 
   // Step 3 — fetch the purpose_connector_mappings for this artefact's purpose.
@@ -221,6 +301,8 @@ async function processRevocation(
       artefact_id: artefactId,
       dispatched: 0,
       skipped: 0,
+      suppressed,
+      retained_categories: Array.from(retainedUnion),
       reason: 'no_connector_mappings',
     }
   }
@@ -257,7 +339,13 @@ async function processRevocation(
 
     const mappingCategories = mapping.data_categories ?? []
     const scopedFields = mappingCategories.filter((c) => artefactScope.includes(c))
-    if (scopedFields.length === 0) {
+
+    // ADR-1004 Sprint 1.4: subtract categories retained by any applicable
+    // exemption. If nothing is left, this connector's deletion is fully
+    // suppressed — retention_suppressions already captured it above.
+    const remainingScope = scopedFields.filter((c) => !retainedUnion.has(c))
+
+    if (remainingScope.length === 0) {
       skipped++
       continue
     }
@@ -275,9 +363,11 @@ async function processRevocation(
         status: 'pending',
         request_payload: {
           artefact_id: typedArt.artefact_id,
-          data_scope: scopedFields,
+          data_scope: remainingScope,
           reason: 'consent_revoked',
           revocation_reason: typedRev.reason,
+          retained_data_categories: scopedFields
+            .filter((c) => retainedUnion.has(c)),
         },
       })
 
@@ -303,6 +393,8 @@ async function processRevocation(
     artefact_id: artefactId,
     dispatched,
     skipped,
+    suppressed,
+    retained_categories: Array.from(retainedUnion),
   }
 }
 

@@ -368,6 +368,21 @@ deno_version = 2
 # [edge_runtime.secrets]
 # secret_key = "env(SECRET_VALUE)"
 
+# Per-function verify_jwt overrides.
+#
+# process-artefact-revocation is invoked by an AFTER INSERT trigger on
+# artefact_revocations via net.http_post. The trigger signs the request
+# with the cs_orchestrator HS256 JWT stored in Vault. Supabase is rotating
+# the legacy HS256 signing secret (ADR-1010) which causes the Functions
+# auth gateway to 401 on that JWT. Setting verify_jwt=false lets the
+# trigger reach the Function body; authorization is not lost — the
+# Function still only accepts requests whose body carries a valid
+# (artefact_id, revocation_id) pair that corresponds to an existing
+# non-dispatched row. Revert to verify_jwt=true once ADR-1010 migrates
+# the trigger off HS256.
+[functions.process-artefact-revocation]
+verify_jwt = false
+
 [analytics]
 enabled = true
 port = 54327

@@ -2,6 +2,26 @@
 
 Database migrations, RLS policies, roles.
 
+## [ADR-1004 Sprints 1.1-1.4 — Regulatory Exemption Engine] — 2026-04-22
+
+**ADR:** ADR-1004 — Statutory retention + material-change re-consent + silent-failure detection
+**Sprint:** Phase 1 Sprints 1.1 / 1.2 / 1.3 / 1.4
+
+### Added
+- `20260804000004_regulatory_exemptions.sql`:
+  - `public.regulatory_exemptions` — platform-default + per-org retention rules. Columns: id, org_id (nullable), sector, statute, statute_code, data_categories text[], retention_period interval, source_citation, precedence int default 100, applies_to_purposes text[], legal_review_notes, reviewed_at, reviewer_name, reviewer_firm, is_active, created_at, updated_at. CHECK on sector (saas/edtech/healthcare/ecommerce/hrtech/fintech/bfsi/general/all). Unique (statute_code, coalesce(org_id, sentinel)). Indexes on (sector, is_active, precedence) + (org_id) where not null. RLS: SELECT open to platform defaults + own-org rows; mutations require current_account_role()='account_owner' and can only target rows scoped to current_org_id.
+  - `public.retention_suppressions` — audit trail. Columns: id, org_id, artefact_id, artefact_uuid, revocation_id, exemption_id, suppressed_data_categories text[], statute, statute_code, source_citation, suppressed_at, created_at. Indexes on (org_id, artefact_id), (exemption_id), (org_id, suppressed_at desc). RLS SELECT org-scoped; no INSERT for authenticated (Edge Function writes via cs_orchestrator).
+  - Grants: cs_orchestrator SELECT on regulatory_exemptions, INSERT on retention_suppressions.
+  - `public.applicable_exemptions(p_org_id uuid, p_purpose_code text)` SECURITY DEFINER — returns active rules (platform defaults + per-org overrides) filtered by purpose + sector (join with organisations.industry), ordered by precedence asc. Grant EXECUTE to authenticated + cs_orchestrator.
+- `20260804000005_regulatory_exemptions_bfsi_seed.sql` — 5 BFSI statutes as platform defaults: RBI_KYC_MD_2016 (10y), PMLA_2002_S12 (5y), BR_ACT_1949_S45ZC (8y), CICRA_2005 (7y), INS_ACT_1938_S64VB (10y). All with null reviewed_at pending Sprint 1.6 legal review. Idempotent via ON CONFLICT DO NOTHING on (statute_code, coalesce(org_id, sentinel)).
+- `20260804000006_regulatory_exemptions_healthcare_seed.sql` — 3 healthcare statutes: DISHA_DRAFT_2018 (7y, precedence 100), ABDM_CM_2022 (5y consent-side, precedence 120), CEA_2010_STATE (3y placeholder, precedence 150).
+- `20260804000007_retention_suppressions_idempotency.sql` — partial UNIQUE INDEX on retention_suppressions (revocation_id, exemption_id) WHERE revocation_id IS NOT NULL. Lets the Edge Function retry-safe ON CONFLICT DO NOTHING; nullable carve-out leaves the door open for ADR-1005 erasure-request-triggered suppressions.
+
+### Tested
+- [x] `bunx supabase db push --linked` — all 4 migrations applied cleanly.
+- [x] `bunx vitest run tests/integration/retention-exemptions.test.ts` — 11/11 PASS (applicable_exemptions returns correct rules for BFSI bureau / kyc / marketing = empty; healthcare DISHA / ABDM; per-org override precedence; sector mismatch isolation; BFSI override invisible to healthcare org; seed-row counts).
+- [x] Full suite `bunx vitest run tests/integration/ tests/depa/` — 182/182 PASS.
+
 ## [ADR-1005 Sprint 5.1 — v1 Rights API schema + RPCs] — 2026-04-22
 
 **ADR:** ADR-1005 — Operations maturity
