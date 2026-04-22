@@ -8,7 +8,9 @@ import {
   resolveIncidentAction,
 } from '@/app/(operator)/status/actions'
 
-// ADR-1018 Sprint 1.2 — admin status-page panel.
+// ADR-1018 Sprint 1.2 — admin status-page panel. Uses admin light-theme
+// tokens: text-text / text-text-2 / text-text-3, border-border-wf /
+// border-border-mid, bg-bg (page), bg-white (cards), bg-teal (primary).
 
 export type SubsystemState = 'operational' | 'degraded' | 'down' | 'maintenance'
 export type IncidentSeverity = 'sev1' | 'sev2' | 'sev3'
@@ -46,23 +48,23 @@ export interface StatusIncident {
 type AdminRole = 'platform_owner' | 'platform_operator' | 'support' | 'read_only'
 
 const STATE_CLASS: Record<SubsystemState, string> = {
-  operational: 'border-emerald-400/40 bg-emerald-500/15 text-emerald-200',
-  degraded:    'border-amber-400/40 bg-amber-500/15 text-amber-200',
-  down:        'border-red-400/40 bg-red-500/15 text-red-200',
-  maintenance: 'border-blue-400/40 bg-blue-500/15 text-blue-200',
+  operational: 'border-emerald-300 bg-emerald-50 text-emerald-700',
+  degraded:    'border-amber-300 bg-amber-50 text-amber-700',
+  down:        'border-red-300 bg-red-50 text-red-700',
+  maintenance: 'border-blue-300 bg-blue-50 text-blue-700',
 }
 
 const INCIDENT_STATUS_CLASS: Record<IncidentStatus, string> = {
-  investigating: 'border-red-400/40 bg-red-500/15 text-red-200',
-  identified:    'border-amber-400/40 bg-amber-500/15 text-amber-200',
-  monitoring:    'border-blue-400/40 bg-blue-500/15 text-blue-200',
-  resolved:      'border-emerald-400/40 bg-emerald-500/15 text-emerald-200',
+  investigating: 'border-red-300 bg-red-50 text-red-700',
+  identified:    'border-amber-300 bg-amber-50 text-amber-700',
+  monitoring:    'border-blue-300 bg-blue-50 text-blue-700',
+  resolved:      'border-emerald-300 bg-emerald-50 text-emerald-700',
 }
 
 const SEVERITY_CLASS: Record<IncidentSeverity, string> = {
-  sev1: 'border-red-400/40 bg-red-500/15 text-red-200',
-  sev2: 'border-amber-400/40 bg-amber-500/15 text-amber-200',
-  sev3: 'border-zinc-400/30 bg-zinc-500/10 text-zinc-300',
+  sev1: 'border-red-300 bg-red-50 text-red-700',
+  sev2: 'border-amber-300 bg-amber-50 text-amber-700',
+  sev3: 'border-slate-300 bg-slate-50 text-slate-600',
 }
 
 export function StatusPagePanel({
@@ -85,7 +87,7 @@ export function StatusPagePanel({
   return (
     <div className="space-y-6">
       <section>
-        <h2 className="mb-2 text-[13px] font-semibold uppercase tracking-wide text-text-2">
+        <h2 className="mb-2 text-xs font-semibold uppercase tracking-wide text-text-2">
           Subsystems
         </h2>
         <ul className="grid gap-2 md:grid-cols-2">
@@ -97,13 +99,13 @@ export function StatusPagePanel({
 
       <section>
         <div className="mb-2 flex items-center justify-between">
-          <h2 className="text-[13px] font-semibold uppercase tracking-wide text-text-2">
+          <h2 className="text-xs font-semibold uppercase tracking-wide text-text-2">
             Open Incidents
           </h2>
           {canWrite ? <PostIncidentTrigger subsystems={subsystems} /> : null}
         </div>
         {openIncidents.length === 0 ? (
-          <div className="rounded-md border border-white/10 bg-white/[.02] p-4 text-[13px] text-text-2">
+          <div className="rounded-md border border-border-wf bg-white p-4 text-sm text-text-2">
             No open incidents.
           </div>
         ) : (
@@ -119,7 +121,7 @@ export function StatusPagePanel({
 
       {resolvedIncidents.length > 0 ? (
         <section>
-          <h2 className="mb-2 text-[13px] font-semibold uppercase tracking-wide text-text-2">
+          <h2 className="mb-2 text-xs font-semibold uppercase tracking-wide text-text-2">
             Recent History (resolved)
           </h2>
           <ul className="space-y-2">
@@ -160,9 +162,9 @@ function SubsystemCard({
   }
 
   return (
-    <article className="rounded-md border border-white/[.08] bg-white/[.02] p-3">
+    <article className="rounded-md border border-border-wf bg-white p-3 shadow-sm">
       <div className="mb-1 flex items-center gap-2">
-        <span className="mr-auto text-[13px] font-semibold text-white/90">
+        <span className="mr-auto text-sm font-semibold text-text">
           {subsystem.display_name}
         </span>
         <span className={chip(STATE_CLASS[subsystem.current_state])}>
@@ -170,20 +172,20 @@ function SubsystemCard({
         </span>
       </div>
       {subsystem.description ? (
-        <p className="mb-2 text-[11px] text-white/55">{subsystem.description}</p>
+        <p className="mb-2 text-xs text-text-2">{subsystem.description}</p>
       ) : null}
-      <p className="text-[11px] text-white/40">
+      <p className="text-xs text-text-3">
         Last change {new Date(subsystem.last_state_change_at).toLocaleString()}
         {subsystem.last_state_change_note ? ` · ${subsystem.last_state_change_note}` : ''}
       </p>
 
       {canWrite ? (
-        <div className="mt-2 border-t border-white/[.06] pt-2">
+        <div className="mt-2 border-t border-border-wf pt-2">
           <input
             value={note}
             onChange={(e) => setNote(e.target.value)}
             placeholder="Optional note"
-            className="mb-1 w-full rounded border border-white/10 bg-white/[.03] px-2 py-1 text-[11px] text-white/90 placeholder:text-white/30 focus:border-white/25 focus:outline-none"
+            className="mb-1 w-full rounded border border-border-mid bg-white px-2 py-1 text-xs text-text placeholder:text-text-3 focus:border-teal focus:outline-none"
           />
           <div className="flex flex-wrap gap-1">
             {(['operational', 'degraded', 'down', 'maintenance'] as SubsystemState[]).map((s) => (
@@ -192,13 +194,13 @@ function SubsystemCard({
                 type="button"
                 onClick={() => flip(s)}
                 disabled={isPending || s === subsystem.current_state}
-                className="rounded border border-white/10 bg-white/[.04] px-2 py-0.5 text-[10px] text-white/70 hover:bg-white/10 hover:text-white disabled:cursor-not-allowed disabled:opacity-40"
+                className="rounded border border-border-mid bg-white px-2 py-0.5 text-[10px] text-text hover:bg-bg disabled:cursor-not-allowed disabled:opacity-40"
               >
                 {s}
               </button>
             ))}
           </div>
-          {err ? <p className="mt-1 text-[11px] text-red-300">{err}</p> : null}
+          {err ? <p className="mt-1 text-xs text-red-600">{err}</p> : null}
         </div>
       ) : null}
     </article>
@@ -212,7 +214,7 @@ function PostIncidentTrigger({ subsystems }: { subsystems: StatusSubsystem[] }) 
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="rounded-md border border-white/10 bg-white/[.04] px-3 py-1.5 text-[12px] text-white/80 hover:bg-white/10 hover:text-white"
+        className="rounded bg-teal px-3 py-1.5 text-xs font-medium text-white hover:bg-teal-mid"
       >
         Post incident
       </button>
@@ -250,33 +252,33 @@ function PostIncidentForm({
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
-      <div className="w-full max-w-lg rounded-md border border-white/10 bg-navy-dark p-4">
-        <h3 className="mb-3 text-[14px] font-semibold text-white/90">Post incident</h3>
-        <label className="mb-2 block text-[11px] text-white/60">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
+      <div className="w-full max-w-lg rounded-md border border-border-wf bg-white p-4 shadow-lg">
+        <h3 className="mb-3 text-sm font-semibold text-text">Post incident</h3>
+        <label className="mb-2 block text-xs text-text-2">
           Title
           <input
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            className="mt-0.5 w-full rounded border border-white/10 bg-white/[.03] px-2 py-1 text-[12px] text-white/90 focus:border-white/25 focus:outline-none"
+            className="mt-0.5 w-full rounded border border-border-mid bg-white px-2 py-1 text-xs text-text focus:border-teal focus:outline-none"
           />
         </label>
-        <label className="mb-2 block text-[11px] text-white/60">
+        <label className="mb-2 block text-xs text-text-2">
           Customer-facing description
           <textarea
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             rows={3}
-            className="mt-0.5 w-full rounded border border-white/10 bg-white/[.03] px-2 py-1 text-[12px] text-white/90 focus:border-white/25 focus:outline-none"
+            className="mt-0.5 w-full rounded border border-border-mid bg-white px-2 py-1 text-xs text-text focus:border-teal focus:outline-none"
           />
         </label>
         <div className="mb-2 grid gap-2 sm:grid-cols-2">
-          <label className="block text-[11px] text-white/60">
+          <label className="block text-xs text-text-2">
             Severity
             <select
               value={severity}
               onChange={(e) => setSeverity(e.target.value as IncidentSeverity)}
-              className="mt-0.5 w-full rounded border border-white/10 bg-white/[.03] px-2 py-1 text-[12px] text-white/90 focus:border-white/25 focus:outline-none"
+              className="mt-0.5 w-full rounded border border-border-mid bg-white px-2 py-1 text-xs text-text focus:border-teal focus:outline-none"
             >
               <option value="sev1">sev1 (customer-impacting outage)</option>
               <option value="sev2">sev2 (degraded or partial)</option>
@@ -284,11 +286,11 @@ function PostIncidentForm({
             </select>
           </label>
         </div>
-        <fieldset className="mb-3 rounded border border-white/10 bg-white/[.02] p-2">
-          <legend className="px-1 text-[11px] text-white/60">Affected subsystems</legend>
+        <fieldset className="mb-3 rounded border border-border-wf bg-bg p-2">
+          <legend className="px-1 text-xs text-text-2">Affected subsystems</legend>
           <div className="grid gap-1 sm:grid-cols-2">
             {subsystems.map((s) => (
-              <label key={s.id} className="flex items-center gap-1 text-[12px] text-white/80">
+              <label key={s.id} className="flex items-center gap-1 text-xs text-text">
                 <input
                   type="checkbox"
                   checked={affected.has(s.id)}
@@ -304,12 +306,12 @@ function PostIncidentForm({
             ))}
           </div>
         </fieldset>
-        {err ? <p className="mb-2 text-[12px] text-red-300">{err}</p> : null}
+        {err ? <p className="mb-2 text-xs text-red-600">{err}</p> : null}
         <div className="flex justify-end gap-2">
           <button
             type="button"
             onClick={onClose}
-            className="rounded-md border border-white/10 bg-white/[.04] px-3 py-1.5 text-[12px] text-white/70 hover:bg-white/10 hover:text-white"
+            className="rounded border border-border-mid bg-white px-3 py-1.5 text-xs font-medium text-text hover:bg-bg"
           >
             Cancel
           </button>
@@ -317,7 +319,7 @@ function PostIncidentForm({
             type="button"
             onClick={submit}
             disabled={isPending || !title.trim() || !description.trim()}
-            className="rounded-md border border-white/10 bg-admin-accent/30 px-3 py-1.5 text-[12px] text-white hover:bg-admin-accent/50 disabled:cursor-not-allowed disabled:opacity-50"
+            className="rounded bg-teal px-3 py-1.5 text-xs font-medium text-white hover:bg-teal-mid disabled:cursor-not-allowed disabled:opacity-50"
           >
             {isPending ? 'Posting…' : 'Post'}
           </button>
@@ -368,33 +370,29 @@ function IncidentCard({
   }
 
   return (
-    <article className="rounded-md border border-white/[.08] bg-white/[.02] p-3">
+    <article className="rounded-md border border-border-wf bg-white p-3 shadow-sm">
       <header className="mb-1 flex flex-wrap items-center gap-2">
-        <span className="mr-auto text-[13px] font-semibold text-white/90">
-          {incident.title}
-        </span>
+        <span className="mr-auto text-sm font-semibold text-text">{incident.title}</span>
         <span className={chip(SEVERITY_CLASS[incident.severity])}>{incident.severity}</span>
-        <span className={chip(INCIDENT_STATUS_CLASS[incident.status])}>
-          {incident.status}
-        </span>
+        <span className={chip(INCIDENT_STATUS_CLASS[incident.status])}>{incident.status}</span>
       </header>
-      <p className="mb-1 text-[12px] text-white/70">{incident.description}</p>
-      <p className="text-[11px] text-white/45">
+      <p className="mb-1 text-xs text-text">{incident.description}</p>
+      <p className="text-xs text-text-3">
         Started {new Date(incident.started_at).toLocaleString()}
         {incident.resolved_at
           ? ` · resolved ${new Date(incident.resolved_at).toLocaleString()}`
           : ''}
       </p>
       {incident.last_update_note ? (
-        <p className="mt-1 text-[11px] text-white/60">
-          <span className="text-white/40">Latest note: </span>
+        <p className="mt-1 text-xs text-text-2">
+          <span className="text-text-3">Latest note: </span>
           {incident.last_update_note}
         </p>
       ) : null}
       {incident.postmortem_url ? (
-        <p className="mt-1 text-[11px]">
+        <p className="mt-1 text-xs">
           <a
-            className="text-teal-300 hover:text-teal-200"
+            className="text-teal hover:text-teal-mid"
             href={incident.postmortem_url}
             target="_blank"
             rel="noopener noreferrer"
@@ -405,19 +403,19 @@ function IncidentCard({
       ) : null}
 
       {canWrite && open ? (
-        <div className="mt-2 border-t border-white/[.06] pt-2">
+        <div className="mt-2 border-t border-border-wf pt-2">
           <textarea
             value={note}
             onChange={(e) => setNote(e.target.value)}
             placeholder="Update note"
             rows={2}
-            className="mb-1 w-full rounded border border-white/10 bg-white/[.03] px-2 py-1 text-[11px] text-white/90 placeholder:text-white/30 focus:border-white/25 focus:outline-none"
+            className="mb-1 w-full rounded border border-border-mid bg-white px-2 py-1 text-xs text-text placeholder:text-text-3 focus:border-teal focus:outline-none"
           />
           <input
             value={postmortemUrl}
             onChange={(e) => setPostmortemUrl(e.target.value)}
             placeholder="Postmortem URL (for resolve)"
-            className="mb-2 w-full rounded border border-white/10 bg-white/[.03] px-2 py-1 text-[11px] text-white/90 placeholder:text-white/30 focus:border-white/25 focus:outline-none"
+            className="mb-2 w-full rounded border border-border-mid bg-white px-2 py-1 text-xs text-text placeholder:text-text-3 focus:border-teal focus:outline-none"
           />
           <div className="flex flex-wrap gap-1">
             {(['investigating', 'identified', 'monitoring'] as IncidentStatus[]).map(
@@ -428,7 +426,7 @@ function IncidentCard({
                     type="button"
                     onClick={() => progress(s)}
                     disabled={isPending}
-                    className="rounded border border-white/10 bg-white/[.04] px-2 py-0.5 text-[10px] text-white/70 hover:bg-white/10 hover:text-white disabled:opacity-40"
+                    className="rounded border border-border-mid bg-white px-2 py-0.5 text-[10px] text-text hover:bg-bg disabled:opacity-40"
                   >
                     {s}
                   </button>
@@ -438,12 +436,12 @@ function IncidentCard({
               type="button"
               onClick={resolve}
               disabled={isPending}
-              className="rounded border border-emerald-400/30 bg-emerald-500/10 px-2 py-0.5 text-[10px] text-emerald-200 hover:bg-emerald-500/20 disabled:opacity-40"
+              className="rounded bg-teal px-2 py-0.5 text-[10px] font-medium text-white hover:bg-teal-mid disabled:opacity-40"
             >
               Resolve
             </button>
           </div>
-          {err ? <p className="mt-1 text-[11px] text-red-300">{err}</p> : null}
+          {err ? <p className="mt-1 text-xs text-red-600">{err}</p> : null}
         </div>
       ) : null}
     </article>

@@ -51,12 +51,12 @@ export default async function ReadinessPage() {
             Resolving requires platform_operator or platform_owner role.
           </p>
         </div>
-        <div className="flex gap-2 text-[12px]">
-          <span className="rounded-md border border-white/10 bg-white/[.04] px-2 py-1">
+        <div className="flex gap-2 text-xs">
+          <span className="rounded-md border border-border-wf bg-white px-2 py-1 text-text">
             {pendingCount} open
           </span>
           {criticalPending > 0 ? (
-            <span className="rounded-md border border-red-400/30 bg-red-500/10 px-2 py-1 text-red-200">
+            <span className="rounded-md border border-red-300 bg-red-50 px-2 py-1 text-red-700">
               {criticalPending} high/critical
             </span>
           ) : null}
@@ -64,7 +64,7 @@ export default async function ReadinessPage() {
       </header>
 
       {error ? (
-        <div className="rounded-md border border-red-400/30 bg-red-500/10 p-3 text-[13px] text-red-200">
+        <div className="rounded-md border border-red-300 bg-red-50 p-3 text-sm text-red-700">
           Failed to load readiness flags: {error.message}
         </div>
       ) : null}
