@@ -1,6 +1,6 @@
 # ADR-1010: Cloudflare Worker — scoped-role migration off HS256 JWT
 
-**Status:** Proposed
+**Status:** In Progress
 **Date proposed:** 2026-04-21
 **Date completed:** —
 **Superseded by:** —
@@ -83,15 +83,24 @@ Rule 5 (CLAUDE.md) reaffirmed — the Worker remains scoped to `cs_worker`, no s
 **Estimated effort:** 0.25 day
 
 **Deliverables:**
-- [ ] Verify `cs_worker` is LOGIN-enabled (check `pg_roles.rolcanlogin`). The migration `20260413000010` sets `with login password 'cs_worker_change_me'`; rotate out-of-band if not already rotated.
-- [ ] Store rotated password in `.secrets` as `CS_WORKER_PASSWORD`; build `SUPABASE_WORKER_DATABASE_URL` (Supavisor pooler, transaction mode: port 6543). Mirror into wrangler secrets.
-- [ ] Confirm `cs_worker` can connect via psql against the pooler; `select current_user;` returns `cs_worker`.
-- [ ] Confirm the existing grant set (`INSERT on consent_events + tracker_observations`; `SELECT on consent_banners + web_properties`; `UPDATE (snippet_last_seen_at) on web_properties`; `INSERT on worker_errors`) works via direct Postgres.
+- [x] Verified `cs_worker` is LOGIN-enabled via `select rolcanlogin from pg_roles where rolname='cs_worker'` → `t`. `rolconnlimit=-1`, `rolbypassrls=f`.
+- [x] Confirmed the existing grant set is intact (pooler query against `information_schema.role_column_grants`): INSERT on consent_events (all cols) + tracker_observations (all cols) + worker_errors (all cols); SELECT on consent_banners (all cols incl. purposes jsonb) + web_properties (all cols incl. event_signing_secret); UPDATE on `web_properties.snippet_last_seen_at` only; no access to api_keys / organisations / accounts.
+- [x] `tests/integration/cs-worker-role.test.ts` — skipped-on-missing-env test asserting every read + every write + every forbidden operation (same shape as `tests/integration/cs-api-role.test.ts`).
+- [ ] **Operator step (not in this session):** rotate `cs_worker` password out of the seeded `cs_worker_change_me` default. Open the Supabase SQL editor as `postgres` and run:
+  ```sql
+  alter role cs_worker with password '<new-long-random-value>';
+  ```
+  Then set two env vars:
+  - `.secrets` — `CS_WORKER_PASSWORD=<value>`
+  - Root `.env.local` + `app/.env.local` — `SUPABASE_CS_WORKER_DATABASE_URL=postgresql://cs_worker.<project_ref>:<urlencoded_password>@aws-1-<region>.pooler.supabase.com:6543/postgres?prepare=false&sslmode=require`
+  Once set, re-run `bunx vitest run tests/integration/cs-worker-role.test.ts` — the 11 skipped tests activate and should all pass.
+- [ ] **Operator step (Phase 4 cutover):** mirror the pooler URL (or Hyperdrive binding config) into Cloudflare `wrangler secret put`.
 
 **Testing plan:**
-- [ ] Integration test skipped-on-missing-env (same pattern as `tests/integration/cs-api-role.test.ts`): `cs_worker` via postgres.js can INSERT `consent_events` and SELECT `consent_banners` but cannot SELECT `organisations`.
+- [x] Written: integration test skipped-on-missing-env (same pattern as `tests/integration/cs-api-role.test.ts`). Proves `cs_worker` via postgres.js can INSERT consent_events / tracker_observations / worker_errors, SELECT consent_banners / web_properties, UPDATE web_properties.snippet_last_seen_at, but cannot SELECT api_keys / organisations or DELETE buffer rows.
+- [ ] Activates on first run after the operator steps above land the env vars.
 
-**Status:** `[ ] planned`
+**Status:** `[~] partially complete` — engineering asserts + test harness in place; operator-side password rotation + env wiring pending. Phase 3 Worker rewrite is unblocked once those two env vars exist.
 
 ### Phase 3 — Worker rewrite
 

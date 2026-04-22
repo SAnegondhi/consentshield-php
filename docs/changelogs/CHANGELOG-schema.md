@@ -2,6 +2,23 @@
 
 Database migrations, RLS policies, roles.
 
+## [ADR-1010 Phase 2 Sprint 2.1 — cs_worker LOGIN verification] — 2026-04-22
+
+**ADR:** ADR-1010 — Cloudflare Worker scoped-role migration off HS256
+**Sprint:** Phase 2 Sprint 2.1
+
+### Verified (no migration — assertion against live DB)
+- `cs_worker` role already LOGIN-enabled (`pg_roles.rolcanlogin = t`; `rolbypassrls = f`).
+- Grant set intact and minimum-privilege:
+  - INSERT on `consent_events` (30 columns), `tracker_observations` (12 columns), `worker_errors` (7 columns).
+  - SELECT on `consent_banners` (11 columns incl. `purposes` jsonb), `web_properties` (11 columns incl. `event_signing_secret` + `event_signing_secret_rotated_at`).
+  - UPDATE on `web_properties.snippet_last_seen_at` only (no other columns).
+  - No access to `api_keys`, `organisations`, `accounts`, `consent_artefacts`, or any other table.
+- No schema changes required before Phase 3 (Worker source rewrite). The default seeded password (`cs_worker_change_me` from migration `20260413000010`) still needs operator rotation — tracked as a Sprint 2.1 operator step in the ADR.
+
+### Tested
+- [x] `tests/integration/cs-worker-role.test.ts` — 11 tests covering current_user / SELECT web_properties / SELECT consent_banners / INSERT consent_events / INSERT tracker_observations / INSERT worker_errors / UPDATE snippet_last_seen_at (allowed) / UPDATE other column (denied 42501) / SELECT api_keys (denied) / SELECT organisations (denied) / DELETE consent_events (denied). Skips when `SUPABASE_CS_WORKER_DATABASE_URL` is not set; activates once the operator rotates the password and wires the env var.
+
 ## [ADR-1004 Sprints 1.1-1.4 — Regulatory Exemption Engine] — 2026-04-22
 
 **ADR:** ADR-1004 — Statutory retention + material-change re-consent + silent-failure detection
