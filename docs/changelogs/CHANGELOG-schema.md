@@ -2,6 +2,26 @@
 
 Database migrations, RLS policies, roles.
 
+## [ADR-1017 Sprint 1.3 — audit-log column-misuse fix] — 2026-04-22
+
+**ADR:** ADR-1017 — Admin ops-readiness flags (+ ADR-1018 follow-up)
+**Sprint:** 1.3 tests + runbook (and an unplanned fix migration surfaced by them)
+
+### Fixed
+- Migration `20260804000019_audit_log_column_fix.sql` — five admin RPCs that inserted into `admin.admin_audit_log` using non-existent columns (`target_kind`, `payload`) and omitted the NOT NULL `reason` (check `length(reason) >= 10`):
+  - `admin.set_ops_readiness_flag_status` (ADR-1017 S1.1).
+  - `admin.set_status_subsystem_state`, `admin.post_status_incident`, `admin.update_status_incident`, `admin.resolve_status_incident` (ADR-1018 S1.1).
+  All five rewritten `create or replace` using the canonical column set — `admin_user_id, action, target_table, target_id, target_pk, old_value, new_value, reason`. Function signatures unchanged, so no grant redo. Bug stayed latent because `create or replace function` does not validate the inner INSERT column list until the body actually runs — Sprint 1.3 tests were the first callers.
+
+### Tested
+- [x] Migration applied to dev Supabase via `bunx supabase db push` — PASS
+- [x] `tests/admin/ops-readiness-flags.test.ts` (12 assertions) — PASS
+  - list RPC returns rows, ordering pending-before-resolved, anon denied.
+  - set_status: support→in_progress allowed, support→resolved blocked (42501), platform_operator→resolved stamps resolved_by+resolved_at, reopen clears them, invalid status rejected, unknown flag raises P0002, anon denied, audit-row payload carries old_value+new_value snapshots.
+- [x] `tests/admin/status-page-rpcs.test.ts` (11 assertions) — PASS
+  - subsystem state transitions (operational↔degraded), invalid state + unknown slug both reject, anon denied.
+  - incident lifecycle posted→identified→monitoring→resolved, public anon SELECT works, invalid severity/status both reject, unknown incident_id raises.
+
 ## [ADR-1010 Phase 1 — Hyperdrive provisioning readiness flag] — 2026-04-22
 
 **ADR:** ADR-1010 — Cloudflare Worker scoped-role migration

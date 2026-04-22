@@ -2,6 +2,19 @@
 
 Documentation changes.
 
+## [ADR-1017 Sprint 1.3 — tests + runbook + ADR close-out] — 2026-04-22
+
+**ADR:** ADR-1017 — Admin ops-readiness flags
+**Sprint:** 1.3 tests + runbook
+
+### Added
+- `docs/runbooks/ops-readiness-flags.md` — operator runbook: blocker-type semantics, severity tiers, how to add a flag via migration, how to resolve/defer via UI or SQL, role-gate table, audit-log expectations, links to related runbooks.
+
+### Changed
+- `docs/ADRs/ADR-1017-admin-ops-readiness-flags.md` — Sprint 1.3 ticked complete; Test Results populated (12 ops-readiness + 11 status-page assertions green); added a note on the column-misuse fix migration bundled with this sprint.
+- `docs/ADRs/ADR-1018-self-hosted-status-page.md` — new follow-up sprint recording the same audit-log column fix on the four status-page RPCs.
+- `docs/ADRs/ADR-index.md` — ADR-1017 row description updated.
+
 ## [ADR-1016 — orphan-scope close-out doc sync] — 2026-04-22
 
 **ADR:** ADR-1016 — v1 API close-out for `read:audit`, `read:security`, `read:score`

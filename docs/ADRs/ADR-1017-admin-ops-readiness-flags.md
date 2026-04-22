@@ -1,8 +1,8 @@
 # ADR-1017: Admin ops-readiness flags — surface external blockers in the operator console
 
-**Status:** In Progress
+**Status:** Completed
 **Date proposed:** 2026-04-22
-**Date completed:** —
+**Date completed:** 2026-04-22
 **Related:** ADR-1004 Sprint 1.6 (legal review) · ADR-1005 Phase 1/3/4 (partner/SLA/SE/PagerDuty/status) · ADR-1010 Phase 4 (wrangler cutover)
 
 ---
@@ -62,11 +62,18 @@ Not in scope for this ADR: email-the-founder alerting on stale blockers, automat
 - [x] Sidebar entry "Ops Readiness" → `/readiness` in `admin/src/app/(operator)/layout.tsx`.
 - [ ] Dashboard landing banner (deferred — mostly cosmetic; sidebar entry is enough to surface).
 
-### Sprint 1.3 — Tests + runbook (~30min) — **deferred**
+### Sprint 1.3 — Tests + runbook + column-misuse fix (~1h) — **complete 2026-04-22**
 
 **Deliverables:**
-- [ ] Unit / integration tests on the two RPCs — role-gating, audit-log row emission, invalid status rejection.
-- [ ] `docs/runbooks/ops-readiness-flags.md` — how to add new flags, what the blocker_types mean, manual resolution flow.
+- [x] `tests/admin/ops-readiness-flags.test.ts` — 12 assertions: list RPC (admin vs anon, ordering), set_status (support→in_progress allowed, support→resolved blocked 42501, platform_operator→resolved stamps resolved_by/resolved_at, reopen clears them, invalid status 22023, unknown id P0002, anon denied, audit-row payload shape).
+- [x] `tests/admin/status-page-rpcs.test.ts` — 11 assertions covering the four ADR-1018 RPCs under the same audit-log path (same bug class — bundled here because Sprint 1.3 tests were the first to invoke them).
+- [x] Migration `20260804000019_audit_log_column_fix.sql` — five `create or replace function` rewrites to correct `admin.admin_audit_log` column usage (`target_kind`/`payload` → `target_table`/`old_value`/`new_value`/`reason`; the NOT NULL `reason` length check was previously violated). Bug was latent because `create or replace function` does not validate inner INSERT column references until the body runs; Sprint 1.3 tests were the first callers.
+- [x] `docs/runbooks/ops-readiness-flags.md` — blocker-type semantics, severity tiers, migration pattern for adding a flag, resolution flow (UI + SQL), role-gate table, audit-log expectations.
+
+### Test Results — Sprint 1.3
+
+- `bunx vitest run tests/admin/ops-readiness-flags.test.ts` — 12/12 PASS (5.6s)
+- `bunx vitest run tests/admin/status-page-rpcs.test.ts` — 11/11 PASS (5.0s)
 
 ---
 

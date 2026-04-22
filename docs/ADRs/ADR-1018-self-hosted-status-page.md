@@ -82,6 +82,14 @@ Design-wise the public page is deliberately plain — static-feeling, accessible
   - Schedules `status-probes-heartbeat-check` on `*/15 * * * *` — pure SQL; inserts `admin.ops_readiness_flags` row (`ADR-1018`, `infra`, `high`) if no `status_checks` row has been written in the last 30 minutes. Idempotent: only inserts when no matching `pending`/`in_progress` flag already exists.
 - [x] Live smoke-test: `curl POST /functions/v1/run-status-probes` returned `{probed: 5, skipped: 1, flipped: 0}` against the seeded 6-subsystem set. `health` endpoint returns 200 JSON.
 
+### Sprint 1.4b — Audit-log column fix (follow-up) — **complete 2026-04-22**
+
+**Bundled with ADR-1017 Sprint 1.3.** The four status-page admin RPCs landed in `20260804000013` inserted into `admin.admin_audit_log` using non-existent columns (`target_kind`, `payload`) and omitted the required `reason`. Migration `20260804000019_audit_log_column_fix.sql` rewrites the four RPCs with the canonical column set.
+
+**Deliverables:**
+- [x] `admin.set_status_subsystem_state`, `admin.post_status_incident`, `admin.update_status_incident`, `admin.resolve_status_incident` — rewritten `create or replace function` to use `target_table`/`target_id`/`target_pk`/`old_value`/`new_value`/`reason`. Function signatures unchanged.
+- [x] `tests/admin/status-page-rpcs.test.ts` — 11 assertions covering state transitions, incident lifecycle, public-anon SELECT, invalid-input rejection, unknown-slug/id errors.
+
 ### Sprint 1.5 — DNS cutover (~15min, operator step)
 
 **Deliverables:**
