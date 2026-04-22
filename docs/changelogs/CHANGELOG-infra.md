@@ -2,6 +2,31 @@
 
 Vercel, Cloudflare, Supabase config changes.
 
+## [ADR-1014 Sprint 2.2 follow-up — per-vertical isolation on shared demo server] — 2026-04-22
+
+**ADR:** ADR-1014 — E2E test harness + vertical demo sites
+**Sprint:** Phase 2, Sprint 2.2 — vertical-lock follow-up (ships with Sprint 2.2)
+
+### Changed
+- `test-sites/server.js` — added `VERTICAL` env var gating. When set (e.g. `ecommerce` / `healthtech` / `bfsi`), the server only serves `/<VERTICAL>/` plus the always-allowed shared assets (`/shared/`, `/robots.txt`, `/.well-known/`, `/favicon.ico`). Bare `/` 302-redirects to `/${VERTICAL}/`. Any sibling-vertical path (e.g. `/healthtech/` on the ecommerce service) 404s instead of cross-serving. When VERTICAL is unset (local dev), the full `test-sites/` tree is served as before. Zero new deps, zero behaviour change for local dev.
+
+### Deployed
+- Railway env vars set via CLI: `railway variables --service ecommerce --set VERTICAL=ecommerce --skip-deploys` and `--service healthcare --set VERTICAL=healthtech --skip-deploys`.
+- Both services redeployed via `railway up --service <name> --ci` from `test-sites/` — healthcare build 14.12 s, ecommerce 77.11 s (Nixpacks rebuilt the Node 22 + npm-9_x image).
+
+### Tested
+- Full 6-check cross-vertical matrix against both live services:
+  - **ecommerce** (`https://demo-ecommerce.consentshield.in` + Railway domain): `/ecommerce/` → 200, `/healthtech/` → 404, `/` → 302 `Location: /ecommerce/`, `/index.html` → 404, `/shared/demo.css` → 200, `/robots.txt` → 200.
+  - **healthcare** (`https://healthcare-production-330c.up.railway.app` + `https://demo-healthcare.consentshield.in`): `/healthtech/` → 200, `/ecommerce/` → 404, `/` → 302 `Location: /healthtech/`, `/healthtech/fhir-probe.html` → 200, `/shared/demo.css` → 200.
+- Local regression: `VERTICAL=healthtech PORT=4199 node server.js` — all seven paths (own vertical 200, sibling 404, `/` → 302, shared 200, robots.txt 200, security.txt 200, /index.html 404) behave correctly.
+
+### Discovered
+- Custom domains **`demo-ecommerce.consentshield.in`** + **`demo-healthcare.consentshield.in`** were already provisioned on the Railway services — verified via GraphQL `project.services.edges[*].serviceInstances[*].domains.customDomains`. ADR-1014 Sprint 2.1 + 2.2 marked DNS cutover as pending; it's actually done. Both ADR bullets flipped to `[x]` in this commit.
+- **Fixture naming drift** — `scripts/e2e-bootstrap.ts` still lists `demo-clinic.consentshield.in` in the healthcare fixture's `allowed_origins`, but the Cloudflare CNAME landed on `demo-healthcare.consentshield.in`. Until reconciled (either rename the Cloudflare record or update the fixture), the custom-domain origin header will fail the Worker's allow-list check for consent POSTs. Flagged as an open item; one-line fixture edit when the decision lands.
+
+### Why
+Both Railway services were deploying from the same `test-sites/` root, which meant each service served the entire demo tree — `demo-ecommerce.consentshield.in/healthtech/` would render the clinic demo, and `demo-healthcare.consentshield.in/ecommerce/` would render the apparel store. That breaks the per-vertical consent-scope narrative: reviewers shouldn't be able to see the wrong-vertical banner/tracker mix on a domain branded for a specific vertical. A per-service `VERTICAL` env var is the smallest change that gives hard isolation without splitting the codebase into three separate Railway builds — one shared `server.js`, one shared `Dockerfile`/nixpacks build, one env-var knob per service.
+
 ## [ADR-1014 Sprint 2.2 — healthcare demo site + FHIR guardrail probe + Railway deploy] — 2026-04-22
 
 **ADR:** ADR-1014 — E2E test harness + vertical demo sites
