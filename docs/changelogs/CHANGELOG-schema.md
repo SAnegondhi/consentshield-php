@@ -2,6 +2,27 @@
 
 Database migrations, RLS policies, roles.
 
+## [ADR-1014 Sprint 3.4 follow-up — cs_orchestrator SELECT on deletion_receipts] — 2026-04-23
+
+**ADR:** ADR-1014 — E2E test harness + vertical demo sites
+**Sprint:** Phase 3, Sprint 3.4 — Deletion connector end-to-end
+
+### Added
+- `supabase/migrations/20260804000030_cs_orchestrator_select_deletion_receipts.sql` — grants `cs_orchestrator` SELECT on `public.deletion_receipts`.
+
+### Fixed
+- Latent authz gap on `public.rpc_deletion_receipt_confirm` (SECURITY DEFINER owned by cs_orchestrator). The RPC's first statement — `select org_id, status into ... from deletion_receipts where id = p_receipt_id` — has been failing with `permission denied for table deletion_receipts` since ADR-0009 Sprint 1.1 (migration 20260414000005). The scoped-roles migration (20260413000010) granted cs_orchestrator INSERT + UPDATE(status, confirmed_at, response_payload, failure_reason, retry_count, next_retry_at) but NOT SELECT. No downstream caller had exercised the RPC end-to-end before ADR-1014 Sprint 3.4's `tests/integration/deletion-receipt-confirm.test.ts`, so the gap hid.
+
+### Tested
+- `bunx supabase db push` — 1 migration applied cleanly.
+- Immediately after the push, `bunx vitest run tests/integration/deletion-receipt-confirm.test.ts` flipped from 8 failures → 12/12 PASS.
+
+### Why
+This is the kind of bug the ADR-1014 Phase 3 contract tests exist to surface. The cross-role privilege matrix is hand-maintained across a dozen migrations; a missing SELECT is easy to miss during review and invisible at runtime until something actually calls the RPC. The customer-facing deletion-callback flow hadn't been exercised against live data yet (connectors pending), so the bug would have surfaced the first time a real partner tried to confirm a deletion — which would have been weeks before any test caught it.
+
+### Scope boundary
+Fix is strictly additive. The route-handler authentication boundary is unchanged: anon EXECUTE on the RPC is preserved; the signed-callback HMAC check in `app/src/lib/rights/callback-signing.ts` still runs BEFORE the RPC is called. Adding SELECT here only lets the RPC body read the row it's already committed to updating.
+
 ## [ADR-1010 Phase 3 Sprint 3.1 — cs_worker SELECT on tracker_signatures] — 2026-04-22
 
 **ADR:** ADR-1010

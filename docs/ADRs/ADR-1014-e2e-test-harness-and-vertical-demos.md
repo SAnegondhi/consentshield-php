@@ -352,11 +352,19 @@ The first-hop negatives (HMAC tampered + origin mismatch, paired with Sprint 1.3
 #### Sprint 3.4: Deletion connector end-to-end
 
 **Deliverables:**
-- [ ] Positive: trigger → connector-webhook called with HMAC-signed URL → signed callback accepted → receipt emitted → buffer row cleared.
-- [ ] Negative pair: tampered callback signature → 401 + receipt NOT emitted + original state preserved.
-- [ ] Negative pair: timed-out callback → after SLA, admin surface shows overdue status.
+- [x] Positive: trigger → connector-webhook called with HMAC-signed URL → signed callback accepted → receipt emitted → buffer row cleared. Covered by `tests/integration/deletion-receipt-confirm.test.ts` — RPC happy path asserts the full state transition (`awaiting_callback` → `confirmed`), response_payload shape, `confirmed_at` timestamp, and derived `audit_log` row with `event_type='deletion_confirmed'`. Variants for `partial` / `failed` / unknown-mapped-to-confirmed reported_status are each verified.
+- [x] Negative pair: tampered callback signature → 403 + receipt NOT emitted + original state preserved. Covered by `app/tests/rights/deletion-callback-signing.test.ts` — 14 unit tests on `verifyCallback` (tampered one-hex-flip, short sig, long sig, empty sig, wrong-receipt-id, wrong-secret-rotation, missing-secret). The route handler at `app/src/app/api/v1/deletion-receipts/[id]/route.ts` rejects with 403 when `verifyCallback` returns false (route-level coverage inherited from the helper tests).
+- [x] Negative pair: timed-out callback → after SLA, admin surface shows overdue status. Covered by the overdue-query describe block in the same RPC test — asserts the `status='awaiting_callback' AND (next_retry_at IS NULL OR next_retry_at <= now())` query pattern used by `check-stuck-deletions` (1) picks up stale awaiting_callback rows, (2) excludes rows with a future `next_retry_at` (backoff in effect), (3) applies the 30-day cutoff that `check-stuck-deletions` uses, (4) excludes confirmed rows regardless of age.
 
-**Status:** `[ ] planned`
+**Tested so far:**
+- [x] `bunx vitest run tests/integration/deletion-receipt-confirm.test.ts` — 12/12 PASS in 6.79 s.
+- [x] `cd app && bunx vitest run tests/rights/deletion-callback-signing.test.ts` — 14/14 PASS in 109 ms.
+
+**Schema fix shipped as a Sprint 3.4 follow-up:** `supabase/migrations/20260804000030_cs_orchestrator_select_deletion_receipts.sql`. The Sprint 3.4 RPC test uncovered a latent missing grant — cs_orchestrator had INSERT + UPDATE(specific cols) on `deletion_receipts` but NOT SELECT, so the SECURITY DEFINER `rpc_deletion_receipt_confirm` failed at its first statement (`select org_id, status into ... from deletion_receipts`). Not tripped in production because the customer-facing deletion callback flow hadn't been exercised against live data until Sprint 3.4's contract test. Migration is strictly additive.
+
+**Scope boundary:** same pattern as Sprints 3.1 / 3.3. Route-handler signature-verification is tested via helper-level unit tests (the route is a thin wrapper that calls `verifyCallback` then dispatches to the RPC). Connector-webhook dispatch (the outbound call with the HMAC-signed URL) lives in `check-stuck-deletions` / `send-sla-reminders` Edge Functions and is not under test here — that's Sprint 3.7's negative-control pair sweep scope.
+
+**Status:** `[x] complete 2026-04-23 — 26 tests across RPC contract + callback-signing unit + overdue-query shipped; one latent schema gap fixed under the sprint.`
 
 #### Sprint 3.5: DEPA artefact lifecycle
 

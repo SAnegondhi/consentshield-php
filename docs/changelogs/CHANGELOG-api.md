@@ -2,6 +2,29 @@
 
 API route changes.
 
+## [ADR-1014 Sprint 3.4 — deletion-receipt callback RPC + signature helper tests] — 2026-04-23
+
+**ADR:** ADR-1014 — E2E test harness + vertical demo sites
+**Sprint:** Phase 3, Sprint 3.4 — Deletion connector end-to-end
+
+### Added
+- `tests/integration/deletion-receipt-confirm.test.ts` — Vitest RPC contract test for `public.rpc_deletion_receipt_confirm`. 12 tests covering:
+  - State machine: `not_found`, `invalid_state` (pending row cannot be confirmed), `already_confirmed` (replay on confirmed/completed row returns `already_confirmed:true` without mutating; only one audit row emitted), race (noop).
+  - Happy path: `awaiting_callback → confirmed` + `response_payload` shape + `confirmed_at` timestamp + derived `audit_log` row with `event_type='deletion_confirmed'` + `entity_type='deletion_receipt'`.
+  - Reported-status variants: `partial`, `failed`, unknown-value-mapped-to-confirmed.
+  - Overdue / retry-window query: mirrors `check-stuck-deletions` Edge Function pattern — `status='awaiting_callback' AND (next_retry_at IS NULL OR next_retry_at <= now())`. Asserts (1) stale rows are picked up, (2) future `next_retry_at` excludes a row (backoff in effect), (3) 30-day cutoff per `check-stuck-deletions`, (4) confirmed rows excluded regardless of age.
+- `app/tests/rights/deletion-callback-signing.test.ts` — Vitest unit test for `app/src/lib/rights/callback-signing.ts`. 14 tests covering `signCallback` (determinism, hex-format, per-id uniqueness, throws on missing secret) + `verifyCallback` (happy path, one-hex-flip tampering, short-sig, long-sig, empty, wrong-receipt-id, missing-secret returns false not throws, key-rotation mismatch) + `buildCallbackUrl` (env + explicit override).
+
+### Tested
+- `bunx vitest run tests/integration/deletion-receipt-confirm.test.ts` — 12/12 PASS in 6.79 s (after the schema fix in migration 20260804000030 — see CHANGELOG-schema).
+- `cd app && bunx vitest run tests/rights/deletion-callback-signing.test.ts` — 14/14 PASS in 109 ms.
+
+### Scope boundary
+Same RPC-contract approach as Sprints 3.1 / 3.3. Route-handler signature-verification is tested via helper-level unit tests on `verifyCallback` (the route is a thin wrapper that calls it, then dispatches to the RPC if true). Connector-webhook outbound dispatch (the HMAC-signed URL delivered to the customer's webhook) lives in the `check-stuck-deletions` + `send-sla-reminders` Edge Functions and isn't under test here — Sprint 3.7's negative-control pair sweep is the natural home for that coverage.
+
+### Why
+Closes the Worker's deletion-callback state machine + signature verifier. The tests immediately surfaced a latent schema gap (cs_orchestrator missing SELECT on deletion_receipts) that would have broken the first real customer deletion callback; the schema fix ships alongside in migration 20260804000030.
+
 ## [ADR-1014 Sprint 3.3 — rights-request public RPC contract test] — 2026-04-23
 
 **ADR:** ADR-1014 — E2E test harness + vertical demo sites
