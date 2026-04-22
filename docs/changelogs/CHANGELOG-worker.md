@@ -2,6 +2,22 @@
 
 Cloudflare Worker changes.
 
+## [ADR-1010 Phase 1 Sprint 1.2 — Hyperdrive binding + mechanism decision] — 2026-04-22
+
+**ADR:** ADR-1010 — Cloudflare Worker scoped-role migration
+**Sprint:** Phase 1 Sprint 1.2
+
+### Added
+- `worker/wrangler.toml` — new `[[hyperdrive]]` binding (binding `HYPERDRIVE`, id `00926f5243a849f08af2cf01d32adbee`) for the provisioned `cs-worker-hyperdrive` Cloudflare Hyperdrive config. `env.HYPERDRIVE.connectionString` is populated at runtime; Phase 3 Sprint 3.1 swaps REST call sites to it.
+
+### Changed
+- `worker/src/index.ts` — role-guard exemption extended from just `/v1/health` to also cover `/v1/_cs_api_probe`. The probe's purpose is to evaluate mechanisms that replace the HS256 key the guard polices; gating the probe on the old key makes the probe unreachable. Exemption disappears when the probe route is removed at Phase 1 close.
+
+### Tested
+- [x] `bunx wrangler deploy` — version `3ccd116c-5d4e-4ab5-9b7a-1df5be7b838a` confirms all three bindings (BANNER_KV, HYPERDRIVE, SUPABASE_URL).
+- [x] `curl /v1/_cs_api_probe?via=all` from the deployed Worker — REST ok (p50 274ms, real round trip), Hyperdrive ok (binding_present p50 44ms, reachability only), raw_tcp scaffold-only. Results recorded in ADR-1010 Sprint 1.2.
+- [x] Migration `20260804000027_resolve_adr1010_s12_flag.sql` flips the `admin.ops_readiness_flags` Hyperdrive provisioning row to `resolved`.
+
 ## [ADR-1010 Phase 1 Sprint 1.1 — cs_worker migration prototype scaffold] — 2026-04-22
 
 **ADR:** ADR-1010 — Cloudflare Worker scoped-role migration off HS256 JWT

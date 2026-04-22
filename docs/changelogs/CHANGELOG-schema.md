@@ -2,6 +2,14 @@
 
 Database migrations, RLS policies, roles.
 
+## [ADR-1010 Phase 1 Sprint 1.2 — resolve Hyperdrive readiness flag] — 2026-04-22
+
+**ADR:** ADR-1010
+**Sprint:** Phase 1 Sprint 1.2
+
+### Added
+- Migration `20260804000027_resolve_adr1010_s12_flag.sql` — flips the `admin.ops_readiness_flags` row for ADR-1010 Phase 1 Hyperdrive provisioning from `pending` to `resolved`, with a resolution note containing the Hyperdrive id, Worker deploy version, and probe baseline.
+
 ## [ADR-1004 Phase 2 Sprint 2.1 — notices schema + publish RPC] — 2026-04-22
 
 **ADR:** ADR-1004 — Statutory retention / material change / silent-failure detection

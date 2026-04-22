@@ -77,16 +77,40 @@ Rule 5 (CLAUDE.md) reaffirmed — the Worker remains scoped to `cs_worker`, no s
 - [ ] Latency comparison on the Cloudflare edge (p50 × 10 runs) — **deferred** pending operator Hyperdrive provisioning. Scaffolding is in place; the measurement lands in the ADR amendment at Phase 1 close.
 - [ ] Revoke-simulation (forge an invalid `SUPABASE_WORKER_KEY`, verify `probe-rest` returns `hs256_revoked_or_expired`) — **deferred** to the same Phase 1 close review; the `note` branch exists in `probe-rest.ts` and is reached by the existing 401 path.
 
-**Status:** `[~] scaffold shipped 2026-04-22 — mechanism decision pending operator Hyperdrive provisioning`.
+**Status:** `[x] complete 2026-04-22 — Sprint 1.1 scaffold shipped; Sprint 1.2 mechanism decided (see below).`
 
-**Next operator step (no code):**
-1. Cloudflare Dashboard → Workers → Hyperdrive → Create.
-2. Origin: `postgresql://cs_worker.xlqiakmkdjycfiioslgs:$CS_WORKER_PASSWORD@aws-1-ap-northeast-1.pooler.supabase.com:6543/postgres?sslmode=require`.
-3. Name: `cs-worker-hyperdrive`.
-4. After the binding shows up, add `[[hyperdrive]]` block to `worker/wrangler.toml` (binding + id).
-5. Redeploy: `cd worker && wrangler deploy`.
-6. Curl the production probe: `curl https://<worker-domain>/v1/_cs_api_probe?via=hyperdrive` — expect `ok: true, note: 'binding_present'`.
-7. Once confirmed, write the mechanism-decision amendment at the top of this ADR and open Phase 3 Sprint 3.1.
+#### Sprint 1.2 — Mechanism decision: Hyperdrive — **complete 2026-04-22**
+
+**Decision:** **Mechanism A — Cloudflare Hyperdrive** is the Phase 3 target.
+
+**Operator-side steps completed:**
+- Hyperdrive config `cs-worker-hyperdrive` provisioned on account `8244c59e71e49eaf6343ae0403d14785`; id `00926f5243a849f08af2cf01d32adbee`.
+- Origin: `aws-1-ap-northeast-1.pooler.supabase.com:6543` as `cs_worker.xlqiakmkdjycfiioslgs` with the rotated `CS_WORKER_PASSWORD`.
+- Caching at Hyperdrive defaults (Max Age 60s / SWR 15s). Harmless for our workload — the Worker is INSERT-heavy and the only SELECTs (snippet/banner lookup + role guard boot) are cacheable by design.
+
+**Code-side steps:**
+- `[[hyperdrive]]` binding added to `worker/wrangler.toml` (binding `HYPERDRIVE`, id as above).
+- `worker/src/index.ts` role-guard exempted the probe route alongside `/v1/health` — the probe's job is to test mechanisms that replace the key the guard polices, so it must bypass the guard the same way health does. The exemption disappears when the probe route is removed at Phase 1 close.
+- `bunx wrangler deploy` — version ID `3ccd116c-5d4e-4ab5-9b7a-1df5be7b838a`. Bindings confirmed in deploy output:
+  ```
+  env.BANNER_KV (dafd5bef6fa1455c8e8c05ccffcef20b)   KV Namespace
+  env.HYPERDRIVE (00926f5243a849f08af2cf01d32adbee)  Hyperdrive Config
+  env.SUPABASE_URL …                                 Environment Variable
+  ```
+
+**Probe results (10 runs each, from Hyderabad edge `cf-ray *-HYD`):**
+- `via=hyperdrive` — `ok: true, note: 'binding_present'`, p50 44ms, p95 60ms. Presence-only signal; real wire-protocol latency lands at Sprint 3.1 once `postgres.js` call sites ship. The latency number is Worker-local (no round trip yet) — it proves reachability / deploy health, not end-to-end DB latency.
+- `via=rest` — `ok: true, current_user: 'cs_worker (inferred)'`, p50 274ms, p95 295ms. This is today's production path — baseline to beat.
+- `via=raw_tcp` — `ok: false, note: 'sockets_api_unavailable — requires node_compat or cloudflare:sockets'`. Confirms the probe-raw-tcp scaffold; no implementation will follow because we chose Hyperdrive.
+
+**Why Hyperdrive, not the alternatives:**
+- **REST over `sb_secret_*`** — every opaque token is service-role-equivalent as of 2026-04-22 (Supabase has not shipped per-role opaque tokens). Retaining REST would violate CLAUDE.md Rule 5. Non-starter.
+- **Hand-rolled TCP (SCRAM-SHA-256 + Simple-Query)** — ~300 lines of wire-protocol code that becomes ours forever. Only pays off if Hyperdrive is unavailable or priced wrong; neither applies.
+- **Hyperdrive** — Cloudflare-native Postgres pooler, speaks wire protocol, first-class Supabase-origin support, no new npm deps at the probe layer (postgres.js lands in Phase 3 as the already-planned client). One `[[hyperdrive]]` binding in `wrangler.toml` and `env.HYPERDRIVE.connectionString` is populated at runtime.
+
+**Resolved readiness flag:** `admin.ops_readiness_flags` row `ADR-1010 Phase 1 Hyperdrive provisioning` flipped to `resolved` in migration `20260804000027_resolve_adr1010_s12_flag.sql`.
+
+**Status:** `[x] complete — mechanism decided; Phase 3 Sprint 3.1 unblocked.`
 
 ### Phase 2 — Cs_worker LOGIN readiness
 

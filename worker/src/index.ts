@@ -47,7 +47,11 @@ export default {
     // role='cs_worker' JWT (and the local-dev opt-in is not set), every
     // request returns 503 with a diagnostic. Health endpoint is exempt so
     // operators can still probe the Worker to see WHY it's degraded.
-    if (pathname !== '/v1/health') {
+    // The ADR-1010 Phase 1 Sprint 1.2 probe route is also exempt — its
+    // whole purpose is to evaluate mechanisms that would replace the
+    // HS256 key the guard polices. Removed when /v1/_cs_api_probe is
+    // retired at Phase 1 close.
+    if (pathname !== '/v1/health' && pathname !== '/v1/_cs_api_probe') {
       const verdict = runRoleGuard(env)
       if (!verdict.ok) {
         const isGuardErr = verdict.error instanceof WorkerRoleGuardError

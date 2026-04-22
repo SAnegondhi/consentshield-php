@@ -8,6 +8,14 @@ account_id = "8244c59e71e49eaf6343ae0403d14785"
 binding = "BANNER_KV"
 id = "dafd5bef6fa1455c8e8c05ccffcef20b"
 
+# ADR-1010 Phase 1 Sprint 1.2 — cs_worker direct-Postgres via Hyperdrive.
+# Origin: aws-1-ap-northeast-1.pooler.supabase.com:6543 as cs_worker
+# (password rotated, held in .secrets, configured on the Hyperdrive
+# origin). env.HYPERDRIVE.connectionString is populated at runtime.
+[[hyperdrive]]
+binding = "HYPERDRIVE"
+id = "00926f5243a849f08af2cf01d32adbee"
+
 [vars]
 SUPABASE_URL = "https://xlqiakmkdjycfiioslgs.supabase.co"
 
