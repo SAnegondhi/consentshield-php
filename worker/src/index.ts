@@ -3,6 +3,10 @@ import { handleBannerScript } from './banner'
 import { getClientIp, ipBlockedResponse, isIpBlocked } from './blocked-ip'
 import { handleConsentEvent } from './events'
 import { handleObservation } from './observations'
+import { probeViaHyperdrive } from './prototypes/probe-hyperdrive'
+import { probeViaRawTcp } from './prototypes/probe-raw-tcp'
+import { probeViaRest } from './prototypes/probe-rest'
+import type { ProbeMechanism, ProbeResult } from './prototypes/types'
 import { assertWorkerKeyRole, WorkerRoleGuardError } from './role-guard'
 
 export interface Env {
@@ -104,6 +108,47 @@ export default {
       return new Response(JSON.stringify({ status: 'ok', ts: Date.now() }), {
         headers: { 'Content-Type': 'application/json' },
       })
+    }
+
+    // ADR-1010 Phase 1 Sprint 1.1 — scratch probe route. Runs one or
+    // all three candidate mechanisms for the cs_worker direct-Postgres
+    // migration and returns a latency-comparison envelope. Removed at
+    // Phase 1 close once the mechanism is decided.
+    if (pathname === '/v1/_cs_api_probe' && request.method === 'GET') {
+      const via = (url.searchParams.get('via') ?? 'all') as ProbeMechanism | 'all'
+      const runners: Record<ProbeMechanism, (env: Env) => Promise<ProbeResult>> = {
+        rest: probeViaRest,
+        hyperdrive: probeViaHyperdrive,
+        raw_tcp: probeViaRawTcp,
+      }
+
+      let results: ProbeResult[]
+      if (via === 'all') {
+        results = await Promise.all(
+          (Object.keys(runners) as ProbeMechanism[]).map((m) => runners[m](env)),
+        )
+      } else if (via in runners) {
+        results = [await runners[via](env)]
+      } else {
+        return new Response(
+          JSON.stringify({
+            error: 'invalid_via',
+            allowed: ['rest', 'hyperdrive', 'raw_tcp', 'all'],
+          }),
+          { status: 400, headers: { 'Content-Type': 'application/json' } },
+        )
+      }
+
+      return new Response(
+        JSON.stringify({ ok: true, probed_at: Date.now(), results }),
+        {
+          status: 200,
+          headers: {
+            'Content-Type': 'application/json',
+            'Cache-Control': 'no-store',
+          },
+        },
+      )
     }
 
     return new Response('Not found', { status: 404 })

@@ -2,6 +2,14 @@
 
 Database migrations, RLS policies, roles.
 
+## [ADR-1010 Phase 1 — Hyperdrive provisioning readiness flag] — 2026-04-22
+
+**ADR:** ADR-1010 — Cloudflare Worker scoped-role migration
+**Sprint:** Phase 1 Sprint 1.1 follow-up
+
+### Added
+- Migration `20260804000018_ops_readiness_hyperdrive.sql` — one `admin.ops_readiness_flags` row (`source_adr=ADR-1010 Phase 1`, `blocker_type=infra`, `severity=medium`, `owner=operator`) tracking the Cloudflare-dashboard Hyperdrive provisioning step. Links the operator to `worker/src/prototypes/README.md` for the exact DSN + `wrangler.toml` binding shape. Idempotent via `on conflict do nothing`.
+
 ## [ADR-1018 Sprint 1.4 — status probe cron + heartbeat check] — 2026-04-22
 
 **ADR:** ADR-1018 — Self-hosted status page

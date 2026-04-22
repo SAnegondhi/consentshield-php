@@ -2,6 +2,29 @@
 
 Cloudflare Worker changes.
 
+## [ADR-1010 Phase 1 Sprint 1.1 — cs_worker migration prototype scaffold] — 2026-04-22
+
+**ADR:** ADR-1010 — Cloudflare Worker scoped-role migration off HS256 JWT
+**Sprint:** Phase 1 Sprint 1.1 — Prototype all three mechanisms
+
+### Added
+- `worker/src/prototypes/probe-rest.ts` — Mechanism B (REST baseline). Uses the current `SUPABASE_WORKER_KEY` bearer against `tracker_signatures?select=service_slug&limit=1`. Reports 2xx latency + maps 401 to `note: 'hs256_revoked_or_expired'` so the probe flips the instant Supabase kills the legacy signing secret.
+- `worker/src/prototypes/probe-hyperdrive.ts` — Mechanism A scaffold. Reads `env.HYPERDRIVE?.connectionString`; structured-skip (`hyperdrive_binding_not_configured`) until the operator provisions a Hyperdrive instance in the Cloudflare dashboard + adds the `[[hyperdrive]]` binding to `wrangler.toml`. Becomes `ok: true, note: 'binding_present'` after provisioning — next step is Phase 3 Sprint 3.1 REST-call rewrite.
+- `worker/src/prototypes/probe-raw-tcp.ts` — Mechanism C scaffold. File header enumerates the 6 wire-protocol steps (TLS upgrade, StartupMessage, SCRAM-SHA-256, SimpleQuery, response parse); body returns `scaffold_only` until/unless A is rejected.
+- `worker/src/prototypes/types.ts` — shared `ProbeMechanism` + `ProbeResult` envelope.
+- `worker/src/prototypes/README.md` — decision matrix (correctness / latency / bundle size / operational surface), Cloudflare-dashboard runbook for Hyperdrive provisioning, "where this lands" note confirming the scaffold is self-contained and removable on Phase 1 close.
+- `worker/src/index.ts` — route `/v1/_cs_api_probe?via=rest|hyperdrive|raw_tcp|all` dispatching to the three probes; unknown `via` → 400 with allowed list; all other pathways go through the existing role guard.
+- `app/tests/worker/probe-route.test.ts` — 6 tests covering via=all / via=rest / via=hyperdrive / via=raw_tcp / via=invalid / role-guard coverage.
+
+### Tested
+- [x] `bunx vitest run tests/worker/` — 39/39 PASS (33 prior + 6 new) — PASS
+- [x] `bunx tsc --noEmit` (worker) — 0 errors — PASS
+- [x] Zero new npm dependencies in the Worker (CLAUDE.md Rule 16) — verified by inspection: all three probes use only `fetch` + `env.*` bindings + optional `cloudflare:sockets` (referenced via `typeof` in scaffold, never imported).
+
+### Deferred
+- Latency comparison (p50 × 10 runs on the Cloudflare edge) — requires operator to provision Hyperdrive first; tracked on `admin.ops_readiness_flags` via migration `20260804000018_ops_readiness_hyperdrive.sql`.
+- Mechanism decision amendment at the top of ADR-1010 — lands once the Hyperdrive binding returns `ok: true` in production.
+
 ## [ADR-1010 Sprint 2.1 follow-up — Rule-5 runtime role guard] — 2026-04-22
 
 **ADR:** ADR-1010 — Cloudflare Worker scoped-role migration off HS256 JWT

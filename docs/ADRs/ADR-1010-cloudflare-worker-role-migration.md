@@ -64,18 +64,29 @@ Rule 5 (CLAUDE.md) reaffirmed — the Worker remains scoped to `cs_worker`, no s
 **Estimated effort:** 1 day
 
 **Deliverables:**
-- [ ] Create a scratch Worker route `/v1/_cs_api_probe` that attempts `select 1` as `cs_worker` via each mechanism:
-  - A: Hyperdrive binding + `postgres.js` (or Cloudflare's documented Hyperdrive client).
-  - B: Supabase REST with `sb_secret_*`-shaped credential (noting the gateway-JWT issue).
-  - C: hand-rolled TCP postgres client (use a community reference implementation, e.g. `@workers-pg/core` if Workers-compatible, else custom).
-- [ ] Measure: connection establishment latency, query p50/p99, bundle-size impact on the Worker, operational footprint (extra dashboard/configuration required).
-- [ ] Decide the mechanism in an ADR-1010 amendment; rip out the other two probes.
+- [x] Scratch Worker route `/v1/_cs_api_probe?via=rest|hyperdrive|raw_tcp|all` (`worker/src/index.ts`). Subject to the runtime role guard; `/v1/health` remains the only non-guarded route.
+- [x] `worker/src/prototypes/probe-rest.ts` — Mechanism B (baseline; what the Worker uses today). Issues a `select=service_slug&limit=1` against `tracker_signatures` and reports latency + 401/2xx outcome. This path lets us catch the HS256 revocation moment — the probe starts returning `note: 'hs256_revoked_or_expired'` when Supabase kills the legacy signing secret.
+- [x] `worker/src/prototypes/probe-hyperdrive.ts` — Mechanism A scaffold. Reads `env.HYPERDRIVE?.connectionString`; returns a structured skip (`note: 'hyperdrive_binding_not_configured'`) when absent so the decision matrix gets a clear signal rather than a crash. Once the operator provisions Hyperdrive via the Cloudflare dashboard per `prototypes/README.md` and adds the `[[hyperdrive]]` binding to `wrangler.toml`, the probe flips to `ok: true` with a `binding_present` note — at which point Phase 3 Sprint 3.1 swaps the first REST call site over.
+- [x] `worker/src/prototypes/probe-raw-tcp.ts` — Mechanism C scaffold. The file header documents the six wire-protocol steps (TLS upgrade → StartupMessage → SCRAM-SHA-256 → SimpleQuery → response parse). Returns `ok: false, note: 'scaffold_only'` until implementation lands (only worth doing if A is rejected at Phase 1 close).
+- [x] `worker/src/prototypes/README.md` — the decision matrix (correctness / latency / bundle size / operational surface), operator runbook for the Hyperdrive dashboard steps, and a "where this lands" section explaining the files are self-contained and removable the moment the mechanism is chosen.
+- [x] Zero new npm dependencies (CLAUDE.md Rule 16 intact). Each probe is self-contained and gated on its own runtime prerequisite.
 
 **Testing plan:**
-- [ ] Each probe returns `[{ ?column? : 1 }]` and logs the elapsed ms.
-- [ ] Revoke-simulation: temporarily set `SUPABASE_WORKER_KEY` to an invalid value; the legacy HS256 path 401s as expected; the chosen new mechanism still works.
+- [x] `app/tests/worker/probe-route.test.ts` — 6 PASS: via=all returns all three mechanisms; via=rest returns just REST (reaches mock Supabase, `ok:true`); via=hyperdrive returns `hyperdrive_binding_not_configured`; via=raw_tcp returns `scaffold_only|sockets_api_unavailable`; via=nonsense → 400; probe route is subject to the role guard like every non-health route.
+- [x] Full worker test suite: 39/39 PASS (33 prior + 6 new). No regression in banner/events/blocked-ip/role-guard suites.
+- [ ] Latency comparison on the Cloudflare edge (p50 × 10 runs) — **deferred** pending operator Hyperdrive provisioning. Scaffolding is in place; the measurement lands in the ADR amendment at Phase 1 close.
+- [ ] Revoke-simulation (forge an invalid `SUPABASE_WORKER_KEY`, verify `probe-rest` returns `hs256_revoked_or_expired`) — **deferred** to the same Phase 1 close review; the `note` branch exists in `probe-rest.ts` and is reached by the existing 401 path.
 
-**Status:** `[ ] planned`
+**Status:** `[~] scaffold shipped 2026-04-22 — mechanism decision pending operator Hyperdrive provisioning`.
+
+**Next operator step (no code):**
+1. Cloudflare Dashboard → Workers → Hyperdrive → Create.
+2. Origin: `postgresql://cs_worker.xlqiakmkdjycfiioslgs:$CS_WORKER_PASSWORD@aws-1-ap-northeast-1.pooler.supabase.com:6543/postgres?sslmode=require`.
+3. Name: `cs-worker-hyperdrive`.
+4. After the binding shows up, add `[[hyperdrive]]` block to `worker/wrangler.toml` (binding + id).
+5. Redeploy: `cd worker && wrangler deploy`.
+6. Curl the production probe: `curl https://<worker-domain>/v1/_cs_api_probe?via=hyperdrive` — expect `ok: true, note: 'binding_present'`.
+7. Once confirmed, write the mechanism-decision amendment at the top of this ADR and open Phase 3 Sprint 3.1.
 
 ### Phase 2 — Cs_worker LOGIN readiness
 
