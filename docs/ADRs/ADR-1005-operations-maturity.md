@@ -247,14 +247,18 @@ Phase 1 sprints below are the MARKETING-asset scope. When a partner lands, this 
 **Estimated effort:** 1 day
 
 **Deliverables:**
-- [ ] `app/src/lib/notifications/adapters/types.ts` defining `NotificationAdapter.deliver(channel, event, severity) => Promise<{ ok, external_id? }>`
-- [ ] Retry helper: retries on 5xx up to 3 times with backoff; no retries on 4xx
-- [ ] Event payload schema finalised (common envelope + per-event payload)
+- [x] `app/src/lib/notifications/adapters/types.ts` — `NotificationAdapter` interface (`type: ChannelType`, `validateConfig(channel): void`, `deliver(channel, event): Promise<DeliveryResult>`), `NotificationEvent` envelope (kind, severity, subject, body, occurred_at, org_id, context, idempotency_key), `NotificationChannel` row type, `DeliveryResult` discriminated union (`ok:true` carries `external_id` + `latency_ms`; `ok:false` carries `retryable` + `error` + `status_code?` + `latency_ms`), `AdapterConfigError` + `UnknownAdapterError` classes.
+- [x] `app/src/lib/notifications/adapters/retry.ts` — `withRetry(attempt, config)` returning `RetryEnvelope { final, attempts[] }`. Defaults to 3 attempts, 200ms/600ms backoff. Stops immediately on non-retryable failures. Supports injectable `sleep` for tests. Validates that `backoffMs.length === maxAttempts - 1` at call time.
+- [x] `app/src/lib/notifications/adapters/registry.ts` — module-singleton `Map<ChannelType, NotificationAdapter>` with `registerAdapter / unregisterAdapter / getAdapter / registeredTypes / resetRegistry`. Throws `UnknownAdapterError` when no adapter is registered for a channel_type.
+- [x] `app/src/lib/notifications/adapters/mock.ts` — test-only mock adapter with an `calls` inbox + `setNextResult()` scripting queue for exercising retry / success flows.
+- [x] `app/src/lib/notifications/dispatch.ts` — `dispatchEvent(event, channels, options)` filters `channels` (active + matching org_id + `alert_types ∋ event.kind`), routes each to the registered adapter through `withRetry`, and returns a `DispatchReport { event_kind, event_severity, org_id, total_channels, succeeded, failed, outcomes[] }`. Never throws on delivery failure; throws only on config mistakes (`AdapterConfigError` surfaces synchronously) or missing adapter registry entry.
 
 **Testing plan:**
-- [ ] Interface unit-tested with a mock adapter
+- [x] `app/tests/notifications/retry.test.ts` — 7 PASS: first-attempt success; non-retryable short-circuit; 3-attempt retry loop; retry success; config mismatch rejection; backoff order; no-sleep-after-final.
+- [x] `app/tests/notifications/registry.test.ts` — 5 PASS: register/get/unregister/list/replace.
+- [x] `app/tests/notifications/dispatch.test.ts` — 8 PASS: happy path × N channels; inactive/alert_types/org_id filters; config-error folded into report; retry aggregates attempts; non-retryable respected; latency totals.
 
-**Status:** `[ ] planned`
+**Status:** `[x] complete` — 2026-04-22. 20/20 unit tests PASS. Zero runtime dependencies (no new npm packages). Phase 6 Sprints 6.2 (Slack/Teams/Discord) + 6.3 (PagerDuty/custom webhook) + 6.4 (dashboard UI) remain.
 
 #### Sprint 6.2: Slack + Teams + Discord adapters
 

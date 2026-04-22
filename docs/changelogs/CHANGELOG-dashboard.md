@@ -2,6 +2,28 @@
 
 Next.js UI changes.
 
+## [ADR-1005 Phase 6 Sprint 6.1 — NotificationAdapter interface + mock] — 2026-04-22
+
+**ADR:** ADR-1005 — Operations maturity (non-email notification channels)
+**Sprint:** Phase 6 Sprint 6.1
+
+### Added
+- `app/src/lib/notifications/adapters/types.ts` — `NotificationAdapter` interface, `NotificationEvent` common envelope, `NotificationChannel` row type, `DeliveryResult` discriminated union, `AdapterConfigError` + `UnknownAdapterError` classes. Channel types declared: `slack`, `teams`, `discord`, `pagerduty`, `custom_webhook`, `mock`.
+- `app/src/lib/notifications/adapters/retry.ts` — `withRetry(attempt, config)` returning `RetryEnvelope { final, attempts[] }`. 3 attempts / 200ms-600ms backoff by default; stops immediately on non-retryable failures; injectable `sleep` for tests.
+- `app/src/lib/notifications/adapters/registry.ts` — module-singleton adapter registry (`registerAdapter`, `unregisterAdapter`, `getAdapter`, `registeredTypes`, `resetRegistry`).
+- `app/src/lib/notifications/adapters/mock.ts` — test-only mock adapter with an `calls` inbox + `setNextResult()` scripting queue.
+- `app/src/lib/notifications/dispatch.ts` — `dispatchEvent(event, channels, options)` filters (active + org_id + alert_types) → retry-wrapped deliver → aggregate `DispatchReport`. Never throws on delivery failure; config errors fold into the report as non-retryable.
+
+### Tested
+- [x] `bunx vitest run tests/notifications/` — 20/20 PASS (retry 7, registry 5, dispatch 8) — PASS
+- [x] `bun run lint` — 0 warnings — PASS
+- [x] `bun run build` — no new routes; lib-only change compiles — PASS
+
+### Deferred
+- Sprint 6.2 Slack/Teams/Discord adapters — requires the registry entries + each channel's webhook-format implementation.
+- Sprint 6.3 PagerDuty + custom_webhook adapters — requires PagerDuty routing key provisioning (tracked in `admin.ops_readiness_flags` via ADR-1017).
+- Sprint 6.4 `/dashboard/settings/notifications` UI.
+
 ## [ADR-1004 Sprint 1.5 — Retention & Exemptions page] — 2026-04-22
 
 **ADR:** ADR-1004 — Statutory retention + material-change re-consent
