@@ -44,7 +44,10 @@ export default defineConfig({
   reporter: [
     ['html', { open: 'never', outputFolder: 'playwright-report' }],
     ['json', { outputFile: 'test-results/results.json' }],
-    ['list']
+    ['list'],
+    // ADR-1014 Sprint 1.4 — evidence archive + seal. Runs last so the HTML
+    // + JSON reporters have already written their outputs.
+    ['./utils/evidence-reporter.ts']
   ],
 
   outputDir: 'test-results/artifacts',

@@ -134,21 +134,37 @@ Build a full-pipeline, partner-evidence-grade E2E test harness, delivered in fiv
 
 **Status:** `[x] complete`
 
-#### Sprint 1.4: R2 evidence writer + static index
+#### Sprint 1.4: Evidence writer + seal + verification CLI
 
 **Estimated effort:** 2 days
 
 **Deliverables:**
-- [ ] `tests/e2e/utils/evidence.ts` — writes run artifacts to R2 at `runs/<commit-sha>/<run-id>/`.
-- [ ] Each run archive contains: `manifest.json` (commit SHA, seed, migration list, timestamp, run duration, pass/fail counts), Playwright HTML report, DB snapshot (redacted pg_dump of non-fixture tables), Worker log export, R2 manifest (keys + hashes of delivered objects), Stryker HTML (Phase 4+).
-- [ ] SHA-256 `seal.txt` over the archive — seal is pushed to a public ledger (GitHub Actions run summary + optional tweet from @consentshield status).
-- [ ] Static site at `testing.consentshield.in` — Next.js static export indexing runs by date and commit SHA, served from a separate Vercel project reading from R2.
+- [x] `tests/e2e/utils/evidence.ts` — `startRun()` / `addAttachment()` / `copyDirAttachment()` / `recordTest()` / `finalize()`. Writes to `tests/e2e/evidence/<commitShort>/<runId>/`. Each run gets `manifest.json` + `seal.txt` + `attachments/` (playwright-report/, results.json, responses/, trace-ids/). `manifest.json` carries schema version, ADR ref, commit SHA, branch, Node version, OS, Playwright projects, full per-test outcomes (file, title, project, status, duration, retries, trace_ids, first line of error_message), summary (total/passed/failed/skipped/flaky), and a sorted list of every attachment with `{ path, size, sha256 }`.
+- [x] `tests/e2e/utils/evidence-seal.ts` — `verifySeal(runDir)` parses `seal.txt`, recomputes the per-file SHA-256 ledger, and returns `{ ok, expected, actual, mismatches[] }` with per-file MODIFIED/ADDED/REMOVED diagnostics.
+- [x] `tests/e2e/utils/evidence-reporter.ts` — Playwright `Reporter` implementation wired into `playwright.config.ts` reporters. `onBegin → startRun`, `onTestEnd → recordTest + harvest attachments`, `onEnd → copy playwright-report/ + results.json + finalize`.
+- [x] `scripts/e2e-verify-evidence.ts` — partner-facing CLI. `bunx tsx scripts/e2e-verify-evidence.ts <run-dir>` → exit 0 + summary on success, exit 1 + per-file mismatches on tamper, exit 2 on usage/IO error.
+- [x] SHA-256 `seal.txt` over the entire archive (sorted `<sha256>  <relpath>` ledger, one line per file, root hash = `sha256(ledger)`). Seal is written to `seal.txt`; itself excluded from the ledger so the file containing the seal is not self-referential.
+- [x] `tests/e2e/evidence/` + `attachments/.bak`-shaped tamper-residue added to `tests/e2e/.gitignore`.
+
+**Scope amendments vs original ADR text:**
+
+1. **R2 upload deferred to Sprint 5.3.** The original Sprint 1.4 deliverable included uploading each archive to R2 at `runs/<sha>/<runId>/`. Sprint 5.3 already owns the `testing.consentshield.in` public index (the downstream consumer of those R2 objects). Building the upload path without the consumer is premature; Sprint 1.4 ships the local, verifiable archive + partner-readable CLI, and Sprint 5.3 will add the R2 publication step + static site. The sigv4 helper in `app/src/lib/storage/sigv4.ts` (ADR-0040) is ready to reuse when we get there.
+2. **Static site at testing.consentshield.in** — fully owned by Sprint 5.3 per the original ADR text. Duplicate mention here removed.
+3. **DB snapshot attachment** — pg_dump of touched tables is a useful attachment, but Sprint 1.4 ships only in-test JSON attachments (response bodies, observed row). Adding pg_dump collection is a small follow-up inside Phase 3 once more tests are writing meaningful DB state.
+4. **Stryker HTML attachment** — gated on Phase 4 landing, not Sprint 1.4.
 
 **Testing plan:**
-- [ ] After a smoke run, manifest is retrievable at the public URL and its seal verifies.
-- [ ] Tampering with any file in the archive invalidates the seal (negative control).
+- [x] After a smoke run, `manifest.json` + `seal.txt` are written. `bunx tsx scripts/e2e-verify-evidence.ts <runDir>` → exit 0, prints manifest summary (run_id, commit, duration, tests total/passed/failed/skipped/flaky).
+- [x] Tampering with any file in the archive (mutating a byte of `attachments/results.json` OR of `manifest.json`) → seal fails, CLI exits 1, per-file mismatches are printed.
+- [x] Restoring the tampered file → seal re-verifies (exit 0). Idempotent.
+- [x] `bunx tsc --noEmit` clean on both the scripts and the e2e workspace.
 
-**Status:** `[ ] planned`
+**Measured:**
+- Fresh paired-pipeline run produced an 8-file archive (3 response attachments + 2 trace-id files + playwright-report/index.html + results.json + manifest.json).
+- Seal root hash: `9e9f261e511e56f8…` (first run).
+- End-to-end: run + seal + CLI verify in under 5 s.
+
+**Status:** `[x] complete`
 
 #### Sprint 1.5: First end-to-end smoke
 

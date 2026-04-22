@@ -94,9 +94,32 @@ WORKER_URL=https://consentshield-cdn.<your-account>.workers.dev bun run test
 
 If `WORKER_URL` is unset, pipeline tests skip cleanly with a pointer to this doc.
 
+## Evidence archives
+
+Every run writes a sealed archive to `tests/e2e/evidence/<commitShort>/<runId>/`:
+
+```
+manifest.json      # run metadata + per-test outcomes + attachment inventory
+seal.txt           # SHA-256 ledger + root hash over the whole archive
+attachments/
+  playwright-report/    # HTML report
+  results.json          # Playwright JSON reporter output
+  responses/*.json      # response-body attachments from tests
+  trace-ids/*.txt       # per-test trace ids
+```
+
+Partners verify an archive with:
+
+```bash
+bunx tsx scripts/e2e-verify-evidence.ts tests/e2e/evidence/<commitShort>/<runId>
+```
+
+Exit 0 = intact. Exit 1 = tampered (per-file MODIFIED/ADDED/REMOVED listing). Exit 2 = IO/usage error. See `scripts/e2e-verify-evidence.ts` for the flow a reviewer runs after downloading an archive from the future `testing.consentshield.in` public index (Sprint 5.3).
+
 ## Sprint progress
 
 - Sprint 1.1 (complete) — workspace scaffold + smoke test + sacrificial control
 - Sprint 1.2 (complete) — Supabase bootstrap/reset scripts + vertical fixtures
 - Sprint 1.3 (complete) — Worker local harness + HMAC helper + first paired pos/neg pipeline test
-- Sprint 1.4 (next) — R2 evidence writer + static index at `testing.consentshield.in`
+- Sprint 1.4 (complete) — Evidence writer + seal + partner verify CLI
+- Sprint 5.3 (upcoming) — R2 publish + static index at `testing.consentshield.in`

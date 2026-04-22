@@ -2,6 +2,39 @@
 
 Vercel, Cloudflare, Supabase config changes.
 
+## [ADR-1014 Sprint 1.4 — evidence writer + seal + verify CLI] — 2026-04-22
+
+**ADR:** ADR-1014 — E2E test harness + vertical demo sites
+**Sprint:** Phase 1, Sprint 1.4 — Evidence archive + partner-verifiable seal
+
+### Added
+- `tests/e2e/utils/evidence.ts` — run lifecycle primitives: `startRun` / `addAttachment` / `copyDirAttachment` / `recordTest` / `finalize`. Writes to `tests/e2e/evidence/<commitShort>/<runId>/` with `manifest.json` + `seal.txt` + `attachments/` tree. Manifest carries schema version, ADR ref, commit SHA, branch, Node version, OS, Playwright projects, per-test outcomes (file, title, project, status, duration, retries, trace_ids, error first-line), summary (total/passed/failed/skipped/flaky), and sorted attachment list with `{ path, size, sha256 }`.
+- `tests/e2e/utils/evidence-seal.ts` — `verifySeal(runDir)` reads `seal.txt`, recomputes the per-file SHA-256 ledger, and returns `{ ok, expected, actual, ledgerLines, mismatches[] }` with MODIFIED / ADDED / REMOVED per-file diagnostics.
+- `tests/e2e/utils/evidence-reporter.ts` — Playwright `Reporter` implementation. `onBegin → startRun`, `onTestEnd → recordTest + harvest attachments (trace-ids, response-body JSON)`, `onEnd → copy playwright-report/ + results.json + finalize + print verify command`. Wired into `playwright.config.ts` as the fourth reporter (runs last).
+- `scripts/e2e-verify-evidence.ts` — partner-facing CLI. Exit 0 + manifest summary on success; exit 1 + per-file mismatches on tamper; exit 2 on usage/IO error. The tool a prospective reviewer downloads-and-runs against a published archive.
+
+### Changed
+- `tests/e2e/playwright.config.ts` — added `['./utils/evidence-reporter.ts']` to the reporters array.
+- `tests/e2e/.gitignore` — added `evidence/`.
+
+### Seal format
+- Per-file SHA-256 ledger, one line `<sha256>  <relative-path>` per archive file (except `seal.txt` itself), sorted alphabetically. Root hash = `sha256(ledger)`. Written as `seal.txt` with a small preamble (`algorithm: sha256`, `seal: <hex>`) so it is self-describing.
+- `seal.txt` is excluded from the ledger; the file containing the seal is intentionally not self-referential. This means `evidence-seal.ts` parses `seal.txt` structurally (algorithm + seal lines + ledger block) rather than hashing it.
+
+### Scope amendments
+- **R2 upload deferred to Sprint 5.3.** The static site at `testing.consentshield.in` is the downstream consumer of R2 objects; building the upload path without the consumer is premature. Sprint 1.4 ships the local, verifiable archive + CLI; Sprint 5.3 adds R2 publish + static index. `app/src/lib/storage/sigv4.ts` (ADR-0040) is reusable when we get there.
+- **pg_dump attachment + Stryker HTML** — originally listed for Sprint 1.4; the former slides to Phase 3 once tests write enough DB state to be worth snapshotting, the latter gates on Phase 4.
+
+### Tested
+- [x] Paired pipeline pos/neg → 8-file archive emitted (manifest.json + seal.txt + attachments: playwright-report/index.html, results.json, 3 response-body JSONs, 2 trace-id txts).
+- [x] `bunx tsx scripts/e2e-verify-evidence.ts <runDir>` → exit 0 + prints manifest summary (run_id, commit, duration_ms, projects, test counts).
+- [x] Tamper: `sed -i '' 's/"total": 2/"total": 3/'` on `manifest.json` → CLI exits 1 + prints per-file MODIFIED line with stored/actual hashes.
+- [x] Restore tampered file → seal re-verifies (exit 0).
+- [x] `bunx tsc --noEmit` clean on scripts + e2e workspace.
+
+### Gotcha
+- Playwright's `TestResult.status` includes `'timedOut'` and `'interrupted'` variants that aren't counted as own buckets in the manifest summary. `bucketFor()` rolls them up into `failed`; the per-test record retains full detail for partner inspection.
+
 ## [ADR-1014 Sprint 1.3 — Worker harness + HMAC helper + first paired pipeline test] — 2026-04-22
 
 **ADR:** ADR-1014 — E2E test harness + vertical demo sites
