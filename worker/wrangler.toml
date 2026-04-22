@@ -1,6 +1,11 @@
 name = "consentshield-cdn"
 main = "src/index.ts"
 compatibility_date = "2026-04-13"
+# ADR-1010 Phase 3 Sprint 3.1 — postgres.js (Workers build) imports
+# node:stream / node:events / node:buffer. nodejs_compat resolves
+# these at runtime via Cloudflare's Node built-in shim. Required
+# alongside the [[hyperdrive]] binding below.
+compatibility_flags = ["nodejs_compat"]
 
 account_id = "8244c59e71e49eaf6343ae0403d14785"
 

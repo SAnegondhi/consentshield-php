@@ -2,6 +2,14 @@
 
 Database migrations, RLS policies, roles.
 
+## [ADR-1010 Phase 3 Sprint 3.1 — cs_worker SELECT on tracker_signatures] — 2026-04-22
+
+**ADR:** ADR-1010
+**Sprint:** Phase 3 Sprint 3.1
+
+### Added
+- Migration `20260804000029_cs_worker_select_tracker_signatures.sql` — `grant select on public.tracker_signatures to cs_worker`. Gap surfaced while writing the Hyperdrive integration test: the REST path relied on the `auth_read_tracker_sigs` RLS policy (gated on `auth.role()='authenticated'`), which matched because the HS256 JWT carried that role claim. Direct-Postgres as `cs_worker` doesn't carry a JWT → policy didn't match → `permission denied`. Explicit grant fixes the direct-Postgres read path.
+
 ## [ADR-1010 Phase 1 Sprint 1.2 — resolve Hyperdrive readiness flag] — 2026-04-22
 
 **ADR:** ADR-1010

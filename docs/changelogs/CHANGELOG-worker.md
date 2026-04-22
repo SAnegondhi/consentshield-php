@@ -2,6 +2,31 @@
 
 Cloudflare Worker changes.
 
+## [ADR-1010 Phase 3 Sprint 3.1 — Worker read paths on Hyperdrive] — 2026-04-22
+
+**ADR:** ADR-1010 — Cloudflare Worker scoped-role migration
+**Sprint:** Phase 3 Sprint 3.1 (read paths)
+
+### Added
+- `worker/package.json` — `postgres@3.4.9` exact-pinned. Single-dep carve-out under the amended CLAUDE.md Rule 16. Worker bundle grows ~90 KiB uncompressed / ~22 KiB gzipped (deployed: 126.55 KiB / 32.67 KiB gzip).
+- `worker/src/db.ts` — `getDb(env)` + `hasHyperdrive(env)`. postgres.js client over `env.HYPERDRIVE.connectionString`; per-request lifecycle; `prepare: false` + short connect/idle timeouts so a degraded pool fails loudly.
+- `worker/wrangler.toml` — `compatibility_flags = ["nodejs_compat"]` (postgres.js's workerd build imports `node:stream` / `node:events` / `node:buffer`).
+
+### Changed
+- `worker/src/origin.ts` — `getPropertyConfig` now dual-path: Hyperdrive SQL when `env.HYPERDRIVE` is bound, REST fallback otherwise. KV cache logic shared.
+- `worker/src/signatures.ts` — `getTrackerSignatures` dual-path.
+- `worker/src/banner.ts` — `getBannerConfig` dual-path. The fire-and-forget `snippet_last_seen_at` UPDATE moved into an `updateSnippetLastSeen` helper with the same dual-path shape.
+- `worker/src/index.ts` — `Env` extended with optional `HYPERDRIVE: HyperdriveBinding` so call sites can branch.
+- `worker/src/prototypes/probe-hyperdrive.ts` — refactored to use the canonical `Env.HYPERDRIVE` typing instead of its local cast.
+- `app/tests/worker/harness.ts` — esbuild `conditions: ['workerd', 'worker', 'browser']` + `external: ['node:*']`; Miniflare `compatibilityFlags: ['nodejs_compat']`. Needed for postgres.js's imports to resolve even though the SQL path never runs in-harness.
+
+### Tested
+- [x] `tests/integration/worker-hyperdrive-reads.test.ts` — 5/5 PASS. Exercises the exact SQL the Worker issues, against real cs_worker credentials through postgres.js.
+- [x] `app/tests/worker/` — 39/39 PASS. Existing Miniflare suites unchanged; they run the REST fallback branch because `env.HYPERDRIVE` isn't bound.
+- [x] `bunx tsc --noEmit` (worker/) — clean.
+- [x] `bunx wrangler deploy` — version `19896a12-57ca-4db6-8212-9e0bb1391ebe`. Bindings confirmed: BANNER_KV + HYPERDRIVE + SUPABASE_URL.
+- Production live smoke test deferred — the existing role guard still rejects the `sb_secret_*` key in the dev Worker's secrets; Hyperdrive code path is proven via integration test instead. End-to-end live test lands when Sprint 3.2 retires the key entirely.
+
 ## [ADR-1010 Phase 1 Sprint 1.2 — Hyperdrive binding + mechanism decision] — 2026-04-22
 
 **ADR:** ADR-1010 — Cloudflare Worker scoped-role migration

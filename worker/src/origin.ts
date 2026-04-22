@@ -1,4 +1,5 @@
 import type { Env } from './index'
+import { getDb, hasHyperdrive } from './db'
 
 export interface PropertyConfig {
   allowed_origins: string[]
@@ -16,12 +17,52 @@ export async function getPropertyConfig(
   propertyId: string,
   env: Env,
 ): Promise<PropertyConfig | null> {
-  // Try KV cache
+  // Try KV cache (shared across both mechanisms).
   const cacheKey = `property:config:${propertyId}`
   const cached = await env.BANNER_KV.get(cacheKey, 'json')
   if (cached) return cached as PropertyConfig
 
-  // Fetch from Supabase via cs_worker role
+  // ADR-1010 Phase 3 Sprint 3.1 — prefer Hyperdrive-backed SQL when
+  // the binding is available (prod + future). Falls through to the
+  // legacy REST path only in the Miniflare harness, which does not
+  // configure a Hyperdrive binding. The fallback disappears at Phase 4
+  // cutover.
+  const config = hasHyperdrive(env)
+    ? await getPropertyConfigSql(propertyId, env)
+    : await getPropertyConfigRest(propertyId, env)
+
+  if (config) {
+    await env.BANNER_KV.put(cacheKey, JSON.stringify(config), { expirationTtl: 300 })
+  }
+  return config
+}
+
+async function getPropertyConfigSql(
+  propertyId: string,
+  env: Env,
+): Promise<PropertyConfig | null> {
+  const sql = getDb(env)
+  try {
+    const rows = await sql<PropertyConfig[]>`
+      select allowed_origins, event_signing_secret
+        from public.web_properties
+       where id = ${propertyId}
+       limit 1
+    `
+    return rows[0] ?? null
+  } catch {
+    // Per CLAUDE.md — Worker failures must never break the customer's
+    // site. Surface null so banner.ts returns the graceful 404 path.
+    return null
+  } finally {
+    await sql.end({ timeout: 1 }).catch(() => {})
+  }
+}
+
+async function getPropertyConfigRest(
+  propertyId: string,
+  env: Env,
+): Promise<PropertyConfig | null> {
   const res = await fetch(
     `${env.SUPABASE_URL}/rest/v1/web_properties?id=eq.${propertyId}&select=allowed_origins,event_signing_secret`,
     {
@@ -31,16 +72,9 @@ export async function getPropertyConfig(
       },
     },
   )
-
   if (!res.ok) return null
-
   const rows = (await res.json()) as PropertyConfig[]
-  if (rows.length === 0) return null
-
-  const config = rows[0]
-  // Cache for 5 minutes
-  await env.BANNER_KV.put(cacheKey, JSON.stringify(config), { expirationTtl: 300 })
-  return config
+  return rows[0] ?? null
 }
 
 export async function getPreviousSigningSecret(

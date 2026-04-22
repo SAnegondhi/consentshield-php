@@ -45,7 +45,17 @@ async function bundleWorker(): Promise<string> {
     target: 'esnext',
     platform: 'neutral',
     write: false,
-    conditions: ['worker', 'browser'],
+    // ADR-1010 Phase 3 Sprint 3.1 — 'workerd' picks up postgres.js's
+    // Cloudflare-Workers build (cf/src/index.js via the exports map).
+    // Without it, esbuild falls through to the Node entry point which
+    // tries to import net/tls/crypto/stream and fails to resolve.
+    conditions: ['workerd', 'worker', 'browser'],
+    // The workerd build still imports `node:stream` / `node:events` /
+    // `node:buffer` — Cloudflare provides these via the `nodejs_compat`
+    // compat flag at runtime. Mark them external so esbuild leaves the
+    // imports alone; Miniflare resolves them at load time (see the
+    // compatibilityFlags below).
+    external: ['node:*'],
   })
   bundledScript = res.outputFiles[0].text
   return bundledScript
@@ -63,6 +73,13 @@ export async function createWorker(opts: HarnessOptions): Promise<{
   const mf = new Miniflare({
     modules: [{ type: 'ESModule', path: 'index.js', contents: script }],
     compatibilityDate: '2026-04-13',
+    // ADR-1010 Phase 3 Sprint 3.1 — nodejs_compat resolves the
+    // node:stream / node:events / node:buffer imports that postgres.js's
+    // workerd build leaves unbundled. The REST fallback path is what
+    // actually runs in these tests (env.HYPERDRIVE is not bound), so
+    // postgres.js never initialises a connection — we just need the
+    // imports to resolve at module-load time.
+    compatibilityFlags: ['nodejs_compat'],
     kvNamespaces: { BANNER_KV: 'banner-kv' },
     bindings: {
       SUPABASE_URL: 'https://mock.supabase.co',

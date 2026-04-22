@@ -129,6 +129,9 @@
     "worker": {
       "name": "@consentshield/worker",
       "version": "0.1.0",
+      "dependencies": {
+        "postgres": "3.4.9",
+      },
       "devDependencies": {
         "@cloudflare/workers-types": "4.20260414.1",
       },

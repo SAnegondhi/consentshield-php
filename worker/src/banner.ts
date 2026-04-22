@@ -2,6 +2,7 @@ import type { Env } from './index'
 import { getPropertyConfig } from './origin'
 import { getTrackerSignatures, compactSignatures } from './signatures'
 import { getAdminConfig, isKillSwitchEngaged, isOrgSuspended } from './admin-config'
+import { getDb, hasHyperdrive } from './db'
 
 interface Purpose {
   id: string
@@ -71,20 +72,11 @@ export async function handleBannerScript(request: Request, env: Env): Promise<Re
     return new Response('Property not found', { status: 404 })
   }
 
-  // Update snippet_last_seen_at asynchronously (fire and forget)
-  // Note: the Worker uses cs_worker grant which allows UPDATE on snippet_last_seen_at
-  fetch(`${env.SUPABASE_URL}/rest/v1/web_properties?id=eq.${propertyId}`, {
-    method: 'PATCH',
-    headers: {
-      apikey: env.SUPABASE_WORKER_KEY,
-      Authorization: `Bearer ${env.SUPABASE_WORKER_KEY}`,
-      'Content-Type': 'application/json',
-      Prefer: 'return=minimal',
-    },
-    body: JSON.stringify({ snippet_last_seen_at: new Date().toISOString() }),
-  }).catch(() => {
-    // Non-blocking — never break the customer's site
-  })
+  // Update snippet_last_seen_at asynchronously (fire and forget).
+  // cs_worker has UPDATE on snippet_last_seen_at only; see BYPASSRLS +
+  // column-grants setup in migration 20260804000008. Non-blocking —
+  // any failure here must never break the customer's site.
+  void updateSnippetLastSeen(propertyId, env)
 
   const cdnOrigin = new URL(request.url).origin
 
@@ -122,6 +114,46 @@ async function getBannerConfig(propertyId: string, env: Env): Promise<BannerConf
   const cached = await env.BANNER_KV.get(cacheKey, 'json')
   if (cached) return cached as BannerConfig
 
+  // ADR-1010 Phase 3 Sprint 3.1 — Hyperdrive-backed SQL when available;
+  // REST fallback for the Miniflare harness (removed at Phase 4 cutover).
+  const config = hasHyperdrive(env)
+    ? await getBannerConfigSql(propertyId, env)
+    : await getBannerConfigRest(propertyId, env)
+
+  if (config) {
+    await env.BANNER_KV.put(cacheKey, JSON.stringify(config), { expirationTtl: 300 })
+  }
+
+  return config
+}
+
+async function getBannerConfigSql(propertyId: string, env: Env): Promise<BannerConfig | null> {
+  const sql = getDb(env)
+  try {
+    const rows = await sql<BannerConfig[]>`
+      select id,
+             property_id,
+             version,
+             headline,
+             body_copy,
+             position,
+             purposes,
+             monitoring_enabled
+        from public.consent_banners
+       where property_id = ${propertyId}
+         and is_active = true
+       order by version desc
+       limit 1
+    `
+    return rows[0] ?? null
+  } catch {
+    return null
+  } finally {
+    await sql.end({ timeout: 1 }).catch(() => {})
+  }
+}
+
+async function getBannerConfigRest(propertyId: string, env: Env): Promise<BannerConfig | null> {
   const res = await fetch(
     `${env.SUPABASE_URL}/rest/v1/consent_banners?property_id=eq.${propertyId}&is_active=eq.true&select=*`,
     {
@@ -135,13 +167,36 @@ async function getBannerConfig(propertyId: string, env: Env): Promise<BannerConf
   if (!res.ok) return null
 
   const banners = (await res.json()) as BannerConfig[]
-  const config = banners[0] ?? null
+  return banners[0] ?? null
+}
 
-  if (config) {
-    await env.BANNER_KV.put(cacheKey, JSON.stringify(config), { expirationTtl: 300 })
+async function updateSnippetLastSeen(propertyId: string, env: Env): Promise<void> {
+  if (hasHyperdrive(env)) {
+    const sql = getDb(env)
+    try {
+      await sql`
+        update public.web_properties
+           set snippet_last_seen_at = now()
+         where id = ${propertyId}
+      `
+    } catch {
+      // Fire-and-forget semantics preserved — never block the customer.
+    } finally {
+      await sql.end({ timeout: 1 }).catch(() => {})
+    }
+    return
   }
-
-  return config
+  // REST fallback — kept for the Miniflare harness.
+  await fetch(`${env.SUPABASE_URL}/rest/v1/web_properties?id=eq.${propertyId}`, {
+    method: 'PATCH',
+    headers: {
+      apikey: env.SUPABASE_WORKER_KEY,
+      Authorization: `Bearer ${env.SUPABASE_WORKER_KEY}`,
+      'Content-Type': 'application/json',
+      Prefer: 'return=minimal',
+    },
+    body: JSON.stringify({ snippet_last_seen_at: new Date().toISOString() }),
+  }).catch(() => {})
 }
 
 interface CompiledSig {

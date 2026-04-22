@@ -1,5 +1,6 @@
 import type { Env } from './index'
 import { getAdminConfig, toLegacySignatures } from './admin-config'
+import { getDb, hasHyperdrive } from './db'
 
 export interface TrackerSignature {
   service_name: string
@@ -33,6 +34,38 @@ export async function getTrackerSignatures(env: Env): Promise<TrackerSignature[]
   const cached = await env.BANNER_KV.get(CACHE_KEY, 'json')
   if (cached) return cached as TrackerSignature[]
 
+  // ADR-1010 Phase 3 Sprint 3.1 — Hyperdrive-backed SQL when available;
+  // REST fallback for the Miniflare harness (removed at Phase 4 cutover).
+  const rows = hasHyperdrive(env)
+    ? await getTrackerSignaturesSql(env)
+    : await getTrackerSignaturesRest(env)
+
+  if (rows.length > 0) {
+    await env.BANNER_KV.put(CACHE_KEY, JSON.stringify(rows), { expirationTtl: CACHE_TTL_SECONDS })
+  }
+  return rows
+}
+
+async function getTrackerSignaturesSql(env: Env): Promise<TrackerSignature[]> {
+  const sql = getDb(env)
+  try {
+    const rows = await sql<TrackerSignature[]>`
+      select service_name,
+             service_slug,
+             category,
+             detection_rules,
+             is_functional
+        from public.tracker_signatures
+    `
+    return rows
+  } catch {
+    return []
+  } finally {
+    await sql.end({ timeout: 1 }).catch(() => {})
+  }
+}
+
+async function getTrackerSignaturesRest(env: Env): Promise<TrackerSignature[]> {
   const res = await fetch(
     `${env.SUPABASE_URL}/rest/v1/tracker_signatures?select=service_name,service_slug,category,detection_rules,is_functional`,
     {
@@ -42,15 +75,8 @@ export async function getTrackerSignatures(env: Env): Promise<TrackerSignature[]
       },
     },
   )
-
   if (!res.ok) return []
-
-  const rows = (await res.json()) as TrackerSignature[]
-
-  // Cache for 1 hour
-  await env.BANNER_KV.put(CACHE_KEY, JSON.stringify(rows), { expirationTtl: CACHE_TTL_SECONDS })
-
-  return rows
+  return (await res.json()) as TrackerSignature[]
 }
 
 // Compact the signatures for embedding in the banner script (only script_src/resource_url rules,

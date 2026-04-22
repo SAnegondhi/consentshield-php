@@ -9,6 +9,19 @@ import { probeViaRest } from './prototypes/probe-rest'
 import type { ProbeMechanism, ProbeResult } from './prototypes/types'
 import { assertWorkerKeyRole, WorkerRoleGuardError } from './role-guard'
 
+// ADR-1010 Phase 3 — Hyperdrive binding shape. Cloudflare injects this
+// at runtime when wrangler.toml declares an [[hyperdrive]] binding.
+// Optional in the Env interface so Miniflare tests that don't configure
+// Hyperdrive still compile; call sites must branch on hasHyperdrive(env).
+export interface HyperdriveBinding {
+  connectionString: string
+  host?: string
+  port?: number
+  user?: string
+  password?: string
+  database?: string
+}
+
 export interface Env {
   BANNER_KV: KVNamespace
   SUPABASE_URL: string
@@ -16,6 +29,10 @@ export interface Env {
   // ADR-1010 Sprint 2.1 follow-up — local-dev opt-in for sb_secret_*
   // stand-in per ADR-1014 Sprint 1.3. Never set in production.
   ALLOW_SERVICE_ROLE_LOCAL?: string
+  // ADR-1010 Phase 3 Sprint 3.1 — Hyperdrive binding for cs_worker
+  // direct-Postgres reads. Present in prod + future; absent in the
+  // Miniflare harness where the legacy REST fallback runs.
+  HYPERDRIVE?: HyperdriveBinding
 }
 
 // ADR-1010 Sprint 2.1 follow-up — Rule-5 runtime enforcement.

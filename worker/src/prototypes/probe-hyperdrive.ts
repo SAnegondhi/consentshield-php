@@ -22,24 +22,12 @@
 import type { Env } from '../index'
 import type { ProbeResult } from './types'
 
-// Hyperdrive binding shape (Cloudflare runtime provides this when
-// bound). We reference it via a best-effort type — the real Worker env
-// interface is extended at Phase 3 once Hyperdrive is chosen.
-interface HyperdriveBindingLike {
-  connectionString?: string
-  host?: string
-  port?: number
-  user?: string
-  database?: string
-}
-
-interface EnvWithHyperdrive extends Env {
-  HYPERDRIVE?: HyperdriveBindingLike
-}
+// Phase 3 Sprint 3.1 folded the Hyperdrive binding into the canonical
+// Env interface, so probe-hyperdrive.ts no longer needs its own cast.
 
 export async function probeViaHyperdrive(env: Env): Promise<ProbeResult> {
   const start = Date.now()
-  const binding = (env as EnvWithHyperdrive).HYPERDRIVE
+  const binding = env.HYPERDRIVE
 
   if (!binding || !binding.connectionString) {
     return {

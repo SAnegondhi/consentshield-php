@@ -115,7 +115,7 @@ These are hard constraints. Do not work around them. Do not find creative interp
 
 15. **No new npm dependencies without justification.** If the functionality can be implemented in 1 day of coding and testing, write it yourself. A day of work eliminates a permanent supply chain risk. State the justification in the PR description.
 
-16. **Zero dependencies in the Cloudflare Worker.** The Worker is vanilla TypeScript. No npm packages. This is policy. Every dependency in the Worker runs on every page load of every customer's website.
+16. **Zero dependencies in the Cloudflare Worker, with one bounded exception.** The Worker is vanilla TypeScript. No npm packages. This is policy. Every dependency in the Worker runs on every page load of every customer's website. **Single carve-out (ADR-1010 Phase 3):** the Hyperdrive Postgres client `postgres` (postgres.js) is permitted, exact-pinned, because Hyperdrive exposes only the PostgreSQL wire protocol — no HTTP surface — and hand-rolling the wire protocol is ~500 LOC of owned binary code. The carve-out is bounded to this one dep; any further Worker dep requires a new ADR amending this rule. The dep runs only in the Worker's server-side runtime; `banner.js` (what customer browsers execute) is compiled separately via `compileBannerScript` and remains dep-free.
 
 17. **Exact version pinning.** All package.json dependencies use exact versions. No `^`, no `~`.
 

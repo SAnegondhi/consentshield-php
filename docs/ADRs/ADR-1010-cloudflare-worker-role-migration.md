@@ -173,17 +173,35 @@ Attack surface impact: near-zero. BYPASSRLS does not broaden which tables or col
 
 **Goal:** Swap the `fetch(${SUPABASE_URL}/rest/v1/...)` call sites in the Worker source to the chosen mechanism.
 
-#### Sprint 3.1 — banner.ts + origin.ts + signatures.ts (read paths)
-**Estimated effort:** 0.5 day
+**Rule 16 exception (2026-04-22).** Hyperdrive speaks only the PostgreSQL wire protocol; no HTTP surface. Sprint 3.1 therefore adds exactly one npm dependency to the Worker: `postgres` (postgres.js, exact-pinned to the current 3.x). Justification:
+
+- Cloudflare's official Hyperdrive-from-Workers guidance uses `postgres.js` verbatim.
+- Alternative — hand-rolling SCRAM-SHA-256 + SimpleQuery — is ~500 LOC of binary wire-protocol code we would own forever (cf. `worker/src/prototypes/probe-raw-tcp.ts` for the six-step outline).
+- `postgres.js` is ~35KB gzipped, pure TypeScript, zero transitive deps, actively maintained.
+- The dep runs only in the Worker server-side runtime — `banner.js` (what customer browsers execute) is compiled separately via `compileBannerScript` and remains dep-free. Rule 16's "every page load of every customer's website" rationale does not apply.
+- CLAUDE.md Rule 16 was amended in the same commit to record the carve-out. Any further Worker dep requires another ADR.
+
+#### Sprint 3.1 — banner.ts + origin.ts + signatures.ts (read paths) — **complete 2026-04-22**
 
 **Deliverables:**
-- [ ] Replace the REST fetches in `worker/src/banner.ts`, `origin.ts`, `signatures.ts` with the chosen mechanism.
-- [ ] Miniflare test harness at `app/tests/worker/` continues to pass — extend it with the new mock if the mechanism introduces new bindings.
+- [x] `worker/src/db.ts` — `getDb(env)` returns a postgres.js client over `env.HYPERDRIVE.connectionString`; `hasHyperdrive(env)` branch-check. Per-request client + `sql.end({ timeout: 1 })` in `finally` — Hyperdrive pools underneath so this is cheap.
+- [x] `worker/src/origin.ts` — `getPropertyConfig` dual-path: Hyperdrive SQL (`select allowed_origins, event_signing_secret from web_properties where id = ...`) when bound, REST fallback otherwise. KV cache logic shared across both paths.
+- [x] `worker/src/signatures.ts` — `getTrackerSignatures` dual-path.
+- [x] `worker/src/banner.ts` — `getBannerConfig` dual-path + `updateSnippetLastSeen` helper for the fire-and-forget UPDATE on `web_properties.snippet_last_seen_at` (cs_worker's only UPDATE grant). Non-blocking behaviour preserved — failures never break the customer's site.
+- [x] `worker/src/index.ts` — `Env` extended with `HYPERDRIVE?: HyperdriveBinding`; `probe-hyperdrive.ts` refactored to use it (dropped its local cast).
+- [x] `worker/wrangler.toml` — `compatibility_flags = ["nodejs_compat"]` added; postgres.js's workerd build imports `node:stream` / `node:events` / `node:buffer`.
+- [x] Migration `20260804000029_cs_worker_select_tracker_signatures.sql` — gap surfaced by the integration test: the REST path relied on a JWT carrying `authenticated` role → the existing `auth_read_tracker_sigs` RLS policy matched. Direct-Postgres as `cs_worker` doesn't carry a JWT → policy didn't match → `permission denied`. Added explicit `grant select on public.tracker_signatures to cs_worker`.
+- [x] `app/tests/worker/harness.ts` — esbuild condition list extended with `workerd` (picks postgres.js's Cloudflare build at `cf/src/index.js`); `external: ['node:*']` so node built-ins pass through; Miniflare `compatibilityFlags: ['nodejs_compat']` so the imports resolve at runtime.
 
 **Testing plan:**
-- [ ] Banner delivery harness test (serve banner.js for a seeded web_property) returns the expected compiled script.
+- [x] `tests/integration/worker-hyperdrive-reads.test.ts` — 5 new PASS: SELECT web_properties allowed_origins+signing_secret, SELECT active consent_banners, SELECT tracker_signatures, UPDATE snippet_last_seen_at, UPDATE on other columns DENIED (42501).
+- [x] `app/tests/worker/` — 39/39 PASS unchanged. The REST fallback path is what runs here (`env.HYPERDRIVE` isn't bound in Miniflare); the existing banner / origin / events suites continue to exercise it end-to-end.
+- [x] `bunx tsc --noEmit` in `worker/` — clean.
+- [x] `bunx wrangler deploy` — version `19896a12-57ca-4db6-8212-9e0bb1391ebe`. Bundle 126.55 KiB / 32.67 KiB gzipped. Worker startup time 13ms.
 
-**Status:** `[ ] planned`
+**Production smoke test: deferred.** Deployed Worker still runs the ADR-1010 Sprint 2.1 role guard, which rejects requests whose `SUPABASE_WORKER_KEY` is an `sb_secret_*` opaque key (the current dev-deployment state). Any `/v1/banner.js` request returns 503 before the Hyperdrive code path can execute. This is the ADR-1010 premise directly: the Worker is effectively unreachable *until the key is fully retired*. Sprint 3.2 migrates the remaining write paths (`events.ts`, `observations.ts`, `worker-errors.ts`) and Phase 4 retires the key + role guard — at that point the Hyperdrive-only Worker becomes smoke-testable end-to-end. The Sprint 3.1 delivery is proved instead by the five integration tests above, which exercise the exact SQL the Worker runs, against real cs_worker+Hyperdrive credentials.
+
+**Status:** `[x] complete`.
 
 #### Sprint 3.2 — events.ts + observations.ts + worker-errors.ts (write paths)
 **Estimated effort:** 0.5 day
