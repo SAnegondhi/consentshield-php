@@ -20,9 +20,13 @@ Vercel, Cloudflare, Supabase config changes.
 - `test-sites/ecommerce/index.html` — dropped hardcoded org/prop IDs, now uses `banner-loader.js`. Links to product.html / cart.html so the vertical feels like a real site.
 - `test-sites/shared/demo.css` — added styles for product detail, cart rows, summary rows, form fields, buttons.
 
-### Deferred (scope amendments within Sprint 2.1)
-- **Railway deploy push + DNS cutover to `demo-ecommerce.consentshield.in`.** Railway project is provisioned and `RAILWAY_TOKEN` is available; one empty service (`accomplished-compassion`) exists. `railway up` from `test-sites/` is the remaining one-command step — deferred so the user can confirm or rename the target service.
-- **Playwright test runtime verification** — blocked by Terminal B's ADR-1010 Sprint 2.1 commit `c55b661` (runtime role guard: Worker refuses to boot unless `SUPABASE_WORKER_KEY` is a JWT with `role=cs_worker`). Our local stand-in (service-role) is now rejected. Test is code-complete and will green once a `cs_worker`-claimed JWT is available in `worker/.dev.vars` OR ADR-1010's direct-Postgres migration lands for the Worker.
+### Deployed
+- Railway service `ecommerce` created under the `ConsentShield` project (`railway add --service ecommerce`); previously-empty `accomplished-compassion` was replaced. `railway up --ci` from `test-sites/` built via Nixpacks (`nodejs_22, npm-9_x`, start: `node server.js`) and deployed. Live at **`https://ecommerce-production-9332.up.railway.app`** — verified 200 on `/ecommerce/` + HTML carries the banner-loader tag + product grid.
+
+### Deferred
+- **DNS cutover to `demo-ecommerce.consentshield.in`** — one-step Cloudflare CNAME to the Railway-generated URL; the fixture `allowed_origins` already lists the target hostname.
+- **Playwright test runtime verification** (per user decision to wait for ADR-1010) — blocked by Terminal B's ADR-1010 Sprint 2.1 commit `c55b661` (runtime role guard: Worker refuses to boot unless `SUPABASE_WORKER_KEY` is a JWT with `role=cs_worker`). Our local stand-in (service-role) is now rejected. Test remains in the suite and skips cleanly if `WORKER_URL` is absent; re-runs green once the Worker has a `cs_worker`-claimed JWT OR ADR-1010's direct-Postgres migration for the Worker lands.
+- **Healthcare + BFSI Railway services** — one-per-vertical cadence; those services ship in Sprints 2.2 / 2.3 alongside their demo sites.
 
 ### Tested
 - [x] `bunx tsc --noEmit` clean on `tests/e2e/` + `scripts/`.

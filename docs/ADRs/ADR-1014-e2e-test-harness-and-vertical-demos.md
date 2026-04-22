@@ -201,10 +201,11 @@ Each vertical site is a small standalone Next.js app deployed to Railway under a
 - [x] `test-sites/railway.json` — Nixpacks builder + `node server.js` start command, `/` healthcheck.
 - [x] `tests/e2e/utils/static-server.ts` — dependency-free static server for the E2E harness (runs per-test on localhost:4001, matches the ecommerce fixture's `allowed_origins`).
 - [x] `tests/e2e/demo-ecommerce-banner.spec.ts` + `specs/demo-ecommerce-banner.md` — browser-driven test: navigate to the demo, assert banner renders, click "Accept all", assert `consentshield:consent` page event + observable `consent_events` row with `origin_verified='origin-only'`.
-- [ ] Railway deploy push + DNS → `demo-ecommerce.consentshield.in`. Railway project is provisioned (`RAILWAY_TOKEN` in `.secrets`); one empty service exists (name: `accomplished-compassion`). `railway up` from `test-sites/` is the remaining one-command step — deferred so the user can confirm the target service (rename the random Railway-provisioned name or create a dedicated one) before pushing.
+- [x] Railway service created (`ecommerce`, project `ConsentShield`) via `railway add --service ecommerce`. The previously-empty `accomplished-compassion` service was replaced by this one. `railway up --ci` from `test-sites/` built + deployed successfully. Railway-generated URL: **`https://ecommerce-production-9332.up.railway.app`** — the full 4-page demo is live (verified `curl` 200 + HTML includes `banner-loader.js` + product grid).
+- [ ] DNS cutover to `demo-ecommerce.consentshield.in` — pending. The fixture `allowed_origins` already lists this hostname so the cutover is a Cloudflare-DNS-only step (`CNAME demo-ecommerce → ecommerce-production-9332.up.railway.app`).
 
-**Blocker — Playwright test runtime:**
-- The browser-driven test is **code-complete** but cannot green until `worker/.dev.vars` carries a proper `SUPABASE_WORKER_KEY` (HS256 JWT with `role=cs_worker` claim). Terminal B's ADR-1010 Sprint 2.1 committed `c55b661` landed a runtime role guard: the Worker now refuses to boot unless the key's JWT claims `role=cs_worker`. Our prior local stand-in (service-role key in .dev.vars) is rejected. Once ADR-1010's direct-Postgres migration lands for the Worker OR a valid cs_worker JWT is available locally, the test runs green. Until then, `WORKER_URL` should point at the deployed Worker (or the test skips cleanly).
+**Blocker — Playwright test runtime (deferred per user decision):**
+- The browser-driven test is **code-complete** but cannot green until `worker/.dev.vars` carries a proper `SUPABASE_WORKER_KEY` (HS256 JWT with `role=cs_worker` claim). Terminal B's ADR-1010 Sprint 2.1 commit `c55b661` landed a runtime role guard: the Worker now refuses to boot unless the key's JWT claims `role=cs_worker`. Our prior local stand-in (service-role key in .dev.vars) is rejected. User's decision: wait for ADR-1010's direct-Postgres migration to land for the Worker, then re-run. The test remains in the suite and skips cleanly if `WORKER_URL` isn't available.
 
 **Tested so far:**
 - [x] `bunx tsc --noEmit` clean on `tests/e2e` + scripts.
@@ -212,7 +213,7 @@ Each vertical site is a small standalone Next.js app deployed to Railway under a
 - [x] Banner loader reads `?cdn` / `?org` / `?prop` and injects the correct script URL — verified manually via `curl http://127.0.0.1:4001/ecommerce/` + the page renders.
 - [x] Curl POST to `/v1/events` with `Origin: http://localhost:4001` header → Worker returns 202 + buffer row (confirms fixture origin allow-list is correct). Browser path fails pending the ADR-1010 blocker above.
 
-**Status:** `[~] in progress — demo code shipped, Railway push + Playwright runtime verification deferred`
+**Status:** `[x] complete for the demo + deploy axis — Playwright runtime green deferred pending ADR-1010 Worker migration (user decision)`
 
 #### Sprint 2.2: Healthcare demo — `demo-clinic.consentshield.in`
 
