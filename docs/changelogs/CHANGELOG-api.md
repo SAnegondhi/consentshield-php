@@ -2,6 +2,27 @@
 
 API route changes.
 
+## [ADR-1014 Sprint 3.3 — rights-request public RPC contract test] — 2026-04-23
+
+**ADR:** ADR-1014 — E2E test harness + vertical demo sites
+**Sprint:** Phase 3, Sprint 3.3 — Rights request end-to-end
+
+### Added
+- `tests/integration/rights-request-public.test.ts` — Vitest RPC-level contract test for the public rights-request flow. 13 tests covering:
+  - `rpc_rights_request_create` — input validation (invalid request_type → 22023, invalid email → 22023, unknown org → P0002); happy path (row columns + request_id shape + `turnstile_verified=true` persisted + `status='new'` + OTP fields stored); all 4 `request_type` values accepted (`erasure`/`access`/`correction`/`nomination`).
+  - `rpc_rights_request_verify_otp` — happy path (row flipped to `email_verified=true` + `otp_hash=null` + derived `rights_request_events` row with `event_type='created'` + derived `audit_log` row with `event_type='rights_request_created'`); negatives: `not_found` (unknown id), `invalid_otp` (wrong hash increments `otp_attempts`, row stays pending), `too_many_attempts` (5 wrong attempts lock future retries even with correct hash), `expired` (`otp_expires_at` in past → `expired` branch, row stays pending), `already_verified` (double-verify → `already_verified` branch), `no_otp_issued` (null `otp_hash` → `no_otp_issued`).
+  - Cross-org side-effect isolation — verifying request A in org-1 must not mutate request B in org-2 (asserts `email_verified`, `otp_hash`, `otp_attempts` all unchanged on the sibling org).
+
+### Tested
+- `bunx vitest run tests/integration/rights-request-public.test.ts` — 13/13 PASS in 11.63 s against dev Supabase.
+- Cleanup via `afterAll`: tracked-id purge of created `rights_requests` rows + `cleanupTestOrg` for both seeded test orgs.
+
+### Scope boundary
+As with Sprint 3.1's signup-intake test, this covers the RPC-level contract surface (the DB-side branching state machine). Route-handler-level concerns — Turnstile verification at `/api/public/rights-request`, 5/60s per-IP + 3/hour per-email rate limits, Resend OTP email dispatch — live at the Node route layer and are covered by unit tests on the helper modules (`app/src/lib/rights/turnstile.ts`, `rate-limit.ts`, `email.ts`, `otp.ts`, `fingerprint.ts`).
+
+### Why
+ADR-1005 Sprint 5.1 (Terminal B, 2026-04-22) shipped the AUTHENTICATED `/v1/rights/requests` surface with 17 integration tests. Sprint 3.3 closes the companion PUBLIC-side flow — the Turnstile-gated / OTP-verified rights portal that's the primary DPDP §13 surface for data principals. Covering the `rpc_rights_request_verify_otp` state machine (including the `too_many_attempts` lockout and the cross-org isolation proof) is the load-bearing piece; with the RPCs under test the route handler becomes a thin-wrapper concern.
+
 ## [ADR-1014 Sprint 3.1 — signup-intake RPC contract test (closes ADR-0058 Sprint 1.5 deferred item)] — 2026-04-22
 
 **ADR:** ADR-1014 — E2E test harness + vertical demo sites
