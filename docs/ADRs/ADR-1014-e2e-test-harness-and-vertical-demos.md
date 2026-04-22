@@ -316,12 +316,21 @@ Each sprint delivers 1–2 positive tests and their paired negatives. All tests 
 #### Sprint 3.2: Banner → Worker HMAC → buffer → delivery → R2
 
 **Deliverables:**
-- [ ] Positive: valid event → buffer row → delivered → R2 object hash matches input payload.
-- [ ] Negative pair: HMAC tampered (flip one byte of signature) → 403 + zero buffer row + zero R2 object.
-- [ ] Negative pair: origin mismatch → 403 + `origin_unverified` flagged.
-- [ ] Trace-ID assertion at every stage (Worker log, buffer `trace_id` column, R2 manifest).
+- [x] Positive: valid event → buffer row. Shipped in Sprint 1.3 as `tests/e2e/worker-consent-event.spec.ts` (HMAC path, 202 + 5-column row assertion + count delta). Reused here as the Sprint 3.2 positive.
+- [x] Negative pair: HMAC tampered → 403 + zero buffer row. Shipped in Sprint 1.3 as `tests/e2e/worker-consent-event-tampered.spec.ts` (flipped hex char in signature).
+- [x] Negative pair: origin mismatch → 403 + zero buffer row. Shipped 2026-04-22 as `tests/e2e/worker-consent-event-origin-mismatch.spec.ts` + `specs/worker-consent-event-origin-mismatch.md`. Two sub-tests: (a) foreign Origin header (unsigned, Origin not in `allowed_origins` → `rejectOrigin` 403 body contains "not in the allowed origins"), (b) no Origin header (unsigned + missing Origin → "Origin required for unsigned events" 403). Uses `ecommerce.properties[2]` (Sandbox probe, `allowed_origins = ['http://localhost:4001']`) for unambiguous "definitely foreign" Origin scoping. Typecheck clean; runtime-green skip-on-missing-WORKER_URL mirrors Sprint 1.3.
+- [ ] **Positive: delivered → R2 object hash matches input payload** — **blocked.** The `deliver-consent-events` Edge Function is referenced throughout `docs/architecture/consentshield-definitive-architecture.md` + older ADRs (ADR-0022/0023 in particular) but has not been implemented; `ls supabase/functions/` shows `process-consent-event` (DEPA artefact fan-out), `process-artefact-revocation`, `run-consent-probes`, et al., but no `deliver-consent-events`. A full delivery test needs that function built first (~1 sprint on its own).
+- [ ] **Trace-ID assertion at every stage** — **blocked.** `public.consent_events` has no `trace_id` column; `worker/src/events.ts` does not read `X-Trace-Id` from the request; no log aggregation captures the id on the Worker side. Needs: schema migration + Worker header propagation + a structured-log sink + R2 manifest field.
 
-**Status:** `[ ] planned`
+**Scope boundary — what Sprint 3.2 ships today:**
+The first-hop negatives (HMAC tampered + origin mismatch, paired with Sprint 1.3's positive) give complete coverage of the Worker's input-validation surface. The remaining two deliverables (R2 hash match + end-to-end trace id) are architecturally specified but depend on infrastructure that doesn't yet exist in this repo. Rather than block Sprint 3.2 forever on a broader build-out, we ship the complete first-hop pairing now and track delivery + trace as explicit open items here + on ADR-0022/0023's backlog.
+
+**Tested so far:**
+- [x] `bunx tsc --noEmit` on `tests/e2e/` — clean after origin-mismatch spec added.
+- [x] Test skips cleanly when `WORKER_URL` is absent (same pattern as Sprint 1.3 negatives).
+- [ ] Runtime green — pending next `bunx wrangler dev` session. No code blocker; just needs a manual run.
+
+**Status:** `[~] partial complete — origin-mismatch paired negative shipped. R2 delivery + end-to-end trace id remain blocked on missing infra (deliver-consent-events Edge Function + consent_events.trace_id column + Worker header propagation).`
 
 #### Sprint 3.3: Rights request end-to-end
 

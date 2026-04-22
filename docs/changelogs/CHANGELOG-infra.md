@@ -2,6 +2,28 @@
 
 Vercel, Cloudflare, Supabase config changes.
 
+## [ADR-1014 Sprint 3.2 partial — origin-mismatch paired negative] — 2026-04-22
+
+**ADR:** ADR-1014 — E2E test harness + vertical demo sites
+**Sprint:** Phase 3, Sprint 3.2 — Banner → Worker HMAC → buffer → delivery → R2
+
+### Added
+- `tests/e2e/worker-consent-event-origin-mismatch.spec.ts` — paired negative for the origin-only path, matching the Sprint 1.3 pattern.
+  - Sub-test A: unsigned envelope + `Origin: https://attacker.example.invalid` → 403 with body containing "not in the allowed origins" (matches `worker/src/origin.ts:rejectOrigin`); zero rows since `cutoffIso` on `ecommerce.properties[2]`.
+  - Sub-test B: unsigned envelope + no Origin/Referer header → 403 with body containing "Origin required" (matches `worker/src/events.ts` line 145); zero rows.
+- `tests/e2e/specs/worker-consent-event-origin-mismatch.md` — normative spec. §3 documents the property-isolation invariant (properties[0] positive / [1] HMAC-tampered / [2] origin-mismatch, all runnable in parallel without count-assertion collisions). §6 names the three independent observable surfaces per cell (HTTP response shape, origin-validation code path via body-string match, DB zero-row proof). §8 explicitly flags the two remaining Sprint 3.2 deliverables that are blocked on missing infra.
+
+### Tested
+- `bunx tsc --noEmit` on `tests/e2e/` — clean.
+- Test skips cleanly when `WORKER_URL` is absent (same pattern as Sprint 1.3 negatives). Runtime green pending next `bunx wrangler dev` session.
+
+### Deferred (Sprint 3.2 remaining)
+- **Positive: delivered → R2 object hash matches input payload** — blocked on missing `deliver-consent-events` Edge Function. Referenced throughout `docs/architecture/consentshield-definitive-architecture.md` + ADR-0022 / ADR-0023 but not implemented in `supabase/functions/`. Needs a dedicated build-out sprint before it can be tested end-to-end.
+- **Trace-ID assertion at every stage** — blocked on three missing pieces: (a) no `trace_id` column on `public.consent_events`, (b) no `X-Trace-Id` header propagation in `worker/src/events.ts`, (c) no structured log sink on the Worker side to capture the id. Needs schema migration + Worker changes + R2 manifest field.
+
+### Why
+Sprint 3.2's original spec mandated four deliverables; two (positive + HMAC-tampered negative) were already shipped under Sprint 1.3. Two more (origin-mismatch negative, R2 hash match) were outstanding. The origin-mismatch negative closes the Worker's first-hop input-validation surface end-to-end — combined with Sprint 1.3's HMAC tests, the Worker now has complete paired coverage of both authentication paths (HMAC-verified + origin-only). The remaining R2 delivery + trace-ID assertions depend on infrastructure that doesn't yet exist in this repo; blocking Sprint 3.2 on that build-out would starve the evidence-graded pipeline track for weeks. Shipping the first-hop pairing now, documenting the infra gap explicitly, keeps Phase 3 moving.
+
 ## [ADR-1014 Sprint 2.4 close-out — bootstrap purposes shape now matches Worker interface] — 2026-04-22
 
 **ADR:** ADR-1014 — E2E test harness + vertical demo sites
