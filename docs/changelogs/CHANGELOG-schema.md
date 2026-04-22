@@ -2,6 +2,35 @@
 
 Database migrations, RLS policies, roles.
 
+## [ADR-1017 Sprint 1.1 — admin.ops_readiness_flags] — 2026-04-22
+
+**ADR:** ADR-1017 — Admin ops-readiness alerts
+**Sprint:** 1.1 schema + RLS + RPCs + seed
+
+### Added
+- `20260804000012_admin_ops_readiness_flags.sql`:
+  - `admin.ops_readiness_flags` (id, title, description, source_adr, blocker_type, severity, status, owner, resolution_notes, resolved_by, resolved_at, created_at, updated_at). CHECK on blocker_type (legal/partner/infra/contract/hiring/other), severity (critical/high/medium/low), status (pending/in_progress/resolved/deferred). Indexes (status, severity) + (source_adr). RLS: `admin.is_admin()` gate (same pattern as `admin.feature_flags`).
+  - `admin.list_ops_readiness_flags()` returns-table RPC — ordered by (status, severity, created_at desc), joined with auth.users for `resolved_by_email`.
+  - `admin.set_ops_readiness_flag_status(p_flag_id, p_status, p_resolution_notes)` — requires `require_admin('support')`; platform_operator/platform_owner required for resolved/deferred transitions. Emits `admin.admin_audit_log` row.
+  - Seeded 6 rows for current backlog items: legal counsel (ADR-1004 S1.6), webhook partner (ADR-1005 Phase 1), PagerDuty (ADR-1005 S3.2), SLA docs (ADR-1005 S3.1), SE capacity (ADR-1005 S3.3), wrangler cutover (ADR-1010 Phase 4).
+
+### Tested
+- [x] Migration applied cleanly via `bunx supabase db push --linked`.
+- [x] Admin app `bunx tsc --noEmit` clean.
+- [x] Admin app `bun run build` — /readiness route builds.
+
+## [ADR-1004 Sprint 1.6 — pending-legal-review default] — 2026-04-22
+
+**ADR:** ADR-1004 — Statutory retention
+**Sprint:** 1.6 (defaults only — external counsel engagement pending)
+
+### Added
+- `20260804000011_regulatory_exemptions_pending_review.sql` — backfilled `legal_review_notes` with a `PENDING_LEGAL_REVIEW` marker on every row where `reviewed_at IS NULL`. Column comments clarify the contract: `reviewed_at IS NULL` is the authoritative "not yet reviewed" state; application surfaces must render a "pending legal review" badge. When counsel engages, ADR-1004 Sprint 1.6 close-out flips `reviewed_at` + `reviewer_name` + `reviewer_firm` + `legal_review_notes` per reviewed row.
+
+### Tested
+- [x] Migration applied cleanly; 8 platform-default rows carry the PENDING marker.
+- [x] ADR-1004 Sprint 1.6 body updated to document the defaults-shipped / awaiting-counsel state.
+
 ## [ADR-1016 — orphan-scope v1 RPCs] — 2026-04-22
 
 **ADR:** ADR-1016 — v1 API close-out for `read:audit`, `read:security`, `read:score`

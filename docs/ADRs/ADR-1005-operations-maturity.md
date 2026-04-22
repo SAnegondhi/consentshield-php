@@ -45,6 +45,24 @@ Deliver seven operational-maturity outcomes:
 
 ### Phase 1: Webhook reference implementation (G-011)
 
+**Scope clarification (2026-04-22).** Phase 1 as originally drafted conflated two independent concerns:
+
+1. **Software validation of the webhook protocol** — retry timing, overdue path, HMAC roundtrip, callback signature verification. This is software work and is NOT gated on any external GTM partner. It's covered by the existing `tests/integration/webhook-*.test.ts` suites + a mock-partner harness (below).
+2. **Marketing asset / BFSI procurement reference** — a named external customer (or internal sample backend) that has exercised the protocol in production-like conditions, with a published case study. This is commercial / GTM work and IS gated on partner engagement.
+
+Phase 1 sprints 1.1 / 1.2 as written conflate both. Amended: software validation happens now via an in-repo mock partner; the GTM case study stays scoped to Phase 1 but does not block any other phase of this ADR, and explicitly does not block Phase 2 (test_delete — the endpoint serves customer self-validation, which is independent of whether WE have a reference partner).
+
+**Software-validation deliverables (moved out of Phase 1 sprint gates):**
+- `tests/e2e/webhook-mock-partner.spec.ts` — an in-repo mock partner (Miniflare or a scratch Vercel project) that echoes the retry + overdue paths. Runs as part of the E2E evidence suite. Satisfies the "retry behaviour validated" / "overdue path validated" / "HMAC mismatch rejected" tests without needing an external counterparty.
+- Tracked under ADR-1014 / ADR-1015 E2E infrastructure (Terminal A's track); this ADR no longer re-scopes those tests under Phase 1.
+
+**Marketing-asset deliverables (what actually remains external):**
+- One named partner (external fintech or internal sample backend) that has exercised ≥ 100 real deletion instructions.
+- Anonymised case study at `docs/case-studies/webhook-reference-2026-Q2.md`.
+
+Phase 1 sprints below are the MARKETING-asset scope. When a partner lands, this ADR adds their evidence + closes. Until then, Phase 1 stays `[~] awaiting partner` — non-blocking for any other phase of this ADR or any downstream ADR.
+
+
 #### Sprint 1.1: Partner engagement + protocol walkthrough
 
 **Estimated effort:** 1 week elapsed (mostly external)
@@ -80,6 +98,9 @@ Deliver seven operational-maturity outcomes:
 **Status:** `[ ] planned`
 
 ### Phase 2: `test_delete` endpoint (G-035)
+
+**No longer gated on Phase 1** (per 2026-04-22 scope clarification). `test_delete` lets the customer's own webhook handler validate itself; the customer is the counterparty, not a ConsentShield-engaged partner. Can ship independently.
+
 
 #### Sprint 2.1: Public test endpoint
 

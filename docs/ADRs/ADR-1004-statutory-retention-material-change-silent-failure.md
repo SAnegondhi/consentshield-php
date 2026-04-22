@@ -154,16 +154,22 @@ Compliance Health widget (**G-034**) surfaces all four (coverage, orphan, overdu
 
 **Estimated effort:** 2 days engineering (post-review)
 
-**Deliverables:**
-- [ ] Reviewer notes populated in `legal_review_notes` per row for every reviewed statute
+**Default state shipped 2026-04-22** (migration `20260804000011_regulatory_exemptions_pending_review.sql`):
+Every BFSI + Healthcare seed row ships with `reviewed_at IS NULL` and a backfilled `legal_review_notes` value beginning with the literal token `PENDING_LEGAL_REVIEW`. That is the authoritative "not yet reviewed" state. The Sprint 1.5 dashboard + any future `GET /api/orgs/[orgId]/regulatory-exemptions` surface MUST render a "Pending legal review" badge whenever `reviewed_at IS NULL`. Customer-facing audit export includes the same badge inline against each retained-category line.
+
+When counsel is eventually engaged, this sprint's deliverables flip the affected rows to reviewed state:
+
+**Deliverables (execute when counsel lands):**
+- [ ] Reviewer notes populated in `legal_review_notes` per row for every reviewed statute (replaces the PENDING_LEGAL_REVIEW marker)
 - [ ] `reviewed_at` + `reviewer_name` + `reviewer_firm` populated
 - [ ] Reviewer's letter saved at `docs/legal/regulatory-review-2026-QX.pdf` (covered by NDA — summary-only in repo, full letter in secure storage)
 - [ ] Re-review process documented at `docs/runbooks/regulatory-exemptions-re-review.md` (annual default, or on amendment-notification trigger)
 
-**Testing plan:**
+**Testing plan (executed at close-out):**
 - [ ] Every BFSI + Healthcare seed row has non-null `reviewed_at` and `reviewer_firm`
+- [ ] `GET /api/orgs/[orgId]/regulatory-exemptions` no longer reports `legal_review_status='pending'` on any platform default
 
-**Status:** `[ ] planned`
+**Status:** `[~] defaults shipped — awaiting external counsel engagement`. Current state: 8 platform-default rows (5 BFSI + 3 Healthcare) carry the `PENDING_LEGAL_REVIEW` marker and `reviewed_at=null`. No code gates on this column; the pending-review state is advisory only. Sprint cannot close until the external counsel step lands.
 
 ### Phase 2: Notice versioning + re-consent (G-012)
 

@@ -46,6 +46,7 @@ const NAV_ITEMS: NavItem[] = [
   { label: 'Disputes', href: '/billing/disputes', adr: 'ADR-0050', live: true },
   { label: 'Abuse & Security', href: '/security', adr: 'ADR-0033', live: true },
   { label: 'Feature Flags & Kill Switches', href: '/flags', adr: 'ADR-0036', live: true },
+  { label: 'Ops Readiness', href: '/readiness', adr: 'ADR-1017', live: true },
   { label: 'Admin Users', href: '/admins', adr: 'ADR-0045', live: true },
   { label: 'Audit Log', href: '/audit-log', adr: 'ADR-0028', live: true },
 ]

@@ -2,6 +2,21 @@
 
 Next.js UI changes.
 
+## [ADR-1017 Sprint 1.2 — Ops Readiness admin panel] — 2026-04-22
+
+**ADR:** ADR-1017 — Admin ops-readiness alerts
+**Sprint:** 1.2 admin UI
+
+### Added
+- `admin/src/app/(operator)/readiness/page.tsx` — server component reading `admin.list_ops_readiness_flags()`. Header chip shows "N open" + "N high/critical". Reads `app_metadata.admin_role` and passes to the list for write-gating.
+- `admin/src/app/(operator)/readiness/actions.ts` — `setFlagStatusAction({ flagId, status, resolutionNotes? })` wrapping the RPC. `revalidatePath('/readiness')` on success.
+- `admin/src/components/readiness/readiness-list.tsx` — client component with per-flag cards, severity + status chips, action buttons (Mark in progress / Resolve / Defer / Reopen). Actions visible only for `platform_operator` or `platform_operator` roles; others see a read-only notice.
+- `admin/src/app/(operator)/layout.tsx` — new sidebar entry "Ops Readiness" → `/readiness` under ADR-1017.
+
+### Tested
+- [x] `bunx tsc --noEmit` clean on admin workspace.
+- [x] `bun run build` — /readiness route builds into the admin app output.
+
 ## [ADR-0058 Sprint 1.5 close-out — resend-link form on /onboarding] — 2026-04-21
 
 **ADR:** ADR-0058 — Split-flow customer onboarding (Sprint 1.5 deferred item closed)
