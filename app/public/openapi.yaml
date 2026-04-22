@@ -402,6 +402,83 @@ components:
         next_cursor:
           type: [string, "null"]
 
+    AuditLogItem:
+      type: object
+      required: [id, event_type, created_at]
+      properties:
+        id:          { type: string, format: uuid }
+        actor_id:    { type: [string, "null"], format: uuid }
+        actor_email: { type: [string, "null"], format: email }
+        event_type:  { type: string, example: "banner_published" }
+        entity_type: { type: [string, "null"], example: "banner" }
+        entity_id:   { type: [string, "null"], format: uuid }
+        payload:
+          description: Event-specific jsonb payload. Shape varies by event_type.
+        created_at:  { type: string, format: date-time }
+      description: >
+        ip_address is deliberately excluded from this envelope — it is PII
+        and not emitted to the /v1/audit surface. Correlate via actor_email
+        if per-person attribution is needed.
+
+    AuditLogListResponse:
+      type: object
+      required: [items, next_cursor]
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/AuditLogItem"
+        next_cursor:
+          type: [string, "null"]
+
+    SecurityScanItem:
+      type: object
+      required: [id, property_id, scan_type, severity, signal_key, scanned_at, created_at]
+      properties:
+        id:          { type: string, format: uuid }
+        property_id: { type: string, format: uuid }
+        scan_type:   { type: string, example: "header_audit" }
+        severity:    { type: string, enum: [critical, high, medium, low, info] }
+        signal_key:  { type: string, example: "missing_csp" }
+        details:
+          description: Event-specific jsonb details (test output / offending values).
+        remediation: { type: [string, "null"] }
+        scanned_at:  { type: string, format: date-time }
+        created_at:  { type: string, format: date-time }
+
+    SecurityScanListResponse:
+      type: object
+      required: [items, next_cursor]
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/SecurityScanItem"
+        next_cursor:
+          type: [string, "null"]
+
+    DepaScoreResponse:
+      type: object
+      required: [max_score]
+      properties:
+        total_score:
+          type: [number, "null"]
+          minimum: 0
+          maximum: 20
+          description: Sum of the four dimension scores. Null until nightly cron has run for this org.
+        coverage_score:    { type: [number, "null"], minimum: 0, maximum: 5 }
+        expiry_score:      { type: [number, "null"], minimum: 0, maximum: 5 }
+        freshness_score:   { type: [number, "null"], minimum: 0, maximum: 5 }
+        revocation_score:  { type: [number, "null"], minimum: 0, maximum: 5 }
+        computed_at:
+          type: [string, "null"]
+          format: date-time
+          description: When the metrics were last refreshed. Dashboard warns if >25h old.
+        max_score:
+          type: integer
+          example: 20
+          description: Fixed upper bound (4 dimensions × 5 points). Divide total_score by this for a 0..1 ratio.
+
     RightsRequestCreateRequest:
       type: object
       required: [type, requestor_name, requestor_email, identity_verified_by]
@@ -1843,5 +1920,220 @@ paths:
             application/problem+json:
               schema:
                 $ref: "#/components/schemas/Problem"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
+
+  /audit:
+    get:
+      operationId: auditList
+      summary: List recent audit_log events for the caller's org
+      description: >
+        Keyset-paginated view of `public.audit_log`. **The table is a
+        transient buffer** — rows are delivered to the customer's R2/S3
+        and deleted within ~5 minutes. This endpoint therefore serves
+        only the undelivered + recently-delivered window (useful for
+        real-time ops dashboards and SIEM polling). The canonical
+        historical audit lives in the customer's own storage.
+
+        `ip_address` is deliberately excluded from the response envelope
+        (PII). Correlate via `actor_email` if per-person attribution is
+        needed.
+
+        Requires an org-scoped API key; account-scoped keys get 400.
+      tags: [Audit]
+      security:
+        - bearerAuth: [read:audit]
+      parameters:
+        - in: query
+          name: event_type
+          schema: { type: string }
+          description: Filter by exact event_type (e.g. `banner_published`, `purpose_created`).
+        - in: query
+          name: entity_type
+          schema: { type: string }
+          description: Filter by exact entity_type (e.g. `banner`, `purpose`, `property`).
+        - in: query
+          name: created_after
+          schema: { type: string, format: date-time }
+        - in: query
+          name: created_before
+          schema: { type: string, format: date-time }
+        - in: query
+          name: cursor
+          schema: { type: string }
+        - in: query
+          name: limit
+          schema: { type: integer, minimum: 1, maximum: 200, default: 50 }
+      responses:
+        "200":
+          description: Paged audit list.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuditLogListResponse"
+              example:
+                items:
+                  - id: "5b8c9d0e-1f2a-3b4c-5d6e-7f8a9b0c1d2e"
+                    actor_id: null
+                    actor_email: "operator@acme.example.com"
+                    event_type: "banner_published"
+                    entity_type: "banner"
+                    entity_id: "3a4b8b21-5a11-4f37-9b7c-6f2e0d5c8b1a"
+                    payload: { version: 4 }
+                    created_at: "2026-04-22T09:10:00Z"
+                next_cursor: null
+        "400":
+          description: API key is account-scoped; this endpoint requires an org-scoped key.
+          content:
+            application/problem+json:
+              schema: { $ref: "#/components/schemas/Problem" }
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          description: Missing `read:audit` scope, or API key is not authorised for this organisation.
+          content:
+            application/problem+json:
+              schema: { $ref: "#/components/schemas/Problem" }
+        "410":
+          $ref: "#/components/responses/Gone"
+        "422":
+          description: Bad cursor, limit, or date.
+          content:
+            application/problem+json:
+              schema: { $ref: "#/components/schemas/Problem" }
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
+
+  /security/scans:
+    get:
+      operationId: securityScansList
+      summary: List recent security-posture scan findings
+      description: >
+        Keyset-paginated view of `public.security_scans`. **The table is a
+        transient buffer** — rows are delivered to the customer's R2/S3
+        and deleted within ~5 minutes. This endpoint serves only the
+        recent window. Populated nightly by the `run-security-scans`
+        Edge Function (ADR-0015); one row per finding per property, plus
+        an `all_clean` row with `severity=info` for trend tracking.
+
+        Requires an org-scoped API key; account-scoped keys get 400.
+      tags: [Security]
+      security:
+        - bearerAuth: [read:security]
+      parameters:
+        - in: query
+          name: property_id
+          schema: { type: string, format: uuid }
+        - in: query
+          name: severity
+          schema: { type: string, enum: [critical, high, medium, low, info] }
+        - in: query
+          name: signal_key
+          schema: { type: string }
+          description: e.g. `missing_csp`, `missing_hsts`, `tls_invalid`, `all_clean`.
+        - in: query
+          name: scanned_after
+          schema: { type: string, format: date-time }
+        - in: query
+          name: scanned_before
+          schema: { type: string, format: date-time }
+        - in: query
+          name: cursor
+          schema: { type: string }
+        - in: query
+          name: limit
+          schema: { type: integer, minimum: 1, maximum: 200, default: 50 }
+      responses:
+        "200":
+          description: Paged security-scan list.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SecurityScanListResponse"
+              example:
+                items:
+                  - id: "7d8e9f0a-1b2c-3d4e-5f6a-7b8c9d0e1f2a"
+                    property_id: "3a4b8b21-5a11-4f37-9b7c-6f2e0d5c8b1a"
+                    scan_type: "header_audit"
+                    severity: "medium"
+                    signal_key: "missing_csp"
+                    details:
+                      url: "https://acme.example.com"
+                      observed_headers: ["strict-transport-security"]
+                    remediation: "Add a Content-Security-Policy header. Start with `default-src 'self'` and tighten per your tag inventory."
+                    scanned_at: "2026-04-22T02:00:12Z"
+                    created_at: "2026-04-22T02:00:12Z"
+                next_cursor: null
+        "400":
+          description: API key is account-scoped; this endpoint requires an org-scoped key.
+          content:
+            application/problem+json:
+              schema: { $ref: "#/components/schemas/Problem" }
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          description: Missing `read:security` scope, or API key is not authorised for this organisation.
+          content:
+            application/problem+json:
+              schema: { $ref: "#/components/schemas/Problem" }
+        "410":
+          $ref: "#/components/responses/Gone"
+        "422":
+          description: Bad cursor, limit, date, or severity.
+          content:
+            application/problem+json:
+              schema: { $ref: "#/components/schemas/Problem" }
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
+
+  /score:
+    get:
+      operationId: scoreSelf
+      summary: Current DEPA compliance score for the caller's org
+      description: >
+        Reads the cached DEPA score from `public.depa_compliance_metrics`
+        (ADR-0025). Refreshed nightly by pg_cron; `computed_at` shows
+        freshness. All four dimension scores are on a 0..5 scale;
+        `total_score` = sum on a 0..20 scale. `max_score` is a fixed
+        constant (20) to make ratio arithmetic easy.
+
+        If the nightly refresh has not yet run for this org, every score
+        field is `null`, `computed_at` is `null`, and `max_score` is
+        still `20`. Clients should treat a null `total_score` as "no
+        data yet" rather than 0.
+
+        Requires an org-scoped API key; account-scoped keys get 400.
+      tags: [Score]
+      security:
+        - bearerAuth: [read:score]
+      responses:
+        "200":
+          description: Current score envelope.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DepaScoreResponse"
+              example:
+                total_score: 16.5
+                coverage_score: 5.0
+                expiry_score: 4.0
+                freshness_score: 4.5
+                revocation_score: 3.0
+                computed_at: "2026-04-22T19:30:04Z"
+                max_score: 20
+        "400":
+          description: API key is account-scoped; this endpoint requires an org-scoped key.
+          content:
+            application/problem+json:
+              schema: { $ref: "#/components/schemas/Problem" }
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          description: Missing `read:score` scope, or API key is not authorised for this organisation.
+          content:
+            application/problem+json:
+              schema: { $ref: "#/components/schemas/Problem" }
+        "410":
+          $ref: "#/components/responses/Gone"
         "429":
           $ref: "#/components/responses/TooManyRequests"

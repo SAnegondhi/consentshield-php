@@ -2,6 +2,21 @@
 
 API route changes.
 
+## [ADR-1016 — 3 orphan-scope v1 GET endpoints] — 2026-04-22
+
+**ADR:** ADR-1016 — v1 API close-out for `read:audit`, `read:security`, `read:score`
+
+### Added
+- `GET /v1/audit` (`read:audit`, org-scoped) — `app/src/app/api/v1/audit/route.ts` + `app/src/lib/api/audit.ts`. Keyset-paginated audit_log. Filters: `event_type`, `entity_type`, `created_after`, `created_before`, `cursor`, `limit` (1..200 default 50). Error mapping: `api_key_binding` → 403; `bad_cursor` → 422.
+- `GET /v1/security/scans` (`read:security`, org-scoped) — `app/src/app/api/v1/security/scans/route.ts` + `app/src/lib/api/security.ts`. Keyset-paginated security_scans. Filters: `property_id`, `severity` (critical/high/medium/low/info), `signal_key`, `scanned_after`, `scanned_before`, `cursor`, `limit`.
+- `GET /v1/score` (`read:score`, org-scoped) — `app/src/app/api/v1/score/route.ts` + `app/src/lib/api/score.ts`. Single-row DEPA compliance envelope with fixed `max_score: 20`. Returns null-envelope for orgs whose nightly refresh cron has not run.
+- `app/public/openapi.yaml` — 3 new paths + 5 new schemas (AuditLogItem / AuditLogListResponse / SecurityScanItem / SecurityScanListResponse / DepaScoreResponse) all with examples. Each path description documents the buffer-lifecycle caveat ("serves recent window only; canonical audit lives in customer storage") for `/v1/audit` and `/v1/security/scans`.
+
+### Tested
+- [x] 21 new integration tests across 3 files (9 audit + 9 security + 3 score) all PASS.
+- [x] `bunx @redocly/cli lint app/public/openapi.yaml` — 0 errors.
+- [x] Full integration suite — 189/189 PASS.
+
 ## [ADR-1005 Sprint 5.1 — v1 Rights API (POST + GET /v1/rights/requests)] — 2026-04-22
 
 **ADR:** ADR-1005 — Operations maturity

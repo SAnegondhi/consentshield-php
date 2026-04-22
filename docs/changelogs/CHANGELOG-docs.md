@@ -2,6 +2,19 @@
 
 Documentation changes.
 
+## [ADR-1016 — orphan-scope close-out doc sync] — 2026-04-22
+
+**ADR:** ADR-1016 — v1 API close-out for `read:audit`, `read:security`, `read:score`
+
+### Changed
+- `docs/ADRs/ADR-1016-v1-orphan-scope-read-endpoints.md` — top-line status flipped to **Completed**. Every Sprint 1.1 / 1.2 / 1.3 deliverable + test-plan checkbox ticked. Test Results section populated.
+- `docs/ADRs/ADR-index.md` — new row for ADR-1016 **Completed**.
+- `CLAUDE.md` Rule 5 — RPC count bumped 19 → 22 (ADR-1009: 12 → ADR-1012: +5 → ADR-1005: +2 → ADR-1016: +3).
+- `docs/architecture/consentshield-definitive-architecture.md` §5.4 — cs_api leak-surface paragraph: 19 → 22 with the per-ADR breakdown.
+
+### Tested
+- n/a (doc-only). Counts cross-referenced against the grant migrations (`20260801000006–08`, `20260802000007`, `20260803000003–04`, `20260804000003`, `20260804000010`).
+
 ## [ADR-1005 Sprint 5.1 — Rights API doc sync] — 2026-04-22
 
 **ADR:** ADR-1005 — Operations maturity

@@ -2,6 +2,25 @@
 
 Database migrations, RLS policies, roles.
 
+## [ADR-1016 — orphan-scope v1 RPCs] — 2026-04-22
+
+**ADR:** ADR-1016 — v1 API close-out for `read:audit`, `read:security`, `read:score`
+**Sprint:** Sprints 1.1 / 1.2 / 1.3 (shipped together)
+
+### Added
+- `20260804000009_v1_orphan_scope_rpcs.sql` — 3 new SECURITY DEFINER RPCs, each fenced by `assert_api_key_binding`:
+  - `rpc_audit_log_list(p_key_id, p_org_id, p_event_type, p_entity_type, p_created_after, p_created_before, p_cursor, p_limit)` — keyset-paginated audit_log for the caller's org. Response envelope `{items, next_cursor}`. `ip_address` deliberately excluded (PII).
+  - `rpc_security_scans_list(p_key_id, p_org_id, p_property_id, p_severity, p_signal_key, p_scanned_after, p_scanned_before, p_cursor, p_limit)` — keyset-paginated security_scans. Severity CHECK fires `invalid_severity`. Returns `items, next_cursor`.
+  - `rpc_depa_score_self(p_key_id, p_org_id)` — single-row read of `depa_compliance_metrics` + fixed `max_score: 20`. Returns null-envelope when no metrics row exists.
+- `20260804000010_cs_api_orphan_scope_grants.sql` — GRANT EXECUTE on all 3 to `cs_api`; REVOKE from anon / authenticated. cs_api EXECUTE surface 19 → 22 RPCs (ADR-1009: 12 → ADR-1012: +5 → ADR-1005: +2 → ADR-1016: +3).
+
+### Tested
+- [x] `bunx supabase db push --linked` — both migrations applied cleanly.
+- [x] `tests/integration/audit-api.test.ts` — 9/9 PASS.
+- [x] `tests/integration/security-scans-api.test.ts` — 9/9 PASS.
+- [x] `tests/integration/score-api.test.ts` — 3/3 PASS.
+- [x] Full integration suite — 189/189 PASS (was 168).
+
 ## [ADR-1010 Phase 2 Sprint 2.1 — cs_worker BYPASSRLS + full activation] — 2026-04-22
 
 **ADR:** ADR-1010 — Cloudflare Worker scoped-role migration
