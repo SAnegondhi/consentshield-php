@@ -1,0 +1,119 @@
+# ADR-1018: Self-hosted status page on admin + public surfaces
+
+**Status:** In Progress
+**Date proposed:** 2026-04-22
+**Date completed:** —
+**Supersedes (in part):** ADR-1005 Phase 4 Sprint 4.1/4.2 (StatusPage.io provisioning)
+**Related:** ADR-1017 (admin ops-readiness surface)
+
+---
+
+## Context
+
+ADR-1005 Phase 4 scoped a hosted `status.consentshield.in` via StatusPage.io (fallback: Cachet self-hosted on Vercel). BFSI procurement expects a real public status page. StatusPage.io is ~$29/mo for the entry-level plan and carries a third-party cookie + privacy-policy footprint; Cachet needs its own deployment.
+
+Since we already own the admin app and the customer app, and we have the DB + cron infrastructure to probe subsystems, there is no meaningful reason to introduce a third hosting target or a SaaS vendor. Self-hosting keeps the data inside the compliance perimeter, aligns the brand styling with the rest of the product, and removes a monthly spend + vendor dependency.
+
+The admin surface owns management (operators post incidents, adjust subsystems, see probe history). A thin public read-only view at `status.consentshield.in` renders the latest-known state of each subsystem + the last 90 days of resolved incidents. Automated probes run on pg_cron; operator-posted incidents overlay the automated state.
+
+## Decision
+
+1. **Schema in `public`** (not `admin`) so the read path is unauthenticated — `status_subsystems`, `status_checks`, `status_incidents`. RLS opens SELECT to `anon`; INSERT / UPDATE restricted to admin roles via SECURITY DEFINER RPCs.
+2. **Admin panel** at `/admin/(operator)/status` — list + edit subsystems, view recent `status_checks`, post + resolve incidents.
+3. **Public page** at `/status` on the customer app (later DNS cutover to `status.consentshield.in`) — static-like render of subsystem cards (current state + 90-day uptime) + open-incidents banner.
+4. **Automated probes** via pg_cron → Edge Function `run-status-probes` hitting each subsystem's health endpoint every 5 minutes. Results UPSERTed into `status_checks`. Non-200 / timeout transitions a subsystem's state from `operational` → `degraded` or `down`.
+
+Design-wise the public page is deliberately plain — static-feeling, accessible, no cookies, no analytics. Operators see everything through the admin panel.
+
+## Consequences
+
+- Zero new SaaS spend. Zero external vendor for the status surface.
+- All status data stays inside ConsentShield's compliance perimeter — useful when the status page itself would need to reflect privacy-sensitive subsystem names.
+- Trade-off: ConsentShield itself hosts its own uptime surface. If the customer-app deployment goes down, the public status page goes with it. Mitigation: probes run from a different region than the app; future enhancement moves `status.consentshield.in` to a dedicated ultra-minimal Vercel project with its own Supabase read replica.
+
+---
+
+## Implementation Plan
+
+### Sprint 1.1 — Schema + seed + admin RPCs (~1.5h) — **complete 2026-04-22**
+
+**Deliverables:**
+- [x] Migration `20260804000013_status_page.sql`:
+  - `public.status_subsystems` (id, slug, display_name, description, health_url, current_state, last_state_change_at, last_state_change_note, sort_order, is_public, created_at, updated_at).
+  - `public.status_checks` (id, subsystem_id, checked_at, status, latency_ms, error_message, source_region).
+  - `public.status_incidents` (id, title, description, severity, status, `affected_subsystems uuid[]`, started_at, identified_at, monitoring_at, resolved_at, postmortem_url, created_by, last_update_note, created_at, updated_at).
+  - CHECKs: `current_state` in ('operational','degraded','down','maintenance'); incident `severity` in ('sev1','sev2','sev3'); incident `status` in ('investigating','identified','monitoring','resolved'); per-check status adds 'error'.
+  - RLS: SELECT open to `anon` + `authenticated` (public page needs anon read); writes only via admin RPCs. `cs_orchestrator` has insert/update for probe-cron to land (Sprint 1.4).
+  - Indexes: recent-check lookup (subsystem_id, checked_at desc); open-incidents (status, started_at desc) WHERE status <> 'resolved'; all-incidents (started_at desc).
+- [x] Seeded 6 subsystems — banner_cdn, consent_capture_api, verification_api, deletion_orchestration, dashboard, notification_channels; all operational; health_url populated where known.
+- [x] 4 admin RPCs all SECURITY DEFINER + audit-logged via `admin.admin_audit_log`: `set_status_subsystem_state`, `post_status_incident`, `update_status_incident`, `resolve_status_incident`. Gated by `admin.require_admin('support')`.
+
+### Sprint 1.2 — Admin panel (~1.5h) — **complete 2026-04-22**
+
+**Deliverables:**
+- [x] `admin/src/app/(operator)/status/page.tsx` — server component; reads subsystems + last-50 incidents; passes `adminRole` for write-gating.
+- [x] `admin/src/app/(operator)/status/actions.ts` — 4 server actions wrapping the 4 RPCs; `revalidatePath('/status')` on success.
+- [x] `admin/src/components/status/status-panel.tsx` — subsystem cards with per-state chips + per-subsystem inline state-flip buttons; open-incidents section with **Post incident** modal (title / description / severity / affected subsystems); incident cards with progress + resolve + postmortem-URL input; recent-history collapsible for resolved incidents.
+- [x] Sidebar entry "Status Page" → `/status`.
+
+### Sprint 1.3 — Public read-only page (~1.5h) — **complete 2026-04-22**
+
+**Deliverables:**
+- [x] `app/src/app/(public)/status/page.tsx` — server component reading via anon supabase-js. Renders:
+  - Overall banner with 4-tone mapping (green / amber / red / blue) + aria-live.
+  - Subsystem list (state dot + state label + description).
+  - Open-incidents section with severity + status badges + latest-update note.
+  - Collapsible 90-day resolved-incidents history + postmortem links.
+  - Minimal brand footer; no cookies, no analytics.
+- [x] `export const revalidate = 60` — 60s edge cache.
+- [x] Public-route behaviour: `/status` is not in `proxy.ts` matcher, so the proxy auth gate doesn't fire. Ships without further proxy changes.
+- [ ] `/status` layout override stripping dashboard chrome — currently inherits `(public)/layout.tsx`. Acceptable for v1; can split further if design wants a dedicated chrome.
+
+### Sprint 1.4 — Probe cron + Edge Function (~2h) — **deferred**
+
+Probe-cron wiring is a separate ship. Until it lands, `current_state` is operator-maintained via the admin panel (manual flips on observed degradation). Already usable for real incident comms.
+
+### Sprint 1.4 — Probe cron + Edge Function (~2h)
+
+**Deliverables:**
+- [ ] `supabase/functions/run-status-probes/index.ts` — iterates subsystems, hits each health URL (defined in subsystem row), records `status_checks`, updates `current_state` if 3 consecutive failures flip operational → degraded → down.
+- [ ] pg_cron entry `status-probes-5min` scheduled `*/5 * * * *`.
+- [ ] Health-URL mapping (documented in seed + runbook):
+  - `banner_cdn` → `https://<worker-url>/v1/health` (already ADR-0002)
+  - `consent_capture_api` → Worker `/v1/health` (same — Worker is the capture surface)
+  - `verification_api` → `https://app.consentshield.in/api/v1/_ping` (authenticated: use a dedicated probe key)
+  - `deletion_orchestration` → Edge Function health endpoint (new — `supabase/functions/_health`)
+  - `dashboard` → `https://app.consentshield.in` HEAD 200
+  - `notification_channels` → TBD when Sprint 6.1 adapter ships
+- [ ] Cron alerting: if probes fail to run for 30 min, `admin.ops_readiness_flags` gets a row auto-inserted (prevents silent probe failure).
+
+### Sprint 1.5 — DNS cutover (~15min, operator step)
+
+**Deliverables:**
+- [ ] Add CNAME `status.consentshield.in` → `cname.vercel-dns.com`.
+- [ ] Add `status.consentshield.in` as an alias on the `app` Vercel project → routes to `/status` via `vercel.json` rewrite or Next.js host-based routing.
+- [ ] Verify TLS issuance (Vercel automatic).
+- [ ] Link in marketing footer + admin UI.
+
+---
+
+## Architecture Changes
+
+- `docs/architecture/consentshield-definitive-architecture.md` — new subsection under Surface 5 (Operator Console) describing the status-page schema + admin vs public split.
+- `docs/architecture/consentshield-complete-schema-design.md` — add the three `status_*` tables with column descriptions.
+
+---
+
+## Test Results
+
+_Populated per sprint._
+
+---
+
+## Changelog References
+
+- `CHANGELOG-schema.md` — Sprint 1.1 schema + seed + admin RPCs
+- `CHANGELOG-dashboard.md` — Sprint 1.2 admin panel + Sprint 1.3 public page
+- `CHANGELOG-edge-functions.md` — Sprint 1.4 run-status-probes
+- `CHANGELOG-infra.md` — Sprint 1.5 DNS + Vercel alias
+- `CHANGELOG-docs.md` — ADR + runbook

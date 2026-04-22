@@ -2,6 +2,26 @@
 
 Database migrations, RLS policies, roles.
 
+## [ADR-1018 Sprint 1.1 — self-hosted status page schema + admin RPCs] — 2026-04-22
+
+**ADR:** ADR-1018 — Self-hosted status page (supersedes ADR-1005 Phase 4)
+**Sprint:** 1.1 schema + RPCs + seed
+
+### Added
+- `20260804000013_status_page.sql`:
+  - `public.status_subsystems` (12 cols incl. health_url, current_state, is_public, sort_order). CHECK on state enum.
+  - `public.status_checks` — probe-result timeseries. CHECK adds 'error' to state enum.
+  - `public.status_incidents` — 15 cols incl. `affected_subsystems uuid[]`, lifecycle timestamps, postmortem_url, created_by. CHECK on severity + status enums.
+  - Indexes: recent-check per-subsystem, open-incidents partial, all-incidents sorted.
+  - RLS: anon + authenticated SELECT (public status page reads via anon); writes closed to all roles except via admin RPCs. cs_orchestrator granted insert/update for the Sprint 1.4 probe cron.
+  - Seeded 6 subsystems: banner_cdn, consent_capture_api, verification_api, deletion_orchestration, dashboard, notification_channels. All start operational.
+  - 4 admin RPCs (audit-logged): `set_status_subsystem_state(slug, state, note)`, `post_status_incident(title, description, severity, affected, initial_status)`, `update_status_incident(id, new_status, note)`, `resolve_status_incident(id, postmortem_url, note)`. Gated by `admin.require_admin('support')`.
+
+### Tested
+- [x] Migration applied cleanly; 6 subsystem rows present post-push.
+- [x] Admin + app builds clean.
+- [x] Full integration suite 189/189 PASS (no regression).
+
 ## [ADR-1017 Sprint 1.1 — admin.ops_readiness_flags] — 2026-04-22
 
 **ADR:** ADR-1017 — Admin ops-readiness alerts

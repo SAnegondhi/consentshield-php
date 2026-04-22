@@ -2,6 +2,23 @@
 
 Next.js UI changes.
 
+## [ADR-1018 Sprints 1.2 + 1.3 — status page admin + public] — 2026-04-22
+
+**ADR:** ADR-1018 — Self-hosted status page
+**Sprints:** 1.2 admin panel · 1.3 public read-only page
+
+### Added
+- `admin/src/app/(operator)/status/page.tsx` — server component listing subsystems + open + resolved incidents; passes `adminRole` for write-gating.
+- `admin/src/app/(operator)/status/actions.ts` — 4 server actions wrapping the admin status RPCs.
+- `admin/src/components/status/status-panel.tsx` — subsystem cards with inline state-flip buttons; "Post incident" modal (title / description / severity / affected subsystems); incident cards with progress + resolve + postmortem-URL input; resolved-incidents collapsible.
+- `admin/src/app/(operator)/layout.tsx` — new sidebar entry "Status Page" → `/status`.
+- `app/src/app/(public)/status/page.tsx` — unauthenticated public read-only status page. 60s edge cache. Renders overall banner (green/amber/red/blue with aria-live), per-subsystem state dots + labels, open-incidents section, 90-day resolved-incidents collapsible. No cookies, no analytics.
+
+### Tested
+- [x] `bunx tsc --noEmit` clean on both admin + app workspaces.
+- [x] Both `bun run build` commands succeed.
+- [x] `/status` route is not in `app/src/proxy.ts` matcher → no auth gate. Reads Supabase via anon key with anon-SELECT RLS policies.
+
 ## [ADR-1017 Sprint 1.2 — Ops Readiness admin panel] — 2026-04-22
 
 **ADR:** ADR-1017 — Admin ops-readiness alerts
