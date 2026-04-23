@@ -259,35 +259,44 @@ Phase 1 sprints below are the MARKETING-asset scope. When a partner lands, this 
 
 **Status:** `[x] complete` — 2026-04-22. 20/20 unit tests PASS. Zero runtime dependencies (no new npm packages). Phase 6 Sprints 6.2 (Slack/Teams/Discord) + 6.3 (PagerDuty/custom webhook) + 6.4 (dashboard UI) remain.
 
-#### Sprint 6.2: Slack + Teams + Discord adapters
-
-**Estimated effort:** 2 days
+#### Sprint 6.2: Slack + Teams + Discord adapters — **complete 2026-04-23**
 
 **Deliverables:**
-- [ ] Slack adapter (incoming webhook format)
-- [ ] Microsoft Teams adapter (Adaptive Card format)
-- [ ] Discord adapter (webhook format)
-- [ ] Config schema for each in `notification_channels.config` jsonb
+- [x] `app/src/lib/notifications/adapters/http.ts` — shared `postJson` helper with timeout / abort + outcome envelope; `isRetryableStatus` default mapping (5xx + 429).
+- [x] `app/src/lib/notifications/adapters/slack.ts` — Slack Incoming Webhook adapter. Validates `webhook_url` is `https://hooks.slack.com/...`. Renders Block Kit (header + section + context + severity-coloured attachment). Network → retryable; 5xx/429 → retryable; 4xx → non-retryable.
+- [x] `app/src/lib/notifications/adapters/teams.ts` — Microsoft Teams adapter targeting the post-classic Workflows webhook (Power Automate). Validates host ends with `logic.azure.com` or `webhook.office.com`. Wraps Adaptive Card v1.5 in the Microsoft `message` envelope; severity → color enum (`good`/`warning`/`attention`).
+- [x] `app/src/lib/notifications/adapters/discord.ts` — Discord webhook adapter. Validates `discord.com` / `discordapp.com` host + `/api/webhooks/` path. Single embed per event with severity → 0xRRGGBB color + structured fields + ISO timestamp. 204 No Content → success; 401/404 → non-retryable.
+- [x] `app/src/lib/notifications/adapters/index.ts` — barrel that registers all five real adapters with the singleton registry on import.
 
 **Testing plan:**
-- [ ] Live delivery to a test Slack, Teams, and Discord workspace
+- [x] `app/tests/notifications/slack.test.ts` — 12 PASS: validateConfig (5 cases), buildSlackPayload (2 cases), deliver (5 cases — 200 / 500 / 429 / 404 / network).
+- [x] `app/tests/notifications/teams.test.ts` — 10 PASS: validateConfig (5 cases), buildTeamsPayload (2 cases), deliver (3 cases).
+- [x] `app/tests/notifications/discord.test.ts` — 9 PASS: validateConfig (5 cases), buildDiscordPayload (1 case), deliver (3 cases).
+- [x] `app/tests/notifications/slack-live.test.ts` — **LIVE delivery to operator's workspace verified 2026-04-23.** Skip-on-missing-env (`SLACK_WEBHOOK_URL`); when set, posts a Block Kit smoke message and asserts `ok=true`. Visual verification confirmed in `#consentshield-alerts`.
 
-**Status:** `[ ] planned`
+**Live tests deferred (per 2026-04-22 channel-account decision):**
+- Teams live test — operator is on Microsoft Teams Free (no Workflows / Power Automate); blocked on M365 Business Basic provisioning. Tracked via `admin.ops_readiness_flags`.
+- Discord live test — no workspace provisioned; not BFSI-GTM-critical. Tracked via `admin.ops_readiness_flags`.
 
-#### Sprint 6.3: PagerDuty + custom webhook adapters
+**Status:** `[x] complete`.
 
-**Estimated effort:** 2 days
+#### Sprint 6.3: PagerDuty + custom webhook adapters — **complete 2026-04-23**
 
 **Deliverables:**
-- [ ] PagerDuty adapter using Events API v2 (routing key, dedup key, severity)
-- [ ] Custom webhook adapter signs body with channel's shared secret; retry policy documented
-- [ ] Severity-to-channel mapping per §7 (critical → PagerDuty, daily → Slack, etc.)
+- [x] `app/src/lib/notifications/adapters/pagerduty.ts` — Events API v2 adapter. Validates `routing_key` is 32-char hex. POST to `https://events.pagerduty.com/v2/enqueue` with `event_action='trigger'` + `dedup_key` (from `event.idempotency_key` or synthesised `consentshield:<org>:<kind>`) + payload (summary / source / severity / component / class / custom_details). Captures returned `dedup_key` as `external_id` so subsequent acknowledge / resolve events can target the same incident. 202 → success; 429/5xx → retryable; 400/401/403 → non-retryable.
+- [x] `app/src/lib/notifications/adapters/custom-webhook.ts` — generic customer-hosted webhook adapter. Validates https URL + `signing_secret` ≥ 32 chars. POSTs canonical v1 envelope (`{version, kind, severity, subject, body, occurred_at, org_id, idempotency_key, context}`) signed with `X-ConsentShield-Signature` header (HMAC-SHA256 over `${occurred_at}.${body}` using the per-channel secret). 408/429/5xx retryable; other 4xx non-retryable.
+
+**Severity-to-channel mapping note (deferred to Sprint 6.4).** ADR-1005 §7 calls for explicit severity → channel routing (critical → PagerDuty, daily → Slack, etc.). The infrastructure is in place — `notification_channels.alert_types[]` already lets each channel opt into specific event kinds, and `dispatchEvent()` already filters on this. The UI for editing the mapping is Sprint 6.4. Until then, alert_types is curated via direct DB inserts.
 
 **Testing plan:**
-- [ ] Live PagerDuty incident triggered + acknowledged
-- [ ] Custom webhook signature verified end-to-end
+- [x] `app/tests/notifications/pagerduty.test.ts` — 11 PASS: validateConfig (4 cases — including 32-char hex enforcement), buildPagerDutyPayload (3 cases — idempotency_key fallback, severity mapping), deliver (4 cases — 202 with dedup_key extraction, 400 non-retryable, 429 retryable, 503 retryable).
+- [x] `app/tests/notifications/custom-webhook.test.ts` — 9 PASS: validateConfig (4 cases), buildCustomWebhookPayload (2 cases), deliver + HMAC (3 cases — captures sent headers + body and recomputes the HMAC client-side to assert byte-exact match; full 408/429/5xx vs 4xx retry classification matrix; network error retryable).
 
-**Status:** `[ ] planned`
+**Live tests deferred:**
+- PagerDuty live test — operator chose to substitute PagerDuty-for-own-ops with WhatsApp Business API (cheaper, already on phone). Tracked via `admin.ops_readiness_flags` row "Own-ops paging — WhatsApp Business Cloud API". The customer-facing PagerDuty *adapter* still ships (BFSI customers will provide their own PagerDuty integration keys).
+- Custom webhook live test — no real customer endpoint to point at yet. Will land naturally when the first BFSI integration goes live.
+
+**Status:** `[x] complete`.
 
 #### Sprint 6.4: Dashboard UI + test-send
 

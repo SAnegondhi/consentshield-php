@@ -2,6 +2,38 @@
 
 Next.js UI changes.
 
+## [ADR-1005 Phase 6 Sprints 6.2 + 6.3 — Slack/Teams/Discord/PagerDuty/custom_webhook adapters] — 2026-04-23
+
+**ADR:** ADR-1005 — Operations maturity (non-email notification channels)
+**Sprint:** Phase 6 Sprint 6.2 + Sprint 6.3
+
+### Added
+- `app/src/lib/notifications/adapters/http.ts` — shared `postJson` helper with timeout / abort + outcome envelope; `isRetryableStatus` default mapping (5xx + 429).
+- `app/src/lib/notifications/adapters/slack.ts` — Slack Incoming Webhook adapter; Block Kit (header + section + context) with severity-coloured attachment.
+- `app/src/lib/notifications/adapters/teams.ts` — Microsoft Teams Workflows webhook adapter; Adaptive Card v1.5 in `message` envelope; severity → color enum.
+- `app/src/lib/notifications/adapters/discord.ts` — Discord webhook adapter; single embed per event with severity color + structured fields + ISO timestamp.
+- `app/src/lib/notifications/adapters/pagerduty.ts` — PagerDuty Events API v2 adapter; 32-char hex routing-key validation; `dedup_key` from `event.idempotency_key` (or synthesised); captures returned `dedup_key` as `external_id` for follow-up acknowledge/resolve events.
+- `app/src/lib/notifications/adapters/custom-webhook.ts` — generic customer-hosted webhook adapter; canonical v1 envelope; `X-ConsentShield-Signature` HMAC-SHA256 over `${occurred_at}.${body}` with the per-channel `signing_secret` (≥ 32 chars); `X-ConsentShield-Timestamp` header for replay protection.
+- `app/src/lib/notifications/adapters/index.ts` — barrel that registers all five real adapters with the singleton registry on import.
+
+### Tested
+- `app/tests/notifications/slack.test.ts` — 12 PASS.
+- `app/tests/notifications/teams.test.ts` — 10 PASS.
+- `app/tests/notifications/discord.test.ts` — 9 PASS.
+- `app/tests/notifications/pagerduty.test.ts` — 11 PASS.
+- `app/tests/notifications/custom-webhook.test.ts` — 9 PASS (includes byte-exact HMAC recompute against captured request bytes).
+- `app/tests/notifications/slack-live.test.ts` — **LIVE delivery to operator's Slack workspace 2026-04-23**, ok=true, Block Kit rendered correctly in `#consentshield-alerts`.
+- Total notifications-suite count 20 → 71 (+51).
+- `cd app && bun run lint` — clean.
+- `cd app && bun run build` — clean.
+- `cd app && bunx tsc --noEmit` — clean.
+
+### Deferred (per the 2026-04-22 channel-account decision)
+- Teams live test — operator on Teams Free; M365 Business Basic provisioning tracked on `admin.ops_readiness_flags` row "Teams webhook — live integration test against M365 Business tenant".
+- Discord live test — no workspace; tracked on `admin.ops_readiness_flags`.
+- PagerDuty own-ops paging — replaced by WhatsApp Business Cloud API; tracked on `admin.ops_readiness_flags` row "Own-ops paging — WhatsApp Business Cloud API integration". Customer-facing PagerDuty *adapter* still ships.
+- Sprint 6.4 (Dashboard UI + per-channel test-send + severity-routing matrix) is the next sprint and depends on these adapters.
+
 ## [ADR-1004 Phase 3 Sprint 3.2 — Compliance Health widget] — 2026-04-22
 
 **ADR:** ADR-1004 — Statutory retention / material change / silent-failure detection
