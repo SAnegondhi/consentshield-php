@@ -405,11 +405,14 @@ The first-hop negatives (HMAC tampered + origin mismatch, paired with Sprint 1.3
 #### Sprint 3.7: Negative-control pair sweep
 
 **Deliverables:**
-- [ ] Audit every positive test from Phases 1–3; ensure each has a paired negative.
-- [ ] Add any missing pairs.
-- [ ] Document the pairing map in `tests/e2e/specs/pair-matrix.md`.
+- [x] Audit every positive test from Phases 1–3; ensure each has a paired negative. Covered in `tests/e2e/specs/pair-matrix.md` §3 — ten Phase-1..3 positives tabulated, each mapped to its paired negative(s). Three of the ten pair across files (browser ↔ API-layer origin-mismatch; impersonation audit ↔ rpcs.test.ts; invoice Rule 19 ↔ invoice-immutability); all seven other pairs are intra-file.
+- [x] Add any missing pairs. None required — §4 of the pair matrix records the audit result. Each cross-file pairing is deliberate per its sprint's scope boundary; none represent gaps.
+- [x] Document the pairing map in `tests/e2e/specs/pair-matrix.md`. Living document; §6 specifies "every new positive test written under a Phase 4+ sprint MUST add a row before the sprint is marked complete" so the matrix can't silently rot.
 
-**Status:** `[ ] planned`
+**Tested so far:**
+- No new test code ships under Sprint 3.7 (documentation + audit only). Every positive + negative referenced in the matrix was verified PASS by its own sprint.
+
+**Status:** `[x] complete 2026-04-23 — documentation-only sprint; audit confirmed zero pair gaps across ten Phase-1..3 positives.`
 
 ---
 

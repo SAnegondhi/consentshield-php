@@ -2,6 +2,20 @@
 
 Documentation changes.
 
+## [ADR-1014 Sprint 3.7 — pair matrix audit (Phase 3 close-out)] — 2026-04-23
+
+**ADR:** ADR-1014 — E2E test harness + vertical demo sites
+**Sprint:** Phase 3, Sprint 3.7 — Negative-control pair sweep
+
+### Added
+- `tests/e2e/specs/pair-matrix.md` — living audit document. Tabulates all ten Phase-1..3 positive tests and names each one's paired negative(s). Seven pairs are intra-file; three pair across files (browser ↔ API-layer origin-mismatch; impersonation audit ↔ rpcs.test.ts state-transitions; invoice Rule 19 ↔ invoice-immutability matrix) — each cross-file split is deliberate per its sprint's scope boundary. §5 documents three cross-cutting invariants: test-isolation property scoping, three-surface proof discipline, property-isolation on concurrent runs. §6 specifies the update rule — every new positive test in Phase 4+ MUST add a row before the sprint can close.
+
+### Tested
+- No new test code ships under Sprint 3.7 (documentation-only). Every positive + negative referenced in the matrix was verified PASS by its own sprint.
+
+### Why
+Phase 3 shipped ten positive tests across six sprints. Pair completeness is easy to lose track of as test count grows; without an inventory, the "accept-everything" bug would fail no test. Sprint 3.7's audit confirms zero gaps and installs the discipline that prevents drift in Phase 4+ (mutation testing) and Phase 5 (partner-evidence archive) where every new positive must be pair-completable before shipping.
+
 ## [ADR-1025 proposed — customer storage auto-provisioning (hybrid managed R2 + BYOK)] — 2026-04-23
 
 **ADR:** ADR-1025 (new; Proposed)
