@@ -3,6 +3,14 @@
 #
 # Vercel's convention: the Ignored Build Step command runs before the
 # build. Exit 0 = skip the build; exit 1 = proceed with the build.
+# Per Vercel docs, `ignoreCommand` runs from the project's Root
+# Directory (here: `app/`), NOT from the git repo root. The original
+# version of this script passed pathspecs like 'app/' / 'packages/'
+# etc. to `git diff`, which git resolved relative to cwd (= app/), so
+# they silently matched zero files and every commit exited 0 —
+# skipping every deploy (~7 cancellations in a 4-hour window before
+# this was diagnosed 2026-04-23). Fixed by cd'ing into the repo root
+# before diffing so pathspecs match regardless of cwd.
 #
 # Build when changes are in any of:
 #   app/**              (this workspace's own source)
@@ -17,6 +25,10 @@
 #   `bash app/scripts/vercel-should-build.sh`
 
 set -euo pipefail
+
+# Move to the git repo root so the pathspecs below are interpreted
+# relative to the repo, not to the Vercel Root Directory.
+cd "$(git rev-parse --show-toplevel)"
 
 # VERCEL_GIT_COMMIT_REF is set by Vercel; on first deploy the ref may
 # not have a predecessor. Fall back to HEAD^ and fail-open (build) if

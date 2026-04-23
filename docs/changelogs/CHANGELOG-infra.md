@@ -2,7 +2,21 @@
 
 Vercel, Cloudflare, Supabase config changes.
 
-## [ADR-1018 Sprint 1.5 — status.consentshield.in DNS + Vercel alias] — 2026-04-23
+## [Fix — Vercel Ignored-Build-Step auto-cancel on every push] — 2026-04-23
+
+**Scope:** ADR-0026 Sprint 4.1 (`app/scripts/vercel-should-build.sh`)
+**Severity:** blocker — every `git push origin main` had auto-cancelled in 4-5s for ~4 hours before this was diagnosed; every deploy in that window needed manual `npx vercel --prod --yes` to land.
+
+### Root cause
+The `ignoreCommand` from `app/vercel.json` runs from the Vercel project's **Root Directory** (`app/`), not from the git repo root. The script passed pathspecs like `'app/'` and `'packages/'` to `git diff`, which git resolved relative to cwd — so `app/app/` (and similarly `app/packages/`, `app/supabase/`, …) silently matched zero files, `git diff --quiet` returned 0, the script exited 0, and Vercel skipped the build. Effect: every commit — including commits that genuinely changed customer-app source — got "no relevant changes" and was cancelled.
+
+### Fix
+`cd "$(git rev-parse --show-toplevel)"` at the top of the script, so all pathspecs resolve relative to the repo root regardless of the caller's cwd. Verified locally:
+- Sprint 6.4 commit `0abc901` vs parent `0963153` (touches `app/src/app/(dashboard)/dashboard/settings/notifications/…`) → exit 1 → **build** ✓
+- Recent Terminal A doc-only commits → exit 0 → skip ✓
+
+No project-settings change required; the script alone was at fault.
+
 
 **ADR:** ADR-1018 — Self-hosted status page **(COMPLETED)**
 **Sprint:** 1.5 DNS cutover
