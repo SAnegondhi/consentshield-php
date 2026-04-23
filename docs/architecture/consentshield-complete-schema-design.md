@@ -1048,6 +1048,10 @@ grant select on rights_requests to cs_orchestrator;
 grant select on consent_artefact_index to cs_orchestrator;
 grant select on consent_probes to cs_orchestrator;
 grant select on data_inventory to cs_orchestrator;
+-- deletion_receipts: rpc_deletion_receipt_confirm (SECURITY DEFINER owned by
+-- cs_orchestrator) reads the row before updating. Added under ADR-1014
+-- Sprint 3.4 via migration 20260804000030 — missing from initial migration 010.
+grant select on deletion_receipts to cs_orchestrator;
 
 -- Can update specific fields for automated workflows
 grant update (status) on rights_requests to cs_orchestrator;

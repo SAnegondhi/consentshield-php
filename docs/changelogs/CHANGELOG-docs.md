@@ -2,6 +2,21 @@
 
 Documentation changes.
 
+## [ADR-1014 Sprint 3.4 — architecture-doc sync for cs_orchestrator SELECT on deletion_receipts] — 2026-04-23
+
+**ADR:** ADR-1014 — E2E test harness + vertical demo sites
+**Sprint:** Phase 3, Sprint 3.4 — docs sync
+
+### Changed
+- `docs/architecture/consentshield-definitive-architecture.md` §5.4 (cs_orchestrator role grants block) — `deletion_receipts` added to the `CAN SELECT` list with a parenthetical referencing migration 20260804000030 and the rpc_deletion_receipt_confirm rationale.
+- `docs/architecture/consentshield-complete-schema-design.md` §5.1 (cs_orchestrator role GRANTs) — `grant select on deletion_receipts to cs_orchestrator;` added to the SELECT list with a comment pointing at the Sprint 3.4 follow-up migration.
+
+### Why
+Both architecture docs are the contradiction-winning source of truth for role-grant composition (per `CLAUDE.md`'s architecture-reference rule). The Sprint 3.4 schema fix (migration 20260804000030, committed in `0edb924`) added a missing SELECT grant to cs_orchestrator but didn't sync the docs — this commit closes that sync so a future role-matrix audit doesn't re-encounter the documented-vs-actual drift the test suite just finished fixing at the migration layer.
+
+### Tested
+- No code path changed; these are doc-only edits. The live grant on dev DB is already in place via the 20260804000030 migration.
+
 ## [ADR-1019 proposed — deliver-consent-events Edge Function] — 2026-04-23
 
 **ADR:** ADR-1019 (new; Proposed)

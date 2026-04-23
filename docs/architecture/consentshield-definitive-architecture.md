@@ -228,6 +228,9 @@ CAN SELECT: accounts, account_memberships, organisations, org_memberships, web_p
             plans, tracker_signatures, integration_connectors, retention_rules,
             notification_channels, rights_requests, consent_artefact_index,
             consent_probes, data_inventory, invitations,
+            deletion_receipts (ADR-1014 Sprint 3.4 — rpc_deletion_receipt_confirm reads the
+                                row before updating; migration 20260804000030 added the grant
+                                that was missing from the initial scoped-roles migration 010),
             consent_events (DEPA — process-consent-event needs the originating event row),
             purpose_definitions (DEPA), purpose_connector_mappings (DEPA),
             consent_artefacts (DEPA), consent_expiry_queue (DEPA),
