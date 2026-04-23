@@ -389,12 +389,18 @@ The first-hop negatives (HMAC tampered + origin mismatch, paired with Sprint 1.3
 #### Sprint 3.6: Admin impersonation + invoice issuance
 
 **Deliverables:**
-- [ ] Positive: admin impersonates an org → performs a rights-request triage → end-impersonation → admin_audit_log contains both entries.
-- [ ] Positive: invoice issuance via active issuer → PDF emitted to R2 → `public.invoices` row created.
-- [ ] Negative pair: invoice issuance with no active issuer → clear error + no row written (Rule 19 enforcement).
-- [ ] Negative pair: attempt to update immutable invoice field → trigger rejection.
+- [x] Positive: admin impersonates an org → performs a rights-request triage → end-impersonation → admin_audit_log contains both entries. Shipped as `tests/admin/impersonation-audit-trail.test.ts` (Vitest, 3 tests). Asserts `admin.admin_audit_log` carries exactly two rows sharing the same `impersonation_session_id` (`impersonate_start` + `impersonate_end`) after a start/end pair; separately proves the triage-during-impersonation path captures the rights-request update into the session's `actions_summary` + the audit trail. Complements `tests/admin/rpcs.test.ts` (session-state transitions) by owning the audit-row assertion side.
+- [x] Positive: invoice issuance via active issuer → `public.invoices` row created. Shipped as `tests/admin/invoice-issuance.test.ts` (Vitest, 4 tests — 2 happy + 1 negative + 1 cross-reference). Happy path asserts the RPC returns an invoice uuid + the row lands at `status='draft'` with correct GST computation (intra-state CGST/SGST split for state_code='29' matches; inter-state IGST-only for cross-state state_code confirms the gst compute helper branches correctly) + an `admin_audit_log` row for the issuance action. PDF emission to R2 lives at the Next.js Route Handler layer after the RPC returns (per migration 20260508000001 design) — that slice is route-handler scope, out of this test's scope.
+- [x] Negative pair: invoice issuance with no active issuer → clear error + no row written (Rule 19 enforcement). Same file: retire all active issuers + call `billing_issue_invoice` → raises `No active issuer — create and activate a billing.issuer_entities row before issuing invoices` (errcode 22023) + `public.invoices` row count for the account unchanged pre→post. Teardown seeds a fresh active issuer so downstream files inherit a valid state.
+- [x] Negative pair: attempt to update immutable invoice field → trigger rejection. **Already comprehensively covered** by `tests/admin/invoice-immutability.test.ts` (ADR-0050 Sprint 2.1 chunk 3). That file has 10 cases: total_paise / line_items / invoice_number / fy_sequence / issuer_entity_id all raise; status / paid_at / razorpay_invoice_id / notes updates succeed; admin DELETE raises. Sprint 3.6's `invoice-issuance.test.ts` carries a cross-reference describe block documenting this.
 
-**Status:** `[ ] planned`
+**Tested so far:**
+- [x] `bunx vitest run tests/admin/impersonation-audit-trail.test.ts tests/admin/invoice-issuance.test.ts` — 7/7 PASS in 14.57 s against dev Supabase.
+- [x] `tests/admin/rpcs.test.ts` (ADR-0027 Sprint 3.1 impersonation-lifecycle block) and `tests/admin/invoice-immutability.test.ts` (ADR-0050 Sprint 2.1 chunk 3) continue to cover their respective slices.
+
+**Scope boundary:** Sprint 3.6 writes the audit + Rule-19-negative coverage the existing suite didn't have. The existing suite already covers session state transitions (rpcs.test.ts), issuer CRUD role gates (billing-issuer-rpcs.test.ts), invoice list/detail scope (billing-invoice-list.test.ts), and the 10-case immutable-field matrix (invoice-immutability.test.ts). Deliberate non-duplication.
+
+**Status:** `[x] complete 2026-04-23 — 7 new tests + 2 cross-references to existing coverage.`
 
 #### Sprint 3.7: Negative-control pair sweep
 

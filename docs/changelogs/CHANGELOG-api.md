@@ -2,6 +2,29 @@
 
 API route changes.
 
+## [ADR-1014 Sprint 3.6 — admin impersonation audit trail + invoice-issuance negative] — 2026-04-23
+
+**ADR:** ADR-1014 — E2E test harness + vertical demo sites
+**Sprint:** Phase 3, Sprint 3.6 — Admin impersonation + invoice issuance
+
+### Added
+- `tests/admin/impersonation-audit-trail.test.ts` — Vitest, 3 tests. Asserts `admin.start_impersonation` and `admin.end_impersonation` each write exactly one row to `admin.admin_audit_log` (actions `impersonate_start` + `impersonate_end`) sharing the same `impersonation_session_id`; separately covers a triage-during-impersonation path that updates a rights_request and captures the activity in the session's `actions_summary`.
+- `tests/admin/invoice-issuance.test.ts` — Vitest, 4 tests. Happy path (intra-state GST: CGST 9_000 + SGST 9_000 at 18% on a 100_000-paise subtotal; total 118_000 paise; invoice row at status='draft'), inter-state GST (IGST-only variant), no-active-issuer negative (retire all issuers + call `billing_issue_invoice` → raises `No active issuer`; public.invoices count unchanged), cross-reference to the existing immutable-field matrix in `tests/admin/invoice-immutability.test.ts`.
+
+### Tested
+- `bunx vitest run tests/admin/impersonation-audit-trail.test.ts tests/admin/invoice-issuance.test.ts` — 7/7 PASS in 14.57 s against dev Supabase.
+
+### Scope boundary
+Sprint 3.6 writes the two specific slices the existing admin-test suite didn't have: (1) the audit-log trail assertion for impersonation (existing `rpcs.test.ts` covers session state transitions, not the audit-row side) and (2) the Rule-19 "no active issuer" negative (existing `billing-invoice-list.test.ts` exercises issuance only with active issuers). The immutable-field trigger matrix in `invoice-immutability.test.ts` (10 cases) remains the authoritative coverage for Sprint 3.6's fourth deliverable — not duplicated here.
+
+### Notes while writing
+- `admin.admin_audit_log` uses `occurred_at`, not `created_at`. PostgREST returns `data: null, error: null` (not an error) when `.eq` / `.gt` filter on a non-existent column — caught during initial test runs.
+- `billing` schema isn't exposed over PostgREST (supabase-js returns `Invalid schema: billing` on direct table reads). Used `admin.billing_issuer_list()` RPC to enumerate issuers instead.
+- `billing_issuer_activate` refuses retired issuers → cannot revive the retired set after the negative test. Fix: seed a fresh issuer + activate it as the last step of the test so downstream files inherit a clean active-issuer state.
+
+### Why
+Closes ADR-1014 Phase 3's admin-surface lane. Both halves of the sprint (impersonation audit + invoice issuance Rule 19) touch compliance-critical code paths that would have been hard to debug post-incident if regressed: an impersonation that didn't audit-log would silently violate the admin accountability promise in ADR-0027; an invoice issued without an active issuer would violate Rule 19 (GSTIN / legal_name carried from the active issuer at issuance time, not hard-coded).
+
 ## [ADR-1014 Sprint 3.5 — DEPA artefact full-lifecycle composition test] — 2026-04-23
 
 **ADR:** ADR-1014 — E2E test harness + vertical demo sites
