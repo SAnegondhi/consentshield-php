@@ -196,9 +196,24 @@ When counsel is eventually engaged, this sprint's deliverables flip the affected
 
 **Status:** `[x] complete`
 
-#### Sprint 2.2: Material-change enumeration + CSV export — **blocked on wireframes (2026-04-22)**
+#### Sprint 2.2: Material-change enumeration + CSV export — **complete 2026-04-23**
 
-Tracked as `admin.ops_readiness_flags` row (source_adr `ADR-1004 Phase 2 Sprint 2.2`, severity `medium`, owner `Sudhindra (design) then claude-code (impl)`). Wireframe the `/dashboard/notices` list + publish form + material-change toggle + affected-artefact badge + CSV-export action in `docs/design/screen designs and ux/` before the ADR-1004 Phase 2 Sprint 2.2 build starts.
+**Wireframe authored:** `docs/design/screen designs and ux/consentshield-notices.html` — both panels for Sprints 2.2 + 2.3.
+
+**Deliverables:**
+- [x] `app/src/app/(dashboard)/dashboard/notices/page.tsx` — server component listing every published version, current-version badge, material/routine pill, affected-on-prior count + view-campaign link + export-CSV link per material row.
+- [x] `app/src/app/(dashboard)/dashboard/notices/publish-form.tsx` — client component with title + markdown textarea + material-change toggle gated by an amber explainer card; `useTransition` around the server action.
+- [x] `app/src/app/(dashboard)/dashboard/notices/actions.ts` — `publishNoticeAction` server action wrapping `publish_notice` RPC; `revalidatePath('/dashboard/notices')` on success.
+- [x] `app/src/app/(dashboard)/dashboard/notices/[id]/affected.csv/route.ts` — CSV streaming endpoint over `rpc_notice_affected_artefacts(p_org_id, p_notice_id, p_limit=500)`. Forces auth gate + member-of-org check before the RPC call (which itself fences `org_id`). RFC 4180 escaping.
+- [x] `app/src/components/dashboard-nav.tsx` — sidebar entry "Privacy Notices" → `/dashboard/notices` between Banners and Purpose Definitions.
+- [x] Migration `20260804000033_notices_replaced_by_pipeline.sql` includes `rpc_notice_affected_artefacts` SECURITY DEFINER + `org_mismatch` fence (42501).
+
+**Testing plan:**
+- [x] Manual smoke: `bun run dev` renders the list, publish form posts via server action, the CSV endpoint downloads with RFC-4180-escaped rows.
+- [x] `bunx tsc --noEmit` + `bun run lint` + `bun run build` all clean.
+- [x] Cross-org fence covered by integration test (see Sprint 2.3 results).
+
+**Status:** `[x] complete`.
 
 
 
@@ -217,9 +232,30 @@ Tracked as `admin.ops_readiness_flags` row (source_adr `ADR-1004 Phase 2 Sprint 
 
 **Status:** `[ ] planned`
 
-#### Sprint 2.3: Replaced-by chain + audit trail — **blocked on wireframes (2026-04-22)**
+#### Sprint 2.3: Replaced-by chain + audit trail — **complete 2026-04-23**
 
-Tracked as `admin.ops_readiness_flags` row (source_adr `ADR-1004 Phase 2 Sprint 2.3`, severity `medium`). Depends on Sprint 2.2 shipping first. UI lives at `/dashboard/notices/[id]/campaign` — needs wireframe first.
+**Deliverables:**
+- [x] Migration `20260804000033_notices_replaced_by_pipeline.sql`:
+  - `public.reconsent_campaigns` table (per-material-notice counts: affected, responded, revoked, no_response).
+  - `public.mark_replaced_artefacts_for_event(p_consent_event_id)` SECURITY DEFINER — for each artefact created by the new event, supersede any prior ACTIVE artefact owned by the same `(property, fingerprint, purpose_code)` whose linked event has an OLDER `notice_version`. Sets old artefact `status='replaced'` + populates `replaced_by`.
+  - `public.refresh_reconsent_campaign(p_notice_id)` — recomputes counts + upserts the row. Idempotent.
+  - `public.refresh_all_reconsent_campaigns()` + pg_cron `reconsent-campaign-refresh-nightly` `15 2 * * *`.
+  - `public.rpc_notice_affected_artefacts(p_org_id, p_notice_id, p_limit)` — affected list for the dashboard + CSV export with `org_mismatch` fence.
+- [x] `supabase/functions/process-consent-event/index.ts` — after the artefact INSERT batch, calls `mark_replaced_artefacts_for_event` once per event. Best-effort: if it fails, the event still completes; the nightly cron + opportunistic page-load refresh catch divergence.
+- [x] `app/src/app/(dashboard)/dashboard/notices/[id]/campaign/page.tsx` — campaign view: 4 stat cards (affected / responded / revoked / no-response with %), tone-coloured progress bar, replaced-by chain sample (first 10), outreach CSV exports. Calls `refresh_reconsent_campaign` opportunistically per page load so the view never shows pre-publish stale data.
+
+**Testing plan:**
+- [x] `tests/integration/notices-replaced-by.test.ts` — 7/7 PASS:
+  - Seed v1 event + active artefact A.
+  - Publish v2 (material) — assert `affected_artefact_count === 1`.
+  - Seed v2 event + artefact B for the same principal.
+  - Call `mark_replaced_artefacts_for_event(v2)` → returns 1; old A is `status='replaced'`, `replaced_by=B`.
+  - `refresh_reconsent_campaign(v2)` → `responded=1`, `no_response=0`.
+  - `rpc_notice_affected_artefacts` returns the chained pair.
+  - Re-running `mark_replaced` is idempotent (returns 0).
+  - Cross-org access raises `org_mismatch` (42501).
+
+**Status:** `[x] complete`.
 
 
 

@@ -1,0 +1,434 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>ConsentShield — notices &amp; re-consent (ADR-1004 Phase 2 Sprints 2.2 + 2.3)</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --navy:#0F2D5B;--navy-dark:#091E3E;
+  --teal:#0D7A6B;--teal-light:#E0F4F1;--teal-mid:#14A090;
+  --amber:#C97B00;--amber-light:#FEF3C7;--amber-mid:#F59E0B;
+  --red:#B91C1C;--red-light:#FEE2E2;
+  --green:#15803D;--green-light:#DCFCE7;
+  --slate:#475569;--slate-light:#94A3B8;
+  --bg:#F1F5F9;--surface:#FFFFFF;
+  --border:#E2E8F0;--border-mid:#CBD5E1;
+  --text:#0F172A;--text-2:#475569;--text-3:#94A3B8;
+  --font:'DM Sans',system-ui,sans-serif;--mono:'DM Mono',monospace;
+  --r:8px;--r-lg:12px;
+  --shadow:0 1px 3px rgba(0,0,0,.08),0 1px 2px rgba(0,0,0,.05);
+}
+body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:14px;line-height:1.5;padding:24px;max-width:1080px;margin:0 auto}
+h1{font-size:20px;font-weight:600;margin-bottom:8px}
+.subtitle{color:var(--text-2);font-size:13px;margin-bottom:24px}
+.spec{background:#FFF7ED;border:1px solid var(--amber-light);border-left:4px solid var(--amber-mid);padding:12px 16px;border-radius:var(--r);font-size:12px;color:#7C2D12;margin-bottom:24px;line-height:1.6}
+.spec strong{color:var(--amber)}
+
+.browser{background:white;border:1px solid var(--border);border-radius:var(--r-lg);overflow:hidden;box-shadow:var(--shadow);margin-bottom:32px}
+.browser-bar{background:var(--bg);border-bottom:1px solid var(--border);padding:8px 12px;display:flex;align-items:center;gap:8px;font-size:11px;color:var(--text-3);font-family:var(--mono)}
+.browser-dot{width:9px;height:9px;border-radius:50%}
+.browser-dot.r{background:#EF4444}.browser-dot.y{background:#F59E0B}.browser-dot.g{background:#10B981}
+.browser-url{flex:1;background:white;border-radius:4px;padding:3px 10px;color:var(--text-2)}
+
+.panel{padding:24px}
+.panel-title{font-size:18px;font-weight:600;margin-bottom:4px}
+.panel-sub{color:var(--text-2);font-size:13px;margin-bottom:20px}
+
+.card{background:var(--surface);border-radius:var(--r-lg);border:1px solid var(--border);box-shadow:var(--shadow);margin-bottom:16px}
+.card-header{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.card-title{font-size:13px;font-weight:600}
+.card-body{padding:18px}
+
+.btn{padding:7px 14px;border-radius:var(--r);font-size:13px;font-weight:500;cursor:pointer;border:none}
+.btn-primary{background:var(--teal);color:white}
+.btn-secondary{background:var(--surface);color:var(--text);border:1px solid var(--border)}
+.btn-danger{background:var(--red-light);color:var(--red);border:1px solid #FECACA}
+.btn-sm{padding:4px 10px;font-size:12px}
+
+.pill{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:500}
+.pill-green{background:var(--green-light);color:var(--green)}
+.pill-amber{background:var(--amber-light);color:var(--amber)}
+.pill-red{background:var(--red-light);color:var(--red)}
+.pill-gray{background:var(--bg);color:var(--slate)}
+.pill-teal{background:var(--teal-light);color:var(--teal)}
+
+.input{width:100%;padding:9px 12px;border:1px solid var(--border);border-radius:var(--r);font-family:var(--font);font-size:13px;color:var(--text);background:white}
+.textarea{font-family:var(--mono);font-size:12px;line-height:1.6;min-height:140px;resize:vertical}
+.label{display:block;font-size:11px;font-weight:500;color:var(--text-2);margin-bottom:5px;text-transform:uppercase;letter-spacing:.05em}
+.help{font-size:11px;color:var(--text-3);margin-top:5px;line-height:1.5}
+
+.toggle-row{display:flex;align-items:flex-start;gap:10px;padding:14px;border:1px solid var(--amber-light);background:#FFFBEB;border-radius:var(--r);margin-top:16px}
+.toggle-row input{margin-top:2px;flex-shrink:0}
+.toggle-row strong{display:block;font-size:13px;color:var(--amber);margin-bottom:3px}
+.toggle-row span{font-size:12px;color:#7C2D12;line-height:1.5}
+
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:left;font-weight:500;color:var(--text-3);padding:10px 16px;border-bottom:1px solid var(--border);font-size:11px;text-transform:uppercase;letter-spacing:.05em;background:var(--bg)}
+td{padding:12px 16px;border-bottom:1px solid var(--border);vertical-align:top}
+tr:last-child td{border-bottom:none}
+td code{font-family:var(--mono);font-size:11px;color:var(--text-2);background:var(--bg);padding:1px 6px;border-radius:3px}
+
+.timeline{display:flex;flex-direction:column;gap:0}
+.tl-row{display:grid;grid-template-columns:120px 1fr;gap:16px;padding:14px 16px;border-bottom:1px solid var(--border)}
+.tl-row:last-child{border-bottom:none}
+.tl-date{font-family:var(--mono);font-size:11px;color:var(--text-3);padding-top:2px}
+.tl-content{font-size:13px}
+.tl-event{font-weight:500;color:var(--text)}
+.tl-meta{font-size:11px;color:var(--text-3);margin-top:3px;font-family:var(--mono)}
+
+.stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:18px}
+.stat{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:14px}
+.stat-label{font-size:10px;color:var(--text-3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px}
+.stat-value{font-size:24px;font-weight:600;color:var(--text);font-variant-numeric:tabular-nums}
+.stat-sub{font-size:11px;color:var(--text-2);margin-top:4px}
+
+.bar{height:14px;background:var(--bg);border-radius:7px;overflow:hidden;display:flex;margin-top:6px}
+.bar-seg{height:100%}
+.bar-seg.responded{background:var(--green)}
+.bar-seg.revoked{background:var(--red)}
+.bar-seg.no-response{background:var(--border-mid)}
+.legend{display:flex;gap:16px;font-size:11px;color:var(--text-2);margin-top:10px}
+.legend-dot{display:inline-block;width:8px;height:8px;border-radius:2px;margin-right:5px;vertical-align:middle}
+
+.empty-state{text-align:center;padding:32px;color:var(--text-2);font-size:13px}
+.empty-state-icon{font-size:32px;margin-bottom:8px;opacity:.4}
+
+.alert{background:#EFF6FF;border:1px solid #DBEAFE;border-left:4px solid #3B82F6;padding:12px 14px;border-radius:var(--r);font-size:12px;color:#1E3A8A;line-height:1.5;margin-bottom:14px}
+.alert.amber{background:var(--amber-light);border-color:#FDE68A;border-left-color:var(--amber-mid);color:#7C2D12}
+
+.markdown-preview{background:var(--bg);border:1px solid var(--border);border-radius:var(--r);padding:14px;font-size:13px;line-height:1.6;color:var(--text)}
+.markdown-preview h3{font-size:14px;font-weight:600;margin-bottom:6px}
+.markdown-preview p{margin-bottom:8px;color:var(--text-2)}
+
+.muted{color:var(--text-3);font-size:11px}
+</style>
+</head>
+<body>
+
+<h1>Notices &amp; re-consent — ADR-1004 Phase 2</h1>
+<p class="subtitle">Wireframes for Sprints 2.2 (notices list + publish + CSV export) and 2.3 (replaced-by chain + reconsent campaign view). Authored 2026-04-23.</p>
+
+<div class="spec">
+  <strong>Acceptance criteria:</strong> these screens must render every state shown below; data shapes match
+  <code>public.notices</code> + <code>public.consent_artefacts.replaced_by</code> + <code>public.reconsent_campaigns</code>
+  per ADR-1004 §Phase 2. Material-change publish flows through <code>publish_notice(p_org_id, p_title,
+  p_body_markdown, p_material_change_flag=true)</code> which auto-counts affected artefacts. CSV export reads
+  consent_events filtered to <code>notice_version = prior_version</code> for the material publish.
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     PANEL 1 — /dashboard/notices
+     ═══════════════════════════════════════════════════════════════════ -->
+
+<div class="browser">
+  <div class="browser-bar">
+    <span class="browser-dot r"></span><span class="browser-dot y"></span><span class="browser-dot g"></span>
+    <div class="browser-url">app.consentshield.in/dashboard/notices</div>
+  </div>
+  <div class="panel">
+    <div class="panel-title">Privacy notices</div>
+    <p class="panel-sub">Every published version of your privacy notice. Append-only — to retract a notice,
+      publish a new version with the change.</p>
+
+    <div class="alert">
+      <strong>v3</strong> is currently in effect. Consent events captured today reference notice_version=3
+      and accumulate against the current cohort. Material changes trigger a re-consent campaign automatically.
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">Versions</div>
+        <button class="btn btn-primary btn-sm">+ Publish new version</button>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th style="width:60px">Ver</th>
+            <th>Title</th>
+            <th>Published</th>
+            <th>Material</th>
+            <th>Affected</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr style="background:var(--teal-light)">
+            <td><strong>v3</strong> <span class="pill pill-teal" style="margin-left:6px">current</span></td>
+            <td>Updated retention + RBI bureau-reporting carve-out</td>
+            <td><span class="muted">2026-04-21<br>by Sudhindra A.</span></td>
+            <td><span class="pill pill-amber">material</span></td>
+            <td>
+              <strong>1,247</strong> on prior<br>
+              <a href="#campaign" style="color:var(--teal);font-size:11px">view campaign →</a>
+            </td>
+            <td>
+              <button class="btn btn-secondary btn-sm">Export CSV</button>
+            </td>
+          </tr>
+          <tr>
+            <td><strong>v2</strong></td>
+            <td>Cookie purposes restructured</td>
+            <td><span class="muted">2026-03-12<br>by Sudhindra A.</span></td>
+            <td><span class="pill pill-amber">material</span></td>
+            <td><span class="muted">replaced by v3</span></td>
+            <td><button class="btn btn-secondary btn-sm">View</button></td>
+          </tr>
+          <tr>
+            <td><strong>v1</strong></td>
+            <td>Initial publication</td>
+            <td><span class="muted">2026-02-01<br>by Sudhindra A.</span></td>
+            <td><span class="pill pill-gray">routine</span></td>
+            <td><span class="muted">superseded</span></td>
+            <td><button class="btn btn-secondary btn-sm">View</button></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- "Publish new version" expanded form -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">Publish new version</div>
+        <span class="muted">v4 will be assigned automatically</span>
+      </div>
+      <div class="card-body">
+        <div style="margin-bottom:14px">
+          <label class="label">Title</label>
+          <input type="text" class="input" placeholder="Short summary of what changed (≥3 chars)"
+                 value="Added consent for new EMI partner integration" />
+          <div class="help">Shown in the notices list and on the public privacy-notice URL.</div>
+        </div>
+
+        <div style="margin-bottom:14px">
+          <label class="label">Body — Markdown supported</label>
+          <textarea class="input textarea" placeholder="The full notice text users see (≥10 chars)…">## Privacy notice — v4
+
+We have added one new partner to our EMI integrations. Your consent for
+loan-eligibility purposes now includes data shared with **Bajaj Finserv**
+in addition to the partners listed in v3.
+
+### What changed
+- New partner: Bajaj Finserv (purpose: `emi_eligibility`)
+- Retention: unchanged (3 years per RBI bureau reporting)
+- Withdrawal: same /rights workflow
+
+### Effective from
+2026-04-25 once you publish.</textarea>
+        </div>
+
+        <div class="toggle-row">
+          <input type="checkbox" id="material" checked />
+          <div>
+            <strong>Material change — trigger re-consent campaign</strong>
+            <span>Adding a new partner widens the data flow and is a material change. Publishing will
+              count <strong>1,247</strong> active artefacts on v3, mark them <code>replaced</code> on the
+              first new consent event, and surface a campaign view at
+              <code>/dashboard/notices/&lt;id&gt;/campaign</code>. Customers must re-consent;
+              their existing artefacts continue to apply only to the v3 partner set until they do.</span>
+          </div>
+        </div>
+
+        <div style="display:flex;gap:8px;margin-top:18px;justify-content:flex-end">
+          <button class="btn btn-secondary">Preview</button>
+          <button class="btn btn-secondary">Save as draft</button>
+          <button class="btn btn-primary">Publish v4 (material)</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Affected-artefacts drill-down (collapsed by default; expanded view inline for the wireframe) -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">v3 — affected artefacts on prior version (1,247)</div>
+        <button class="btn btn-secondary btn-sm">Export CSV</button>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Identifier</th><th>Email</th><th>Last consent</th><th>Purposes</th><th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>art_8a2f…91c</code></td>
+            <td>r***@example.com</td>
+            <td><span class="muted">2026-03-30</span></td>
+            <td><span class="pill pill-gray">3 purposes</span></td>
+            <td><span class="pill pill-amber">awaiting re-consent</span></td>
+          </tr>
+          <tr>
+            <td><code>art_3b1c…7d2</code></td>
+            <td>k***@example.com</td>
+            <td><span class="muted">2026-03-28</span></td>
+            <td><span class="pill pill-gray">2 purposes</span></td>
+            <td><span class="pill pill-green">re-consented v4</span></td>
+          </tr>
+          <tr>
+            <td><code>art_5e9a…44b</code></td>
+            <td>p***@example.com</td>
+            <td><span class="muted">2026-03-22</span></td>
+            <td><span class="pill pill-gray">1 purpose</span></td>
+            <td><span class="pill pill-red">withdrew</span></td>
+          </tr>
+          <tr>
+            <td colspan="5" style="text-align:center;color:var(--text-3);font-size:12px">
+              … 1,244 more rows. Use <strong>Export CSV</strong> for the full list.
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     PANEL 2 — /dashboard/notices/[id]/campaign
+     ═══════════════════════════════════════════════════════════════════ -->
+
+<div class="browser" id="campaign">
+  <div class="browser-bar">
+    <span class="browser-dot r"></span><span class="browser-dot y"></span><span class="browser-dot g"></span>
+    <div class="browser-url">app.consentshield.in/dashboard/notices/{id}/campaign</div>
+  </div>
+  <div class="panel">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px">
+      <a href="#" style="color:var(--text-3);font-size:12px">← back to notices</a>
+    </div>
+    <div class="panel-title">Re-consent campaign — v3</div>
+    <p class="panel-sub">
+      Updated retention + RBI bureau-reporting carve-out · published 2026-04-21 by Sudhindra A. ·
+      <span class="pill pill-amber" style="margin-left:6px">material change</span>
+    </p>
+
+    <div class="stat-grid">
+      <div class="stat">
+        <div class="stat-label">Affected at publish</div>
+        <div class="stat-value">1,247</div>
+        <div class="stat-sub">artefacts on prior version</div>
+      </div>
+      <div class="stat">
+        <div class="stat-label">Re-consented</div>
+        <div class="stat-value" style="color:var(--green)">412</div>
+        <div class="stat-sub">33% in 2 days</div>
+      </div>
+      <div class="stat">
+        <div class="stat-label">Withdrew</div>
+        <div class="stat-value" style="color:var(--red)">87</div>
+        <div class="stat-sub">7%</div>
+      </div>
+      <div class="stat">
+        <div class="stat-label">No response</div>
+        <div class="stat-value" style="color:var(--text-2)">748</div>
+        <div class="stat-sub">60% — still on v2</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">Progress</div>
+        <span class="muted">updated nightly · last refresh 2026-04-23 02:00 UTC</span>
+      </div>
+      <div class="card-body">
+        <div class="bar">
+          <div class="bar-seg responded" style="width:33%"></div>
+          <div class="bar-seg revoked" style="width:7%"></div>
+          <div class="bar-seg no-response" style="width:60%"></div>
+        </div>
+        <div class="legend">
+          <span><span class="legend-dot" style="background:var(--green)"></span>Re-consented</span>
+          <span><span class="legend-dot" style="background:var(--red)"></span>Withdrew</span>
+          <span><span class="legend-dot" style="background:var(--border-mid)"></span>No response</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">Daily progression</div>
+        <span class="muted">since publish</span>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Date</th><th>Re-consented</th><th>Withdrew</th><th>Cumulative %</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="muted">2026-04-21</span></td>
+            <td>187</td><td>34</td><td><strong>17.7%</strong></td>
+          </tr>
+          <tr>
+            <td><span class="muted">2026-04-22</span></td>
+            <td>164</td><td>41</td><td><strong>34.2%</strong></td>
+          </tr>
+          <tr>
+            <td><span class="muted">2026-04-23</span></td>
+            <td>61</td><td>12</td><td><strong>40.0%</strong></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">Replaced-by chain (sample)</div>
+        <span class="muted">first 10 of 412 re-consented artefacts</span>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Old artefact</th><th>Status</th><th>Replaced by</th><th>When</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>art_3b1c…7d2</code> <span class="pill pill-gray" style="margin-left:6px">v3</span></td>
+            <td><span class="pill pill-gray">replaced</span></td>
+            <td><code>art_9f2e…3a1</code> <span class="pill pill-teal" style="margin-left:6px">v4</span></td>
+            <td><span class="muted">2026-04-21 14:32</span></td>
+          </tr>
+          <tr>
+            <td><code>art_a4d7…11f</code> <span class="pill pill-gray" style="margin-left:6px">v3</span></td>
+            <td><span class="pill pill-gray">replaced</span></td>
+            <td><code>art_b8c5…22e</code> <span class="pill pill-teal" style="margin-left:6px">v4</span></td>
+            <td><span class="muted">2026-04-22 09:11</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">Outreach</div>
+      </div>
+      <div class="card-body">
+        <p style="font-size:13px;color:var(--text-2);margin-bottom:12px">
+          The campaign tracks but does not send messages. Export the affected list as CSV and load it into your
+          messaging system (Resend, Mailchimp, Notion + outreach team, etc.). Once recipients click your
+          re-consent link and submit a new consent event referencing v4, the chain auto-marks them resolved.
+        </p>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-secondary">Export affected (CSV)</button>
+          <button class="btn btn-secondary">Export re-consented (CSV)</button>
+          <button class="btn btn-secondary">Export withdrawn (CSV)</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="alert amber">
+      <strong>Sprint-2.4 deferral:</strong> bulk re-consent reminder send + per-channel A/B is out of scope
+      for v1. Operators export CSVs and send via their own messaging stack.
+    </div>
+
+  </div>
+</div>
+
+<p style="margin-top:24px;color:var(--text-3);font-size:11px;text-align:center">
+  Wireframe v1 · ADR-1004 Phase 2 Sprints 2.2 + 2.3 · authored 2026-04-23
+</p>
+
+</body>
+</html>

@@ -9,6 +9,7 @@ const navItems = [
   { href: '/dashboard', label: 'Overview' },
   { href: '/dashboard/properties', label: 'Web Properties' },
   { href: '/dashboard/banners', label: 'Banners' },
+  { href: '/dashboard/notices', label: 'Privacy Notices' },
   { href: '/dashboard/purposes', label: 'Purpose Definitions' },
   { href: '/dashboard/artefacts', label: 'Consent Artefacts' },
   { href: '/dashboard/enforcement', label: 'Enforcement' },

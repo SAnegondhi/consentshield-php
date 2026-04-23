@@ -2,6 +2,25 @@
 
 Database migrations, RLS policies, roles.
 
+## [ADR-1004 Phase 2 Sprint 2.3 — replaced_by pipeline + reconsent_campaigns] — 2026-04-23
+
+**ADR:** ADR-1004 — Statutory retention / material change / silent-failure
+**Sprint:** Phase 2 Sprint 2.3
+
+### Added
+- Migration `20260804000033_notices_replaced_by_pipeline.sql`:
+  - `public.reconsent_campaigns` table (notice_id, org_id, affected_count, responded_count, revoked_count, no_response_count, computed_at). RLS org-scoped read.
+  - `public.mark_replaced_artefacts_for_event(p_consent_event_id)` SECURITY DEFINER — for each artefact created by the new event, finds any prior ACTIVE artefact owned by the same `(property, fingerprint, purpose_code)` whose linked event has an OLDER `notice_version` and supersedes it (status='replaced', replaced_by populated). Idempotent.
+  - `public.refresh_reconsent_campaign(p_notice_id)` — recomputes counts and upserts a row.
+  - `public.refresh_all_reconsent_campaigns()` — iterates material notices.
+  - pg_cron `reconsent-campaign-refresh-nightly` `15 2 * * *`.
+  - `public.rpc_notice_affected_artefacts(p_org_id, p_notice_id, p_limit)` — affected-artefact list with `org_mismatch` fence; powers `/dashboard/notices` table + CSV export.
+- Migration `20260804000034_resolve_adr1004_p2_flags.sql` — flips both Sprint 2.2 + 2.3 ops_readiness_flags rows to `resolved`.
+
+### Tested
+- [x] `bunx supabase db push` — both migrations PASS.
+- [x] `tests/integration/notices-replaced-by.test.ts` — 7/7 PASS — full pipeline end-to-end (publish v1, seed artefact A, publish v2 material → affected_count=1, seed v2 event+artefact B, mark_replaced → A.status='replaced' A.replaced_by=B; refresh_reconsent_campaign → responded=1, no_response=0; rpc_notice_affected_artefacts returns the chain; idempotent re-run; cross-org fence raises 42501 org_mismatch).
+
 ## [ADR-1014 Sprint 3.4 follow-up — cs_orchestrator SELECT on deletion_receipts] — 2026-04-23
 
 **ADR:** ADR-1014 — E2E test harness + vertical demo sites

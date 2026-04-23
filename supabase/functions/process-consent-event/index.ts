@@ -253,6 +253,27 @@ async function processEvent(
       .eq('artefact_ids', '{}')
   }
 
+  // Step 6 (ADR-1004 Phase 2 Sprint 2.3) — supersede prior-version
+  // artefacts owned by the same principal+purpose. No-op when the new
+  // event has no notice_version or when nothing prior matches.
+  // Idempotent on retry: the helper only updates active rows, and
+  // re-runs find none after the first success.
+  if (artefactIds.length > 0) {
+    const { error: chainErr } = await supabase.rpc(
+      'mark_replaced_artefacts_for_event',
+      { p_consent_event_id: typedEvent.id },
+    )
+    if (chainErr) {
+      // Don't block the dispatch — replaced_by population is a best-
+      // effort consistency layer; the campaign view will still surface
+      // the divergence on the next nightly refresh.
+      console.error(
+        `mark_replaced_artefacts_for_event failed for event ${typedEvent.id}:`,
+        chainErr.message,
+      )
+    }
+  }
+
   return {
     event_id: consentEventId,
     created,

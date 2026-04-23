@@ -2,6 +2,32 @@
 
 Next.js UI changes.
 
+## [ADR-1004 Phase 2 Sprints 2.2 + 2.3 — privacy-notices dashboard + campaign view] — 2026-04-23
+
+**ADR:** ADR-1004 — Statutory retention / material change / silent-failure
+**Sprint:** Phase 2 Sprint 2.2 + Sprint 2.3
+
+### Wireframes
+- `docs/design/screen designs and ux/consentshield-notices.html` — both new panels with the canonical visual identity (navy/teal/amber palette, card layout matching `consentshield-screens.html`).
+
+### Added (Sprint 2.2)
+- `app/src/app/(dashboard)/dashboard/notices/page.tsx` — server component listing every published version with current-version badge + material/routine pill + affected-on-prior count + view-campaign + export-CSV per material row.
+- `app/src/app/(dashboard)/dashboard/notices/publish-form.tsx` — client component (title + markdown textarea + material-change toggle gated by amber explainer).
+- `app/src/app/(dashboard)/dashboard/notices/actions.ts` — `publishNoticeAction` server action over `publish_notice` RPC + `revalidatePath`.
+- `app/src/app/(dashboard)/dashboard/notices/[id]/affected.csv/route.ts` — CSV streaming endpoint over `rpc_notice_affected_artefacts`; auth-gated, member-of-org-checked, RFC-4180 escaped.
+- `app/src/components/dashboard-nav.tsx` — sidebar entry "Privacy Notices" → `/dashboard/notices`.
+
+### Added (Sprint 2.3)
+- `app/src/app/(dashboard)/dashboard/notices/[id]/campaign/page.tsx` — campaign view: 4 tone-coloured stat cards, progress bar, replaced-by chain sample, outreach CSV exports. Calls `refresh_reconsent_campaign` opportunistically per page load.
+- `supabase/functions/process-consent-event/index.ts` — wires `mark_replaced_artefacts_for_event` into the post-INSERT step; failure is non-blocking (logs + nightly cron catches divergence).
+
+### Tested
+- [x] `cd app && bun run lint` — clean.
+- [x] `cd app && bun run build` — clean. Both new routes (`/dashboard/notices` + `/dashboard/notices/[id]/campaign` + CSV endpoint) appear in the build output.
+- [x] `cd app && bunx tsc --noEmit` — clean.
+- [x] Replaced-by + reconsent_campaigns + RPC + cross-org fence + idempotency covered by `tests/integration/notices-replaced-by.test.ts` 7/7 PASS (see CHANGELOG-schema).
+- [x] Edge function redeployed via `bunx supabase functions deploy process-consent-event`.
+
 ## [ADR-1005 Phase 6 Sprints 6.2 + 6.3 — Slack/Teams/Discord/PagerDuty/custom_webhook adapters] — 2026-04-23
 
 **ADR:** ADR-1005 — Operations maturity (non-email notification channels)
