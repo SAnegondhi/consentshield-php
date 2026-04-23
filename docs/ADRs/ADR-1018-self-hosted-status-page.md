@@ -1,8 +1,8 @@
 # ADR-1018: Self-hosted status page on admin + public surfaces
 
-**Status:** In Progress
+**Status:** Completed
 **Date proposed:** 2026-04-22
-**Date completed:** —
+**Date completed:** 2026-04-23
 **Supersedes (in part):** ADR-1005 Phase 4 Sprint 4.1/4.2 (StatusPage.io provisioning)
 **Related:** ADR-1017 (admin ops-readiness surface)
 
@@ -90,13 +90,19 @@ Design-wise the public page is deliberately plain — static-feeling, accessible
 - [x] `admin.set_status_subsystem_state`, `admin.post_status_incident`, `admin.update_status_incident`, `admin.resolve_status_incident` — rewritten `create or replace function` to use `target_table`/`target_id`/`target_pk`/`old_value`/`new_value`/`reason`. Function signatures unchanged.
 - [x] `tests/admin/status-page-rpcs.test.ts` — 11 assertions covering state transitions, incident lifecycle, public-anon SELECT, invalid-input rejection, unknown-slug/id errors.
 
-### Sprint 1.5 — DNS cutover (~15min, operator step)
+### Sprint 1.5 — DNS cutover — **complete 2026-04-23**
 
 **Deliverables:**
-- [ ] Add CNAME `status.consentshield.in` → `cname.vercel-dns.com`.
-- [ ] Add `status.consentshield.in` as an alias on the `app` Vercel project → routes to `/status` via `vercel.json` rewrite or Next.js host-based routing.
-- [ ] Verify TLS issuance (Vercel automatic).
-- [ ] Link in marketing footer + admin UI.
+- [x] CNAME `status.consentshield.in` → `cname.vercel-dns.com` added by operator.
+- [x] `status.consentshield.in` aliased to the `app` Vercel project (`bunx vercel domains add status.consentshield.in`).
+- [x] Host-based redirect in `app/src/app/page.tsx` — when `host === 'status.consentshield.in'`, redirect to `/status`. Without this, the alias root would fall through to the auth-only Home() handler and redirect to `/login` (wrong destination for a public uptime page). Picked the page.tsx location over a proxy-level rewrite to keep `app/src/proxy.ts` host-agnostic; a tighter guard (proxy.ts host whitelist) is overkill for v1.
+- [x] TLS issued automatically by Vercel.
+- [x] Smoke test: `curl -I https://status.consentshield.in` → `307 location: /status`; `curl -L https://status.consentshield.in` → `200` with the public status page HTML. Production deploy `dpl_DZCmm8n7AiGqBMkfB6BHxBq8VrsV`.
+- [x] `admin.ops_readiness_flags` row resolved via migration `20260804000032`.
+
+**Deferred (low priority):** linking from marketing footer + admin UI. Trivial follow-ups; no operational dependency.
+
+**Status:** `[x] complete`.
 
 ---
 

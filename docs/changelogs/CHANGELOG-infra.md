@@ -2,6 +2,24 @@
 
 Vercel, Cloudflare, Supabase config changes.
 
+## [ADR-1018 Sprint 1.5 — status.consentshield.in DNS + Vercel alias] — 2026-04-23
+
+**ADR:** ADR-1018 — Self-hosted status page **(COMPLETED)**
+**Sprint:** 1.5 DNS cutover
+
+### Operator action
+- DNS: CNAME `status.consentshield.in` → `cname.vercel-dns.com`.
+
+### CLI / code
+- `bunx vercel domains add status.consentshield.in` (linked `consentshield` project).
+- `app/src/app/page.tsx` — host-based redirect: when `host === 'status.consentshield.in'`, send the user to `/status` (instead of falling through to the auth-redirect → `/login`).
+- Production deploy: `dpl_DZCmm8n7AiGqBMkfB6BHxBq8VrsV`. Note: the GitHub-push deploy auto-cancels on this project (history shows ~6 cancellations in the last 4h); had to trigger a manual `npx vercel@latest --prod --yes` from the repo root to land the alias work. Worth investigating the auto-cancel root cause as a separate follow-up — not in scope for ADR-1018.
+- Migration `20260804000032_resolve_adr1018_s15_flag.sql` — flips the readiness flag to `resolved`.
+
+### Verified
+- `curl -I https://status.consentshield.in` → `307 location: /status` + `cache-control: private, no-cache`.
+- `curl -L https://status.consentshield.in` → `200` with `<!DOCTYPE html>` of the public status page.
+
 ## [ADR-1014 Sprint 3.2 partial — origin-mismatch paired negative] — 2026-04-22
 
 **ADR:** ADR-1014 — E2E test harness + vertical demo sites
