@@ -97,6 +97,77 @@ export async function putObject(opts: PutObjectOptions): Promise<{ status: numbe
 }
 
 // ═══════════════════════════════════════════════════════════
+// DELETE object (signed via Authorization header).
+// Added under ADR-1025 Sprint 1.3 — used by the verification probe to
+// clean up sentinel objects. Same sigv4 pattern as putObject but with
+// an empty payload hash + no content-type / content-length headers.
+// ═══════════════════════════════════════════════════════════
+const EMPTY_PAYLOAD_HASH =
+  'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855'
+
+export async function deleteObject(
+  opts: SigV4Options,
+): Promise<{ status: number }> {
+  const now = new Date()
+  const amzDate = formatAmzDate(now)
+  const dateStamp = amzDate.slice(0, 8)
+  const host = new URL(opts.endpoint).host
+
+  const canonicalUri = canonicalUriFor(opts.bucket, opts.key)
+  const canonicalQuery = ''
+  const canonicalHeaders =
+    `host:${host}\n` +
+    `x-amz-content-sha256:${EMPTY_PAYLOAD_HASH}\n` +
+    `x-amz-date:${amzDate}\n`
+  const signedHeaders = 'host;x-amz-content-sha256;x-amz-date'
+
+  const canonicalRequest = [
+    'DELETE',
+    canonicalUri,
+    canonicalQuery,
+    canonicalHeaders,
+    signedHeaders,
+    EMPTY_PAYLOAD_HASH,
+  ].join('\n')
+
+  const credentialScope = `${dateStamp}/${opts.region}/${SERVICE}/aws4_request`
+  const stringToSign = [
+    'AWS4-HMAC-SHA256',
+    amzDate,
+    credentialScope,
+    sha256Hex(canonicalRequest),
+  ].join('\n')
+
+  const signingKey = deriveSigningKey(opts.secretAccessKey, dateStamp, opts.region)
+  const signature = createHmac('sha256', signingKey).update(stringToSign).digest('hex')
+
+  const authorization =
+    `AWS4-HMAC-SHA256 Credential=${opts.accessKeyId}/${credentialScope}, ` +
+    `SignedHeaders=${signedHeaders}, Signature=${signature}`
+
+  const url = `${opts.endpoint}${canonicalUri}`
+  const resp = await fetch(url, {
+    method: 'DELETE',
+    headers: {
+      Authorization: authorization,
+      'x-amz-content-sha256': EMPTY_PAYLOAD_HASH,
+      'x-amz-date': amzDate,
+    },
+  })
+
+  // S3 DELETE returns 204 No Content on success. 404 on already-deleted is
+  // idempotent-friendly; callers can treat both as success.
+  if (!resp.ok && resp.status !== 404) {
+    const text = await resp.text().catch(() => '')
+    throw new Error(
+      `R2 DELETE failed: ${resp.status} ${resp.statusText} — ${text.slice(0, 400)}`,
+    )
+  }
+
+  return { status: resp.status }
+}
+
+// ═══════════════════════════════════════════════════════════
 // Presigned GET URL (query-string auth).
 // ═══════════════════════════════════════════════════════════
 export function presignGet(opts: PresignGetOptions): string {

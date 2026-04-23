@@ -2,6 +2,21 @@
 
 Database migrations, RLS policies, roles.
 
+## [ADR-1025 Sprint 1.3 — export_verification_failures narrow table] — 2026-04-23
+
+**ADR:** ADR-1025 — Customer storage auto-provisioning
+**Sprint:** Phase 1, Sprint 1.3 — Verification probe + failure capture
+
+### Added
+- `supabase/migrations/20260804000035_export_verification_failures.sql` — appends `public.export_verification_failures` (`id, org_id, export_config_id, probe_id, failed_step, error_text, duration_ms, attempted_at`). FK cascade on both `organisations` and `export_configurations` (row disappears when its parent does). Two indexes: `(export_config_id, attempted_at desc)` + `(org_id, attempted_at desc)`. `failed_step` CHECK constraint: `put | get | content_hash | delete`.
+- RLS enabled, zero policies. `grant insert on public.export_verification_failures to cs_orchestrator` — writer role for the Edge Function that calls the probe. No SELECT grant yet; admins read via a future admin RPC when the panel wants the data.
+
+### Tested
+- `bunx supabase db push` — 1 migration applied cleanly against dev DB.
+
+### Why
+Phase 1 Sprint 1.3's `runVerificationProbe` returns a typed `ProbeResult` on every call. Capturing failed probes on a durable table lets operators (and future automation) see the failure history per `export_configurations` row + per-step. Append-only + no customer-facing RLS keeps the blast radius tight; FK cascades keep the table small without an explicit lifecycle cron.
+
 ## [ADR-1004 Phase 2 Sprint 2.3 — replaced_by pipeline + reconsent_campaigns] — 2026-04-23
 
 **ADR:** ADR-1004 — Statutory retention / material change / silent-failure

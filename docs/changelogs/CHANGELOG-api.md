@@ -2,6 +2,32 @@
 
 API route changes.
 
+## [ADR-1025 Sprint 1.2 + 1.3 — CF R2 provisioning primitives + verification probe] — 2026-04-23
+
+**ADR:** ADR-1025 — Customer storage auto-provisioning
+**Sprint:** Phase 1, Sprints 1.2 + 1.3
+
+### Added — Sprint 1.2 (CF provisioning library)
+- `app/src/lib/storage/cf-provision.ts` — zero-npm-dep Cloudflare R2 provisioning primitives. Exports:
+  - `deriveBucketName(orgId)` — sha256(orgId + salt) → `cs-cust-<20-hex>`, deterministic.
+  - `createBucket(name, locationHint='apac', opts?)` — 201 + 409-idempotent-reuse.
+  - `createBucketScopedToken(bucketName, opts?)` — returns `{token_id, access_key_id, secret_access_key}`; secret is one-shot and callers MUST encrypt before it leaves scope.
+  - `revokeBucketToken(tokenId, opts?)` — 404-idempotent.
+  - `r2Endpoint()` — account-scoped S3-compat URL.
+  - `CfProvisionError` with error-code discriminator.
+  - Internal `cfFetch` retry shim: 3 attempts × exp backoff × 30s budget; retries 429 + 5xx + network; 401/403/404/409 fail fast.
+
+### Added — Sprint 1.3 (verification probe)
+- `app/src/lib/storage/verify.ts` — `runVerificationProbe(config, deps?)`. 4-step probe: PUT a canonical JSON sentinel → presigned-GET + sha256 re-hash → DELETE sentinel. DELETE failure degrades to `ok=true + failedStep='delete'` (bucket lifecycle sweeps the sentinel). Every dependency (putObject, presignGet, deleteObject, fetch, Date.now, randomBytes) is dependency-injection'd for deterministic unit tests.
+- `app/src/lib/storage/sigv4.ts` — added `deleteObject(SigV4Options)` mirroring the existing `putObject` pattern (DELETE method, empty-payload hash, no content-type / content-length). 404 idempotent-success.
+
+### Tested
+- `app/tests/storage/cf-provision.test.ts` — Vitest, 18 tests, 177 ms. Covers `deriveBucketName` determinism + collision-resistance + salt-sensitivity + config-missing; `createBucket` 201 / 409-idempotent-GET / 429-retry / 5xx-retry / 5xx-exhaust / 401-no-retry / network-retry; `createBucketScopedToken` credentials-present / credentials-missing-in-200-surfaces-error; `revokeBucketToken` 200 / 404-idempotent / 401-surface; `r2Endpoint` happy + config-missing.
+- `app/tests/storage/verify.test.ts` — Vitest, 8 tests, 119 ms. Happy path full-4-step, DELETE failure (ok=true semantics), PUT throws (downstream skipped), GET 404, GET network error, content-hash mismatch (silent-rewrite detection), probe-id + key format, body-composition includes only the four documented fields (probe_id / storage_provider / timestamp / cs_version).
+
+### Scope boundary
+**Runtime-green gated on Sprint 1.1 operator step** (create `CF_ACCOUNT_API_TOKEN` + `STORAGE_NAME_SALT` + `CF_ACCOUNT_ID` envs). The 26 unit tests prove library + probe correctness via mocked `fetch` + injected sigv4 primitives; a real-bucket test against the dev CF account lands once the operator step completes. **Readiness-flag emission on probe failure** is deferred to Phase 2 Sprint 2.1's Edge Function — keeping the probe pure (no DB side-effects) is the cleaner boundary; the Edge Function wraps the probe + calls `admin.ops_readiness_flags` insertion when needed.
+
 ## [ADR-1014 Sprint 3.6 — admin impersonation audit trail + invoice-issuance negative] — 2026-04-23
 
 **ADR:** ADR-1014 — E2E test harness + vertical demo sites

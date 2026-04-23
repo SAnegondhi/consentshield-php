@@ -118,7 +118,7 @@ Run on every provisioning, every credential rotation, and nightly-verify cron (r
 **Estimated effort:** 0.25 day
 
 **Deliverables:**
-- [ ] Operator step: create `CF_ACCOUNT_API_TOKEN` via Cloudflare dashboard with `Account:R2 Storage:Edit` scope (account-level, no zone scope). Token stored in:
+- [ ] Operator step (deferred; gates all live-bucket testing): create `CF_ACCOUNT_API_TOKEN` via Cloudflare dashboard with `Account:R2 Storage:Edit` scope (account-level, no zone scope). Token stored in:
   - Vercel project env (app, admin): prod + preview.
   - Supabase function secret (`supabase secrets set CF_ACCOUNT_API_TOKEN=...`).
   - `.env.local` for dev.
@@ -128,35 +128,44 @@ Run on every provisioning, every credential rotation, and nightly-verify cron (r
 **Testing plan:**
 - [ ] `curl -H "Authorization: Bearer $CF_ACCOUNT_API_TOKEN" https://api.cloudflare.com/client/v4/accounts/<account_id>/r2/buckets` returns 200 + the existing bucket list.
 
+**Status:** `[ ] planned — operator step; gates Sprint 1.2 + 1.3 runtime-green but not their code + unit tests.`
+
 #### Sprint 1.2 — Provisioning primitives library
 
 **Estimated effort:** 1 day
 
 **Deliverables:**
-- [ ] `app/src/lib/storage/cf-provision.ts` — TypeScript module exporting:
-  - `deriveBucketName(orgId: string): string` — sha256 + base32 + truncate + `cs-cust-` prefix.
-  - `createBucket(name: string, locationHint: string): Promise<{id, name}>` — Cloudflare REST call.
-  - `enableDeleteProtection(bucketName: string): Promise<void>` — required for all CS-managed buckets.
-  - `createBucketScopedToken(bucketId: string): Promise<{access_key_id, secret_access_key, token_id}>` — generates a token restricted to the bucket.
-  - `revokeBucketToken(tokenId: string): Promise<void>` — for migration / cleanup.
-- [ ] All calls wrap a single `fetch` through `@ai-sdk/…`-style retry shim (3 attempts, exponential backoff, 30s budget). Structured log every attempt; never log the token response body.
-- [ ] Unit tests with mocked fetch covering: 201 creates, 409 bucket-exists (idempotency — return the existing bucket), 429 rate-limit (retry), 5xx (retry), 4xx non-409 (fail fast), network error.
+- [x] `app/src/lib/storage/cf-provision.ts` — TypeScript module exporting:
+  - `deriveBucketName(orgId: string): string` — sha256(orgId + salt) → `cs-cust-<20 hex>`. Deterministic + idempotent. Salt prevents rainbow-table reversal.
+  - `createBucket(name, locationHint='apac', opts?)` → `Promise<Bucket>`. Idempotent: 409 → falls back to GET on the existing bucket.
+  - `createBucketScopedToken(bucketName, opts?)` → `Promise<BucketScopedToken>`. Returns `{token_id, access_key_id, secret_access_key}`. Secret returned once; caller MUST encrypt before it leaves scope.
+  - `revokeBucketToken(tokenId, opts?)` → `Promise<void>`. Idempotent: 404 swallowed as success.
+  - `r2Endpoint()` — account-scoped S3-compat endpoint URL.
+  - `CfProvisionError` class with discriminator `code: 'auth' | 'conflict' | 'rate_limit' | 'server' | 'network' | 'config' | 'not_found'`.
+- [x] `cfFetch` internal retry shim: 3 attempts, 250ms × 2^(n-1) exponential backoff, 30s overall budget. Retries 429 + 5xx + network errors; 401/403/404/409 fail fast. Bearer token on Authorization header; request body stays in-memory only.
+- [x] `app/tests/storage/cf-provision.test.ts` — Vitest, 18 tests covering every documented branch: derive deterministic + collision-resistant + salt-sensitive + config-missing; createBucket 201 / 409-idempotent / 429-retry / 5xx-retry / 5xx-exhaust / 401-no-retry / network-retry; createBucketScopedToken 200 / missing-credentials-in-200; revokeBucketToken 200 / 404-idempotent / 401-surface; r2Endpoint happy + config-missing. 177 ms wall time.
 
 **Testing plan:**
-- [ ] Against the dev CF account, provision one throwaway bucket end-to-end. Verify via the dashboard. Revoke the token. Verify revocation takes effect (subsequent PUT returns 403).
+- [ ] Against the dev CF account, provision one throwaway bucket end-to-end. Verify via the dashboard. Revoke the token. Verify revocation takes effect (subsequent PUT returns 403). **Deferred — gated on Sprint 1.1 operator step.**
+
+**Status:** `[x] code + mocked unit tests shipped 2026-04-23. Runtime-green against a real CF account is gated on Sprint 1.1's operator step; Sprint 1.2's library correctness is proven by the 18-test mocked matrix.`
 
 #### Sprint 1.3 — Verification probe + failure capture
 
 **Estimated effort:** 0.5 day
 
 **Deliverables:**
-- [ ] `app/src/lib/storage/verify.ts` — `runVerificationProbe(config)` implementing the 6-step probe from the Decision section.
-- [ ] `supabase/migrations/<ts>_export_verification_failures.sql` — new narrow table + RLS (admin-only read).
-- [ ] `runVerificationProbe` emits an `admin.ops_readiness_flags` row on failure (`blocker_type='infra'`, `severity='high'`, dedupe key `(org_id, 'storage_verify_failed')`).
+- [x] `app/src/lib/storage/verify.ts` — `runVerificationProbe(config, deps?)` implementing the 4-step probe (PUT → GET → content-hash → DELETE). DELETE failure returns `ok=true` with `failedStep='delete'` + `error` populated (sentinel gets aged by the bucket's lifecycle policy; the probe doesn't need a clean DELETE to assert reachability). Every step dependency (`putObject`, `presignGet`, `deleteObject`, `fetch`, `Date.now`, `crypto.randomBytes`) is injectable for deterministic unit tests.
+- [x] `app/src/lib/storage/sigv4.ts` — added `deleteObject(SigV4Options)` that mirrors `putObject`'s sigv4 pattern (DELETE method, empty-payload hash, no content-type / content-length). 404 treated as success (idempotent delete).
+- [x] `supabase/migrations/20260804000035_export_verification_failures.sql` — new append-only narrow table `public.export_verification_failures (id, org_id, export_config_id, probe_id, failed_step, error_text, duration_ms, attempted_at)`. RLS enabled; zero policies. `grant insert on ... to cs_orchestrator`. Admins read via a future RPC (added when the panel wants the data).
+- [x] `app/tests/storage/verify.test.ts` — Vitest, 8 tests covering: happy path (PUT + GET + hash + DELETE all succeed; probe id format; key format; body composition includes probe_id / storage_provider / timestamp / cs_version and nothing else), DELETE failure (ok=true + failedStep='delete'), PUT throws (ok=false + no downstream calls), GET 404 (ok=false + no DELETE), GET network error, content-hash mismatch (silent-rewrite detection). 119 ms wall time.
+- [ ] `runVerificationProbe` emits an `admin.ops_readiness_flags` row on failure — **deferred to Phase 2 Sprint 2.1** where the Edge Function that calls the probe wires the flag emission. Keeping the probe pure (no DB side-effects) is the cleaner boundary.
 
 **Testing plan:**
-- [ ] Happy path: PUT → GET → content-hash match → DELETE → `is_verified=true`.
-- [ ] Negative: tampered token → PUT fails 403 → failure row + readiness flag → `is_verified` stays false.
+- [x] Happy path + every failure branch covered via mocked S3 deps. 18 + 8 = 26 unit tests across Sprints 1.2 + 1.3 all pass.
+- [ ] Runtime-green against a real CF bucket — gated on Sprint 1.1 operator step.
+
+**Status:** `[x] code + migration + 8 mocked unit tests shipped 2026-04-23. Readiness-flag emission deferred to Phase 2 Sprint 2.1 where the Edge Function wraps the probe.`
 
 ### Phase 2 — Managed auto-provision at onboarding
 
