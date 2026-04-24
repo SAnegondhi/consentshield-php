@@ -47,11 +47,16 @@ update admin.admin_audit_log al
  where al.org_id = o.id
    and al.account_id is null;
 
-update admin.admin_audit_log
-   set account_id = target_id
- where target_table = 'public.accounts'
-   and target_id is not null
-   and account_id is null;
+-- Only backfill target-is-account rows whose account still exists. A
+-- deleted test account will have audit rows that point at a now-gone
+-- id; those rows keep account_id = NULL rather than failing the FK.
+update admin.admin_audit_log al
+   set account_id = al.target_id
+  from public.accounts a
+ where al.target_table = 'public.accounts'
+   and al.target_id is not null
+   and al.account_id is null
+   and a.id = al.target_id;
 
 -- Partial index — the account filter skips NULL-account rows unless the
 -- operator explicitly asks for "Platform (no account)".
