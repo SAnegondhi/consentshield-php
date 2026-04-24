@@ -2,6 +2,25 @@
 
 Vercel, Cloudflare, Supabase config changes.
 
+## [ADR-1026 Sprint 1.1 — CS_WORKER_DSN wrangler secret provisioned] — 2026-04-24
+
+**ADR:** ADR-1026 — Rewind ADR-1010 Phase 3 mechanism, drop Hyperdrive
+**Sprint:** Phase 1, Sprint 1.1
+
+### Cloudflare Worker
+- **New Wrangler secret on `consentshield-cdn`:** `CS_WORKER_DSN` — full Postgres connection URI for `cs_worker` targeting the Supabase Supavisor transaction pooler (`aws-1-ap-northeast-1.pooler.supabase.com:6543`) with `sslmode=require`. 177 characters. Will replace `env.HYPERDRIVE.connectionString` as the Worker's read path in Sprint 1.2.
+- Hyperdrive config `cs-worker-hyperdrive-v2` (`87c60a8ac9b741e38b9abb24d74690cd`) still live and bound — not touched this sprint. Stays bound through Sprint 1.3 (removed from `wrangler.toml`) and Sprint 1.5 (config deletion).
+- Old secret `SUPABASE_WORKER_KEY` remains deleted (from ADR-1010 Phase 4 cutover). No HS256 re-introduction.
+
+### Operator action
+- None required — the secret is Worker-bound and already available in `env.CS_WORKER_DSN` for the next deploy. Next deploy does not happen until Sprint 1.2.
+
+### Tested
+- [x] `wrangler secret list` — `CS_WORKER_DSN / secret_text`. PASS.
+- [x] Miniflare suite 20/20 PASS (no code change — regression-only check).
+
+---
+
 ## [ADR-1025 Phase 2 — operator actions for storage auto-provisioning] — 2026-04-24
 
 **ADR:** ADR-1025 — Customer storage auto-provisioning

@@ -1,6 +1,6 @@
 # ADR-1026: Rewind ADR-1010 Phase 3 — Worker connects directly to Supavisor; drop Hyperdrive binding
 
-**Status:** Proposed
+**Status:** In Progress
 **Date proposed:** 2026-04-24
 **Date completed:** —
 **Supersedes (partial):** ADR-1010 Phase 3 Sprint 3.1's *mechanism* choice (Hyperdrive binding). All other Phase 3/4 work — `cs_worker` scoped role, direct-Postgres via `postgres.js`, Supavisor transaction pooler as the origin, Rule 16 carve-out, `SUPABASE_WORKER_KEY` retirement, role-guard removal, 20/20 Miniflare harness — stays intact.
@@ -132,17 +132,17 @@ Supavisor *is* a connection pool. Hyperdrive has been a pool-of-pools. The two l
 
 Single phase, five sprints. No multi-phase scope inflation.
 
-### Sprint 1.1 — Provision `CS_WORKER_DSN` as a Wrangler secret — [ ] planned
+### Sprint 1.1 — Provision `CS_WORKER_DSN` as a Wrangler secret — [x] complete (2026-04-24)
 
 **Deliverables:**
-- [ ] Construct the connection URI from existing `.secrets` values: `postgres://cs_worker.xlqiakmkdjycfiioslgs:<CS_WORKER_PASSWORD>@aws-1-ap-northeast-1.pooler.supabase.com:6543/postgres?sslmode=require`.
-- [ ] `wrangler secret put CS_WORKER_DSN` — push secret to the `consentshield-cdn` Worker.
-- [ ] Verify via `wrangler secret list` that `CS_WORKER_DSN` appears, `HYPERDRIVE` is still listed (we haven't touched it yet).
-- [ ] No code change in this sprint.
+- [x] Construct the connection URI from existing `.secrets` values: `postgres://cs_worker.xlqiakmkdjycfiioslgs:<CS_WORKER_PASSWORD>@aws-1-ap-northeast-1.pooler.supabase.com:6543/postgres?sslmode=require` (177 chars).
+- [x] `wrangler secret put CS_WORKER_DSN` — pushed to the `consentshield-cdn` Worker. Wrangler confirms `✨ Success! Uploaded secret CS_WORKER_DSN`.
+- [x] Verify via `wrangler secret list` — `CS_WORKER_DSN` present as `secret_text`. `HYPERDRIVE` binding is bound via `wrangler.toml` (not a secret, so not in the list — verified separately via `wrangler hyperdrive list` which shows `cs-worker-hyperdrive-v2` still alive).
+- [x] No code change in this sprint.
 
-**Test:**
-- `wrangler secret list` shows `CS_WORKER_DSN` present.
-- Miniflare suite 20/20 PASS (unchanged — Miniflare uses REST fallback path).
+**Test Results:**
+- `wrangler secret list` — single entry, `CS_WORKER_DSN` / `secret_text`. PASS.
+- Miniflare suite — 20/20 PASS (3 test files, 2.71s). No regression.
 
 ### Sprint 1.2 — Update `worker/src/db.ts` to read `CS_WORKER_DSN` — [ ] planned
 
