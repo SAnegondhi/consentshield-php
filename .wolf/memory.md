@@ -4598,3 +4598,554 @@
 | 06:29 | Edited docs/changelogs/CHANGELOG-api.md | expanded (+25 lines) | ~1215 |
 | 06:30 | Edited docs/changelogs/CHANGELOG-schema.md | modified that() | ~1115 |
 | 06:35 | ADR-1025 Sprint 2.1 SHIPPED — orchestrator (provision-org.ts) + /api/internal/provision-storage route + data_inventory trigger + admin RPC + cs_orchestrator grants; 9 mocked tests + 4-step live E2E (13.38s) | provision-org.ts, route.ts, migrations 36+37, ADR, CHANGELOG-api, CHANGELOG-schema, verify-adr-1025-sprint-21.ts | shipped 3d6142c | ~30k |
+| 06:32 | Session end: 44 writes across 16 files (db.ts, index.ts, banner.ts, verify-adr-1025-sprint-11.ts, cf-provision.ts) | 22 reads | ~114385 tok |
+| 06:33 | Session end: 44 writes across 16 files (db.ts, index.ts, banner.ts, verify-adr-1025-sprint-11.ts, cf-provision.ts) | 23 reads | ~114418 tok |
+| 06:36 | Session end: 44 writes across 16 files (db.ts, index.ts, banner.ts, verify-adr-1025-sprint-11.ts, cf-provision.ts) | 23 reads | ~114418 tok |
+| 06:40 | Edited .secrets | inline fix | ~23 |
+| 06:41 | Session end: 45 writes across 17 files (db.ts, index.ts, banner.ts, verify-adr-1025-sprint-11.ts, cf-provision.ts) | 23 reads | ~114442 tok |
+| 06:41 | Session end: 45 writes across 17 files (db.ts, index.ts, banner.ts, verify-adr-1025-sprint-11.ts, cf-provision.ts) | 23 reads | ~114442 tok |
+| 06:48 | Session end: 45 writes across 17 files (db.ts, index.ts, banner.ts, verify-adr-1025-sprint-11.ts, cf-provision.ts) | 23 reads | ~114442 tok |
+| 06:49 | Session end: 45 writes across 17 files (db.ts, index.ts, banner.ts, verify-adr-1025-sprint-11.ts, cf-provision.ts) | 23 reads | ~114442 tok |
+| 06:54 | Session end: 45 writes across 17 files (db.ts, index.ts, banner.ts, verify-adr-1025-sprint-11.ts, cf-provision.ts) | 23 reads | ~114442 tok |
+| 06:54 | Session end: 45 writes across 17 files (db.ts, index.ts, banner.ts, verify-adr-1025-sprint-11.ts, cf-provision.ts) | 23 reads | ~114442 tok |
+| 07:01 | Session end: 45 writes across 17 files (db.ts, index.ts, banner.ts, verify-adr-1025-sprint-11.ts, cf-provision.ts) | 23 reads | ~114442 tok |
+| 07:04 | Session end: 45 writes across 17 files (db.ts, index.ts, banner.ts, verify-adr-1025-sprint-11.ts, cf-provision.ts) | 23 reads | ~114442 tok |
+| 07:05 | Session end: 45 writes across 17 files (db.ts, index.ts, banner.ts, verify-adr-1025-sprint-11.ts, cf-provision.ts) | 23 reads | ~114442 tok |
+| 07:10 | Session end: 45 writes across 17 files (db.ts, index.ts, banner.ts, verify-adr-1025-sprint-11.ts, cf-provision.ts) | 23 reads | ~114442 tok |
+| 07:11 | Session end: 45 writes across 17 files (db.ts, index.ts, banner.ts, verify-adr-1025-sprint-11.ts, cf-provision.ts) | 23 reads | ~114442 tok |
+| 07:13 | Session end: 45 writes across 17 files (db.ts, index.ts, banner.ts, verify-adr-1025-sprint-11.ts, cf-provision.ts) | 23 reads | ~114442 tok |
+| 07:14 | Session end: 45 writes across 17 files (db.ts, index.ts, banner.ts, verify-adr-1025-sprint-11.ts, cf-provision.ts) | 23 reads | ~114442 tok |
+| 07:15 | Session end: 45 writes across 17 files (db.ts, index.ts, banner.ts, verify-adr-1025-sprint-11.ts, cf-provision.ts) | 23 reads | ~114442 tok |
+| 07:18 | Session end: 45 writes across 17 files (db.ts, index.ts, banner.ts, verify-adr-1025-sprint-11.ts, cf-provision.ts) | 23 reads | ~114442 tok |
+| 07:20 | Session end: 45 writes across 17 files (db.ts, index.ts, banner.ts, verify-adr-1025-sprint-11.ts, cf-provision.ts) | 23 reads | ~114442 tok |
+| 07:20 | Session end: 45 writes across 17 files (db.ts, index.ts, banner.ts, verify-adr-1025-sprint-11.ts, cf-provision.ts) | 23 reads | ~114442 tok |
+| 07:26 | Session end: 45 writes across 17 files (db.ts, index.ts, banner.ts, verify-adr-1025-sprint-11.ts, cf-provision.ts) | 23 reads | ~114442 tok |
+| 07:34 | Session end: 45 writes across 17 files (db.ts, index.ts, banner.ts, verify-adr-1025-sprint-11.ts, cf-provision.ts) | 23 reads | ~114442 tok |
+| 07:36 | Session end: 45 writes across 17 files (db.ts, index.ts, banner.ts, verify-adr-1025-sprint-11.ts, cf-provision.ts) | 23 reads | ~114442 tok |
+| 07:39 | Session end: 45 writes across 17 files (db.ts, index.ts, banner.ts, verify-adr-1025-sprint-11.ts, cf-provision.ts) | 23 reads | ~114442 tok |
+| 07:40 | Session end: 45 writes across 17 files (db.ts, index.ts, banner.ts, verify-adr-1025-sprint-11.ts, cf-provision.ts) | 23 reads | ~114442 tok |
+| 07:43 | Session end: 45 writes across 17 files (db.ts, index.ts, banner.ts, verify-adr-1025-sprint-11.ts, cf-provision.ts) | 23 reads | ~114442 tok |
+| 07:46 | Session end: 45 writes across 17 files (db.ts, index.ts, banner.ts, verify-adr-1025-sprint-11.ts, cf-provision.ts) | 23 reads | ~114442 tok |
+| 07:47 | Edited .secrets | inline fix | ~23 |
+| 07:48 | Session end: 46 writes across 17 files (db.ts, index.ts, banner.ts, verify-adr-1025-sprint-11.ts, cf-provision.ts) | 23 reads | ~114466 tok |
+| 07:50 | Created ../../../../../tmp/check-trigger-flow.ts | — | ~676 |
+| 07:50 | Created ../../../../../tmp/check-trigger-flow.ts | — | ~548 |
+| 07:51 | Created ../../../../../tmp/check-trigger-flow.ts | — | ~710 |
+| 07:51 | Created ../../../../../tmp/check-trigger-flow.ts | — | ~626 |
+| 07:52 | Session end: 50 writes across 18 files (db.ts, index.ts, banner.ts, verify-adr-1025-sprint-11.ts, cf-provision.ts) | 23 reads | ~117026 tok |
+| 07:54 | Created ../../../../../tmp/cleanup-trigger-flow.ts | — | ~2350 |
+| 07:54 | Edited ../../../../../tmp/cleanup-trigger-flow.ts | 2→1 lines | ~19 |
+| 07:56 | Edited app/src/app/api/orgs/[orgId]/onboarding/status/route.ts | expanded (+6 lines) | ~242 |
+| 07:56 | Edited app/src/app/api/orgs/[orgId]/onboarding/status/route.ts | modified if() | ~340 |
+| 07:56 | Edited app/src/app/(public)/onboarding/_components/step-7-first-consent.tsx | CSS: storage_verified | ~65 |
+| 07:56 | Edited app/src/app/(public)/onboarding/_components/step-7-first-consent.tsx | 4→9 lines | ~159 |
+| 07:57 | Edited app/src/app/(public)/onboarding/_components/step-7-first-consent.tsx | modified if() | ~82 |
+| 07:57 | Edited app/src/app/(public)/onboarding/_components/step-7-first-consent.tsx | 9→10 lines | ~126 |
+| 07:57 | Edited app/src/app/(public)/onboarding/_components/step-7-first-consent.tsx | CSS: Non-blocking | ~320 |
+| 07:57 | Created app/src/app/(dashboard)/dashboard/_components/storage-panel.tsx | — | ~1483 |
+| 07:58 | Edited app/src/app/(dashboard)/dashboard/page.tsx | added 1 import(s) | ~29 |
+| 07:58 | Edited app/src/app/(dashboard)/dashboard/page.tsx | 2→7 lines | ~77 |
+| 07:58 | Edited worker/src/banner.ts | 10→8 lines | ~32 |
+| 08:00 | Edited docs/ADRs/ADR-1010-cloudflare-worker-role-migration.md | modified openRequestSql() | ~898 |
+| 08:00 | Edited docs/ADRs/ADR-1010-cloudflare-worker-role-migration.md | 1→3 lines | ~66 |
+| 08:01 | Edited docs/ADRs/ADR-1025-customer-storage-auto-provisioning.md | modified verification() | ~831 |
+| 08:01 | Edited docs/changelogs/CHANGELOG-worker.md | modified openRequestSql() | ~708 |
+| 08:01 | Edited docs/changelogs/CHANGELOG-dashboard.md | expanded (+24 lines) | ~980 |
+| 08:15 | ADR-1025 Sprint 2.2 SHIPPED — wizard Step-7 soft banner + dashboard storage-panel; 45/45 tests + lint + build clean | storage-panel.tsx (new), step-7-first-consent.tsx, onboarding/status route, dashboard/page.tsx, ADR-1025, CHANGELOG-dashboard | shipped 93f116d | ~15k |
+| 08:02 | Session end: 68 writes across 25 files (db.ts, index.ts, banner.ts, verify-adr-1025-sprint-11.ts, cf-provision.ts) | 29 reads | ~169500 tok |
+| 08:05 | Edited docs/architecture/consentshield-complete-schema-design.md | expanded (+9 lines) | ~264 |
+| 08:05 | Edited docs/architecture/consentshield-definitive-architecture.md | inline fix | ~131 |
+| 08:06 | Edited docs/architecture/consentshield-definitive-architecture.md | expanded (+6 lines) | ~453 |
+| 08:06 | Edited docs/architecture/consentshield-definitive-architecture.md | 9→12 lines | ~271 |
+| 08:06 | Edited worker/src/banner.ts | modified getBannerConfigSql() | ~202 |
+| 08:07 | Edited docs/changelogs/CHANGELOG-infra.md | added error handling | ~761 |
+| 08:08 | Session end: 74 writes across 28 files (db.ts, index.ts, banner.ts, verify-adr-1025-sprint-11.ts, cf-provision.ts) | 32 reads | ~244980 tok |
+| 08:49 | Edited worker/src/banner.ts | modified getBannerConfigSql() | ~247 |
+| 08:49 | Edited worker/src/banner.ts | modified getBannerConfig() | ~135 |
+| 08:51 | Edited docs/ADRs/ADR-1025-customer-storage-auto-provisioning.md | modified surface() | ~863 |
+| 08:53 | Created app/src/app/api/orgs/[orgId]/storage/byok-validate/route.ts | — | ~1761 |
+| 08:53 | Created app/src/app/(dashboard)/dashboard/settings/storage/page.tsx | — | ~1449 |
+| 08:54 | Created app/src/app/(dashboard)/dashboard/settings/storage/_components/byok-form.tsx | — | ~3399 |
+| 08:55 | Created app/tests/storage/byok-validate-route.test.ts | — | ~2611 |
+| 08:55 | Session end: 81 writes across 30 files (db.ts, index.ts, banner.ts, verify-adr-1025-sprint-11.ts, cf-provision.ts) | 35 reads | ~258063 tok |
+| 08:58 | Edited app/src/app/(dashboard)/dashboard/settings/storage/_components/byok-form.tsx | CSS: options | ~91 |
+| 08:59 | Created docs/ADRs/ADR-1026-drop-hyperdrive-direct-supavisor.md | — | ~4430 |
+| 09:00 | Edited docs/ADRs/ADR-index.md | 2→3 lines | ~746 |
+| 09:05 | Edited docs/ADRs/ADR-1025-customer-storage-auto-provisioning.md | 10→13 lines | ~986 |
+| 09:05 | Session end: 85 writes across 32 files (db.ts, index.ts, banner.ts, verify-adr-1025-sprint-11.ts, cf-provision.ts) | 37 reads | ~274137 tok |
+| 09:06 | Edited docs/changelogs/CHANGELOG-api.md | expanded (+27 lines) | ~1096 |
+| 09:06 | Edited app/src/app/(dashboard)/dashboard/_components/storage-panel.tsx | 6→6 lines | ~50 |
+| 09:15 | ADR-1025 Sprint 3.1 SHIPPED — BYOK validation route (POST /api/orgs/[orgId]/storage/byok-validate) + /dashboard/settings/storage page + byok-form client; 18 new tests; reused requireOrgAccess/Turnstile/checkRateLimit primitives | route.ts (new), page.tsx (new), byok-form.tsx (new), byok-validate-route.test.ts (new), ADR-1025, CHANGELOG-api | shipped 5b87e8a + 9677ceb (link fix) | ~20k |
+| 09:07 | Session end: 87 writes across 32 files (db.ts, index.ts, banner.ts, verify-adr-1025-sprint-11.ts, cf-provision.ts) | 37 reads | ~275361 tok |
+| 09:09 | Session end: 87 writes across 32 files (db.ts, index.ts, banner.ts, verify-adr-1025-sprint-11.ts, cf-provision.ts) | 37 reads | ~275361 tok |
+| 09:11 | Created ../../../.claude/projects/-Users-sudhindra-projects-aiSpirit-consent-sheild/memory/feedback_no_mvp_framing.md | — | ~324 |
+| 09:12 | Edited ../../../.claude/projects/-Users-sudhindra-projects-aiSpirit-consent-sheild/memory/MEMORY.md | 1→2 lines | ~102 |
+| 09:13 | Created supabase/migrations/20260804000038_storage_migrations_and_dispatch.sql | — | ~3341 |
+| 09:14 | Edited docs/ADRs/ADR-1026-drop-hyperdrive-direct-supavisor.md | 3→3 lines | ~20 |
+| 09:14 | Edited docs/ADRs/ADR-1026-drop-hyperdrive-direct-supavisor.md | listed() → complete() | ~255 |
+| 09:15 | Edited docs/ADRs/ADR-index.md | inline fix | ~315 |
+| 09:15 | Created app/src/lib/storage/migrate-org.ts | — | ~5123 |
+| 09:15 | Edited docs/changelogs/CHANGELOG-infra.md | expanded (+19 lines) | ~370 |
+| 09:16 | Created app/src/app/api/internal/migrate-storage/route.ts | — | ~749 |
+| 09:16 | Created worker/src/db.ts | — | ~1150 |
+| 09:16 | Created app/src/app/api/orgs/[orgId]/storage/byok-migrate/route.ts | — | ~2124 |
+| 09:16 | Edited worker/src/index.ts | hasHyperdrive() → pooler() | ~277 |
+| 09:17 | Edited worker/src/index.ts | bound() → set() | ~222 |
+| 09:17 | Created app/src/app/api/orgs/[orgId]/storage/migrations/[migrationId]/route.ts | — | ~654 |
+| 09:18 | Created app/src/app/(dashboard)/dashboard/settings/storage/_components/byok-form.tsx | — | ~5516 |
+| 09:19 | Edited app/src/app/api/orgs/[orgId]/storage/byok-migrate/route.ts | modified catch() | ~88 |
+| 09:20 | Edited app/src/app/api/orgs/[orgId]/storage/byok-migrate/route.ts | modified catch() | ~133 |
+| 09:20 | Created app/tests/storage/byok-migrate-route.test.ts | — | ~2333 |
+| 09:22 | Created app/tests/storage/migrate-org.test.ts | — | ~3549 |
+| 10:33 | Edited worker/src/banner.ts | modified getBannerConfigSql() | ~245 |
+| 10:37 | Edited docs/ADRs/ADR-1025-customer-storage-auto-provisioning.md | modified amendment() | ~1623 |
+| 10:38 | Edited worker/src/db.ts | 7→7 lines | ~39 |
+| 10:38 | Edited docs/changelogs/CHANGELOG-api.md | modified from() | ~1398 |
+| 10:39 | Edited docs/changelogs/CHANGELOG-schema.md | expanded (+34 lines) | ~1106 |
+| 10:39 | Edited docs/architecture/consentshield-definitive-architecture.md | 8→10 lines | ~221 |
+| 10:39 | Edited docs/architecture/consentshield-definitive-architecture.md | 13→15 lines | ~314 |
+| 10:39 | Edited docs/architecture/consentshield-definitive-architecture.md | 3→6 lines | ~138 |
+| 10:39 | Edited docs/architecture/consentshield-complete-schema-design.md | expanded (+7 lines) | ~272 |
+| 10:40 | Edited docs/changelogs/CHANGELOG-infra.md | 4→5 lines | ~220 |
+| 10:45 | ADR-1025 Sprint 3.2 SHIPPED — storage migration orchestrator (forward_only + copy_existing), internal worker + customer initiator + status polling routes, storage_migrations table + dispatch + cron + admin RPC, byok-form expanded with mode-picker/progress-polling stages; 27 new unit tests; 90/90 storage tests green | migrate-org.ts (new), 3 routes (new), 20260804000038 migration, byok-form (updated), ADR + 4 changelogs | shipped 8709d04 | ~50k |
+| 10:41 | Session end: 116 writes across 38 files (db.ts, index.ts, banner.ts, verify-adr-1025-sprint-11.ts, cf-provision.ts) | 39 reads | ~338017 tok |
+| 10:48 | Created supabase/migrations/20260804000039_storage_verify_rotate_retention.sql | — | ~2668 |
+| 10:48 | Edited docs/ADRs/ADR-1026-drop-hyperdrive-direct-supavisor.md | 3→3 lines | ~33 |
+| 10:49 | Edited docs/ADRs/ADR-1026-drop-hyperdrive-direct-supavisor.md | expanded (+23 lines) | ~1020 |
+| 10:49 | Edited docs/ADRs/ADR-index.md | inline fix | ~341 |
+| 10:50 | Created app/src/lib/storage/org-crypto.ts | — | ~886 |
+| 10:50 | Edited docs/changelogs/CHANGELOG-infra.md | expanded (+29 lines) | ~540 |
+| 10:50 | Created app/src/lib/storage/nightly-verify.ts | — | ~1640 |
+| 10:51 | Created app/src/lib/storage/rotate-org.ts | — | ~1574 |
+| 10:51 | Created app/src/lib/storage/retention-cleanup.ts | — | ~2474 |
+| 10:52 | Created app/src/app/api/internal/storage-verify/route.ts | — | ~322 |
+| 10:52 | Created app/src/app/api/internal/storage-rotate/route.ts | — | ~402 |
+| 10:52 | Created app/src/app/api/internal/storage-retention-cleanup/route.ts | — | ~333 |
+| 10:53 | Session end: 128 writes across 43 files (db.ts, index.ts, banner.ts, verify-adr-1025-sprint-11.ts, cf-provision.ts) | 39 reads | ~350623 tok |
+| 10:53 | Created app/tests/storage/nightly-verify.test.ts | — | ~1809 |
+| 10:53 | Created app/tests/storage/rotate-org.test.ts | — | ~1718 |
+| 10:54 | Created app/tests/storage/retention-cleanup.test.ts | — | ~1746 |
+| 10:55 | Edited app/tests/storage/nightly-verify.test.ts | 5→8 lines | ~94 |
+| 11:06 | Edited docs/ADRs/ADR-1026-drop-hyperdrive-direct-supavisor.md | Blocked() → Abandoned() | ~63 |
+| 11:06 | Edited docs/ADRs/ADR-1026-drop-hyperdrive-direct-supavisor.md | expanded (+21 lines) | ~605 |
+| 11:06 | Edited docs/ADRs/ADR-index.md | "s *mechanism* choice — Wo" → "s *mechanism* choice — Wo" | ~310 |
+| 11:07 | Edited docs/changelogs/CHANGELOG-infra.md | expanded (+18 lines) | ~398 |
+| 11:07 | Session end: 136 writes across 46 files (db.ts, index.ts, banner.ts, verify-adr-1025-sprint-11.ts, cf-provision.ts) | 39 reads | ~357930 tok |
+| 11:10 | Session end: 136 writes across 46 files (db.ts, index.ts, banner.ts, verify-adr-1025-sprint-11.ts, cf-provision.ts) | 39 reads | ~357930 tok |
+| 11:13 | Edited docs/changelogs/CHANGELOG-docs.md | expanded (+17 lines) | ~420 |
+| 11:14 | Session end: 137 writes across 47 files (db.ts, index.ts, banner.ts, verify-adr-1025-sprint-11.ts, cf-provision.ts) | 40 reads | ~369799 tok |
+| 11:17 | Edited docs/architecture/consentshield-definitive-architecture.md | inline fix | ~250 |
+| 11:17 | Edited docs/architecture/consentshield-definitive-architecture.md | 1→5 lines | ~268 |
+| 11:17 | Edited docs/architecture/consentshield-definitive-architecture.md | modified env() | ~267 |
+| 11:18 | Edited docs/architecture/consentshield-definitive-architecture.md | 23→20 lines | ~253 |
+| 11:19 | Edited docs/architecture/consentshield-definitive-architecture.md | 8→9 lines | ~123 |
+| 11:19 | Session end: 142 writes across 47 files (db.ts, index.ts, banner.ts, verify-adr-1025-sprint-11.ts, cf-provision.ts) | 40 reads | ~371481 tok |
+| 11:22 | Session end: 142 writes across 47 files (db.ts, index.ts, banner.ts, verify-adr-1025-sprint-11.ts, cf-provision.ts) | 40 reads | ~371481 tok |
+| 12:28 | Edited docs/ADRs/ADR-1025-customer-storage-auto-provisioning.md | modified expansion() | ~1461 |
+| 12:29 | Edited docs/changelogs/CHANGELOG-api.md | expanded (+35 lines) | ~1202 |
+| 12:29 | Edited docs/changelogs/CHANGELOG-schema.md | expanded (+34 lines) | ~919 |
+| 12:30 | Edited docs/changelogs/CHANGELOG-infra.md | expanded (+8 lines) | ~383 |
+| 13:07 | Created .claude/session-handoff.md | — | ~3715 |
+| 13:07 | Session end: 147 writes across 48 files (db.ts, index.ts, banner.ts, verify-adr-1025-sprint-11.ts, cf-provision.ts) | 40 reads | ~382488 tok |
+
+## Session: 2026-04-24 13:08
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+| 13:09 | Created supabase/migrations/20260804000040_storage_usage_snapshots.sql | — | ~2219 |
+| 13:09 | Session end: 1 writes across 1 files (20260804000040_storage_usage_snapshots.sql) | 1 reads | ~5861 tok |
+| 13:09 | Created app/src/lib/storage/fetch-usage.ts | — | ~1867 |
+| 13:10 | Created app/src/app/api/internal/storage-usage-snapshot/route.ts | — | ~318 |
+| 13:10 | Created supabase/migrations/20260804000041_resolve_adr1010_p4_followup_flag.sql | — | ~302 |
+| 13:11 | Created admin/src/app/(operator)/storage-usage/page.tsx | — | ~2012 |
+| 13:12 | Session end: 5 writes across 5 files (20260804000040_storage_usage_snapshots.sql, fetch-usage.ts, route.ts, 20260804000041_resolve_adr1010_p4_followup_flag.sql, page.tsx) | 5 reads | ~22687 tok |
+| 13:12 | Created app/tests/storage/fetch-usage.test.ts | — | ~1655 |
+| 13:13 | Created ../../../.claude/projects/-Users-sudhindra-projects-aiSpirit-consent-sheild/memory/project_terminal_ownership.md | — | ~284 |
+| 13:13 | Edited ../../../.claude/projects/-Users-sudhindra-projects-aiSpirit-consent-sheild/memory/MEMORY.md | 1→2 lines | ~84 |
+| 13:13 | Session end: 8 writes across 8 files (20260804000040_storage_usage_snapshots.sql, fetch-usage.ts, route.ts, 20260804000041_resolve_adr1010_p4_followup_flag.sql, page.tsx) | 6 reads | ~24736 tok |
+| 13:14 | Edited docs/ADRs/ADR-1025-customer-storage-auto-provisioning.md | modified step() | ~1168 |
+| 13:14 | Edited docs/changelogs/CHANGELOG-api.md | expanded (+27 lines) | ~829 |
+| 13:15 | Session end: 10 writes across 10 files (20260804000040_storage_usage_snapshots.sql, fetch-usage.ts, route.ts, 20260804000041_resolve_adr1010_p4_followup_flag.sql, page.tsx) | 10 reads | ~40019 tok |
+| 13:15 | Edited docs/changelogs/CHANGELOG-schema.md | expanded (+29 lines) | ~866 |
+| 13:15 | Edited docs/changelogs/CHANGELOG-infra.md | 7→9 lines | ~286 |
+| 13:15 | Edited docs/architecture/consentshield-definitive-architecture.md | 3→5 lines | ~101 |
+| 13:16 | Edited docs/architecture/consentshield-definitive-architecture.md | 2→4 lines | ~88 |
+| 13:16 | Edited docs/architecture/consentshield-complete-schema-design.md | expanded (+7 lines) | ~213 |
+| 13:20 | ADR-1025 Sprints 4.1 + 4.2 SHIPPED — nightly verify + rotation RPC + retention cleanup + monthly usage snapshots + admin chargeback panel. 4 new orchestrators (nightly-verify, rotate-org, retention-cleanup, fetch-usage) + org-crypto shared helper. 4 new routes. 2 migrations + 5 crons + 2 admin RPCs. 25 new unit tests. 115/115 storage tests green. **ADR-1025 COMPLETE** | Sprint 4.1 commit 0519ea8, Sprint 4.2 commit fffbe08 | ~70k |
+| 13:17 | Session end: 15 writes across 14 files (20260804000040_storage_usage_snapshots.sql, fetch-usage.ts, route.ts, 20260804000041_resolve_adr1010_p4_followup_flag.sql, page.tsx) | 11 reads | ~62433 tok |
+| 13:18 | Edited app/src/lib/storage/provision-org.ts | 11→14 lines | ~91 |
+| 13:19 | Edited app/src/lib/storage/provision-org.ts | inline fix | ~20 |
+| 13:19 | Edited app/src/lib/storage/provision-org.ts | removed 35 lines | ~20 |
+| 13:19 | Edited app/src/lib/storage/migrate-org.ts | 5→9 lines | ~84 |
+| 13:19 | Edited docs/architecture/consentshield-definitive-architecture.md | modified tables() | ~266 |
+| 13:19 | Edited app/src/lib/storage/migrate-org.ts | modified processMigrationChunk() | ~63 |
+| 13:20 | Edited app/src/lib/storage/migrate-org.ts | modified loadSourceCreds() | ~292 |
+| 13:20 | Edited docs/architecture/consentshield-definitive-architecture.md | modified public() | ~1372 |
+| 13:20 | Edited app/src/lib/storage/migrate-org.ts | 2→2 lines | ~42 |
+| 13:20 | Edited docs/admin/design/consentshield-admin-screens.html | 6→7 lines | ~155 |
+| 13:20 | Edited docs/admin/design/consentshield-admin-screens.html | inline fix | ~39 |
+| 13:21 | Edited docs/design/screen designs and ux/consentshield-screens.html | 5 → 2 | ~40 |
+| 13:21 | Edited docs/design/screen designs and ux/consentshield-screens.html | 5→5 lines | ~120 |
+| 13:21 | Edited app/src/app/(dashboard)/dashboard/_components/storage-panel.tsx | expanded (+11 lines) | ~375 |
+| 13:22 | Edited app/src/app/(dashboard)/dashboard/_components/storage-panel.tsx | CSS: ascending | ~241 |
+| 13:22 | Edited app/src/app/(dashboard)/dashboard/_components/storage-panel.tsx | modified formatRelative() | ~181 |
+| 13:22 | Edited app/src/app/(dashboard)/dashboard/_components/storage-panel.tsx | CSS: usage, width, n | ~680 |
+| 13:23 | Edited docs/reviews/2026-04-18-adr-0044-customer-rbac-review.md | 6→6 lines | ~197 |
+| 13:23 | Edited docs/ADRs/ADR-1025-customer-storage-auto-provisioning.md | modified pass() | ~505 |
+| 13:23 | Edited docs/changelogs/CHANGELOG-docs.md | expanded (+23 lines) | ~1007 |
+| 13:23 | Edited docs/changelogs/CHANGELOG-dashboard.md | expanded (+25 lines) | ~770 |
+| 13:30 | ADR-1025 CLOSE-OUT — customer usage display on dashboard storage-panel (progress bar + ceiling + snapshot date) + provision-org/migrate-org consolidated to use shared org-crypto helper; 2 deferred items genuinely cross-ADR documented (CF ops cost → future ADR-1027, Razorpay line items → ADR-0050 integration) | storage-panel.tsx, provision-org.ts, migrate-org.ts, ADR-1025, CHANGELOG-dashboard | shipped b091045 | ~8k |
+| 13:24 | Session end: 36 writes across 22 files (20260804000040_storage_usage_snapshots.sql, fetch-usage.ts, route.ts, 20260804000041_resolve_adr1010_p4_followup_flag.sql, page.tsx) | 22 reads | ~180468 tok |
+| 13:29 | Session end: 36 writes across 22 files (20260804000040_storage_usage_snapshots.sql, fetch-usage.ts, route.ts, 20260804000041_resolve_adr1010_p4_followup_flag.sql, page.tsx) | 23 reads | ~181189 tok |
+| 13:32 | Session end: 36 writes across 22 files (20260804000040_storage_usage_snapshots.sql, fetch-usage.ts, route.ts, 20260804000041_resolve_adr1010_p4_followup_flag.sql, page.tsx) | 23 reads | ~181189 tok |
+| 13:38 | Created ../../../../../tmp/cs-vault-setup.sql | — | ~456 |
+| 13:39 | Edited docs/ops/invitation-email-setup.md | 6→6 lines | ~246 |
+| 13:45 | Created .claude/session-handoff-terminal-a.md | — | ~6229 |
+| 13:45 | Session end: 39 writes across 25 files (20260804000040_storage_usage_snapshots.sql, fetch-usage.ts, route.ts, 20260804000041_resolve_adr1010_p4_followup_flag.sql, page.tsx) | 23 reads | ~188616 tok |
+
+## Session: 2026-04-24 13:45
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+| 13:47 | Edited docs/changelogs/CHANGELOG-infra.md | expanded (+30 lines) | ~704 |
+| 13:50 | Edited docs/ADRs/ADR-1019-deliver-consent-events-edge-function.md | modified delivers() | ~726 |
+| 13:50 | Edited docs/ADRs/ADR-1019-deliver-consent-events-edge-function.md | 11→16 lines | ~596 |
+| 13:50 | Created app/src/lib/api/cs-delivery-client.ts | — | ~546 |
+| 13:51 | Created scripts/adr-1019-sprint-11-grants-audit.sql | — | ~857 |
+| 13:51 | Created scripts/adr-1019-sprint-11-backfill.sql | — | ~620 |
+| 13:52 | Edited docs/ADRs/ADR-1019-deliver-consent-events-edge-function.md | expanded (+30 lines) | ~560 |
+| 13:53 | Created docs/ADRs/ADR-1027-admin-account-awareness.md | — | ~4295 |
+| 13:53 | Edited docs/changelogs/CHANGELOG-api.md | expanded (+26 lines) | ~679 |
+| 13:54 | Edited docs/ADRs/ADR-index.md | 2→3 lines | ~553 |
+| 13:55 | Edited docs/admin/design/consentshield-admin-screens.html | 29→34 lines | ~1326 |
+| 13:55 | Edited docs/admin/design/ARCHITECTURE-ALIGNMENT-2026-04-16.md | 1→6 lines | ~203 |
+| 13:57 | Created supabase/migrations/20260804000042_adr1027_s11_audit_log_account_id.sql | — | ~1134 |
+| 13:57 | Edited admin/src/app/(operator)/audit-log/page.tsx | added 1 condition(s) | ~567 |
+| 13:58 | Edited admin/src/app/(operator)/audit-log/page.tsx | added optional chaining | ~604 |
+| 13:58 | Edited admin/src/app/(operator)/audit-log/page.tsx | expanded (+9 lines) | ~187 |
+| 13:58 | Edited admin/src/components/audit-log/filter-bar.tsx | modified AuditLogFilterBar() | ~1277 |
+| 13:58 | Edited admin/src/components/audit-log/audit-table.tsx | CSS: account_id, account_name | ~136 |
+| 13:58 | Edited admin/src/components/audit-log/audit-table.tsx | modified slice() | ~553 |
+| 13:59 | Edited admin/src/app/(operator)/audit-log/export/route.ts | added 1 condition(s) | ~291 |
+| 13:59 | Edited admin/src/app/(operator)/audit-log/export/route.ts | added 1 condition(s) | ~91 |
+| 13:59 | Edited admin/src/app/(operator)/audit-log/export/route.ts | modified toCsv() | ~326 |
+| 13:59 | Edited admin/src/components/audit-log/detail-drawer.tsx | CSS: account_id, account_name | ~141 |
+| 14:00 | Edited admin/src/components/audit-log/detail-drawer.tsx | added nullish coalescing | ~192 |
+| 14:00 | Created tests/admin/audit-log-account-id.test.ts | — | ~1655 |
+| 14:02 | Edited ../../../.claude/projects/-Users-sudhindra-projects-aiSpirit-consent-sheild/memory/feedback_no_mvp_framing.md | 9→11 lines | ~499 |
+| 14:03 | Created app/src/lib/storage/endpoint.ts | — | ~629 |
+| 14:03 | Edited app/src/lib/storage/nightly-verify.ts | removed 18 lines | ~32 |
+| 14:03 | Edited app/src/lib/storage/nightly-verify.ts | added 1 import(s) | ~57 |
+| 14:03 | Created app/tests/storage/endpoint.test.ts | — | ~700 |
+| 14:03 | Edited docs/ADRs/ADR-1027-admin-account-awareness.md | 21→23 lines | ~1496 |
+| 14:04 | Edited docs/ADRs/ADR-1027-admin-account-awareness.md | 5→3 lines | ~58 |
+| 14:04 | Edited docs/ADRs/ADR-1027-admin-account-awareness.md | 9→11 lines | ~311 |
+| 14:04 | Edited docs/ADRs/ADR-1019-deliver-consent-events-edge-function.md | expanded (+6 lines) | ~573 |
+| 14:04 | Edited docs/ADRs/ADR-1019-deliver-consent-events-edge-function.md | 3→4 lines | ~50 |
+| 14:04 | Edited docs/changelogs/CHANGELOG-api.md | expanded (+22 lines) | ~510 |
+| 14:05 | Edited docs/ADRs/ADR-1027-admin-account-awareness.md | expanded (+35 lines) | ~1163 |
+| 14:05 | Edited docs/ADRs/ADR-index.md | inline fix | ~231 |
+| 14:06 | Edited app/src/lib/storage/sigv4.ts | 4→8 lines | ~99 |
+| 14:06 | Edited app/src/lib/storage/sigv4.ts | added 1 condition(s) | ~641 |
+| 14:07 | Edited docs/admin/design/ARCHITECTURE-ALIGNMENT-2026-04-16.md | 2→4 lines | ~127 |
+| 14:07 | Created app/src/lib/delivery/canonical-json.ts | — | ~533 |
+| 14:07 | Created app/src/lib/delivery/object-key.ts | — | ~478 |
+| 14:07 | Edited docs/ADRs/ADR-1027-admin-account-awareness.md | expanded (+8 lines) | ~717 |
+| 14:08 | Created app/src/lib/delivery/deliver-events.ts | — | ~2462 |
+| 14:08 | Created app/src/app/api/internal/deliver-consent-events/route.ts | — | ~671 |
+| 14:08 | Edited docs/changelogs/CHANGELOG-schema.md | expanded (+34 lines) | ~1040 |
+| 14:08 | Edited app/src/lib/delivery/deliver-events.ts | 16→17 lines | ~121 |
+| 14:09 | Edited app/src/lib/delivery/deliver-events.ts | modified if() | ~342 |
+| 14:09 | Edited app/src/lib/delivery/deliver-events.ts | modified catch() | ~102 |
+| 14:09 | Created app/tests/delivery/canonical-json.test.ts | — | ~653 |
+| 14:10 | Created app/tests/delivery/object-key.test.ts | — | ~655 |
+| 14:10 | Edited supabase/migrations/20260804000042_adr1027_s11_audit_log_account_id.sql | 5→10 lines | ~115 |
+| 14:10 | Created app/tests/delivery/deliver-events.test.ts | — | ~2128 |
+| 14:11 | Edited app/src/lib/delivery/deliver-events.ts | added nullish coalescing | ~68 |
+| 14:11 | Created supabase/migrations/20260804000043_adr1027_s12_admin_dashboard_tiles.sql | — | ~1658 |
+| 14:12 | Edited docs/ADRs/ADR-1019-deliver-consent-events-edge-function.md | expanded (+16 lines) | ~998 |
+| 14:12 | Edited docs/ADRs/ADR-1019-deliver-consent-events-edge-function.md | 4→5 lines | ~74 |
+| 14:12 | Created admin/src/components/ops-dashboard/plan-distribution-card.tsx | — | ~626 |
+| 14:12 | Edited docs/changelogs/CHANGELOG-api.md | expanded (+28 lines) | ~730 |
+| 14:13 | Created admin/src/app/(operator)/page.tsx | — | ~2801 |
+| 14:13 | Edited docs/admin/design/consentshield-admin-screens.html | expanded (+65 lines) | ~1588 |
+| 14:14 | Edited docs/admin/design/ARCHITECTURE-ALIGNMENT-2026-04-16.md | inline fix | ~37 |
+| 14:14 | Created tests/admin/admin-dashboard-tiles.test.ts | — | ~1569 |
+| 14:15 | Edited docs/ADRs/ADR-1027-admin-account-awareness.md | modified live() | ~659 |
+| 14:15 | Edited docs/changelogs/CHANGELOG-schema.md | expanded (+35 lines) | ~1062 |
+| 14:17 | Created admin/src/components/account-context/account-context-card.tsx | — | ~1898 |
+| 14:17 | Edited admin/src/app/(operator)/orgs/[orgId]/page.tsx | added 1 import(s) | ~135 |
+| 14:17 | Edited app/src/lib/delivery/deliver-events.ts | added error handling | ~837 |
+| 14:17 | Edited admin/src/app/(operator)/orgs/[orgId]/page.tsx | 9→14 lines | ~120 |
+| 14:18 | Edited app/src/app/api/internal/deliver-consent-events/route.ts | modified timeout() | ~572 |
+| 14:18 | Edited app/src/lib/delivery/deliver-events.ts | modified deliverBatch() | ~117 |
+| 14:18 | Edited app/src/lib/delivery/deliver-events.ts | deliverOne() → oneFn() | ~39 |
+| 14:18 | Edited admin/src/app/(operator)/pipeline/page.tsx | added 1 condition(s) | ~726 |
+| 14:18 | Edited admin/src/app/(operator)/pipeline/page.tsx | 4→4 lines | ~23 |
+| 14:18 | Edited admin/src/app/(operator)/pipeline/pipeline-tabs.tsx | CSS: account_id, account_name, plan_code | ~124 |
+| 14:18 | Edited admin/src/app/(operator)/pipeline/pipeline-tabs.tsx | CSS: orgToAccount | ~100 |
+| 14:18 | Created app/tests/delivery/deliver-batch.test.ts | — | ~1612 |
+| 14:19 | Edited admin/src/app/(operator)/pipeline/pipeline-tabs.tsx | expanded (+39 lines) | ~531 |
+| 14:19 | Edited admin/src/app/(operator)/pipeline/pipeline-tabs.tsx | added 2 condition(s) | ~1552 |
+| 14:19 | Edited docs/ADRs/ADR-1019-deliver-consent-events-edge-function.md | modified LEAST() | ~549 |
+| 14:19 | Edited docs/ADRs/ADR-1019-deliver-consent-events-edge-function.md | 1→2 lines | ~42 |
+| 14:20 | Edited docs/changelogs/CHANGELOG-api.md | modified gate() | ~631 |
+| 14:20 | Edited admin/src/app/(operator)/pipeline/pipeline-tabs.tsx | added optional chaining | ~1592 |
+| 14:21 | Edited admin/src/app/(operator)/pipeline/pipeline-tabs.tsx | added optional chaining | ~2022 |
+| 14:21 | Edited admin/src/app/(operator)/pipeline/page.tsx | CSS: 1 | ~193 |
+| 14:22 | Edited docs/admin/design/consentshield-admin-screens.html | expanded (+13 lines) | ~422 |
+| 14:22 | Edited docs/admin/design/consentshield-admin-screens.html | expanded (+11 lines) | ~731 |
+| 14:23 | Edited docs/ADRs/ADR-1027-admin-account-awareness.md | expanded (+6 lines) | ~627 |
+| 14:23 | Edited docs/admin/design/ARCHITECTURE-ALIGNMENT-2026-04-16.md | inline fix | ~75 |
+| 14:24 | Edited docs/changelogs/CHANGELOG-dashboard.md | expanded (+34 lines) | ~1104 |
+| 14:25 | Edited admin/src/app/(operator)/support/page.tsx | added optional chaining | ~937 |
+| 14:25 | Edited admin/src/app/(operator)/support/page.tsx | added nullish coalescing | ~742 |
+| 14:26 | Edited admin/src/app/(operator)/support/page.tsx | 7→7 lines | ~115 |
+| 14:26 | Edited admin/src/app/(operator)/support/page.tsx | modified slice() | ~110 |
+| 14:26 | Edited admin/src/app/(operator)/support/[ticketId]/page.tsx | CSS: data | ~127 |
+| 14:26 | Edited admin/src/app/(operator)/support/[ticketId]/page.tsx | added 1 import(s) | ~119 |
+| 14:26 | Edited admin/src/app/(operator)/support/[ticketId]/page.tsx | 13→18 lines | ~190 |
+| 14:28 | Edited docs/ADRs/ADR-1027-admin-account-awareness.md | 14→16 lines | ~408 |
+| 14:28 | Edited docs/admin/design/ARCHITECTURE-ALIGNMENT-2026-04-16.md | inline fix | ~57 |
+| 14:28 | Edited docs/admin/design/consentshield-admin-screens.html | expanded (+18 lines) | ~1105 |
+| 14:29 | Edited docs/changelogs/CHANGELOG-dashboard.md | expanded (+31 lines) | ~711 |
+| 14:29 | Created supabase/migrations/20260804000043_adr1019_s23_delivery_retry_exhausted.sql | — | ~733 |
+| 14:29 | Edited app/src/lib/delivery/deliver-events.ts | expanded (+21 lines) | ~275 |
+| 14:29 | Edited app/src/lib/delivery/deliver-events.ts | 2→1 lines | ~11 |
+| 14:29 | Edited app/src/lib/delivery/deliver-events.ts | 3→3 lines | ~28 |
+| 14:29 | Edited app/src/lib/delivery/deliver-events.ts | 10→11 lines | ~78 |
+| 14:29 | Edited app/src/lib/delivery/deliver-events.ts | 7→8 lines | ~73 |
+| 14:30 | Edited app/src/lib/delivery/deliver-events.ts | added 1 condition(s) | ~348 |
+| 14:30 | Edited app/src/lib/delivery/deliver-events.ts | added error handling | ~461 |
+| 14:31 | Created supabase/migrations/20260804000044_adr1027_s31_impersonation_by_account.sql | — | ~933 |
+| 14:31 | Created app/tests/delivery/escalation.test.ts | — | ~1801 |
+| 14:32 | Edited docs/ADRs/ADR-1019-deliver-consent-events-edge-function.md | modified 1() | ~722 |
+| 14:32 | Edited docs/ADRs/ADR-1019-deliver-consent-events-edge-function.md | 1→3 lines | ~66 |
+| 14:32 | Edited docs/changelogs/CHANGELOG-schema.md | modified admin() | ~509 |
+| 14:33 | Edited docs/changelogs/CHANGELOG-api.md | expanded (+24 lines) | ~615 |
+| 14:33 | Created admin/src/app/(operator)/impersonation-log/page.tsx | — | ~1384 |
+| 14:34 | Created admin/src/app/(operator)/impersonation-log/log-tabs.tsx | — | ~2261 |
+| 14:34 | Edited admin/src/app/(operator)/layout.tsx | 2→3 lines | ~69 |
+| 14:35 | Edited admin/src/app/(operator)/impersonation-log/page.tsx | 3→8 lines | ~118 |
+| 14:35 | Edited admin/src/app/(operator)/impersonation-log/page.tsx | 8→7 lines | ~104 |
+| 14:35 | Created tests/admin/impersonation-by-account.test.ts | — | ~1127 |
+| 14:36 | Edited docs/ADRs/ADR-1027-admin-account-awareness.md | expanded (+9 lines) | ~647 |
+| 14:36 | Edited docs/admin/design/ARCHITECTURE-ALIGNMENT-2026-04-16.md | inline fix | ~45 |
+| 14:37 | Edited docs/changelogs/CHANGELOG-schema.md | expanded (+29 lines) | ~644 |
+| 14:37 | Edited docs/changelogs/CHANGELOG-dashboard.md | expanded (+21 lines) | ~641 |
+| 14:38 | Created supabase/migrations/20260804000046_adr1027_s32_account_notes.sql | — | ~1894 |
+| 14:39 | Created admin/src/app/(operator)/accounts/[accountId]/account-notes-actions.ts | — | ~685 |
+| 14:39 | Created admin/src/app/(operator)/accounts/[accountId]/account-notes-card.tsx | — | ~2454 |
+| 14:40 | Edited admin/src/app/(operator)/accounts/[accountId]/page.tsx | added 1 import(s) | ~92 |
+| 14:40 | Edited admin/src/app/(operator)/accounts/[accountId]/page.tsx | 4→8 lines | ~104 |
+| 14:40 | Edited admin/src/app/(operator)/accounts/[accountId]/page.tsx | CSS: adminNameById, id, display_name | ~186 |
+| 14:40 | Edited admin/src/app/(operator)/accounts/[accountId]/page.tsx | expanded (+10 lines) | ~127 |
+| 14:41 | Edited admin/src/app/(operator)/orgs/[orgId]/page.tsx | added nullish coalescing | ~112 |
+| 14:41 | Edited admin/src/app/(operator)/orgs/[orgId]/page.tsx | expanded (+10 lines) | ~182 |
+| 14:41 | Edited admin/src/app/(operator)/orgs/[orgId]/page.tsx | CSS: hover, color | ~716 |
+| 14:41 | Edited admin/src/app/(operator)/orgs/[orgId]/page.tsx | inline fix | ~26 |
+| 14:42 | Created tests/admin/account-notes-rpcs.test.ts | — | ~2020 |
+| 14:43 | Edited docs/ADRs/ADR-1027-admin-account-awareness.md | expanded (+14 lines) | ~923 |
+| 14:43 | Edited docs/admin/design/ARCHITECTURE-ALIGNMENT-2026-04-16.md | inline fix | ~63 |
+| 14:44 | Edited docs/admin/design/consentshield-admin-screens.html | expanded (+14 lines) | ~655 |
+| 14:44 | Edited docs/changelogs/CHANGELOG-schema.md | expanded (+31 lines) | ~742 |
+| 14:45 | Edited docs/changelogs/CHANGELOG-dashboard.md | expanded (+25 lines) | ~835 |
+| 14:47 | Created supabase/migrations/20260804000047_adr1027_s33_account_default_template.sql | — | ~2272 |
+| 14:47 | Created admin/src/app/(operator)/accounts/[accountId]/default-template-card.tsx | — | ~1305 |
+| 14:48 | Created admin/src/app/(operator)/accounts/[accountId]/default-template-actions.ts | — | ~259 |
+| 14:48 | Edited admin/src/app/(operator)/accounts/[accountId]/page.tsx | 6→10 lines | ~117 |
+| 14:48 | Edited admin/src/app/(operator)/accounts/[accountId]/page.tsx | expanded (+9 lines) | ~298 |
+| 14:48 | Edited admin/src/app/(operator)/accounts/[accountId]/page.tsx | expanded (+8 lines) | ~179 |
+| 14:49 | Edited admin/src/app/(operator)/accounts/[accountId]/page.tsx | expanded (+8 lines) | ~135 |
+| 14:49 | Edited admin/src/app/(operator)/accounts/[accountId]/page.tsx | expanded (+10 lines) | ~219 |
+| 14:49 | Edited app/src/app/(public)/onboarding/actions.ts | added nullish coalescing | ~311 |
+| 14:49 | Edited app/src/app/(public)/onboarding/_components/step-4-purposes.tsx | CSS: parallel | ~459 |
+| 14:50 | Edited app/src/app/(public)/onboarding/_components/step-4-purposes.tsx | CSS: pre-selection | ~789 |
+| 14:50 | Edited app/src/app/(public)/onboarding/_components/step-4-purposes.tsx | CSS: templates, accountDefault, template_code | ~268 |
+| 14:50 | Edited docs/ADRs/ADR-1019-deliver-consent-events-edge-function.md | "20260804000043_adr1019_s2" → "20260804000045_adr1019_s2" | ~108 |
+| 14:50 | Edited docs/changelogs/CHANGELOG-api.md | "20260804000043_adr1019_s2" → "20260804000045_adr1019_s2" | ~40 |
+| 14:50 | Edited docs/changelogs/CHANGELOG-schema.md | "20260804000043_adr1019_s2" → "20260804000045_adr1019_s2" | ~64 |
+| 14:51 | Created tests/admin/account-default-template.test.ts | — | ~1872 |
+| 14:52 | Created supabase/migrations/20260804000048_adr1019_s31_deliver_consent_events_dispatch.sql | — | ~1856 |
+| 14:52 | Edited docs/ADRs/ADR-1019-deliver-consent-events-edge-function.md | expanded (+11 lines) | ~513 |
+| 14:52 | Edited docs/ADRs/ADR-1019-deliver-consent-events-edge-function.md | 1→2 lines | ~47 |
+| 14:53 | Edited docs/changelogs/CHANGELOG-schema.md | modified Static() | ~675 |
+| 14:53 | Edited supabase/migrations/20260804000047_adr1027_s33_account_default_template.sql | 9→8 lines | ~67 |
+| 14:54 | Edited supabase/migrations/20260804000047_adr1027_s33_account_default_template.sql | 20→20 lines | ~217 |
+| 14:54 | Created supabase/migrations/20260804000049_adr1027_s33_fix_no_is_active.sql | — | ~983 |
+| 14:54 | Created supabase/migrations/20260804000049_adr1019_s41_delivery_backlog_metrics.sql | — | ~2091 |
+| 14:54 | Edited tests/admin/account-default-template.test.ts | modified pickPublishedTemplate() | ~125 |
+| 14:55 | Edited tests/admin/account-default-template.test.ts | expanded (+9 lines) | ~211 |
+| 14:55 | Edited admin/src/app/(operator)/accounts/[accountId]/default-template-card.tsx | 8→7 lines | ~39 |
+| 14:55 | Edited admin/src/app/(operator)/accounts/[accountId]/default-template-card.tsx | 9→9 lines | ~119 |
+| 14:55 | Edited docs/ADRs/ADR-1019-deliver-consent-events-edge-function.md | modified steps() | ~759 |
+| 14:55 | Edited admin/src/app/(operator)/accounts/[accountId]/page.tsx | 9→8 lines | ~40 |
+| 14:55 | Edited docs/ADRs/ADR-1019-deliver-consent-events-edge-function.md | 5→5 lines | ~36 |
+| 14:55 | Edited admin/src/app/(operator)/accounts/[accountId]/page.tsx | 8→7 lines | ~64 |
+| 14:55 | Edited docs/ADRs/ADR-1019-deliver-consent-events-edge-function.md | 1→2 lines | ~47 |
+| 14:56 | Edited docs/changelogs/CHANGELOG-schema.md | expanded (+18 lines) | ~509 |
+| 14:56 | Session end: 177 writes across 55 files (CHANGELOG-infra.md, ADR-1019-deliver-consent-events-edge-function.md, cs-delivery-client.ts, adr-1019-sprint-11-grants-audit.sql, adr-1019-sprint-11-backfill.sql) | 53 reads | ~370821 tok |
+| 14:56 | Edited docs/ADRs/ADR-1027-admin-account-awareness.md | expanded (+15 lines) | ~1002 |
+| 14:56 | Edited docs/admin/design/ARCHITECTURE-ALIGNMENT-2026-04-16.md | inline fix | ~63 |
+| 14:58 | Edited docs/changelogs/CHANGELOG-schema.md | expanded (+21 lines) | ~542 |
+| 14:58 | Edited docs/changelogs/CHANGELOG-dashboard.md | expanded (+26 lines) | ~677 |
+| 14:59 | Edited docs/ADRs/ADR-1027-admin-account-awareness.md | 3→3 lines | ~22 |
+| 14:59 | Edited docs/ADRs/ADR-index.md | inline fix | ~291 |
+| 15:00 | Session end: 183 writes across 55 files (CHANGELOG-infra.md, ADR-1019-deliver-consent-events-edge-function.md, cs-delivery-client.ts, adr-1019-sprint-11-grants-audit.sql, adr-1019-sprint-11-backfill.sql) | 53 reads | ~374042 tok |
+| 15:37 | Session end: 183 writes across 55 files (CHANGELOG-infra.md, ADR-1019-deliver-consent-events-edge-function.md, cs-delivery-client.ts, adr-1019-sprint-11-grants-audit.sql, adr-1019-sprint-11-backfill.sql) | 53 reads | ~374042 tok |
+| 15:39 | Edited docs/ADRs/ADR-1010-cloudflare-worker-role-migration.md | 8→8 lines | ~169 |
+| 15:39 | Edited docs/ADRs/ADR-1010-cloudflare-worker-role-migration.md | 3→3 lines | ~80 |
+| 15:39 | Edited docs/V2-BACKLOG.md | expanded (+6 lines) | ~334 |
+| 15:40 | Edited docs/ADRs/ADR-index.md | inline fix | ~317 |
+| 15:41 | Session end: 187 writes across 57 files (CHANGELOG-infra.md, ADR-1019-deliver-consent-events-edge-function.md, cs-delivery-client.ts, adr-1019-sprint-11-grants-audit.sql, adr-1019-sprint-11-backfill.sql) | 56 reads | ~388613 tok |
+| 15:41 | Session end: 187 writes across 57 files (CHANGELOG-infra.md, ADR-1019-deliver-consent-events-edge-function.md, cs-delivery-client.ts, adr-1019-sprint-11-grants-audit.sql, adr-1019-sprint-11-backfill.sql) | 56 reads | ~388613 tok |
+| 15:44 | Session end: 187 writes across 57 files (CHANGELOG-infra.md, ADR-1019-deliver-consent-events-edge-function.md, cs-delivery-client.ts, adr-1019-sprint-11-grants-audit.sql, adr-1019-sprint-11-backfill.sql) | 56 reads | ~388613 tok |
+| 15:45 | Created ../../../.claude/projects/-Users-sudhindra-projects-aiSpirit-consent-sheild/memory/project_v2_whitepaper_split.md | — | ~898 |
+| 15:45 | Edited ../../../.claude/projects/-Users-sudhindra-projects-aiSpirit-consent-sheild/memory/MEMORY.md | 1→2 lines | ~95 |
+| 15:46 | Session end: 189 writes across 59 files (CHANGELOG-infra.md, ADR-1019-deliver-consent-events-edge-function.md, cs-delivery-client.ts, adr-1019-sprint-11-grants-audit.sql, adr-1019-sprint-11-backfill.sql) | 57 reads | ~389676 tok |
+| 15:48 | Session end: 189 writes across 59 files (CHANGELOG-infra.md, ADR-1019-deliver-consent-events-edge-function.md, cs-delivery-client.ts, adr-1019-sprint-11-grants-audit.sql, adr-1019-sprint-11-backfill.sql) | 57 reads | ~389676 tok |
+| 15:48 | Session end: 189 writes across 59 files (CHANGELOG-infra.md, ADR-1019-deliver-consent-events-edge-function.md, cs-delivery-client.ts, adr-1019-sprint-11-grants-audit.sql, adr-1019-sprint-11-backfill.sql) | 57 reads | ~389676 tok |
+| 15:49 | Session end: 189 writes across 59 files (CHANGELOG-infra.md, ADR-1019-deliver-consent-events-edge-function.md, cs-delivery-client.ts, adr-1019-sprint-11-grants-audit.sql, adr-1019-sprint-11-backfill.sql) | 58 reads | ~389676 tok |
+| 15:50 | Edited .claude/session-handoff-terminal-a.md | modified tripwires() | ~507 |
+| 15:53 | Created supabase/migrations/20260804000050_adr1003_s11_storage_mode_resolver.sql | — | ~3613 |
+| 15:54 | Edited marketing/next.config.ts | added 1 import(s) | ~184 |
+| 15:54 | Edited marketing/next.config.ts | modified headers() | ~300 |
+| 15:54 | Created app/src/app/api/internal/storage-mode-sync/route.ts | — | ~1054 |
+| 15:55 | Created marketing/src/app/docs/_data/nav.ts | — | ~1422 |
+| 15:56 | Created marketing/src/app/docs/_styles/docs.css | — | ~3834 |
+| 15:56 | Created marketing/src/app/docs/_components/sidebar.tsx | — | ~685 |
+| 15:56 | Created marketing/src/app/docs/_components/toc-rail.tsx | — | ~750 |
+| 15:57 | Created marketing/src/app/docs/_components/breadcrumb.tsx | — | ~269 |
+| 15:57 | Created marketing/src/app/docs/_components/callout.tsx | — | ~287 |
+| 15:57 | Created marketing/src/app/docs/_components/code-tabs.tsx | — | ~598 |
+| 15:57 | Created marketing/src/app/docs/_components/endpoint-header.tsx | — | ~480 |
+| 15:57 | Created marketing/src/app/docs/_components/param-table.tsx | — | ~380 |
+| 15:58 | Created marketing/src/app/docs/_components/status-grid.tsx | — | ~320 |
+| 15:58 | Created marketing/src/app/docs/_components/feedback-strip.tsx | — | ~366 |
+| 15:58 | Created marketing/src/app/docs/layout.tsx | — | ~323 |
+| 15:58 | Created marketing/src/app/docs/_components/index.ts | — | ~206 |
+| 15:58 | Created marketing/mdx-components.tsx | — | ~208 |
+| 15:59 | Created marketing/src/app/docs/page.tsx | — | ~784 |
+| 15:59 | Edited marketing/src/app/docs/_components/toc-rail.tsx | 21→24 lines | ~270 |
+| 16:00 | Edited docs/ADRs/ADR-1015-v1-api-integration-tests-and-developer-docs.md | 3→4 lines | ~28 |
+| 16:00 | Edited docs/ADRs/ADR-1015-v1-api-integration-tests-and-developer-docs.md | 15→20 lines | ~682 |
+| 16:00 | Edited docs/ADRs/ADR-index.md | inline fix | ~221 |
+| 16:01 | Edited docs/changelogs/CHANGELOG-marketing.md | added error handling | ~932 |
+| 16:58 | Created worker/src/storage-mode.ts | — | ~918 |
+| 16:59 | Created app/src/lib/storage/mode.ts | — | ~670 |
+| 16:59 | Edited app/src/lib/storage/mode.ts | modified getStorageModes() | ~232 |
+| 16:59 | Created marketing/scripts/copy-openapi.ts | — | ~437 |
+| 16:59 | Edited app/src/lib/storage/mode.ts | reduced (-19 lines) | ~87 |
+| 17:00 | Edited marketing/package.json | 6→7 lines | ~107 |
+| 17:00 | Created app/tests/worker/storage-mode.test.ts | — | ~1214 |
+| 17:00 | Edited app/tests/worker/storage-mode.test.ts | 7→7 lines | ~47 |
+| 17:01 | Created app/tests/storage/mode.test.ts | — | ~640 |
+| 17:02 | Edited docs/ADRs/ADR-1003-processor-posture-and-healthcare-unlock.md | 8→9 lines | ~100 |
+| 17:02 | Edited docs/ADRs/ADR-1003-processor-posture-and-healthcare-unlock.md | modified Amendments() | ~842 |
+| 17:03 | Edited docs/changelogs/CHANGELOG-schema.md | expanded (+32 lines) | ~846 |
+| 17:03 | Edited docs/changelogs/CHANGELOG-api.md | modified 2() | ~548 |
+| 17:05 | Edited marketing/.gitignore | 6→11 lines | ~130 |
+
+## Session: 2026-04-24 17:05
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+| 17:05 | Created marketing/src/app/docs/api/page.tsx | — | ~390 |
+| 17:05 | Created marketing/src/app/docs/api/_components/scalar-playground.tsx | — | ~286 |
+| 17:05 | Created marketing/src/app/docs/api/_components/scalar-overrides.css | — | ~492 |
+| 17:06 | Session end: 3 writes across 3 files (page.tsx, scalar-playground.tsx, scalar-overrides.css) | 0 reads | ~1168 tok |
+| 17:07 | Created marketing/src/app/docs/api/[...path]/page.tsx | — | ~1004 |
+| 17:08 | Edited docs/ADRs/ADR-1015-v1-api-integration-tests-and-developer-docs.md | 16→18 lines | ~535 |
+| 17:08 | Edited docs/changelogs/CHANGELOG-marketing.md | added error handling | ~760 |
+| 17:17 | Session end: 6 writes across 5 files (page.tsx, scalar-playground.tsx, scalar-overrides.css, ADR-1015-v1-api-integration-tests-and-developer-docs.md, CHANGELOG-marketing.md) | 3 reads | ~12042 tok |
+| 17:19 | Created marketing/src/app/docs/_data/search-index.ts | — | ~1865 |
+| 17:19 | Created marketing/src/app/docs/_components/search-palette.tsx | — | ~1812 |
+| 17:20 | Edited marketing/src/app/docs/_styles/docs.css | expanded (+137 lines) | ~874 |
+| 17:20 | Edited marketing/src/app/docs/_components/sidebar.tsx | modified DocsSidebar() | ~280 |
+| 17:21 | Edited marketing/src/app/docs/_components/toc-rail.tsx | CSS: pathname, editOnGitHubPath | ~543 |
+| 17:21 | Edited marketing/src/app/docs/_components/toc-rail.tsx | 4→5 lines | ~50 |
+| 17:21 | Edited marketing/src/app/docs/_components/toc-rail.tsx | added nullish coalescing | ~50 |
+| 17:22 | Edited docs/ADRs/ADR-1015-v1-api-integration-tests-and-developer-docs.md | 15→19 lines | ~525 |
+| 17:22 | Edited docs/ADRs/ADR-index.md | inline fix | ~261 |
+| 17:23 | Edited docs/changelogs/CHANGELOG-marketing.md | expanded (+26 lines) | ~810 |
+| 17:24 | Session end: 16 writes across 11 files (page.tsx, scalar-playground.tsx, scalar-overrides.css, ADR-1015-v1-api-integration-tests-and-developer-docs.md, CHANGELOG-marketing.md) | 4 reads | ~27390 tok |
+| 17:25 | Session end: 16 writes across 11 files (page.tsx, scalar-playground.tsx, scalar-overrides.css, ADR-1015-v1-api-integration-tests-and-developer-docs.md, CHANGELOG-marketing.md) | 5 reads | ~29709 tok |
+| 17:26 | Session end: 16 writes across 11 files (page.tsx, scalar-playground.tsx, scalar-overrides.css, ADR-1015-v1-api-integration-tests-and-developer-docs.md, CHANGELOG-marketing.md) | 5 reads | ~29709 tok |
+| 17:28 | Created marketing/src/app/docs/page.tsx | — | ~1654 |
+| 17:28 | Created marketing/src/app/docs/quickstart/page.mdx | — | ~1713 |
+| 17:29 | Created marketing/src/app/docs/concepts/dpdp-in-3-minutes/page.mdx | — | ~1654 |
+| 17:30 | Created marketing/src/app/docs/concepts/artefacts-vs-events/page.mdx | — | ~1900 |
+| 17:30 | Created marketing/src/app/docs/concepts/purpose-definitions/page.mdx | — | ~2127 |
+| 17:31 | Created marketing/src/app/docs/concepts/rights-requests-lifecycle/page.mdx | — | ~1851 |
+| 17:32 | Created marketing/src/app/docs/concepts/deletion-connectors/page.mdx | — | ~1676 |
+| 17:33 | Created marketing/src/app/docs/concepts/key-rotation-and-tombstones/page.mdx | — | ~1297 |
+| 17:33 | Created marketing/src/app/docs/authentication/page.mdx | — | ~1711 |
+| 17:34 | Created marketing/src/app/docs/rate-limits/page.mdx | — | ~1810 |
+| 17:36 | Edited marketing/next.config.ts | additions() → markdown() | ~130 |
+| 17:38 | Created supabase/migrations/20260804000051_adr1003_s12_zero_storage_gate.sql | — | ~1431 |
+| 17:39 | Edited docs/ADRs/ADR-1015-v1-api-integration-tests-and-developer-docs.md | 19→23 lines | ~760 |
+| 17:39 | Edited docs/ADRs/ADR-index.md | inline fix | ~244 |
+| 17:39 | Created app/src/lib/delivery/zero-storage-bridge.ts | — | ~1988 |
+| 17:39 | Created app/src/app/api/internal/zero-storage-event/route.ts | — | ~970 |
+| 17:40 | Edited worker/src/index.ts | expanded (+8 lines) | ~210 |
+| 17:40 | Edited docs/changelogs/CHANGELOG-marketing.md | expanded (+31 lines) | ~1148 |
+| 17:40 | Created worker/src/zero-storage-bridge.ts | — | ~742 |
+| 17:40 | Edited worker/src/events.ts | added 2 import(s) | ~114 |
+| 17:40 | Edited worker/src/events.ts | added nullish coalescing | ~808 |
+| 17:41 | Edited worker/src/events.ts | modified if() | ~576 |
+| 17:41 | Session end: 38 writes across 18 files (page.tsx, scalar-playground.tsx, scalar-overrides.css, ADR-1015-v1-api-integration-tests-and-developer-docs.md, CHANGELOG-marketing.md) | 10 reads | ~82539 tok |
+| 17:41 | Edited worker/src/observations.ts | added 2 import(s) | ~114 |
+| 17:41 | Edited worker/src/observations.ts | added nullish coalescing | ~496 |
+| 17:42 | Created app/tests/worker/zero-storage-bridge.test.ts | — | ~1075 |
+| 17:42 | Created app/tests/delivery/zero-storage-bridge.test.ts | — | ~1811 |
+| 17:44 | Edited docs/ADRs/ADR-1003-processor-posture-and-healthcare-unlock.md | modified Amendments() | ~1321 |
+| 17:44 | Edited docs/changelogs/CHANGELOG-worker.md | expanded (+24 lines) | ~634 |
+| 17:44 | Edited docs/changelogs/CHANGELOG-api.md | expanded (+27 lines) | ~766 |
+| 17:45 | Edited docs/changelogs/CHANGELOG-schema.md | expanded (+16 lines) | ~354 |
+| 17:59 | Created .claude/session-handoff.md | — | ~6744 |
+| 17:59 | Created .claude/session-handoff-terminal-a.md | — | ~4163 |
+| 17:59 | Session end: 48 writes across 26 files (page.tsx, scalar-playground.tsx, scalar-overrides.css, ADR-1015-v1-api-integration-tests-and-developer-docs.md, CHANGELOG-marketing.md) | 14 reads | ~195783 tok |
+| 17:59 | Session end: 48 writes across 26 files (page.tsx, scalar-playground.tsx, scalar-overrides.css, ADR-1015-v1-api-integration-tests-and-developer-docs.md, CHANGELOG-marketing.md) | 14 reads | ~195783 tok |
+| 18:00 | Session end: 48 writes across 26 files (page.tsx, scalar-playground.tsx, scalar-overrides.css, ADR-1015-v1-api-integration-tests-and-developer-docs.md, CHANGELOG-marketing.md) | 14 reads | ~195783 tok |
+
+## Session: 2026-04-24 18:00
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+
+## Session: 2026-04-24 18:00
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+
+## Session: 2026-04-24 18:01
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+
+## Session: 2026-04-24 18:01
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+| 18:04 | Created supabase/migrations/20260804000052_adr1003_s13_zero_storage_artefact_index.sql | — | ~603 |
+| 18:05 | Edited app/src/lib/delivery/zero-storage-bridge.ts | modified effort() | ~469 |
+| 18:05 | Edited app/src/lib/delivery/zero-storage-bridge.ts | expanded (+9 lines) | ~170 |
+| 18:05 | Edited app/src/lib/delivery/zero-storage-bridge.ts | added 6 condition(s) | ~909 |
+| 18:06 | Edited app/tests/delivery/zero-storage-bridge.test.ts | inline fix | ~22 |
+| 18:06 | Created ../../../../../tmp/cs-vault-setup.sql | — | ~499 |
+| 18:06 | Session end: 6 writes across 4 files (20260804000052_adr1003_s13_zero_storage_artefact_index.sql, zero-storage-bridge.ts, zero-storage-bridge.test.ts, cs-vault-setup.sql) | 11 reads | ~25356 tok |
+| 18:06 | Edited app/tests/delivery/zero-storage-bridge.test.ts | 8→13 lines | ~192 |
+| 18:06 | Edited app/tests/delivery/zero-storage-bridge.test.ts | modified uploadStubs() | ~1788 |
+| 18:07 | Created ../../../../../tmp/cs-vault-setup.sql | — | ~382 |
+| 18:07 | Session end: 9 writes across 4 files (20260804000052_adr1003_s13_zero_storage_artefact_index.sql, zero-storage-bridge.ts, zero-storage-bridge.test.ts, cs-vault-setup.sql) | 11 reads | ~27746 tok |
+| 18:08 | Session end: 9 writes across 4 files (20260804000052_adr1003_s13_zero_storage_artefact_index.sql, zero-storage-bridge.ts, zero-storage-bridge.test.ts, cs-vault-setup.sql) | 14 reads | ~33869 tok |
+| 18:09 | Session end: 9 writes across 4 files (20260804000052_adr1003_s13_zero_storage_artefact_index.sql, zero-storage-bridge.ts, zero-storage-bridge.test.ts, cs-vault-setup.sql) | 14 reads | ~33869 tok |
+| 18:11 | Created tests/integration/zero-storage-invariant.test.ts | — | ~3541 |
+| 18:11 | Edited vitest.config.ts | expanded (+9 lines) | ~338 |
+| 18:13 | Created docs/runbooks/zero-storage-restart.md | — | ~2124 |
+| 18:13 | Edited docs/changelogs/CHANGELOG-schema.md | expanded (+14 lines) | ~351 |
+| 18:14 | Created marketing/src/app/docs/errors/page.mdx | — | ~3823 |
+| 18:14 | Edited docs/changelogs/CHANGELOG-api.md | added error handling | ~987 |
+| 18:14 | Edited docs/ADRs/ADR-1003-processor-posture-and-healthcare-unlock.md | 16→19 lines | ~779 |
+| 18:15 | Created marketing/src/app/docs/changelog/page.mdx | — | ~2254 |
+| 18:17 | Created marketing/src/app/docs/webhook-signatures/page.mdx | — | ~3363 |

@@ -1,27 +1,35 @@
-// ADR-1003 Sprint 1.2 — zero-storage event bridge.
+// ADR-1003 Sprint 1.2 + 1.3 — zero-storage event bridge.
 //
 // The Worker POSTs every consent_event / tracker_observation for a
 // zero_storage org to /api/internal/zero-storage-event. This module
-// does the work of landing the payload in customer R2.
+// does the work of landing the payload in customer R2 and (Sprint
+// 1.3) seeding a TTL-bounded validity row in consent_artefact_index
+// so /v1/consent/verify can answer "did this org consent to purpose
+// X" without pulling from customer storage on every call.
 //
-// What we promise RIGHT NOW (Sprint 1.2):
+// Load-bearing guarantee:
 //   · The canonical-serialised event payload reaches the customer's
-//     R2 bucket. Not losing events is the load-bearing guarantee.
+//     R2 bucket. The admin.set_organisation_storage_mode precondition
+//     (Sprint 1.2 migration) guarantees a verified
+//     export_configurations row exists; without it the RPC rejects
+//     the mode flip.
 //   · No row lands in consent_events / consent_artefacts /
-//     delivery_buffer / audit_log for the org_id. The
-//     admin.set_organisation_storage_mode precondition (Sprint 1.2
-//     migration) guarantees a verified export_configurations row
-//     exists; without it the RPC rejects the mode flip.
+//     delivery_buffer / audit_log for the org_id.
 //
-// What we DON'T yet promise (Sprint 1.3):
-//   · consent_artefact_index rows with a TTL so /v1/consent/verify
-//     can answer "did this org consent to purpose X" without pulling
-//     from customer storage on every call. Until Sprint 1.3 lands,
-//     verify reads for zero_storage orgs will return "not found" — a
-//     feature gap, NOT data loss.
+// Best-effort (Sprint 1.3):
+//   · After a successful R2 upload of a `consent_event`, one
+//     consent_artefact_index row per accepted purpose, with a 24h
+//     expires_at. Deterministic artefact_id ("zs-<fingerprint>-
+//     <purpose_code>") + ON CONFLICT DO NOTHING make Worker retries
+//     idempotent. INSERT failure is swallowed and surfaced via
+//     `indexed` in the result — R2 upload remains the durability
+//     guarantee. After 24h, /v1/consent/verify will return
+//     "not_found" for the event until the Sprint 3.1 refresh-from-R2
+//     path lands.
 //
 // Runs under cs_orchestrator (has bypassrls + SELECT on
-// export_configurations via ADR-1025 Sprint 2.1 grants).
+// export_configurations via ADR-1025 Sprint 2.1 grants; Sprint 1.3
+// migration adds INSERT on consent_artefact_index).
 
 import type postgres from 'postgres'
 import { canonicalJson } from '@/lib/delivery/canonical-json'
@@ -61,6 +69,15 @@ export interface BridgeResult {
   objectKey?: string
   durationMs: number
   error?: string
+  // Sprint 1.3 — number of consent_artefact_index rows INSERTed
+  // after a successful upload. 0 when the event was a
+  // tracker_observation, when purposes_accepted was empty, when
+  // index lookup found no matching purpose_definitions, or when
+  // the INSERT path itself failed (best-effort; never blocks the
+  // R2 outcome). `indexError` carries the swallowed message for
+  // observability.
+  indexed?: number
+  indexError?: string
 }
 
 export interface BridgeDeps {
@@ -198,13 +215,99 @@ export async function processZeroStorageEvent(
     }
   }
 
+  // Sprint 1.3 — best-effort consent_artefact_index seeding.
+  // R2 upload is the durability guarantee; index writes are
+  // a hot-path read cache for /v1/consent/verify. INSERT failure
+  // is intentionally swallowed.
+  let indexed = 0
+  let indexError: string | undefined
+  try {
+    indexed = await indexAcceptedPurposes(pg, req)
+  } catch (err) {
+    indexError = errorMessage(err)
+  }
+
   return {
     outcome: 'uploaded',
     orgId: req.org_id,
     bucket: cfg.bucket_name ?? undefined,
     objectKey,
     durationMs: now() - started,
+    indexed,
+    indexError,
   }
+}
+
+// Hard-coded TTL — long enough that the typical session-revocation
+// window is covered, short enough that the table doesn't grow
+// unbounded for high-volume zero_storage orgs. Sprint 3.1 will add
+// a refresh-from-R2 path that re-seeds expired rows on demand.
+const ZERO_STORAGE_INDEX_TTL_HOURS = 24
+
+interface PurposeRow {
+  purpose_code: string
+  framework: string
+}
+
+async function indexAcceptedPurposes(
+  pg: Pg,
+  req: BridgeRequest,
+): Promise<number> {
+  if (req.kind !== 'consent_event') return 0
+
+  const purposesRaw = req.payload['purposes_accepted']
+  if (!Array.isArray(purposesRaw) || purposesRaw.length === 0) return 0
+  const purposes = purposesRaw.filter(
+    (p): p is string => typeof p === 'string' && p.length > 0,
+  )
+  if (purposes.length === 0) return 0
+
+  const propertyIdRaw = req.payload['property_id']
+  const propertyId =
+    typeof propertyIdRaw === 'string' && propertyIdRaw.length > 0
+      ? propertyIdRaw
+      : null
+  if (!propertyId) return 0
+
+  // Resolve framework per purpose_code from purpose_definitions.
+  // Skip unknown codes — a banner referencing a deleted purpose
+  // would otherwise produce orphan index rows. cs_orchestrator
+  // bypasses RLS so the org_id filter is the only tenant guard.
+  const frameworkRows = (await pg`
+    select purpose_code, framework
+      from public.purpose_definitions
+     where org_id = ${req.org_id}
+       and purpose_code = any(${purposes}::text[])
+  `) as unknown as PurposeRow[]
+
+  if (frameworkRows.length === 0) return 0
+
+  let inserted = 0
+  for (const row of frameworkRows) {
+    const artefactId = `zs-${req.event_fingerprint}-${row.purpose_code}`
+    const result = (await pg`
+      insert into public.consent_artefact_index (
+        org_id, property_id, artefact_id, consent_event_id,
+        identifier_hash, identifier_type,
+        validity_state, framework, purpose_code, expires_at
+      ) values (
+        ${req.org_id}::uuid,
+        ${propertyId}::uuid,
+        ${artefactId},
+        null,
+        null,
+        null,
+        'active',
+        ${row.framework},
+        ${row.purpose_code},
+        now() + (${ZERO_STORAGE_INDEX_TTL_HOURS} || ' hours')::interval
+      )
+      on conflict (org_id, artefact_id) do nothing
+      returning artefact_id
+    `) as unknown as Array<{ artefact_id: string }>
+    if (result.length > 0) inserted += 1
+  }
+  return inserted
 }
 
 // Object key layout: <prefix>zero_storage/<kind>/<YYYY>/<MM>/<DD>/

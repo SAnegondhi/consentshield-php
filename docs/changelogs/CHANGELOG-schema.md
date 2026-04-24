@@ -2,6 +2,20 @@
 
 Database migrations, RLS policies, roles.
 
+## [ADR-1003 Sprint 1.3 — consent_artefact_index INSERT grant for cs_orchestrator] — 2026-04-24
+
+**ADR:** ADR-1003 — Processor Posture + Healthcare Category Unlock
+**Sprint:** Phase 1, Sprint 1.3
+**Migration:** `20260804000052_adr1003_s13_zero_storage_artefact_index.sql`
+
+### Added
+- `grant insert on public.consent_artefact_index to cs_orchestrator` — required so the Sprint 1.3 zero-storage bridge orchestrator can seed TTL-bounded validity rows after a successful R2 upload. cs_orchestrator already had SELECT (since 20260413000010) and UPDATE on `validity_state, revoked_at, revocation_record_id` (since 20260701000001); INSERT was missing.
+- Refreshed table comment on `public.consent_artefact_index` to document the zero-storage write path: `artefact_id = "zs-<event_fingerprint>-<purpose_code>"`, 24h TTL, written by `app/src/lib/delivery/zero-storage-bridge.ts` after R2 upload.
+
+### Tested
+- Static: grant matches the cs_orchestrator pattern from prior migrations.
+- Live verification via `tests/integration/zero-storage-invariant.test.ts` — pending operator `bunx supabase db push` (along with the queued ADR-1019 + ADR-1003 migrations 45 / 48 / 49 / 50 / 51).
+
 ## [ADR-1003 Sprint 1.2 — zero_storage mode-flip precondition] — 2026-04-24
 
 **ADR:** ADR-1003 — Processor Posture + Healthcare Category Unlock

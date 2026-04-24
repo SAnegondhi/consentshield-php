@@ -1,17 +1,25 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-04-20T13:43:57.902Z
-> Files: 910 tracked | Anatomy hits: 0 | Misses: 0
+> Auto-maintained by OpenWolf. Last scanned: 2026-04-24T12:47:37.648Z
+> Files: 1377 tracked | Anatomy hits: 0 | Misses: 0
 
 ## ../../../../../tmp/
 
+- `check_banner.ts` — Declares main (~172 tok)
+- `check-trigger-flow.ts` — PG_PW: main (~626 tok)
+- `cleanup-trigger-flow.ts` — One-off cleanup for the trigger-flow test fixture. (~2341 tok)
 - `create-bootstrap-test-user.ts` — Declares main (~214 tok)
+- `cs-vault-setup.sql` — Run via Supabase SQL editor against the live dev project. (~382 tok)
 - `depa_verify.sql` — §11.11 DEPA verification queries — ADR-0020 Sprint 1.1 (~643 tok)
+- `svg2png.ts` — Declares src (~164 tok)
+- `verify_shape.ts` — Declares main (~210 tok)
 
 ## ../../../.claude/plans/
 
+- `async-baking-axolotl.md` — Plan — Multilingual Support per MeitY BRD §4.1.1 (ADR-1020 umbrella) (~486 tok)
 - `quiet-noodling-pond.md` — Plan — Merge DEPA package into `docs/architecture/` source of truth (~3175 tok)
 - `reactive-napping-cosmos.md` — Plan: ADR-0044 v2 — Customer RBAC with Account / Organisation / Web Property Hierarchy (~3738 tok)
+- `the-way-i-see-witty-beacon.md` — ADR-0058 — Split-flow customer onboarding (~5440 tok)
 
 ## ../../../.claude/projects/-Users-sudhindra-projects-aiSpirit-consent-sheild/memory/
 
@@ -27,9 +35,11 @@
 - `feedback_no_ai_authorship.md` (~263 tok)
 - `feedback_no_auth_uid_in_scoped_rpcs.md` — Declares fails (~432 tok)
 - `feedback_no_legacy_vs_no_objects.md` — Declares change (~534 tok)
+- `feedback_no_mvp_framing.md` (~526 tok)
 - `feedback_openwolf_system.md` (~390 tok)
 - `feedback_otp_over_magic_link.md` (~439 tok)
 - `feedback_parallel_adrs.md` (~378 tok)
+- `feedback_prose_over_multichoice.md` (~475 tok)
 - `feedback_session_fingerprint_server_only.md` (~694 tok)
 - `feedback_share_narrowly_not_broadly.md` (~1004 tok)
 - `feedback_supabase_aal_not_in_app_metadata.md` — Declares currentAal (~516 tok)
@@ -37,13 +47,14 @@
 - `feedback_v2_backlog_pattern.md` (~479 tok)
 - `feedback_vitest_serial_for_supabase_auth.md` (~502 tok)
 - `feedback_wireframes_before_adrs.md` (~784 tok)
-- `MEMORY.md` (~1878 tok)
+- `MEMORY.md` (~2156 tok)
 - `project_admin_platform_2026-04-16.md` — What IS implemented as of 2026-04-16 (~1994 tok)
 - `project_admin_platform_2026-04-17.md` — What IS implemented as of 2026-04-17 (~2346 tok)
 - `project_admin_platform_2026-04-18.md` — State as of 2026-04-18 (~609 tok)
 - `project_adr0045_sprint12_done.md` — Shipped in commit 764952b (~596 tok)
 - `project_adr0047_done.md` — Commits (~783 tok)
 - `project_adr0050_proposed.md` (~1215 tok)
+- `project_adr1020_multilingual_plan.md` (~817 tok)
 - `project_customer_segment_enterprise.md` — The customer (~546 tok)
 - `project_dev_only_no_prod.md` (~347 tok)
 - `project_open_gap_admin_account_awareness.md` (~814 tok)
@@ -63,29 +74,177 @@
 - `project_status_2026-04-18-phase2-5.md` (~662 tok)
 - `project_status_2026-04-18-phase2.md` — End-of-day 2026-04-18 state (~1017 tok)
 - `project_status_2026-04-18.md` — End of 2026-04-18 state (~986 tok)
+- `project_terminal_ownership.md` (~279 tok)
+- `project_v2_whitepaper_split.md` — Terminal A — Pipeline / Infra / Storage track (27 sprints) (~855 tok)
 - `reference_email_deliverability.md` — Resend account (~907 tok)
 - `reference_infrastructure.md` (~628 tok)
-- `reference_supabase_platform_gotchas.md` — PG 16 GRANT ROLE split (migration role needs `WITH SET TRUE`) (~1631 tok)
+- `reference_supabase_platform_gotchas.md` — JWT signing keys are rotating HS256 → ECC P-256 (2026-04-21 finding) (~2109 tok)
 - `reference_vercel_sandbox.md` — Access (~906 tok)
 - `reference_vercel_setup.md` — Projects (~665 tok)
+- `user_native_language.md` (~301 tok)
 - `user_role.md` (~306 tok)
+
+## ../consent-sheild-b/.claude/
+
+- `session-handoff.md` — Terminal B worktree — start-of-session instructions (~8350 tok)
+
+## ../consent-sheild-marketing/.claude/
+
+- `session-handoff.md` — Session Handoff — 2026-04-21 (Terminal A) (~5547 tok)
+
+## ../consent-sheild-marketing/admin/src/app/(operator)/accounts/
+
+- `actions.ts` — Exports createOperatorIntakeAction, suspendAccountAction, restoreAccountAction, startAccountImperson (~1442 tok)
+- `page.tsx` — ADR-0048 Sprint 1.2 — Accounts list. (~2006 tok)
+
+## ../consent-sheild-marketing/admin/src/app/(operator)/accounts/new-intake/
+
+- `form.tsx` — NewIntakeForm — renders form (~1189 tok)
+- `page.tsx` — ADR-0058 Sprint 1.5 — operator-initiated intake. (~545 tok)
+
+## ../consent-sheild-marketing/admin/src/app/(operator)/billing/disputes/[disputeId]/
+
+- `page.tsx` — inr — renders table (~2689 tok)
+
+## ../consent-sheild-marketing/app/src/
+
+- `proxy.ts` — Customer-app proxy. (~1808 tok)
+
+## ../consent-sheild-marketing/app/src/app/(dashboard)/
+
+- `layout.tsx` — DashboardLayout (~176 tok)
+
+## ../consent-sheild-marketing/app/src/app/(public)/login/
+
+- `page.tsx` — LoginPage — renders form (~1422 tok)
+
+## ../consent-sheild-marketing/app/src/app/(public)/onboarding/
+
+- `actions.ts` — Exports ActionResult, setOnboardingStep, updateIndustry, seedDataInventory + 4 more (~1116 tok)
+- `layout.tsx` — OnboardingLayout (~271 tok)
+- `page.tsx` — ADR-0058 Sprint 1.3 — customer-app onboarding wizard entry. (~1493 tok)
+
+## ../consent-sheild-marketing/app/src/app/(public)/onboarding/_components/
+
+- `onboarding-wizard.tsx` — OnboardingWizard (~1320 tok)
+- `plan-swap.tsx` — PLANS (~1500 tok)
+- `step-1-welcome.tsx` — Step1Welcome — renders form (~1399 tok)
+- `step-2-company.tsx` — Step2Company — renders form (~923 tok)
+- `step-3-data-inventory.tsx` — Step3DataInventory — renders form (~960 tok)
+- `step-4-purposes.tsx` — Step4Purposes (~1290 tok)
+- `step-5-deploy.tsx` — CDN_URL — renders form (~2579 tok)
+- `step-6-scores.tsx` — Step6Scores (~2116 tok)
+- `step-7-first-consent.tsx` — POLL_INTERVAL_MS (~1658 tok)
+- `step-indicator.tsx` — StepIndicator (~457 tok)
+- `wizard-types.ts` — Shared types for the ADR-0058 onboarding wizard. (~394 tok)
+
+## ../consent-sheild-marketing/app/src/app/(public)/wrong-app/
+
+- `page.tsx` — CLAUDE.md Rule 12 — identity isolation. The customer-app proxy (~973 tok)
+
+## ../consent-sheild-marketing/app/src/app/api/internal/invitation-dispatch/
+
+- `route.ts` — Next.js API route: POST (~1676 tok)
+
+## ../consent-sheild-marketing/app/src/app/api/orgs/[orgId]/onboarding/status/
+
+- `route.ts` — ADR-0058 Sprint 1.4 — onboarding status polled by Step 7. (~510 tok)
+
+## ../consent-sheild-marketing/app/src/app/api/orgs/[orgId]/onboarding/verify-snippet/
+
+- `route.ts` — ADR-0058 Sprint 1.4 — onboarding snippet verification with SSRF (~2347 tok)
+
+## ../consent-sheild-marketing/app/src/app/api/public/signup-intake/
+
+- `route.ts` — ADR-0058 Sprint 1.1 — public marketing-site signup intake. (~1709 tok)
+
+## ../consent-sheild-marketing/app/src/components/
+
+- `welcome-toast.tsx` — WelcomeToast (~592 tok)
+
+## ../consent-sheild-marketing/app/src/lib/invitations/
+
+- `dispatch-email.ts` — ADR-0058: origin defaults to operator_invite for back-compat. (~1785 tok)
+
+## ../consent-sheild-marketing/app/tests/
+
+- `invitation-dispatch.test.ts` — Declares InvitationRole (~1026 tok)
+
+## ../consent-sheild-marketing/docs/ADRs/
+
+- `ADR-0058-split-flow-onboarding.md` — ADR-0058 — Split-flow customer onboarding (~6078 tok)
+- `ADR-0501-marketing-site-scaffold.md` — ADR-0501 — ConsentShield marketing site (`marketing/`) (~6366 tok)
+- `ADR-index.md` — ADR Index (~2629 tok)
+
+## ../consent-sheild-marketing/docs/architecture/
+
+- `consentshield-definitive-architecture.md` — ConsentShield — Definitive Architecture Reference (~19432 tok)
+
+## ../consent-sheild-marketing/docs/changelogs/
+
+- `CHANGELOG-api.md` — Changelog — API (~12683 tok)
+- `CHANGELOG-dashboard.md` — Changelog — Dashboard (~18149 tok)
+- `CHANGELOG-docs.md` — Changelog — Documentation (~5845 tok)
+- `CHANGELOG-marketing.md` — Changelog — Marketing (~6224 tok)
+- `CHANGELOG-schema.md` — Changelog — Schema (~31620 tok)
+
+## ../consent-sheild-marketing/marketing/
+
+- `next.config.ts` — ADR-0501 Phase 4 — security headers + Sentry wiring. (~656 tok)
+- `package.json` — Node.js package manifest (~260 tok)
+- `sentry.client.config.ts` — ADR-0501 Phase 4 Sprint 4.3 — browser-side Sentry init. (~228 tok)
+- `sentry.server.config.ts` — ADR-0501 Phase 4 Sprint 4.3 — server-side Sentry init. (~321 tok)
+
+## ../consent-sheild-marketing/marketing/src/app/pricing/
+
+- `page.tsx` — metadata (~775 tok)
+
+## ../consent-sheild-marketing/marketing/src/app/signup/
+
+- `page.tsx` — ADR-0058 Sprint 1.2 — marketing-site signup intake page. (~1060 tok)
+
+## ../consent-sheild-marketing/marketing/src/components/sections/
+
+- `pricing-preview.tsx` — ADR-0058 Sprint 1.2: routing per tier. Starter / Growth / Pro (~1089 tok)
+- `signup-form.tsx` — TURNSTILE_SCRIPT — renders form (~2111 tok)
+
+## ../consent-sheild-marketing/marketing/src/lib/
+
+- `env.ts` — Typed access to marketing-site environment variables with safe (~429 tok)
+
+## ../consent-sheild-marketing/supabase/migrations/
+
+- `20260802000001_invitations_origin.sql` — ADR-0058 Sprint 1.1 — invitations.origin column. (~483 tok)
+- `20260802000002_create_signup_intake_rpc.sql` — ADR-0058 Sprint 1.1 — create_signup_intake RPC. (~1118 tok)
+- `20260802000003_create_operator_intake_rpc.sql` — ADR-0058 Sprint 1.1 — admin.create_operator_intake RPC. (~900 tok)
+- `20260802000004_seed_quick_data_inventory.sql` — ADR-0058 Sprint 1.1 — seed_quick_data_inventory RPC. (~1249 tok)
+- `20260802000005_first_consent_at.sql` — ADR-0058 Sprint 1.1 — onboarding watermarks on organisations. (~729 tok)
+- `20260802000006_intake_invitation_ttl.sql` — ADR-0058 Sprint 1.1 — TTL cron for abandoned intake invitations. (~773 tok)
+- `20260803000001_set_onboarding_step.sql` — ADR-0058 Sprint 1.3 — setter for organisations.onboarding_step. (~472 tok)
+- `20260803000002_swap_intake_plan_and_telemetry.sql` — ADR-0058 Sprint 1.5 — in-wizard plan swap + step-completion telemetry. (~1364 tok)
+
+## ../consent-sheild-marketing/tests/rls/
+
+- `invitations-origin.test.ts` — ADR-0058 Sprint 1.1 — invitations.origin RLS / RPC isolation. (~1764 tok)
 
 ## ./
 
-- `.gitignore` — Git ignore rules (~182 tok)
+- `.gitignore` — Git ignore rules (~284 tok)
 - `.prettierrc` (~29 tok)
-- `CLAUDE.md` — OpenWolf (~5779 tok)
+- `.secrets` — Supabase (~972 tok)
+- `CLAUDE.md` — OpenWolf (~6199 tok)
 - `debug_rpc.ts` — Declares main (~218 tok)
-- `package.json` — Node.js package manifest (~120 tok)
+- `package.json` — Node.js package manifest (~213 tok)
 - `sentry.client.config.ts` (~166 tok)
 - `sentry.server.config.ts` (~166 tok)
 - `tsconfig.base.json` (~110 tok)
 - `tsconfig.json` — TypeScript configuration (~206 tok)
-- `vitest.config.ts` — /*.test.ts', (~248 tok)
+- `vitest.config.ts` — /*.test.ts', (~338 tok)
 
 ## .claude/
 
-- `session-handoff.md` — Session Handoff — 2026-04-20 (late) (~4476 tok)
+- `session-handoff-terminal-a.md` — ⚠️ Next-session assignment — read before picking your next ADR (~3903 tok)
+- `session-handoff.md` — Session handoff — 2026-04-24 (Terminal B · afternoon) (~6322 tok)
 
 ## .github/workflows/
 
@@ -126,18 +285,22 @@
 ## admin/src/app/(operator)/
 
 - `actions.ts` — Exports refreshPlatformMetrics (~167 tok)
-- `layout.tsx` — Operator shell — visual spec: docs/admin/design/consentshield-admin-screens.html. (~2288 tok)
-- `page.tsx` — ADR-0028 Sprint 2.1 — Operations Dashboard. (~1660 tok)
+- `layout.tsx` — Operator shell — visual spec: docs/admin/design/consentshield-admin-screens.html. (~2358 tok)
+- `page.tsx` — ADR-0028 Sprint 2.1 — Operations Dashboard. (~2801 tok)
 
 ## admin/src/app/(operator)/accounts/
 
-- `actions.ts` — Exports suspendAccountAction, restoreAccountAction, startAccountImpersonationAction (~1017 tok)
+- `actions.ts` — Exports createOperatorIntakeAction, suspendAccountAction, restoreAccountAction, startAccountImperson (~1874 tok)
 - `page.tsx` — ADR-0048 Sprint 1.2 — Accounts list. (~1947 tok)
 
 ## admin/src/app/(operator)/accounts/[accountId]/
 
+- `account-notes-actions.ts` — API routes: GET (12 endpoints) (~685 tok)
+- `account-notes-card.tsx` — AccountNotesCard — renders form (~2454 tok)
 - `action-bar.tsx` — AccountActionBar — renders form, modal (~2316 tok)
-- `page.tsx` — ADR-0048 Sprint 1.2 — Account detail. (~2858 tok)
+- `default-template-actions.ts` — API routes: GET (2 endpoints) (~259 tok)
+- `default-template-card.tsx` — DefaultTemplateCard — renders form (~1291 tok)
+- `page.tsx` — dynamic — renders table (~3441 tok)
 
 ## admin/src/app/(operator)/admins/
 
@@ -147,11 +310,11 @@
 
 ## admin/src/app/(operator)/audit-log/
 
-- `page.tsx` — ADR-0028 Sprint 3.1 — Audit Log viewer. (~2104 tok)
+- `page.tsx` — ADR-0028 Sprint 3.1 — Audit Log viewer. (~2539 tok)
 
 ## admin/src/app/(operator)/audit-log/export/
 
-- `route.ts` — ADR-0028 Sprint 3.1 — CSV export of filtered audit log. (~1147 tok)
+- `route.ts` — ADR-0028 Sprint 3.1 — CSV export of filtered audit log. (~1216 tok)
 
 ## admin/src/app/(operator)/billing/
 
@@ -236,6 +399,11 @@
 - `actions.ts` — Exports setFeatureFlag, deleteFeatureFlag, toggleKillSwitch (~1084 tok)
 - `page.tsx` — ADR-0036 Sprint 1.1 — Feature Flags & Kill Switches panel. (~1266 tok)
 
+## admin/src/app/(operator)/impersonation-log/
+
+- `log-tabs.tsx` — ImpersonationLogTabs — renders table (~2261 tok)
+- `page.tsx` — ADR-1027 Sprint 3.1 — Impersonation log with per-session / per-account (~1460 tok)
+
 ## admin/src/app/(operator)/orgs/
 
 - `page.tsx` — ADR-0029 Sprint 1.1 — Organisations list. (~2228 tok)
@@ -245,7 +413,7 @@
 - `actions.ts` — Exports addOrgNote, extendTrial, suspendOrg, restoreOrg + 3 more (~1710 tok)
 - `impersonation-actions.ts` — Exports startImpersonation, endImpersonation, forceEndImpersonation (~1296 tok)
 - `members-section.tsx` — ORG_ROLES — renders table (~1688 tok)
-- `page.tsx` — ADR-0029 Sprint 1.1 — Organisation detail page (read-only). (~3317 tok)
+- `page.tsx` — dynamic (~4228 tok)
 - `sdf-card.tsx` — STATUS_LABEL — renders form, modal (~2102 tok)
 
 ## admin/src/app/(operator)/orgs/[orgId]/new-invite/
@@ -262,8 +430,13 @@
 
 ## admin/src/app/(operator)/pipeline/
 
-- `page.tsx` — ADR-0033 Sprint 1.2 — Pipeline Operations panel. (~741 tok)
-- `pipeline-tabs.tsx` — PipelineTabs — renders table (~4310 tok)
+- `page.tsx` — ADR-0033 Sprint 1.2 — Pipeline Operations panel. (~1052 tok)
+- `pipeline-tabs.tsx` — PipelineTabs — renders table (~7918 tok)
+
+## admin/src/app/(operator)/readiness/
+
+- `actions.ts` — Exports SetFlagStatusInput, setFlagStatusAction (~245 tok)
+- `page.tsx` — ADR-1017 Sprint 1.2 — Ops Readiness page. (~716 tok)
 
 ## admin/src/app/(operator)/security/
 
@@ -292,14 +465,23 @@
 
 - `page.tsx` — ADR-0031 Sprint 2.2 — New tracker signature. (~218 tok)
 
+## admin/src/app/(operator)/status/
+
+- `actions.ts` — Exports setSubsystemStateAction, postIncidentAction, updateIncidentAction, resolveIncidentAction (~724 tok)
+- `page.tsx` — dynamic (~665 tok)
+
+## admin/src/app/(operator)/storage-usage/
+
+- `page.tsx` — ADR-1025 Phase 4 Sprint 4.2 — storage usage + chargeback panel. (~2012 tok)
+
 ## admin/src/app/(operator)/support/
 
 - `actions.ts` — Exports sendMessage, changeStatus, changePriority, assignTicket (~986 tok)
-- `page.tsx` — ADR-0032 Sprint 1.1 — Support tickets list + metric tiles. (~2467 tok)
+- `page.tsx` — ADR-0032 Sprint 1.1 — Support tickets list + metric tiles. (~3334 tok)
 
 ## admin/src/app/(operator)/support/[ticketId]/
 
-- `page.tsx` — ADR-0032 Sprint 1.1 — Support ticket detail + thread + reply. (~1670 tok)
+- `page.tsx` — ADR-0032 Sprint 1.1 — Support ticket detail + thread + reply. (~1808 tok)
 
 ## admin/src/app/(operator)/templates/
 
@@ -346,11 +528,15 @@
 
 - `otp-boxes.tsx` — OtpBoxes (~421 tok)
 
+## admin/src/components/account-context/
+
+- `account-context-card.tsx` — When true, only render the header strip (no audit/orgs blocks). (~1898 tok)
+
 ## admin/src/components/audit-log/
 
-- `audit-table.tsx` — AuditTable — renders table (~877 tok)
-- `detail-drawer.tsx` — AuditDetailDrawer (~1394 tok)
-- `filter-bar.tsx` — AuditLogFilterBar — renders form (~1110 tok)
+- `audit-table.tsx` — AuditTable — renders table (~943 tok)
+- `detail-drawer.tsx` — AuditDetailDrawer (~1540 tok)
+- `filter-bar.tsx` — AuditLogFilterBar — renders form (~1392 tok)
 
 ## admin/src/components/brand/
 
@@ -384,6 +570,7 @@
 - `cron-status-card.tsx` — CronStatusCard — renders table (~898 tok)
 - `kill-switches-card.tsx` — KillSwitchesCard (~626 tok)
 - `metric-tile.tsx` — Pure presentational tile. Server Component. (~256 tok)
+- `plan-distribution-card.tsx` — ADR-1027 Sprint 1.2 — Accounts by plan histogram. (~626 tok)
 - `recent-activity-card.tsx` — RecentActivityCard (~650 tok)
 - `refresh-button.tsx` — RefreshButton (~289 tok)
 
@@ -393,12 +580,20 @@
 - `filter-bar.tsx` — PLANS — renders form (~898 tok)
 - `invite-created-card.tsx` — InviteCreatedCard (~649 tok)
 
+## admin/src/components/readiness/
+
+- `readiness-list.tsx` — SEVERITY_CLASS (~2095 tok)
+
 ## admin/src/components/signatures/
 
 - `detail-actions.tsx` — SignatureDetailActions — renders form, modal (~796 tok)
 - `filter-bar.tsx` — CATEGORIES (~1003 tok)
 - `import-form.tsx` — ImportPackForm — renders form (~798 tok)
 - `signature-form.tsx` — SIG_TYPES — renders form (~2048 tok)
+
+## admin/src/components/status/
+
+- `status-panel.tsx` — STATE_CLASS (~4537 tok)
 
 ## admin/src/components/support/
 
@@ -457,13 +652,13 @@
 ## app/
 
 - `next.config.ts` — Declares NOINDEX_VALUE (~148 tok)
-- `package.json` — Node.js package manifest (~319 tok)
+- `package.json` — Node.js package manifest (~364 tok)
 - `tsconfig.json` — TypeScript configuration (~117 tok)
 - `vercel.json` (~33 tok)
 
 ## app/public/
 
-- `openapi.yaml` (~9669 tok)
+- `openapi.yaml` (~23845 tok)
 
 ## app/sandbox-scripts/
 
@@ -473,7 +668,7 @@
 
 ## app/scripts/
 
-- `vercel-should-build.sh` — (this workspace's own source) (~351 tok)
+- `vercel-should-build.sh` — (this workspace's own source) (~535 tok)
 
 ## app/src/
 
@@ -483,7 +678,7 @@
 
 - `icon.svg` (~114 tok)
 - `layout.tsx` — geistSans (~270 tok)
-- `page.tsx` — ADR-0043 — The customer app is auth-only. The root path is an (~148 tok)
+- `page.tsx` — ADR-0043 — The customer app is auth-only. The root path is an (~328 tok)
 - `robots.ts` — Pre-launch: customer app URLs are private. Disallow every crawler, (~326 tok)
 
 ## app/src/app/(dashboard)/
@@ -492,7 +687,11 @@
 
 ## app/src/app/(dashboard)/dashboard/
 
-- `page.tsx` — DashboardPage — renders table (~4026 tok)
+- `page.tsx` — DashboardPage (~6312 tok)
+
+## app/src/app/(dashboard)/dashboard/_components/
+
+- `storage-panel.tsx` — ADR-1025 Phase 2 Sprint 2.2 — dashboard storage panel. (~2398 tok)
 
 ## app/src/app/(dashboard)/dashboard/artefacts/
 
@@ -521,6 +720,11 @@
 ## app/src/app/(dashboard)/dashboard/billing/
 
 - `page.tsx` — BillingPage (~1899 tok)
+
+## app/src/app/(dashboard)/dashboard/compliance/retention/
+
+- `page.tsx` — RetentionPage (~843 tok)
+- `retention-panel.tsx` — SECTORS — renders form, table (~4433 tok)
 
 ## app/src/app/(dashboard)/dashboard/dpia/
 
@@ -556,6 +760,20 @@
 
 - `oauth-banner.tsx` — Client banner for OAuth callback outcomes. Server component passes the (~460 tok)
 - `page.tsx` — IntegrationsPage (~1105 tok)
+
+## app/src/app/(dashboard)/dashboard/notices/
+
+- `actions.ts` — Exports PublishNoticeInput, PublishNoticeResult, publishNoticeAction (~413 tok)
+- `page.tsx` — ADR-1004 Phase 2 Sprint 2.2 — /dashboard/notices. (~1911 tok)
+- `publish-form.tsx` — PublishNoticeForm (~1481 tok)
+
+## app/src/app/(dashboard)/dashboard/notices/[id]/affected.csv/
+
+- `route.ts` — ADR-1004 Phase 2 Sprint 2.2 — CSV export of affected artefacts on (~728 tok)
+
+## app/src/app/(dashboard)/dashboard/notices/[id]/campaign/
+
+- `page.tsx` — ADR-1004 Phase 2 Sprint 2.3 — /dashboard/notices/[id]/campaign. (~2943 tok)
 
 ## app/src/app/(dashboard)/dashboard/probes/
 
@@ -607,6 +825,20 @@
 - `page.tsx` — ADR-0044 Phase 2.4 — /dashboard/settings/members. (~3037 tok)
 - `revoke-button.tsx` — RevokeButton (~285 tok)
 
+## app/src/app/(dashboard)/dashboard/settings/notifications/
+
+- `actions.ts` — Exports createChannelAction, updateChannelAction, deleteChannelAction, testSendAction (~1510 tok)
+- `channels.tsx` — SUPPORTED_TYPES (~4244 tok)
+- `page.tsx` — ADR-1005 Phase 6 Sprint 6.4 — /dashboard/settings/notifications. (~658 tok)
+
+## app/src/app/(dashboard)/dashboard/settings/storage/
+
+- `page.tsx` — ADR-1025 Phase 3 Sprint 3.1 — storage settings page. (~1449 tok)
+
+## app/src/app/(dashboard)/dashboard/settings/storage/_components/
+
+- `byok-form.tsx` — INITIAL — renders form (~5516 tok)
+
 ## app/src/app/(dashboard)/dashboard/support-sessions/
 
 - `page.tsx` — ADR-0029 Sprint 4.1 + 2026-04-20 follow-up — customer-side Support sessions tab. (~2602 tok)
@@ -629,17 +861,45 @@
 - `actions.ts` — Exports applyTemplate (~260 tok)
 - `page.tsx` — ADR-0030 Sprint 3.1 — customer-side template picker. (~1156 tok)
 
+## app/src/app/(public)/login/
+
+- `page.tsx` — LoginPage — renders form (~1330 tok)
+
+## app/src/app/(public)/onboarding/
+
+- `actions.ts` — Exports ActionResult, setOnboardingStep, updateIndustry, seedDataInventory + 5 more (~1348 tok)
+- `page.tsx` — ADR-0058 Sprint 1.3 — customer-app onboarding wizard entry. (~1359 tok)
+
+## app/src/app/(public)/onboarding/_components/
+
+- `resend-link-form.tsx` — ResendLinkForm — renders form (~996 tok)
+- `step-4-purposes.tsx` — Step4Purposes (~2024 tok)
+- `step-5-deploy.tsx` — CDN_URL — renders form (~2754 tok)
+- `step-7-first-consent.tsx` — POLL_INTERVAL_MS (~2095 tok)
+
 ## app/src/app/(public)/privacy/[orgId]/
 
 - `page.tsx` — Public privacy notice page — no auth required. Backed by rpc_get_privacy_notice (~705 tok)
 
 ## app/src/app/(public)/signup/
 
-- `page.tsx` — SignupPage — renders form (~2442 tok)
+- `page.tsx` — SignupPage — renders form (~3290 tok)
+
+## app/src/app/(public)/status/
+
+- `page.tsx` — ADR-1018 Sprint 1.3 — public read-only status page. (~2619 tok)
+
+## app/src/app/api/_health/
+
+- `route.ts` — ADR-1018 Sprint 1.4 — unauthenticated liveness endpoint for status probes. (~193 tok)
 
 ## app/src/app/api/billing/invoices/[invoiceId]/pdf/
 
 - `route.ts` — ADR-0054 Sprint 1.1 — Customer-facing invoice PDF download. (~882 tok)
+
+## app/src/app/api/health/
+
+- `route.ts` — ADR-1018 Sprint 1.4 — unauthenticated liveness endpoint for status probes. (~224 tok)
 
 ## app/src/app/api/integrations/oauth/[provider]/callback/
 
@@ -649,17 +909,53 @@
 
 - `route.ts` — ADR-0039 — start the OAuth handshake for a provider. (~526 tok)
 
+## app/src/app/api/internal/deliver-consent-events/
+
+- `route.ts` — ADR-1019 Sprint 2.1 — deliver-consent-events entrypoint. (~761 tok)
+
 ## app/src/app/api/internal/invitation-dispatch/
 
-- `route.ts` — Next.js API route: POST (~1488 tok)
+- `route.ts` — Next.js API route: POST (~721 tok)
 
 ## app/src/app/api/internal/invites/
 
-- `route.ts` — ADR-0044 Phase 2.6 — HMAC-gated invite creation for the marketing (~1304 tok)
+- `route.ts` — ADR-0044 Phase 2.6 — HMAC-gated invite creation for the marketing (~1410 tok)
+
+## app/src/app/api/internal/migrate-storage/
+
+- `route.ts` — ADR-1025 Phase 3 Sprint 3.2 — internal migration worker. (~749 tok)
+
+## app/src/app/api/internal/provision-storage/
+
+- `route.ts` — ADR-1025 Phase 2 Sprint 2.1 — customer-storage auto-provisioning endpoint. (~982 tok)
 
 ## app/src/app/api/internal/run-probes/
 
-- `route.ts` — , runs Playwright scenario, collects stdout JSON, (~2258 tok)
+- `route.ts` — , runs Playwright scenario, collects stdout JSON, (~2473 tok)
+
+## app/src/app/api/internal/storage-mode-sync/
+
+- `route.ts` — ADR-1003 Sprint 1.1 — storage-mode KV sync. (~1054 tok)
+
+## app/src/app/api/internal/storage-retention-cleanup/
+
+- `route.ts` — ADR-1025 Phase 4 Sprint 4.1 — retention-cleanup worker. (~333 tok)
+
+## app/src/app/api/internal/storage-rotate/
+
+- `route.ts` — ADR-1025 Phase 4 Sprint 4.1 — per-org credential rotation worker. (~402 tok)
+
+## app/src/app/api/internal/storage-usage-snapshot/
+
+- `route.ts` — ADR-1025 Phase 4 Sprint 4.2 — monthly storage usage snapshot worker. (~318 tok)
+
+## app/src/app/api/internal/storage-verify/
+
+- `route.ts` — ADR-1025 Phase 4 Sprint 4.1 — nightly verify worker. (~322 tok)
+
+## app/src/app/api/internal/zero-storage-event/
+
+- `route.ts` — ADR-1003 Sprint 1.2 — zero-storage event bridge endpoint. (~970 tok)
 
 ## app/src/app/api/orgs/[orgId]/artefacts.csv/
 
@@ -685,6 +981,38 @@
 
 - `route.ts` — Next.js API route: DELETE (~302 tok)
 
+## app/src/app/api/orgs/[orgId]/onboarding/status/
+
+- `route.ts` — ADR-1025: null = no export_configurations row yet (trigger in flight); (~785 tok)
+
+## app/src/app/api/orgs/[orgId]/properties/
+
+- `route.ts` — Next.js API route: GET, POST (~1004 tok)
+
+## app/src/app/api/orgs/[orgId]/regulatory-exemptions/
+
+- `route.ts` — ADR-1004 Sprint 1.5 — customer-side inspection + override CRUD for the (~1976 tok)
+
+## app/src/app/api/orgs/[orgId]/storage/byok-migrate/
+
+- `route.ts` — ADR-1025 Phase 3 Sprint 3.2 — customer-facing BYOK migration initiation. (~2045 tok)
+
+## app/src/app/api/orgs/[orgId]/storage/byok-validate/
+
+- `route.ts` — ADR-1025 Phase 3 Sprint 3.1 — BYOK credential validation. (~1761 tok)
+
+## app/src/app/api/orgs/[orgId]/storage/migrations/[migrationId]/
+
+- `route.ts` — ADR-1025 Phase 3 Sprint 3.2 — migration status polling endpoint. (~654 tok)
+
+## app/src/app/api/public/lookup-invitation/
+
+- `route.ts` — ADR-0058 follow-up — email-first signup lookup endpoint. (~904 tok)
+
+## app/src/app/api/public/resend-intake-link/
+
+- `route.ts` — Next.js API route: POST (~1296 tok)
+
 ## app/src/app/api/public/rights-request/
 
 - `route.ts` — Next.js API route: POST (~1098 tok)
@@ -693,45 +1021,89 @@
 
 - `route.ts` — Next.js API route: POST (~870 tok)
 
+## app/src/app/api/public/signup-intake/
+
+- `route.ts` — Next.js API route: POST (~2516 tok)
+
 ## app/src/app/api/v1/_ping/
 
 - `route.ts` — ADR-1001 Sprint 2.2 — Canary endpoint to exercise the Bearer middleware. (~324 tok)
 
+## app/src/app/api/v1/audit/
+
+- `route.ts` — Next.js API route: GET (~937 tok)
+
 ## app/src/app/api/v1/consent/artefacts/
 
-- `route.ts` — ADR-1002 Sprint 3.1 — GET /v1/consent/artefacts (~1027 tok)
+- `route.ts` — ADR-1002 Sprint 3.1 — GET /v1/consent/artefacts (~1092 tok)
 
 ## app/src/app/api/v1/consent/artefacts/[id]/
 
-- `route.ts` — ADR-1002 Sprint 3.1 — GET /v1/consent/artefacts/{id} (~482 tok)
+- `route.ts` — ADR-1002 Sprint 3.1 — GET /v1/consent/artefacts/{id} (~550 tok)
 
 ## app/src/app/api/v1/consent/artefacts/[id]/revoke/
 
-- `route.ts` — ADR-1002 Sprint 3.2 — POST /v1/consent/artefacts/{id}/revoke (~1240 tok)
+- `route.ts` — ADR-1002 Sprint 3.2 — POST /v1/consent/artefacts/{id}/revoke (~1304 tok)
 
 ## app/src/app/api/v1/consent/events/
 
-- `route.ts` — ADR-1002 Sprint 3.1 — GET /v1/consent/events (~832 tok)
+- `route.ts` — ADR-1002 Sprint 3.1 — GET /v1/consent/events (~904 tok)
 
 ## app/src/app/api/v1/consent/record/
 
-- `route.ts` — ADR-1002 Sprint 2.1 — POST /v1/consent/record (~2031 tok)
+- `route.ts` — ADR-1002 Sprint 2.1 — POST /v1/consent/record (~2090 tok)
 
 ## app/src/app/api/v1/consent/verify/
 
-- `route.ts` — ADR-1002 Sprint 1.2 — GET /v1/consent/verify (~1134 tok)
+- `route.ts` — ADR-1002 Sprint 1.2 — GET /v1/consent/verify (~1213 tok)
 
 ## app/src/app/api/v1/consent/verify/batch/
 
-- `route.ts` — ADR-1002 Sprint 1.3 — POST /v1/consent/verify/batch (~1676 tok)
+- `route.ts` — ADR-1002 Sprint 1.3 — POST /v1/consent/verify/batch (~1751 tok)
 
 ## app/src/app/api/v1/deletion/receipts/
 
-- `route.ts` — ADR-1002 Sprint 4.1 — GET /v1/deletion/receipts (~766 tok)
+- `route.ts` — ADR-1002 Sprint 4.1 — GET /v1/deletion/receipts (~837 tok)
 
 ## app/src/app/api/v1/deletion/trigger/
 
-- `route.ts` — ADR-1002 Sprint 4.1 — POST /v1/deletion/trigger (~1850 tok)
+- `route.ts` — ADR-1002 Sprint 4.1 — POST /v1/deletion/trigger (~1916 tok)
+
+## app/src/app/api/v1/integrations/[connector_id]/test_delete/
+
+- `route.ts` — Next.js API route: POST (~816 tok)
+
+## app/src/app/api/v1/keys/self/
+
+- `route.ts` — ADR-1012 Sprint 1.1 — GET /v1/keys/self (~326 tok)
+
+## app/src/app/api/v1/plans/
+
+- `route.ts` — ADR-1012 Sprint 1.3 — GET /v1/plans (~238 tok)
+
+## app/src/app/api/v1/properties/
+
+- `route.ts` — ADR-1012 Sprint 1.2 — GET /v1/properties (~482 tok)
+
+## app/src/app/api/v1/purposes/
+
+- `route.ts` — ADR-1012 Sprint 1.2 — GET /v1/purposes (~467 tok)
+
+## app/src/app/api/v1/rights/requests/
+
+- `route.ts` — Next.js API route: POST, GET (~2750 tok)
+
+## app/src/app/api/v1/score/
+
+- `route.ts` — Next.js API route: GET (~431 tok)
+
+## app/src/app/api/v1/security/scans/
+
+- `route.ts` — Next.js API route: GET (~1108 tok)
+
+## app/src/app/api/v1/usage/
+
+- `route.ts` — ADR-1012 Sprint 1.1 — GET /v1/usage (~386 tok)
 
 ## app/src/app/api/webhooks/razorpay/
 
@@ -747,7 +1119,7 @@
 
 ## app/src/components/
 
-- `dashboard-nav.tsx` — navItems (~793 tok)
+- `dashboard-nav.tsx` — navItems (~856 tok)
 - `otp-boxes.tsx` — OtpBoxes (~345 tok)
 - `suspended-banner.tsx` — ADR-0029 Sprint 4.1 + 2026-04-20 follow-up — customer-side suspension banner. (~804 tok)
 
@@ -762,10 +1134,20 @@
 
 ## app/src/lib/api/
 
-- `auth.ts` — Exports ApiKeyContext, VerifyResult, verifyBearerToken, problemJson (~984 tok)
+- `audit.ts` — ADR-1016 Sprint 1.1 — /v1/audit lib helper over the cs_api pool. (~589 tok)
+- `auth.ts` — ADR-1009 Phase 2 Sprint 2.3 — Bearer verification over the cs_api pool. (~938 tok)
 - `context.ts` — Exports API_HDR, getApiContext, assertScope, buildApiContextHeaders (~546 tok)
-- `log-request.ts` — ADR-1001 Sprint 2.4 — fire-and-forget API request logging. (~276 tok)
-- `rate-limits.ts` — ADR-1001 Sprint 2.4 — rate tier limits. (~221 tok)
+- `cs-api-client.ts` — ADR-1009 Phase 2 — cs_api direct-Postgres client. (~797 tok)
+- `cs-delivery-client.ts` — ADR-1019 Sprint 1.1 — cs_delivery direct-Postgres client. (~546 tok)
+- `cs-orchestrator-client.ts` — ADR-1013 Phase 1 — cs_orchestrator direct-Postgres client. (~538 tok)
+- `discovery.ts` — ADR-1012 Sprint 1.2 — /v1/purposes and /v1/properties helpers over the cs_api pool. (~872 tok)
+- `introspection.ts` — ADR-1012 Sprint 1.1 — /v1/keys/self and /v1/usage helpers over the cs_api pool. (~776 tok)
+- `log-request.ts` — ADR-1009 Phase 2 Sprint 2.3 — fire-and-forget API request logging over (~278 tok)
+- `plans.ts` — ADR-1012 Sprint 1.3 — /v1/plans helper over the cs_api pool. (~292 tok)
+- `rate-limits.ts` — ADR-1001 Sprint 2.4 — rate tier limits. (~223 tok)
+- `rights.ts` — ADR-1005 Sprint 5.1 — /v1/rights/requests helpers over the cs_api pool. (~1656 tok)
+- `score.ts` — ADR-1016 Sprint 1.3 — /v1/score lib helper over the cs_api pool. (~451 tok)
+- `security.ts` — ADR-1016 Sprint 1.2 — /v1/security/scans lib helper over the cs_api pool. (~699 tok)
 - `v1-helpers.ts` — ADR-1002 Sprint 3.1 — shared response helpers for /v1/* handlers. (~566 tok)
 
 ## app/src/lib/auth/
@@ -791,16 +1173,43 @@
 
 ## app/src/lib/consent/
 
-- `deletion.ts` — ADR-1002 Sprint 4.1 — deletion helpers. (~1293 tok)
-- `read.ts` — ADR-1002 Sprint 3.1 — server-side helpers for artefact + event read endpoints. (~1401 tok)
-- `record.ts` — ADR-1002 Sprint 2.1 — server-side helper for /v1/consent/record. (~790 tok)
-- `revoke.ts` — ADR-1002 Sprint 3.2 — revoke helper. (~532 tok)
-- `verify.ts` — ADR-1002 Sprint 1.2 — server-side helper for /v1/consent/verify. (~1147 tok)
+- `deletion.ts` — ADR-1009 Phase 2 Sprint 2.3 — deletion helpers over the cs_api pool. (~1525 tok)
+- `read.ts` — ADR-1009 Phase 2 Sprint 2.3 — artefact + event read helpers over the (~1698 tok)
+- `record.ts` — ADR-1009 Phase 2 Sprint 2.3 — /v1/consent/record helper over the cs_api pool. (~822 tok)
+- `revoke.ts` — ADR-1009 Phase 2 Sprint 2.3 — revoke helper over the cs_api pool. (~628 tok)
+- `test-delete.ts` — ADR-1005 Phase 2 Sprint 2.1 — test_delete helper over the cs_api pool. (~607 tok)
+- `verify.ts` — ADR-1009 Phase 2 Sprint 2.3 — /v1/consent/verify + /v1/consent/verify/batch (~1303 tok)
+
+## app/src/lib/delivery/
+
+- `canonical-json.ts` — ADR-1019 Sprint 2.1 — canonical JSON serialization for consent-event (~533 tok)
+- `deliver-events.ts` — ADR-1019 Sprint 2.1 — deliver a single delivery_buffer row to R2. (~4127 tok)
+- `object-key.ts` — ADR-1019 Sprint 2.1 — object-key layout for R2 deliveries. (~478 tok)
+- `zero-storage-bridge.ts` — ADR-1003 Sprint 1.2 + 1.3 — zero-storage event bridge. (~3037 tok)
 
 ## app/src/lib/invitations/
 
 - `dispatch-email.ts` — ADR-0044 Phase 2.5 — invitation email templating. (~1424 tok)
+- `dispatch.ts` — Exports DispatchResult, dispatchInvitationById, resolveDispatchEnv (~1558 tok)
 - `marketing-signature.ts` — ADR-0044 Phase 2.6 — HMAC signing for /api/internal/invites. (~540 tok)
+
+## app/src/lib/notifications/
+
+- `dispatch.ts` — ADR-1005 Sprint 6.1 — notification dispatch. (~1026 tok)
+
+## app/src/lib/notifications/adapters/
+
+- `custom-webhook.ts` — HMAC implementation override. Defaults to Node's crypto.subtle. (~1682 tok)
+- `discord.ts` — ADR-1005 Sprint 6.2 — Discord Incoming Webhook adapter. (~1274 tok)
+- `http.ts` — Default 10 seconds — webhooks should respond quickly. (~844 tok)
+- `index.ts` — ADR-1005 Sprint 6.2 + 6.3 — adapter barrel. (~383 tok)
+- `mock.ts` — The test's handle into the adapter's inbox + response scripting. (~656 tok)
+- `pagerduty.ts` — Override the PagerDuty Events API URL for tests. (~1469 tok)
+- `registry.ts` — Reset the registry to empty. Tests use this to guarantee isolation. (~382 tok)
+- `retry.ts` — Wraps a per-attempt deliver callback with retry logic. (~816 tok)
+- `slack.ts` — Block Kit payload — a header, a markdown section, and a context row. (~1322 tok)
+- `teams.ts` — Adaptive-Card-in-message envelope. Exposed for tests. (~1434 tok)
+- `types.ts` — The channel row shape as it lives on `public.notification_channels`. (~1395 tok)
 
 ## app/src/lib/probes/
 
@@ -814,8 +1223,19 @@
 
 ## app/src/lib/storage/
 
+- `cf-provision.ts` — Derive a globally-unique bucket name from an org id. sha256(orgId || salt), (~3285 tok)
+- `endpoint.ts` — ADR-1019 Sprint 1.2 — S3-compatible endpoint derivation, shared helper. (~629 tok)
+- `fetch-usage.ts` — ADR-1025 Phase 4 Sprint 4.2 — monthly storage usage snapshot capture. (~1867 tok)
+- `migrate-org.ts` — ADR-1025 Phase 3 Sprint 3.2 — storage migration orchestrator. (~4908 tok)
+- `mode.ts` — Resolves the storage_mode for an org. Uses public.get_storage_mode, (~556 tok)
+- `nightly-verify.ts` — ADR-1025 Phase 4 Sprint 4.1 — nightly verification of all storage configs. (~1472 tok)
+- `org-crypto.ts` — Derive the per-org HMAC key. Needs MASTER_ENCRYPTION_KEY in env plus (~886 tok)
+- `provision-org.ts` — Provision (or re-verify) the CS-managed R2 bucket + token for one org. (~1951 tok)
+- `retention-cleanup.ts` — ADR-1025 Phase 4 Sprint 4.1 — retention cleanup for post-migration (~2474 tok)
+- `rotate-org.ts` — ADR-1025 Phase 4 Sprint 4.1 — credential rotation for CS-managed buckets. (~1574 tok)
 - `sigv4.test.ts` — ADR-0040 Sprint 1.1 — sigv4 primitive tests. (~1062 tok)
-- `sigv4.ts` — ADR-0040 — hand-rolled AWS sigv4 for Cloudflare R2 S3 compatibility. (~1895 tok)
+- `sigv4.ts` — ADR-0040 — hand-rolled AWS sigv4 for Cloudflare R2 S3 compatibility. (~2873 tok)
+- `verify.ts` — ADR-1025 Phase 1 Sprint 1.3 — verification probe for any storage config. (~1397 tok)
 
 ## app/tests/
 
@@ -831,19 +1251,60 @@
 - `delivery.test.ts` — SUPABASE_URL: seedAuditRow (~1321 tok)
 - `lifecycle.test.ts` — Migration 011 (20260413000011) revokes UPDATE and DELETE on all buffer (~1002 tok)
 
+## app/tests/delivery/
+
+- `canonical-json.test.ts` — ADR-1019 Sprint 2.1 — canonical JSON serialization tests. (~653 tok)
+- `deliver-batch.test.ts` — ADR-1019 Sprint 2.2 — deliverBatch unit tests. (~1612 tok)
+- `deliver-events.test.ts` — ADR-1019 Sprint 2.1 — deliverOne unit tests. (~2128 tok)
+- `escalation.test.ts` — ADR-1019 Sprint 2.3 — unknown_event_type + manual-review escalation. (~1801 tok)
+- `object-key.test.ts` — ADR-1019 Sprint 2.1 — object-key layout tests. (~655 tok)
+- `zero-storage-bridge.test.ts` — ADR-1003 Sprint 1.2 + 1.3 — zero-storage bridge orchestrator unit tests. (~3663 tok)
+
+## app/tests/notifications/
+
+- `custom-webhook.test.ts` — VALID_URL: channel, event, hmacHex (~1560 tok)
+- `discord.test.ts` — VALID_WEBHOOK: channel, event (~1045 tok)
+- `dispatch.test.ts` — ADR-1005 Sprint 6.1 — dispatcher unit tests. (~1390 tok)
+- `pagerduty.test.ts` — VALID_KEY: channel, event (~1420 tok)
+- `registry.test.ts` — ADR-1005 Sprint 6.1 — adapter registry unit tests. (~425 tok)
+- `retry.test.ts` — ADR-1005 Sprint 6.1 — retry helper unit tests. (~882 tok)
+- `slack-live.test.ts` — Declares WEBHOOK (~546 tok)
+- `slack.test.ts` — VALID_WEBHOOK: channel, event, mockFetch (~1404 tok)
+- `teams.test.ts` — VALID_WEBHOOK: channel, event (~1194 tok)
+
 ## app/tests/probes/
 
 - `signature-match.test.ts` — ADR-0041 Sprint 1.5 — signature-match unit tests. (~1160 tok)
 
+## app/tests/rights/
+
+- `deletion-callback-signing.test.ts` — ADR-1014 Phase 3 Sprint 3.4 — deletion-receipt callback signature verifier. (~1666 tok)
+
 ## app/tests/storage/
 
+- `byok-migrate-route.test.ts` — ADR-1025 Phase 3 Sprint 3.2 — customer-facing byok-migrate route tests. (~2333 tok)
+- `byok-validate-route.test.ts` — ADR-1025 Phase 3 Sprint 3.1 — byok-validate route unit tests. (~2611 tok)
+- `cf-provision.test.ts` — ADR-1025 Phase 1 Sprint 1.2 — unit tests for cf-provision.ts. (~4671 tok)
+- `endpoint.test.ts` — ADR-1019 Sprint 1.2 — endpoint derivation tests. (~700 tok)
+- `fetch-usage.test.ts` — ADR-1025 Phase 4 Sprint 4.2 — fetch-usage tests. (~1655 tok)
+- `migrate-org.test.ts` — ADR-1025 Phase 3 Sprint 3.2 — migrate-org.ts unit tests. (~3549 tok)
+- `mode.test.ts` — ADR-1003 Sprint 1.1 — storage-mode resolver (Next.js side). (~640 tok)
+- `nightly-verify.test.ts` — ADR-1025 Phase 4 Sprint 4.1 — nightly verify tests. (~1867 tok)
+- `provision-org.test.ts` — ADR-1025 Phase 2 Sprint 2.1 — unit tests for provision-org.ts. (~3018 tok)
+- `retention-cleanup.test.ts` — ADR-1025 Phase 4 Sprint 4.1 — retention-cleanup tests. (~1746 tok)
+- `rotate-org.test.ts` — ADR-1025 Phase 4 Sprint 4.1 — rotate-org tests. (~1718 tok)
 - `sigv4.test.ts` — ADR-0040 Sprint 1.1 — sigv4 primitive tests. (~1066 tok)
+- `verify.test.ts` — ADR-1025 Phase 1 Sprint 1.3 — unit tests for the verification probe. (~2780 tok)
 
 ## app/tests/worker/
 
 - `blocked-ip.test.ts` — ADR-0033 Sprint 2.3 — Worker-side blocked-IP enforcement. (~1445 tok)
 - `events.test.ts` — ORG_ID: postEvent (~1849 tok)
-- `harness.ts` — API routes: GET (2 endpoints) (~1828 tok)
+- `harness.ts` — API routes: GET (2 endpoints) (~2235 tok)
+- `probe-route.test.ts` — ADR-1010 Phase 1 Sprint 1.1 — /v1/_cs_api_probe scratch route. (~1034 tok)
+- `role-guard.test.ts` — ADR-1010 Sprint 2.1 follow-up — Rule-5 runtime role guard unit tests. (~1336 tok)
+- `storage-mode.test.ts` — ADR-1003 Sprint 1.1 — storage-mode resolver (Worker side). (~1214 tok)
+- `zero-storage-bridge.test.ts` — ADR-1003 Sprint 1.2 — Worker-side zero-storage bridge unit tests. (~1075 tok)
 
 ## app/tests/workflows/
 
@@ -854,7 +1315,7 @@
 - `FEATURE-INVENTORY.md` — ConsentShield — Complete Feature Inventory (~9665 tok)
 - `ROADMAP-phase2.md` — ConsentShield — Phase 2 Roadmap (~3150 tok)
 - `STATUS.md` — ConsentShield Status (~3762 tok)
-- `V2-BACKLOG.md` — V2 Backlog — Deferred Items for Post-Phase-2 Review (~1378 tok)
+- `V2-BACKLOG.md` — V2 Backlog — Deferred Items (~1249 tok)
 - `WHITEPAPER-AUDIT.md` — ConsentShield Integration Whitepaper — Critical Audit vs. Implementation (~4878 tok)
 
 ## docs/ADRs/
@@ -915,16 +1376,36 @@
 - `ADR-0055-account-scoped-impersonation.md` — ADR-0055 — Account-scoped impersonation (~1701 tok)
 - `ADR-0056-account-scoped-feature-flags.md` — ADR-0056 — Per-account feature-flag targeting (~1570 tok)
 - `ADR-0057-sectoral-template-switcher.md` — ADR-0057 — Customer-facing sectoral template switcher (Settings → Account) (~1395 tok)
-- `ADR-0501-marketing-site-scaffold.md` — ADR-0501 — ConsentShield marketing site (`marketing/`) (~4333 tok)
+- `ADR-0058-split-flow-onboarding.md` — ADR-0058 — Split-flow customer onboarding (~6336 tok)
+- `ADR-0501-marketing-site-scaffold.md` — ADR-0501 — ConsentShield marketing site (`marketing/`) (~6079 tok)
 - `ADR-1001-truth-in-marketing-and-public-api-foundation.md` — ADR-1001: Truth-in-Marketing + Public API Foundation (~5650 tok)
 - `ADR-1002-dpdp-section6-runtime-enforcement.md` — ADR-1002: DPDP §6 Runtime Enforcement — Verify, Record, Artefact Ops, Deletion API (~7030 tok)
-- `ADR-1003-processor-posture-and-healthcare-unlock.md` — ADR-1003: Processor Posture + Healthcare Category Unlock (~3365 tok)
-- `ADR-1004-statutory-retention-material-change-silent-failure.md` — ADR-1004: Statutory Retention + Material-Change Re-consent + Silent-Failure Detection (~3856 tok)
-- `ADR-1005-operations-maturity.md` — ADR-1005: Operations Maturity — Webhook Reference, Support Model, Status Page, Multi-channel Alerts, (~3575 tok)
+- `ADR-1003-processor-posture-and-healthcare-unlock.md` — ADR-1003: Processor Posture + Healthcare Category Unlock (~5513 tok)
+- `ADR-1004-statutory-retention-material-change-silent-failure.md` — ADR-1004: Statutory Retention + Material-Change Re-consent + Silent-Failure Detection (~7531 tok)
+- `ADR-1005-operations-maturity.md` — ADR-1005: Operations Maturity — Webhook Reference, Support Model, Status Page, Multi-channel Alerts, (~7076 tok)
 - `ADR-1006-developer-experience-and-openapi.md` — ADR-1006: Developer Experience — Client Libraries + OpenAPI Spec + CI Drift Check (~2658 tok)
 - `ADR-1007-connector-ecosystem-expansion.md` — ADR-1007: Connector Ecosystem Expansion + Platform Plugins (~2738 tok)
 - `ADR-1008-scale-audit-polish-and-p3-hardening.md` — ADR-1008: Scale + Audit Polish + P3 Hardening (~3065 tok)
-- `ADR-index.md` — ADR Index (~2437 tok)
+- `ADR-1009-v1-api-role-hardening.md` — ADR-1009: v1 API role hardening — remove service-role shortcut, adopt `cs_api` as designed (~5564 tok)
+- `ADR-1010-cloudflare-worker-role-migration.md` — ADR-1010: Cloudflare Worker — scoped-role migration off HS256 JWT (~8102 tok)
+- `ADR-1011-revoked-key-tombstone.md` — ADR-1011: Revoked-key tombstone — rotate+revoke plaintexts return 410 (~1088 tok)
+- `ADR-1012-v1-dx-gap-fixes.md` — ADR-1012: v1 API — day-1 DX gap fixes (~2561 tok)
+- `ADR-1013-cs-orchestrator-direct-postgres.md` — ADR-1013: `cs_orchestrator` direct-Postgres migration (Next.js runtime) (~2726 tok)
+- `ADR-1014-e2e-test-harness-and-vertical-demos.md` — ADR-1014: End-to-end test harness + vertical demo sites (partner-evidence grade) (~15278 tok)
+- `ADR-1015-v1-api-integration-tests-and-developer-docs.md` — ADR-1015: v1 API integration tests + customer developer documentation (~5853 tok)
+- `ADR-1016-v1-orphan-scope-read-endpoints.md` — ADR-1016: v1 API — close the orphan `read:audit`, `read:security`, `read:score` scopes (~1836 tok)
+- `ADR-1017-admin-ops-readiness-flags.md` — ADR-1017: Admin ops-readiness flags — surface external blockers in the operator console (~1656 tok)
+- `ADR-1018-self-hosted-status-page.md` — ADR-1018: Self-hosted status page on admin + public surfaces (~2962 tok)
+- `ADR-1019-deliver-consent-events-edge-function.md` — ADR-1019: `deliver-consent-events` — the missing R2 export path (~8296 tok)
+- `ADR-1020-multilingual-support-per-meity-brd.md` — ADR-1020: Multilingual support per MeitY BRD §4.1.1 (umbrella) — 7 langs Phase 1, 15 Phase 4 (Q+1) (~3200 tok)
+- `ADR-1020-multilingual-support-per-meity-brd.md` — ADR-1020: Multilingual support per MeitY BRD §4.1.1 (umbrella) (~4269 tok)
+- `ADR-1021-i18n-foundation.md` — ADR-1021: Translation foundation — schema, pipeline, glossary, CI gate. 3 sprints ~3 weeks (~3900 tok)
+- `ADR-1021-i18n-foundation.md` — ADR-1021: Translation foundation — schema, pipeline, glossary, CI gate (~6113 tok)
+- `ADR-1022-customer-storage-auto-provisioning.md` — ADR-1022: Customer storage auto-provisioning — hybrid managed R2 default + BYOK escape hatch (~5535 tok)
+- `ADR-1025-customer-storage-auto-provisioning.md` — ADR-1025: Customer storage auto-provisioning — hybrid managed R2 default + BYOK escape hatch (~13370 tok)
+- `ADR-1026-drop-hyperdrive-direct-supavisor.md` — ADR-1026: Rewind ADR-1010 Phase 3 — Worker connects directly to Supavisor; drop Hyperdrive binding (~5467 tok)
+- `ADR-1027-admin-account-awareness.md` — ADR-1027: Admin Account-Awareness Pass (~8082 tok)
+- `ADR-index.md` — ADR Index (~5658 tok)
 - `ADR-template.md` — ADR-NNNN: Title (~423 tok)
 - `adr-workflow.md` — ADR Workflow Rules (~557 tok)
 
@@ -936,26 +1417,26 @@
 
 ## docs/admin/design/
 
-- `ARCHITECTURE-ALIGNMENT-2026-04-16.md` — Admin Platform — Architecture Alignment (~3441 tok)
-- `consentshield-admin-screens.html` — ConsentShield — Admin Platform Wireframes (~29906 tok)
+- `ARCHITECTURE-ALIGNMENT-2026-04-16.md` — Admin Platform — Architecture Alignment (~3820 tok)
+- `consentshield-admin-screens.html` — ConsentShield — Admin Platform Wireframes (~32731 tok)
 
 ## docs/architecture/
 
-- `consentshield-complete-schema-design.md` — ConsentShield — Complete Schema Design (~35125 tok)
-- `consentshield-definitive-architecture.md` — ConsentShield — Definitive Architecture Reference (~18069 tok)
+- `consentshield-complete-schema-design.md` — ConsentShield — Complete Schema Design (~35544 tok)
+- `consentshield-definitive-architecture.md` — ConsentShield — Definitive Architecture Reference (~21899 tok)
 - `consentshield-testing-strategy.md` — ConsentShield — The Testing Question (~8766 tok)
 - `nextjs-16-reference.md` — Next.js 16 — Project Reference (~1408 tok)
 
 ## docs/changelogs/
 
-- `CHANGELOG-api.md` — Changelog — API (~10033 tok)
-- `CHANGELOG-dashboard.md` — Changelog — Dashboard (~16200 tok)
-- `CHANGELOG-docs.md` — Changelog — Documentation (~4866 tok)
-- `CHANGELOG-edge-functions.md` — Changelog — Edge Functions (~3148 tok)
-- `CHANGELOG-infra.md` — Changelog — Infrastructure (~3667 tok)
-- `CHANGELOG-marketing.md` — Changelog — Marketing (~3114 tok)
-- `CHANGELOG-schema.md` — Changelog — Schema (~28722 tok)
-- `CHANGELOG-worker.md` — Changelog — Worker (~1897 tok)
+- `CHANGELOG-api.md` — Changelog — API (~34362 tok)
+- `CHANGELOG-dashboard.md` — Changelog — Dashboard (~27664 tok)
+- `CHANGELOG-docs.md` — Changelog — Documentation (~12354 tok)
+- `CHANGELOG-edge-functions.md` — Changelog — Edge Functions (~4251 tok)
+- `CHANGELOG-infra.md` — Changelog — Infrastructure (~20809 tok)
+- `CHANGELOG-marketing.md` — Changelog — Marketing (~9896 tok)
+- `CHANGELOG-schema.md` — Changelog — Schema (~50818 tok)
+- `CHANGELOG-worker.md` — Changelog — Worker (~6025 tok)
 
 ## docs/design/
 
@@ -987,20 +1468,24 @@
 ## docs/design/screen designs and ux/
 
 - `ARCHITECTURE-ALIGNMENT-2026-04-16.md` — Screen Designs — Architecture Alignment (~5513 tok)
+- `consentshield-developer-docs.html` — ConsentShield — Developer Documentation (Wireframe) (~14834 tok)
 - `consentshield-mobile.html` — iOS wireframes spec, 3 flows (rights monitor, breach trigger, clinic ABDM Month 6+). M1/M2/M3 drift items deferred to ABDM/mobile/BFSI ADRs. (~17068 tok)
 - `consentshield-next-steps.md` — Strategic decisions log April 2026 + 2026-04-16 addendum noting DEPA architecture has moved on. (~2784 tok)
-- `consentshield-screens.html` — ConsentShield — Screen Designs & UX Flows (~42748 tok)
+- `consentshield-notices.html` — ConsentShield — notices &amp; re-consent (ADR-1004 Phase 2 Sprints 2.2 + 2.3) (~5436 tok)
+- `consentshield-screens.html` — ConsentShield — Screen Designs & UX Flows (~42753 tok)
 - `consentshield-site.html` — ConsentShield — India's DEPA-native DPDP compliance platform (~55978 tok)
 
 ## docs/ops/
 
-- `invitation-email-setup.md` — Runbook — Invitation email + marketing endpoint setup (~2144 tok)
+- `invitation-email-setup.md` — Runbook — Invitation email + marketing endpoint setup (~2174 tok)
 - `sentry-webhook-setup.md` — Sentry → ConsentShield webhook setup (~694 tok)
 - `supabase-auth-templates.md` — Supabase Auth Email Templates (OTP form) (~943 tok)
 
 ## docs/plans/
 
+- `adr-1020-multilingual-support.md` — Plan — Multilingual Support per MeitY BRD §4.1.1 (ADR-1020 umbrella) (~12110 tok)
 - `ConsentShield-V2-Whitepaper-Closure-Plan.md` — ConsentShield — v2.0 Whitepaper Closure Plan (~2100 tok)
+- `tier1-glossary-seed-draft.md` — Tier-1 Glossary — Candidate Translations for Legal Review (~4548 tok)
 
 ## docs/reviews/
 
@@ -1009,16 +1494,26 @@
 - `2026-04-15-deferred-items-analysis.md` — Deferred Items — Analysis (~1954 tok)
 - `2026-04-16-depa-package-architecture-review.md` — DEPA Package Architecture Review — 2026-04-16 (~5618 tok)
 - `2026-04-16-phase2-completion-review.md` — Critical Codebase Review — Phase 2 Completion (~6107 tok)
-- `2026-04-18-adr-0044-customer-rbac-review.md` — Review — ADR-0044 Customer RBAC (Phase 0 + 1 + 2.1–2.6) (~3002 tok)
+- `2026-04-18-adr-0044-customer-rbac-review.md` — Review — ADR-0044 Customer RBAC (Phase 0 + 1 + 2.1–2.6) (~3108 tok)
 - `2026-04-18-comprehensive-project-review.md` — ConsentShield — Comprehensive Review as of 2026-04-18 (~3553 tok)
 - `2026-04-20-api-key-security-review.md` — Security Review — API Key Surface (ADR-1001 Sprint 3.1) (~1833 tok)
+- `2026-04-21-v1-api-gap-audit.md` — v1 API Gap Audit — 2026-04-21 (~2913 tok)
+
+## docs/runbooks/
+
+- `ai-provider-setup.md` — Runbook — AI Translation Provider Setup (Sarvam + Vercel AI Gateway) (~2210 tok)
+- `notification-channel-accounts.md` — Notification channel account setup — Slack / Teams / Discord / PagerDuty (~1889 tok)
+- `ops-readiness-flags.md` — Ops Readiness Flags — operator runbook (~1594 tok)
+- `status-page-setup.md` — Status page — setup + operations runbook (~1662 tok)
+- `zero-storage-restart.md` — Runbook — zero_storage durability + restart posture (~1992 tok)
 
 ## marketing/
 
-- `.gitignore` — Git ignore rules (~19 tok)
+- `.gitignore` — Git ignore rules (~149 tok)
 - `eslint.config.mjs` — ', 'out/**', 'build/**', 'next-env.d.ts']), (~91 tok)
-- `next.config.ts` — Marketing site (consentshield.in) — the only public surface. (~85 tok)
-- `package.json` — Node.js package manifest (~172 tok)
+- `mdx-components.tsx` — useMDXComponents (~208 tok)
+- `next.config.ts` — ADR-0501 Phase 4 — security headers + Sentry wiring. (~874 tok)
+- `package.json` — Node.js package manifest (~330 tok)
 - `postcss.config.mjs` — Declares config (~25 tok)
 - `tsconfig.json` — TypeScript configuration (~102 tok)
 - `vercel.json` (~17 tok)
@@ -1027,12 +1522,26 @@
 
 - `.gitkeep` (~0 tok)
 
+## marketing/scripts/
+
+- `check-env-isolation.ts` — ADR-0501 Phase 4 Sprint 4.1 — env-var isolation guard (marketing). (~902 tok)
+- `copy-openapi.ts` — ADR-1015 Phase 1 Sprint 1.2 — copy openapi.yaml into marketing/public. (~437 tok)
+- `generate-downloads.ts` — Downloads generator — runs as `bun scripts/generate-downloads.ts` (~581 tok)
+
 ## marketing/src/app/
 
 - `globals.css` — Styles: 92 rules, 27 vars (~15204 tok)
 - `layout.tsx` — dmSans (~513 tok)
 - `page.tsx` — metadata (~569 tok)
 - `robots.ts` — Marketing site — fully crawlable. Contrast with admin/src/app/robots.ts, (~95 tok)
+
+## marketing/src/app/api/contact/
+
+- `route.ts` — Next.js API route: POST (~1792 tok)
+
+## marketing/src/app/api/internal/send-email/
+
+- `route.ts` — Next.js API route: POST (~1503 tok)
 
 ## marketing/src/app/contact/
 
@@ -1042,9 +1551,98 @@
 
 - `page.tsx` — metadata (~736 tok)
 
+## marketing/src/app/docs/
+
+- `layout.tsx` — ADR-1015 Phase 1 Sprint 1.1 — Docs shell. (~323 tok)
+- `page.tsx` — ADR-1015 Phase 2 Sprint 2.1 — Developer Hub landing. (~1654 tok)
+
+## marketing/src/app/docs/_components/
+
+- `breadcrumb.tsx` — ADR-1015 Phase 1 Sprint 1.1 — Docs breadcrumb. Each trail segment is (~269 tok)
+- `callout.tsx` — ADR-1015 Phase 1 Sprint 1.1 — Callout component. (~287 tok)
+- `code-tabs.tsx` — CodeTabs (~598 tok)
+- `endpoint-header.tsx` — Path template; `{id}` segments are highlighted as params. (~480 tok)
+- `feedback-strip.tsx` — Path on disk (relative to repo root) — pre-filled into the issue. (~366 tok)
+- `index.ts` — ADR-1015 Phase 1 Sprint 1.1 — shared /docs/* components. (~206 tok)
+- `param-table.tsx` — ADR-1015 Phase 1 Sprint 1.1 — Request / response / query parameter table. (~380 tok)
+- `search-palette.tsx` — SearchPalette (~1812 tok)
+- `sidebar.tsx` — DocsSidebar (~761 tok)
+- `status-grid.tsx` — ADR-1015 Phase 1 Sprint 1.1 — HTTP-status grid. (~320 tok)
+- `toc-rail.tsx` — Map a pathname to the repo-relative file path Next would have used (~1205 tok)
+
+## marketing/src/app/docs/_data/
+
+- `nav.ts` — HTTP method pill for API-reference entries; undefined elsewhere. (~1422 tok)
+- `search-index.ts` — Group label (appears as a muted header in the palette). (~1865 tok)
+
+## marketing/src/app/docs/_styles/
+
+- `docs.css` — Styles: 98 rules, 17 vars (~4698 tok)
+
+## marketing/src/app/docs/api/
+
+- `page.tsx` — ADR-1015 Phase 1 Sprint 1.2 — Interactive API playground. (~390 tok)
+
+## marketing/src/app/docs/api/[...path]/
+
+- `page.tsx` — OpenAPI tag the endpoint belongs to (matches Scalar's sidebar grouping). (~1004 tok)
+
+## marketing/src/app/docs/api/_components/
+
+- `scalar-overrides.css` — Styles: 8 rules, 15 vars (~492 tok)
+- `scalar-playground.tsx` — ScalarPlayground (~286 tok)
+
+## marketing/src/app/docs/authentication/
+
+- `page.mdx` — Authentication (~1711 tok)
+
+## marketing/src/app/docs/changelog/
+
+- `page.mdx` — API changelog (~2254 tok)
+
+## marketing/src/app/docs/concepts/artefacts-vs-events/
+
+- `page.mdx` — Artefacts vs. events (~1900 tok)
+
+## marketing/src/app/docs/concepts/deletion-connectors/
+
+- `page.mdx` — Deletion connectors (~1676 tok)
+
+## marketing/src/app/docs/concepts/dpdp-in-3-minutes/
+
+- `page.mdx` — DPDP Act in 3 minutes (~1654 tok)
+
+## marketing/src/app/docs/concepts/key-rotation-and-tombstones/
+
+- `page.mdx` — Key rotation & tombstones (~1297 tok)
+
+## marketing/src/app/docs/concepts/purpose-definitions/
+
+- `page.mdx` — Purpose definitions (~2127 tok)
+
+## marketing/src/app/docs/concepts/rights-requests-lifecycle/
+
+- `page.mdx` — Rights requests lifecycle (~1851 tok)
+
+## marketing/src/app/docs/errors/
+
+- `page.mdx` — Error codes (~3823 tok)
+
+## marketing/src/app/docs/quickstart/
+
+- `page.mdx` — Quickstart — record your first consent artefact (~1713 tok)
+
+## marketing/src/app/docs/rate-limits/
+
+- `page.mdx` — Rate limits & quotas (~1810 tok)
+
+## marketing/src/app/docs/webhook-signatures/
+
+- `page.mdx` — Webhook signatures (~3363 tok)
+
 ## marketing/src/app/dpa/
 
-- `page.tsx` — metadata (~12537 tok)
+- `page.tsx` — metadata (~470 tok)
 
 ## marketing/src/app/pricing/
 
@@ -1052,7 +1650,7 @@
 
 ## marketing/src/app/privacy/
 
-- `page.tsx` — metadata (~4667 tok)
+- `page.tsx` — metadata (~158 tok)
 
 ## marketing/src/app/product/
 
@@ -1064,7 +1662,7 @@
 
 ## marketing/src/app/terms/
 
-- `page.tsx` — metadata (~4555 tok)
+- `page.tsx` — metadata (~143 tok)
 
 ## marketing/src/components/
 
@@ -1077,7 +1675,7 @@
 - `arch-promo.tsx` — Architecture Brief promo card. Appears on the Product page (inline), (~1294 tok)
 - `bfsi-callout.tsx` — BfsiCallout (~368 tok)
 - `capability-layer.tsx` — CapabilityLayer (~220 tok)
-- `contact-form.tsx` — ContactForm — renders form (~1593 tok)
+- `contact-form.tsx` — TURNSTILE_SCRIPT — renders form (~2398 tok)
 - `contrast.tsx` — Contrast (~567 tok)
 - `cta-band.tsx` — Reusable CTA band section — used by home, product, depa, solutions pages. (~333 tok)
 - `demo-frames.tsx` — 7 frames of the How-It-Works demo — ported verbatim from the HTML (~9092 tok)
@@ -1087,17 +1685,31 @@
 - `dpa-signing-card.tsx` — DpaSigningCard — renders form (~1597 tok)
 - `home-hero.tsx` — HomeHero (~769 tok)
 - `how-it-works-demo.tsx` — FRAME_DURATION (~2363 tok)
-- `legal-layout.tsx` — LegalLayout (~544 tok)
+- `legal-document.tsx` — LegalDocumentView (~1935 tok)
+- `legal-layout.tsx` — LegalLayout (~953 tok)
 - `price-table.tsx` — GROUPS (~1936 tok)
 - `price-toggle.tsx` — PriceToggle (~262 tok)
 - `pricing-preview.tsx` — TIERS (~1005 tok)
-- `solutions-tabs.tsx` — SECTORS (~4221 tok)
+- `signup-form.tsx` — TURNSTILE_SCRIPT — renders form (~3746 tok)
+- `solutions-tabs.tsx` — SECTORS (~4024 tok)
 - `story.tsx` — Story (~1279 tok)
 - `timeline.tsx` — ENTRIES (~660 tok)
 
+## marketing/src/content/legal/
+
+- `dpa.ts` — Exports DPA (~9805 tok)
+- `md-inline.ts` — Inline Markdown parser — the subset used by legal documents: (~682 tok)
+- `privacy.ts` — Exports PRIVACY (~3614 tok)
+- `serialize-docx.ts` — Exports serializeToDocx (~3807 tok)
+- `serialize-md.ts` — LegalDocument → Markdown. Inline formatting is authored as Markdown (~1004 tok)
+- `serialize-pdf.ts` — LegalDocument → PDF (Buffer). (~3382 tok)
+- `terms.ts` — Canonical source for Terms of Service. Authored once; consumed by: (~3940 tok)
+- `types.ts` — Typed content model for legal documents (terms, privacy, dpa). (~439 tok)
+
 ## marketing/src/lib/
 
-- `routes.ts` — Shared route definitions for <Nav/> + <Footer/>. (~387 tok)
+- `env.ts` — Typed access to marketing-site environment variables with safe (~554 tok)
+- `routes.ts` — Shared route definitions for <Nav/> + <Footer/>. (~532 tok)
 
 ## packages/compliance/
 
@@ -1129,12 +1741,23 @@
 
 ## scripts/
 
+- `_check_banner.ts` — Declares main (~263 tok)
+- `_check_rpc_grants.ts` — Declares main (~264 tok)
 - `.tmp-cleanup-rehearsal.ts` — Declares main (~297 tok)
+- `adr-1019-sprint-11-backfill.sql` — ADR-1019 Sprint 1.1 — pre-delivery backfill. (~620 tok)
+- `adr-1019-sprint-11-grants-audit.sql` — ADR-1019 Sprint 1.1 — cs_delivery grants audit. (~857 tok)
 - `bootstrap-admin.ts` — ADR-0027 Sprint 4.1 — admin bootstrap one-shot. (~1746 tok)
 - `check-env-isolation.ts` — ADR-0026 Sprint 4.1 — env-var isolation guard. (~1068 tok)
 - `check-no-admin-imports-in-app.ts` — ADR-0026 Sprint 4.1 — cross-import guard: app/ must not reference admin/. (~989 tok)
 - `check-no-customer-imports-in-admin.ts` — ADR-0026 Sprint 4.1 — cross-import guard: admin/ must not reference app/. (~910 tok)
+- `check-no-service-role-in-customer-app.ts` — ADR-1009 Phase 3 Sprint 3.1 — grep gate for Rule 5 violation in app/src/. (~822 tok)
+- `e2e-bootstrap.ts` — ADR-1014 Sprint 1.2 — E2E Supabase test-project bootstrap. (~7227 tok)
+- `e2e-reset.ts` — ADR-1014 Sprint 1.2 — idempotent E2E state reset. (~1181 tok)
+- `e2e-verify-evidence.ts` — ADR-1014 Sprint 1.4 — Partner-facing evidence-seal verifier. (~941 tok)
+- `mint-role-jwt.ts` — ADR-1009 Phase 2 — mint an HS256 JWT for a scoped Postgres role so Supabase (~832 tok)
 - `smoke-test-rate-limit.ts` — Declares main (~242 tok)
+- `verify-adr-1025-sprint-11.ts` — ADR-1025 Phase 1 Sprint 1.1 end-to-end verification. (~2997 tok)
+- `verify-adr-1025-sprint-21.ts` — ADR-1025 Phase 2 Sprint 2.1 end-to-end verification. (~2293 tok)
 
 ## session-context/
 
@@ -1362,7 +1985,11 @@
 
 ## supabase/
 
-- `config.toml` — For detailed configuration reference documentation, visit: (~3910 tok)
+- `config.toml` — For detailed configuration reference documentation, visit: (~4313 tok)
+
+## supabase/functions/_health/
+
+- `index.ts` — Supabase Edge Function: _health (~196 tok)
 
 ## supabase/functions/check-cron-health/
 
@@ -1376,17 +2003,21 @@
 
 - `index.ts` — Supabase Edge Function: check-stuck-deletions (~2134 tok)
 
+## supabase/functions/health/
+
+- `index.ts` — Supabase Edge Function: health (~224 tok)
+
 ## supabase/functions/oauth-token-refresh/
 
 - `index.ts` — ADR-0039 — daily cron. Refreshes OAuth access tokens approaching expiry. (~1936 tok)
 
 ## supabase/functions/process-artefact-revocation/
 
-- `index.ts` — Supabase Edge Function: process-artefact-revocation (~2871 tok)
+- `index.ts` — Supabase Edge Function: process-artefact-revocation (~3885 tok)
 
 ## supabase/functions/process-consent-event/
 
-- `index.ts` — Supabase Edge Function: process-consent-event (~2569 tok)
+- `index.ts` — Supabase Edge Function: process-consent-event (~2814 tok)
 
 ## supabase/functions/run-consent-probes/
 
@@ -1395,6 +2026,10 @@
 ## supabase/functions/run-security-scans/
 
 - `index.ts` — Supabase Edge Function: run-security-scans (~1741 tok)
+
+## supabase/functions/run-status-probes/
+
+- `index.ts` — Supabase Edge Function: run-status-probes (~1773 tok)
 
 ## supabase/functions/send-sla-reminders/
 
@@ -1569,6 +2204,76 @@
 - `20260730000001_account_scoped_feature_flags.sql` — Migration: ADR-0056 Sprint 1.1 — per-account feature-flag targeting. (~2550 tok)
 - `20260801000002_rpc_artefact_revoke.sql` — ADR-1002 Sprint 3.2 — rpc_artefact_revoke RPC. (~1093 tok)
 - `20260801000003_rpc_deletion.sql` — ADR-1002 Sprint 4.1 — Deletion API RPCs. (~2609 tok)
+- `20260801000004_api_key_binding_mutations.sql` — ADR-1009 Sprint 1.1 — DB-level tenant fence for v1 API mutating RPCs. (~5115 tok)
+- `20260801000005_api_key_binding_reads.sql` — ADR-1009 Sprint 1.2 — DB-level tenant fence for v1 API read RPCs. (~6527 tok)
+- `20260801000006_cs_api_login_and_key_status.sql` — ADR-1009 Phase 2 Sprint 2.1 — cs_api role activation + rpc_api_key_status. (~1164 tok)
+- `20260801000007_cs_api_bootstrap_rpc_grants.sql` — ADR-1009 Phase 2 Sprint 2.1 follow-up — grant cs_api EXECUTE on the two (~272 tok)
+- `20260801000008_cs_api_v1_rpc_grants.sql` — ADR-1009 Phase 2 Sprint 2.2 — grant cs_api EXECUTE on the 9 v1 business RPCs. (~564 tok)
+- `20260801000009_revoke_service_role_v1_grants.sql` — ADR-1009 Phase 2 Sprint 2.4 — revoke service_role EXECUTE on the 12 v1 (~695 tok)
+- `20260801000010_revoked_key_tombstone.sql` — ADR-1001 V2 C-1 — tombstone table for revoked api_key hashes so that the (~1835 tok)
+- `20260801000011_v1_introspection_rpcs.sql` — ADR-1012 Sprint 1.1 — introspection RPCs for /v1/keys/self and /v1/usage. (~1318 tok)
+- `20260802000008_fix_usage_self_column.sql` — ADR-1012 Sprint 1.1 follow-up — rpc_api_key_usage_self referenced a (~421 tok)
+- `20260802000009_v1_discovery_rpcs.sql` — ADR-1012 Sprint 1.2 — discovery RPCs for /v1/purposes and /v1/properties. (~1270 tok)
+- `20260803000004_v1_plans_list_rpc.sql` — ADR-1012 Sprint 1.3 — rpc_plans_list for GET /v1/plans. (~531 tok)
+- `20260803000005_lookup_pending_invitation.sql` — ADR-0058 follow-up — email-first signup lookup. (~433 tok)
+- `20260803000006_signup_intake_explicit_status.sql` — ADR-0058 follow-up — surface explicit statuses on signup-intake. (~1054 tok)
+- `20260803000007_drop_invitation_dispatch_trigger.sql` — ADR-0058 follow-up — drop the AFTER INSERT trigger + pg_cron (~441 tok)
+- `20260803000008_plan_limit_check_current_uid.sql` — ADR-0058 follow-up — fix permission-denied-for-schema-auth on (~607 tok)
+- `20260803000009_cs_orchestrator_select_plans.sql` — ADR-0058 follow-up — grant cs_orchestrator SELECT on public.plans. (~201 tok)
+- `20260803000010_cs_orchestrator_select_tracker_signatures.sql` — ADR-1013 Sprint 2.2 — grant cs_orchestrator SELECT on (~183 tok)
+- `20260804000001_rights_requests_captured_via.sql` — ADR-1005 Sprint 5.1 — additive columns on rights_requests for API-created (~606 tok)
+- `20260804000002_v1_rights_api_rpcs.sql` — ADR-1005 Sprint 5.1 — v1 Rights API RPCs. (~2675 tok)
+- `20260804000003_cs_api_rights_grants.sql` — ADR-1005 Sprint 5.1 — GRANT EXECUTE on the two new Rights API RPCs to (~228 tok)
+- `20260804000004_regulatory_exemptions.sql` — ADR-1004 Sprint 1.1 — Regulatory Exemption Engine schema. (~2912 tok)
+- `20260804000005_regulatory_exemptions_bfsi_seed.sql` — ADR-1004 Sprint 1.2 — BFSI platform default seed for regulatory_exemptions. (~1257 tok)
+- `20260804000006_regulatory_exemptions_healthcare_seed.sql` — ADR-1004 Sprint 1.3 — Healthcare platform default seed. (~891 tok)
+- `20260804000007_retention_suppressions_idempotency.sql` — ADR-1004 Sprint 1.4 — idempotency guard for retention_suppressions. (~211 tok)
+- `20260804000008_cs_worker_bypassrls.sql` — ADR-1010 Phase 2 Sprint 2.1 — grant BYPASSRLS to cs_worker. (~399 tok)
+- `20260804000009_v1_orphan_scope_rpcs.sql` — ADR-1016 — v1 API RPCs for the 3 remaining orphan scopes. (~2875 tok)
+- `20260804000010_cs_api_orphan_scope_grants.sql` — ADR-1016 — GRANT EXECUTE on the 3 new v1 RPCs to cs_api. (~225 tok)
+- `20260804000011_regulatory_exemptions_pending_review.sql` — ADR-1004 Sprint 1.6 — default state: "pending legal review" for every (~487 tok)
+- `20260804000012_admin_ops_readiness_flags.sql` — ADR-1017 Sprint 1.1 — admin.ops_readiness_flags table + RPCs + seed. (~2874 tok)
+- `20260804000013_status_page.sql` — ADR-1018 Sprint 1.1 — self-hosted status-page schema + admin RPCs. (~3949 tok)
+- `20260804000014_ops_readiness_add_deferred_sprints.sql` — ADR-1017 follow-up — add readiness-flag rows for the deferred internal (~739 tok)
+- `20260804000015_status_probes_cron.sql` — ADR-1018 Sprint 1.4 — probe cron + health_url updates + heartbeat check. (~1113 tok)
+- `20260804000016_resolve_adr1018_s14_flag.sql` — ADR-1018 Sprint 1.4 close-out — mark the ops-readiness flag resolved now that (~223 tok)
+- `20260804000017_status_probe_url_fix.sql` — ADR-1018 Sprint 1.4 — correct two seeded health_urls from `/api/_health` (~161 tok)
+- `20260804000018_ops_readiness_hyperdrive.sql` — ADR-1010 Phase 1 Sprint 1.1 — operator-gated Hyperdrive provisioning. (~364 tok)
+- `20260804000019_audit_log_column_fix.sql` — ADR-1017 Sprint 1.3 (+ ADR-1018 follow-up) — fix admin_audit_log column (~3023 tok)
+- `20260804000020_resolve_adr1017_s13_flag.sql` — ADR-1017 Sprint 1.3 — resolve the ops-readiness flag for this sprint (~260 tok)
+- `20260804000021_rpc_test_delete_trigger.sql` — ADR-1005 Phase 2 Sprint 2.1 — rpc_test_delete_trigger. (~1238 tok)
+- `20260804000022_cs_api_test_delete_grant.sql` — ADR-1005 Phase 2 Sprint 2.1 — GRANT EXECUTE on rpc_test_delete_trigger (~102 tok)
+- `20260804000023_orphan_consent_events_metric.sql` — ADR-1004 Phase 3 Sprint 3.1 — orphan-consent-events metric + monitor cron. (~1693 tok)
+- `20260804000024_notices_schema.sql` — ADR-1004 Phase 2 Sprint 2.1 — notices schema + append-only constraint. (~1908 tok)
+- `20260804000025_notices_publish_fix.sql` — ADR-1004 Phase 2 Sprint 2.1 — fix publish_notice concurrency. (~605 tok)
+- `20260804000026_ops_readiness_adr1004_phase2_ui.sql` — ADR-1004 Phase 2 Sprints 2.2 + 2.3 are blocked on wireframes per the (~628 tok)
+- `20260804000027_resolve_adr1010_s12_flag.sql` — ADR-1010 Phase 1 Sprint 1.2 — resolve the Hyperdrive-provisioning (~286 tok)
+- `20260804000028_ops_readiness_ch_deferrals.sql` — Per 2026-04-22 session decisions during ADR-1005 Phase 6 setup: (~1226 tok)
+- `20260804000029_cs_worker_select_tracker_signatures.sql` — ADR-1010 Phase 3 Sprint 3.1 — grant cs_worker SELECT on (~328 tok)
+- `20260804000030_cs_orchestrator_select_deletion_receipts.sql` — ADR-1014 Sprint 3.4 follow-up — grant cs_orchestrator SELECT on deletion_receipts. (~469 tok)
+- `20260804000030_resolve_adr1010_p4_addconn_followup.sql` — ADR-1010 Phase 4 cutover — close the Phase-1-Sprint-1.2 prep flag (~627 tok)
+- `20260804000032_resolve_adr1018_s15_flag.sql` — ADR-1018 Sprint 1.5 — DNS cutover for status.consentshield.in. (~331 tok)
+- `20260804000033_notices_replaced_by_pipeline.sql` — ADR-1004 Phase 2 Sprint 2.3 — replaced_by chain + reconsent_campaigns. (~3704 tok)
+- `20260804000034_resolve_adr1004_p2_flags.sql` — ADR-1004 Phase 2 Sprints 2.2 + 2.3 close-out — resolve the two (~268 tok)
+- `20260804000035_export_verification_failures.sql` — ADR-1025 Phase 1 Sprint 1.3 — verification-probe failure capture table. (~560 tok)
+- `20260804000036_provision_storage_dispatch.sql` — ADR-1025 Phase 2 Sprint 2.1 — customer-storage auto-provisioning dispatch. (~2551 tok)
+- `20260804000037_cs_orchestrator_grants_export_configurations.sql` — ADR-1025 Phase 2 Sprint 2.1 — cs_orchestrator grants for (~448 tok)
+- `20260804000038_storage_migrations_and_dispatch.sql` — ADR-1025 Phase 3 Sprint 3.2 — storage migration state + dispatch pipeline. (~3341 tok)
+- `20260804000039_storage_verify_rotate_retention.sql` — ADR-1025 Phase 4 Sprint 4.1 — nightly verify + rotation + retention cleanup. (~2668 tok)
+- `20260804000040_storage_usage_snapshots.sql` — ADR-1025 Phase 4 Sprint 4.2 — storage usage snapshots + plan ceilings. (~2219 tok)
+- `20260804000041_resolve_adr1010_p4_followup_flag.sql` — ADR-1010 Phase 4 follow-up — resolve the ops-readiness flag seeded in (~302 tok)
+- `20260804000042_adr1027_s11_audit_log_account_id.sql` — ADR-1027 Sprint 1.1 — admin.admin_audit_log.account_id column. (~1208 tok)
+- `20260804000043_adr1019_s23_delivery_retry_exhausted.sql` — ADR-1019 Sprint 2.3 — manual-review escalation when a delivery_buffer (~733 tok)
+- `20260804000043_adr1027_s12_admin_dashboard_tiles.sql` — ADR-1027 Sprint 1.2 — admin.admin_dashboard_tiles() RPC. (~1658 tok)
+- `20260804000044_adr1027_s31_impersonation_by_account.sql` — ADR-1027 Sprint 3.1 — admin.impersonation_sessions_by_account() (~933 tok)
+- `20260804000046_adr1027_s32_account_notes.sql` — ADR-1027 Sprint 3.2 — admin.account_notes + four RPCs. (~1894 tok)
+- `20260804000047_adr1027_s33_account_default_template.sql` — ADR-1027 Sprint 3.3 — account-default sectoral template. (~2263 tok)
+- `20260804000048_adr1019_s31_deliver_consent_events_dispatch.sql` — ADR-1019 Sprint 3.1 — trigger + cron wiring for deliver-consent-events. (~1856 tok)
+- `20260804000049_adr1019_s41_delivery_backlog_metrics.sql` — ADR-1019 Sprint 4.1 — delivery-pipeline backlog metrics + stuck-backlog (~2091 tok)
+- `20260804000049_adr1027_s33_fix_no_is_active.sql` — ADR-1027 Sprint 3.3 fixup — admin.sectoral_templates has no is_active (~983 tok)
+- `20260804000050_adr1003_s11_storage_mode_resolver.sql` — ADR-1003 Sprint 1.1 — storage_mode resolver + KV cache plumbing. (~3613 tok)
+- `20260804000051_adr1003_s12_zero_storage_gate.sql` — ADR-1003 Sprint 1.2 — zero-storage preconditions + mode-flip gate. (~1431 tok)
+- `20260804000052_adr1003_s13_zero_storage_artefact_index.sql` — ADR-1003 Sprint 1.3 — zero-storage consent_artefact_index TTL writes. (~603 tok)
 
 ## supabase/seed/
 
@@ -1577,7 +2282,22 @@
 ## test-sites/
 
 - `index.html` — ConsentShield Demo Sites (~631 tok)
+- `package.json` — Node.js package manifest (~108 tok)
+- `railway.json` (~83 tok)
+- `robots.txt` — ConsentShield test / demo sites — NOT a production property. (~532 tok)
+- `server.js` — ADR-1014 Sprint 2.1 — tiny dependency-free static server for the demo (~1429 tok)
 - `vercel.json` (~15 tok)
+
+## test-sites/.well-known/
+
+- `security.txt` (~115 tok)
+
+## test-sites/bfsi/
+
+- `consent-matrix.html` — Consent matrix — NeoFin Credit · ConsentShield demo (~1778 tok)
+- `index.html` — NeoFin Credit — ConsentShield demo (BFSI) (~1115 tok)
+- `kyc.html` — KYC — NeoFin Credit · ConsentShield demo (~1303 tok)
+- `onboarding-complete.html` — Account created — NeoFin Credit · ConsentShield demo (~1318 tok)
 
 ## test-sites/blog/
 
@@ -1585,11 +2305,17 @@
 
 ## test-sites/ecommerce/
 
-- `index.html` — DemoShop — ConsentShield demo (~857 tok)
+- `cart.html` — Cart — DemoShop · ConsentShield demo (~716 tok)
+- `checkout.html` — Checkout — DemoShop · ConsentShield demo (~814 tok)
+- `index.html` — DemoShop — Storefront · ConsentShield demo (~757 tok)
+- `product.html` — Linen shirt — DemoShop · ConsentShield demo (~666 tok)
 
 ## test-sites/healthtech/
 
-- `index.html` — MediCare — ConsentShield demo (~613 tok)
+- `appointment.html` — Book an appointment — MediCare Clinic · ConsentShield demo (~832 tok)
+- `fhir-probe.html` — FHIR-never-persisted probe — MediCare · ConsentShield demo (~1493 tok)
+- `index.html` — MediCare Clinic — ConsentShield demo (~908 tok)
+- `portal.html` — Patient portal — MediCare Clinic · ConsentShield demo (~794 tok)
 
 ## test-sites/saas/
 
@@ -1597,7 +2323,9 @@
 
 ## test-sites/shared/
 
-- `demo.css` — Styles: 29 rules, 7 vars (~878 tok)
+- `banner-loader.js` — ADR-1014 Sprint 2.1 — config-driven banner bootstrap. (~639 tok)
+- `demo.css` — Styles: 56 rules, 7 vars (~1595 tok)
+- `demo.js` — Shared demo helpers — wired into every ecommerce / healthtech / bfsi / etc. (~676 tok)
 
 ## test-sites/violator/
 
@@ -1605,16 +2333,24 @@
 
 ## tests/admin/
 
+- `account-default-template.test.ts` — service: pickPublishedTemplate, resolveAccountId (~1936 tok)
+- `account-notes-rpcs.test.ts` — service: resolveAccountId (~2020 tok)
 - `account-rpcs.test.ts` — service: countAuditRows (~2208 tok)
+- `admin-dashboard-tiles.test.ts` — Declares envelope (~1569 tok)
 - `admin-lifecycle-rpcs.test.ts` — service: countAuditRows (~3812 tok)
 - `audit_log.test.ts` — service: countAuditRows (~1832 tok)
+- `audit-log-account-id.test.ts` — service: getAuditRowsFor (~1655 tok)
 - `billing-account-view.test.ts` — Declares env (~1374 tok)
 - `billing-invoice-list.test.ts` — service: nextGstin, populateAccountBillingProfile, createIssuer, issueThroughActiveIssuer (~3246 tok)
 - `billing-issuer-rpcs.test.ts` — nextGstin: hardDelete, fetchIssuer, createIssuer (~3521 tok)
 - `billing-rpcs.test.ts` — service: countAuditRows, createPendingRefund (~4016 tok)
 - `foundation.test.ts` — Declares anon (~1516 tok)
 - `helpers.ts` — Helpers for admin-side tests. Reuses the Supabase project + env vars (~979 tok)
+- `impersonation-audit-trail.test.ts` — ADR-1014 Phase 3 Sprint 3.6 — admin impersonation → audit-log trail test. (~2323 tok)
+- `impersonation-by-account.test.ts` — Declares row (~1127 tok)
 - `invoice-immutability.test.ts` — service: nextGstin (~2176 tok)
+- `invoice-issuance.test.ts` — ADR-1014 Phase 3 Sprint 3.6 — invoice issuance (happy + no-active-issuer). (~3490 tok)
+- `ops-readiness-flags.test.ts` — service: countAuditRows (~2582 tok)
 - `pipeline-rpcs.test.ts` — Declares row (~1753 tok)
 - `platform-owner-role.test.ts` — service: seedPlatformOwner (~2016 tok)
 - `rate-limit-rpcs.test.ts` — Declares service (~1008 tok)
@@ -1623,6 +2359,7 @@
 - `rpcs.test.ts` — service: rpc (~4104 tok)
 - `sdf-rpcs.test.ts` — service: countAuditRows (~1560 tok)
 - `sentry-events-rpcs.test.ts` — Declares service (~1111 tok)
+- `status-page-rpcs.test.ts` — service: countAuditRows (~2524 tok)
 
 ## tests/billing/
 
@@ -1654,10 +2391,57 @@
 ## tests/depa/
 
 - `artefact-index-identifier.test.ts` — ADR-1002 Sprint 1.1 — consent_artefact_index extension tests. (~2830 tok)
+- `artefact-lifecycle.test.ts` — ADR-1014 Phase 3 Sprint 3.5 — DEPA artefact full-lifecycle composition test. (~3289 tok)
 - `consent-event-pipeline.test.ts` — ADR-0021 Sprint 1.1 — process-consent-event pipeline integration tests. (~3428 tok)
 - `expiry-pipeline.test.ts` — ADR-0023 + ADR-0037 — expiry pipeline integration tests. (~4529 tok)
+- `retention-suppression.test.ts` — ADR-1004 Sprint 1.4 — process-artefact-revocation + regulatory exemption (~2167 tok)
 - `revocation-pipeline.test.ts` — ADR-0022 Sprint 1.4 — process-artefact-revocation pipeline integration tests. (~4831 tok)
 - `score.test.ts` — ADR-0025 Sprint 1.2 — DEPA score integration tests. (~3145 tok)
+
+## tests/e2e/
+
+- `.gitignore` — Git ignore rules (~28 tok)
+- `demo-ecommerce-banner.spec.ts` — Declares StaticServerHandle (~2008 tok)
+- `demo-matrix.spec.ts` — Declares ConsentEventDetail (~2312 tok)
+- `package.json` — Node.js package manifest (~228 tok)
+- `playwright.config.ts` — ', '**/.tsbuild/**'], (~636 tok)
+- `README.md` — Project documentation (~1323 tok)
+- `signup-to-dashboard.spec.ts` — ADR-1014 Phase 1 Sprint 1.5 — signup-intake → onboarding wizard entry gate. (~1712 tok)
+- `smoke-healthz.spec.ts` — See specs/smoke-healthz.md for the normative spec. (~514 tok)
+- `tsconfig.json` — TypeScript configuration (~66 tok)
+- `worker-consent-event-origin-mismatch.spec.ts` — Paired negative for worker-consent-event.spec.ts — ADR-1014 Sprint 3.2. (~1592 tok)
+- `worker-consent-event-tampered.spec.ts` — Paired negative for worker-consent-event.spec.ts. See specs/worker-consent-event.md (~812 tok)
+- `worker-consent-event.spec.ts` — API routes: POST (1 endpoints) (~820 tok)
+
+## tests/e2e/controls/
+
+- `README.md` — Project documentation (~209 tok)
+- `smoke-healthz-negative.spec.ts` — SACRIFICIAL CONTROL — MUST fail on every run. (~182 tok)
+
+## tests/e2e/specs/
+
+- `demo-ecommerce-banner.md` — E2E-2.1-demo-ecommerce-banner: Browser → banner → Worker → buffer (~1077 tok)
+- `demo-matrix.md` — E2E-2.4-demo-matrix: Cross-vertical banner × outcome matrix (~1773 tok)
+- `pair-matrix.md` — Pair matrix — ADR-1014 Sprint 3.7 (~2873 tok)
+- `README.md` — Project documentation (~1494 tok)
+- `signup-to-dashboard.md` — E2E-1.5-signup-to-dashboard: signup-intake → onboarding wizard entry gate (~1817 tok)
+- `smoke-healthz.md` — E2E-1.1-smoke-healthz: All three app surfaces serve /healthz (~779 tok)
+- `worker-consent-event-origin-mismatch.md` — E2E-3.2-worker-consent-event-origin-mismatch: unsigned + foreign-Origin is rejected at step 1 (~1269 tok)
+- `worker-consent-event.md` — E2E-1.3-worker-consent-event: HMAC-signed consent event reaches the buffer (~1192 tok)
+
+## tests/e2e/utils/
+
+- `banner-harness.ts` — Full page URL to navigate to. Any existing query string is preserved. (~2158 tok)
+- `env.ts` — Exports loadE2eEnv, E2eEnv, readEnv (~859 tok)
+- `evidence-reporter.ts` — ADR-1014 Sprint 1.4 — Playwright reporter that packages each run into a (~1283 tok)
+- `evidence-seal.ts` — Seal format (written by evidence.ts finalize()): (~1151 tok)
+- `evidence.ts` — Write a single in-memory attachment to the run's attachments/ folder. (~1996 tok)
+- `fixtures.ts` — Sprint 1.1 baseline fixtures + Sprint 1.2 vertical fixtures. (~1036 tok)
+- `hmac.ts` — Mirrors worker/src/hmac.ts exactly. If this file drifts from the Worker (~826 tok)
+- `static-server.ts` — Minimal static server for the test-sites/ demo vertical pages. Avoids (~797 tok)
+- `supabase-admin.ts` — Convenience: count rows in consent_events for a property since a cutoff. (~656 tok)
+- `trace-id.ts` — Per-test trace ID. Every HTTP request, browser page, DB row, R2 object, and (~377 tok)
+- `worker-harness.ts` — Kills the spawned process if one was started; no-op if using WORKER_URL. (~920 tok)
 
 ## tests/fixtures/
 
@@ -1665,15 +2449,36 @@
 
 ## tests/integration/
 
-- `api-keys.e2e.test.ts` — Declares TestOrg (~2521 tok)
+- `api-keys.e2e.test.ts` — Declares TestOrg (~2515 tok)
 - `api-middleware.test.ts` — Declares TestOrg (~946 tok)
-- `artefact-event-read.test.ts` — ADR-1002 Sprint 3.1 — integration tests for the three read endpoints. (~3593 tok)
-- `consent-record.test.ts` — ADR-1002 Sprint 2.1 — /v1/consent/record integration tests. (~3288 tok)
-- `consent-revoke.test.ts` — ADR-1002 Sprint 3.2 — revoke endpoint integration tests. (~2726 tok)
-- `consent-verify-batch.test.ts` — ADR-1002 Sprint 1.3 — /v1/consent/verify/batch integration tests. (~3283 tok)
-- `consent-verify.test.ts` — ADR-1002 Sprint 1.2 — /v1/consent/verify integration tests. (~3716 tok)
-- `deletion-api.test.ts` — ADR-1002 Sprint 4.1 — deletion trigger + receipts list integration tests. (~3484 tok)
-- `mrs-sharma.e2e.test.ts` — ADR-1002 Sprint 5.1 — Mrs. Sharma end-to-end scenario. (~3392 tok)
+- `artefact-event-read.test.ts` — ADR-1002 Sprint 3.1 — integration tests for the three read endpoints. (~3691 tok)
+- `audit-api.test.ts` — ADR-1016 Sprint 1.1 — /v1/audit integration tests. (~1684 tok)
+- `consent-record.test.ts` — ADR-1002 Sprint 2.1 — /v1/consent/record integration tests. (~3354 tok)
+- `consent-revoke.test.ts` — ADR-1002 Sprint 3.2 — revoke endpoint integration tests. (~3039 tok)
+- `consent-verify-batch.test.ts` — ADR-1002 Sprint 1.3 — /v1/consent/verify/batch integration tests. (~3334 tok)
+- `consent-verify.test.ts` — ADR-1002 Sprint 1.2 — /v1/consent/verify integration tests. (~3946 tok)
+- `cs-api-role.test.ts` — ADR-1009 Phase 2 Sprint 2.1 — cs_api direct-Postgres role smoke tests. (~2438 tok)
+- `cs-worker-role.test.ts` — ADR-1010 Phase 2 Sprint 2.1 — cs_worker direct-Postgres role smoke tests. (~2201 tok)
+- `deletion-api.test.ts` — ADR-1002 Sprint 4.1 — deletion trigger + receipts list integration tests. (~3698 tok)
+- `deletion-receipt-confirm.test.ts` — ADR-1014 Phase 3 Sprint 3.4 — deletion-receipt callback RPC + overdue test. (~3720 tok)
+- `discovery.test.ts` — ADR-1012 Sprint 1.2 — /v1/purposes and /v1/properties integration tests. (~1743 tok)
+- `introspection.test.ts` — ADR-1012 Sprint 1.1 — /v1/keys/self and /v1/usage integration tests. (~1137 tok)
+- `mrs-sharma.e2e.test.ts` — ADR-1002 Sprint 5.1 — Mrs. Sharma end-to-end scenario. (~3488 tok)
+- `notices-replaced-by.test.ts` — Declares TestOrg (~2319 tok)
+- `notices-schema.test.ts` — TestOrg: seedProperty (~2106 tok)
+- `orphan-metric.test.ts` — TestOrg: seedProperty, insertConsentEvent, getMetric (~1745 tok)
+- `plans.test.ts` — ADR-1012 Sprint 1.3 — /v1/plans integration tests. (~770 tok)
+- `rate-tier-drift.test.ts` — ADR-1001 V2 C-2 — rate-tier static map drift check. (~894 tok)
+- `retention-exemptions.test.ts` — ADR-1004 Phase 1 — regulatory exemptions engine integration tests. (~2474 tok)
+- `rights-api.test.ts` — ADR-1005 Sprint 5.1 — /v1/rights/requests integration tests. (~2842 tok)
+- `rights-request-public.test.ts` — ADR-1014 Phase 3 Sprint 3.3 — public rights-request RPC contract test. (~3841 tok)
+- `score-api.test.ts` — ADR-1016 Sprint 1.3 — /v1/score integration tests. (~734 tok)
+- `security-scans-api.test.ts` — ADR-1016 Sprint 1.2 — /v1/security/scans integration tests. (~1491 tok)
+- `signup-intake.test.ts` — ADR-0058 Sprint 1.5 (deferred) → ADR-1014 Phase 3 Sprint 3.1. (~2689 tok)
+- `test-delete-api.test.ts` — TestOrg: seedConnector (~1716 tok)
+- `worker-hyperdrive-reads.test.ts` — ADR-1010 Phase 3 Sprint 3.1 — integration test for the Hyperdrive (~1731 tok)
+- `worker-hyperdrive-writes.test.ts` — ADR-1010 Phase 3 Sprint 3.2 — integration test for the Hyperdrive (~2157 tok)
+- `zero-storage-invariant.test.ts` — ADR-1003 Sprint 1.3 — zero-storage end-to-end invariant. (~3541 tok)
 
 ## tests/rbac/
 
@@ -1695,7 +2500,7 @@
 - `auditor-engagements.test.ts` — ADR-0046 Phase 3 — Data Auditor Engagements CRUD + lifecycle. (~2033 tok)
 - `depa-isolation.test.ts` — ADR-0020 Sprint 1.1 — DEPA RLS isolation tests. (~3131 tok)
 - `depa-purpose-crud.test.ts` — ADR-0024 Sprint 1.4 — RLS cross-tenant isolation for Purpose Definitions (~1430 tok)
-- `helpers.ts` — Exports getServiceClient, getAnonClient, TestOrg, createTestOrg + 3 more (~1275 tok)
+- `helpers.ts` — Exports getServiceClient, getAnonClient, TestOrg, createTestOrg + 4 more (~1585 tok)
 - `isolation.test.ts` — Declares admin (~2328 tok)
 - `org-suspension-gate.test.ts` — ADR-0048 follow-up — public.assert_org_not_suspended gate on compliance (~1395 tok)
 - `sectoral-template-apply.test.ts` — ADR-0030 Sprint 3.1 — customer-side sectoral-template application. (~1784 tok)
@@ -1715,19 +2520,32 @@
 
 ## worker/
 
+- `.dev.vars` (~117 tok)
 - `package.json` — Node.js package manifest (~67 tok)
 - `tsconfig.json` — TypeScript configuration (~105 tok)
-- `wrangler.toml` (~95 tok)
+- `wrangler.toml` (~396 tok)
 
 ## worker/src/
 
 - `admin-config.ts` — Typed accessors over the admin config snapshot materialised to KV by (~1547 tok)
-- `banner.ts` — API routes: GET (2 endpoints) (~4104 tok)
+- `banner.ts` — API routes: GET (2 endpoints) (~4599 tok)
 - `blocked-ip.ts` — Convert a dotted-quad IPv4 string ("198.51.100.0") to a 32-bit (~1056 tok)
-- `events.ts` — API routes: GET (2 endpoints) (~1729 tok)
+- `db.ts` — Open a fresh postgres.js client for one Worker request. (~1150 tok)
+- `events.ts` — API routes: GET (2 endpoints) (~2888 tok)
 - `hmac.ts` — HMAC-SHA256 utilities — Web Crypto API only, zero dependencies (~457 tok)
-- `index.ts` — Exports Env (~597 tok)
-- `observations.ts` — Exports handleObservation (~1438 tok)
-- `origin.ts` — API routes: GET (3 endpoints) (~761 tok)
-- `signatures.ts` — Exports TrackerSignature, getTrackerSignatures, compactSignatures (~751 tok)
-- `worker-errors.ts` — N-S1 fix: persist Worker → Supabase write failures to the worker_errors (~546 tok)
+- `index.ts` — ADR-1010 Phase 3 — Hyperdrive binding shape. Cloudflare injects this (~1375 tok)
+- `observations.ts` — Exports handleObservation (~2436 tok)
+- `origin.ts` — API routes: GET (3 endpoints) (~1066 tok)
+- `role-guard.ts` — Throws `WorkerRoleGuardError` if `env.SUPABASE_WORKER_KEY` is missing, is (~1224 tok)
+- `signatures.ts` — Exports TrackerSignature, getTrackerSignatures, compactSignatures (~992 tok)
+- `storage-mode.ts` — Returns the storage_mode for an org. Defaults to 'standard' when (~918 tok)
+- `worker-errors.ts` — N-S1 fix: persist Worker → Supabase write failures to the worker_errors (~689 tok)
+- `zero-storage-bridge.ts` — ADR-1003 Sprint 1.2 — Worker-side bridge client for zero_storage orgs. (~742 tok)
+
+## worker/src/prototypes/
+
+- `probe-hyperdrive.ts` — ADR-1010 Phase 1 Sprint 1.1 — Mechanism A: Cloudflare Hyperdrive. (~731 tok)
+- `probe-raw-tcp.ts` — ADR-1010 Phase 1 Sprint 1.1 — Mechanism C: hand-rolled TCP Postgres. (~707 tok)
+- `probe-rest.ts` — ADR-1010 Phase 1 Sprint 1.1 — Mechanism B: REST with SUPABASE_WORKER_KEY. (~647 tok)
+- `README.md` — Project documentation (~899 tok)
+- `types.ts` — ADR-1010 Phase 1 Sprint 1.1 — probe envelope shared by all three (~140 tok)

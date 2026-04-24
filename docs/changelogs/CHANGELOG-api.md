@@ -2,6 +2,28 @@
 
 API route changes.
 
+## [ADR-1003 Sprint 1.3 — zero-storage consent_artefact_index seeding + invariant test] — 2026-04-24
+
+**ADR:** ADR-1003 — Processor Posture + Healthcare Category Unlock
+**Sprint:** Phase 1, Sprint 1.3
+
+### Changed — orchestrator
+- `app/src/lib/delivery/zero-storage-bridge.ts` — `processZeroStorageEvent` now performs a best-effort `consent_artefact_index` seed after a successful R2 upload. For `kind = 'consent_event'` with non-empty `payload.purposes_accepted` and a `payload.property_id` UUID, it (a) reads `framework` per `purpose_code` from `purpose_definitions`, (b) INSERTs one row per matched purpose with `artefact_id = "zs-<event_fingerprint>-<purpose_code>"`, `validity_state='active'`, `expires_at = now() + 24h`, `identifier_hash=NULL`, `consent_event_id=NULL`, ON CONFLICT (org_id, artefact_id) DO NOTHING. The whole index path is wrapped in try/catch — any failure (FK violation, RLS, transient DB error) is swallowed and surfaced via two new `BridgeResult` fields: `indexed: number` (rows actually INSERTed) and `indexError?: string`. R2 upload remains the load-bearing guarantee.
+- TTL is hard-coded `ZERO_STORAGE_INDEX_TTL_HOURS = 24`. The Sprint 3.1 refresh-from-R2 path will revisit.
+
+### Tested — unit
+- `app/tests/delivery/zero-storage-bridge.test.ts` — extended to 15 tests. New Sprint 1.3 cases: deterministic artefact_id + framework lookup propagation; tracker_observation kind skipped; empty `purposes_accepted` skipped; missing `property_id` skipped; unknown `purpose_code` (no `purpose_definitions` match) skipped; ON CONFLICT (returning empty) counted as 0 inserted; INSERT failure swallowed → `outcome='uploaded'` with `indexError` populated. The pre-existing happy-path test was clarified — its no-INSERT assertion now applies to the no-purposes branch only (the with-purposes invariant moved to the integration test).
+
+### Tested — integration
+- `tests/integration/zero-storage-invariant.test.ts` — new file, root-config suite. Skips when `SUPABASE_CS_ORCHESTRATOR_DATABASE_URL` or `MASTER_ENCRYPTION_KEY` is absent. Three cases: (1) zero_storage org runs 10 bridge events × 2 purposes → asserts 0 rows in `consent_events`, `consent_artefacts`, `delivery_buffer`, `artefact_revocations`, `audit_log` for that `org_id`, AND 20 rows in `consent_artefact_index` with the expected shape (active, identifier_hash null, framework dpdp, 24h-bounded `expires_at`); (2) replaying the same fingerprint produces 0 additional INSERTs (idempotency); (3) standard org bridge call refuses with `mode_not_zero_storage` AND a direct INSERT into `consent_events` succeeds (counter-test: schema half is intact). Root `vitest.config.ts` now exposes the `@/` alias mapped to `app/src` so cross-tree imports resolve.
+
+### Design amendment vs ADR proposal
+The Sprint 1.3 deliverables in ADR-1003 said "extend `process-consent-event` (Deno Edge Function) for zero-storage branching." Amended to land the work in the Next.js bridge orchestrator where the Sprint 1.2 zero-storage path already lives. Same rationale as Sprint 1.2: Deno Edge Functions can't use Node-native `sigv4.ts` / `org-crypto.ts` without porting; the bridge is the established convention. The ADR's "1000 events" target was narrowed to 10 — large enough to assert the invariant, small enough to keep the integration suite under a minute on dev DB.
+
+### Operator follow-up
+- `bunx supabase db push` for migration 52 (along with 45 / 48 / 49 / 50 / 51 still queued).
+- Smoke: with a `zero_storage` org configured, post a consent event → confirm one R2 object AND one `consent_artefact_index` row per accepted purpose.
+
 ## [ADR-1003 Sprint 1.2 — zero-storage event bridge] — 2026-04-24
 
 **ADR:** ADR-1003 — Processor Posture + Healthcare Category Unlock

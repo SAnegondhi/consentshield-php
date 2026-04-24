@@ -1,5 +1,6 @@
 import { defineConfig } from 'vitest/config'
 import { config } from 'dotenv'
+import path from 'node:path'
 
 config({ path: '.env.local' })
 
@@ -23,5 +24,13 @@ export default defineConfig({
     // correctness — serial execution costs a few seconds and removes
     // the flaky failure mode.
     fileParallelism: false,
+  },
+  resolve: {
+    alias: {
+      // ADR-1003 Sprint 1.3 — integration tests import production
+      // modules from app/src that themselves use the @/ alias.
+      // Mirror app/vitest.config.ts so cross-tree imports resolve.
+      '@': path.resolve(__dirname, './app/src'),
+    },
   },
 })

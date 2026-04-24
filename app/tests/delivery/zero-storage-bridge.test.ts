@@ -1,4 +1,4 @@
-// ADR-1003 Sprint 1.2 — zero-storage bridge orchestrator unit tests.
+// ADR-1003 Sprint 1.2 + 1.3 — zero-storage bridge orchestrator unit tests.
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { processZeroStorageEvent } from '@/lib/delivery/zero-storage-bridge'
@@ -146,13 +146,195 @@ describe('processZeroStorageEvent', () => {
       'cs-timestamp': '2026-04-24T12:30:15.000Z',
     })
 
-    // Invariant: only READs hit the DB. No INSERT / UPDATE on any
-    // buffer table — the cs_orchestrator stub queue only had SELECT
-    // reads queued.
+    // Invariant: with purposes_accepted absent, the bridge does
+    // ZERO writes. With purposes present (Sprint 1.3) it INSERTs
+    // into consent_artefact_index — but the four buffer tables
+    // (consent_events / consent_artefacts / delivery_buffer /
+    // audit_log) STILL receive zero rows. That stronger invariant
+    // is asserted by the integration test
+    // (tests/integration/zero-storage-invariant.test.ts).
     const queries = pg.calls.map((c) => c.query.toLowerCase()).join(' ')
     expect(queries).not.toContain('insert')
     expect(queries).not.toContain('update')
     expect(queries).not.toContain('delete')
+    expect(result.indexed).toBe(0)
+  })
+
+  // ────────────────────────────────────────────────────────────
+  // Sprint 1.3 — consent_artefact_index seeding (best-effort).
+  // ────────────────────────────────────────────────────────────
+
+  const PROPERTY_ID = '22222222-2222-4222-8222-222222222222'
+
+  function uploadStubs() {
+    return [
+      [{ mode: 'zero_storage' }],
+      [cfgRow()],
+      [{ encryption_salt: 'salt' }],
+      [{ decrypt_secret: JSON.stringify(CREDS) }],
+    ] as StubResponses
+  }
+
+  it('Sprint 1.3 — INSERTs one consent_artefact_index row per accepted purpose with deterministic artefact_id', async () => {
+    const pg = makePgStub([
+      ...uploadStubs(),
+      [
+        { purpose_code: 'analytics', framework: 'dpdp' },
+        { purpose_code: 'marketing', framework: 'dpdp' },
+      ],
+      [{ artefact_id: 'zs-fp-abc-12345678-analytics' }],
+      [{ artefact_id: 'zs-fp-abc-12345678-marketing' }],
+    ])
+    const put = vi.fn().mockResolvedValue({ status: 200, etag: '"e"' })
+    const req = {
+      ...REQ,
+      payload: {
+        property_id: PROPERTY_ID,
+        event_type: 'consent_given',
+        purposes_accepted: ['analytics', 'marketing'],
+      },
+    }
+    const result = await processZeroStorageEvent(pg as never, req, {
+      putObject: put,
+    })
+    expect(result.outcome).toBe('uploaded')
+    expect(result.indexed).toBe(2)
+    expect(result.indexError).toBeUndefined()
+
+    const inserts = pg.calls.filter((c) =>
+      c.query.toLowerCase().includes('insert into public.consent_artefact_index'),
+    )
+    expect(inserts).toHaveLength(2)
+    // Deterministic artefact_id (stable for Worker retries).
+    const allValues = inserts.flatMap((c) => c.values)
+    expect(allValues).toContain('zs-fp-abc-12345678-analytics')
+    expect(allValues).toContain('zs-fp-abc-12345678-marketing')
+    // Property + framework + purpose_code propagated.
+    expect(allValues).toContain(PROPERTY_ID)
+    expect(allValues).toContain('analytics')
+    expect(allValues).toContain('marketing')
+    expect(allValues).toContain('dpdp')
+  })
+
+  it('Sprint 1.3 — does NOT INSERT for tracker_observation kind', async () => {
+    const pg = makePgStub(uploadStubs())
+    const put = vi.fn().mockResolvedValue({ status: 200, etag: '"e"' })
+    const req = {
+      ...REQ,
+      kind: 'tracker_observation' as const,
+      payload: { property_id: PROPERTY_ID, purposes_accepted: ['analytics'] },
+    }
+    const result = await processZeroStorageEvent(pg as never, req, {
+      putObject: put,
+    })
+    expect(result.outcome).toBe('uploaded')
+    expect(result.indexed).toBe(0)
+    const queries = pg.calls.map((c) => c.query.toLowerCase()).join(' ')
+    expect(queries).not.toContain('purpose_definitions')
+    expect(queries).not.toContain('consent_artefact_index')
+  })
+
+  it('Sprint 1.3 — does NOT INSERT when purposes_accepted is empty', async () => {
+    const pg = makePgStub(uploadStubs())
+    const put = vi.fn().mockResolvedValue({ status: 200, etag: '"e"' })
+    const req = {
+      ...REQ,
+      payload: {
+        property_id: PROPERTY_ID,
+        event_type: 'banner_dismissed',
+        purposes_accepted: [],
+      },
+    }
+    const result = await processZeroStorageEvent(pg as never, req, {
+      putObject: put,
+    })
+    expect(result.outcome).toBe('uploaded')
+    expect(result.indexed).toBe(0)
+    const queries = pg.calls.map((c) => c.query.toLowerCase()).join(' ')
+    expect(queries).not.toContain('purpose_definitions')
+  })
+
+  it('Sprint 1.3 — does NOT INSERT when property_id is missing', async () => {
+    const pg = makePgStub(uploadStubs())
+    const put = vi.fn().mockResolvedValue({ status: 200, etag: '"e"' })
+    const req = {
+      ...REQ,
+      payload: { event_type: 'consent_given', purposes_accepted: ['x'] },
+    }
+    const result = await processZeroStorageEvent(pg as never, req, {
+      putObject: put,
+    })
+    expect(result.outcome).toBe('uploaded')
+    expect(result.indexed).toBe(0)
+  })
+
+  it('Sprint 1.3 — does NOT INSERT when no purpose_definitions match the codes', async () => {
+    const pg = makePgStub([
+      ...uploadStubs(),
+      [], // purpose_definitions returns nothing
+    ])
+    const put = vi.fn().mockResolvedValue({ status: 200, etag: '"e"' })
+    const req = {
+      ...REQ,
+      payload: {
+        property_id: PROPERTY_ID,
+        event_type: 'consent_given',
+        purposes_accepted: ['unknown_code'],
+      },
+    }
+    const result = await processZeroStorageEvent(pg as never, req, {
+      putObject: put,
+    })
+    expect(result.outcome).toBe('uploaded')
+    expect(result.indexed).toBe(0)
+    expect(result.indexError).toBeUndefined()
+  })
+
+  it('Sprint 1.3 — counts ON CONFLICT (returning empty) as not inserted', async () => {
+    const pg = makePgStub([
+      ...uploadStubs(),
+      [{ purpose_code: 'analytics', framework: 'dpdp' }],
+      [], // ON CONFLICT DO NOTHING — RETURNING yields zero rows
+    ])
+    const put = vi.fn().mockResolvedValue({ status: 200, etag: '"e"' })
+    const req = {
+      ...REQ,
+      payload: {
+        property_id: PROPERTY_ID,
+        event_type: 'consent_given',
+        purposes_accepted: ['analytics'],
+      },
+    }
+    const result = await processZeroStorageEvent(pg as never, req, {
+      putObject: put,
+    })
+    expect(result.outcome).toBe('uploaded')
+    expect(result.indexed).toBe(0)
+    expect(result.indexError).toBeUndefined()
+  })
+
+  it('Sprint 1.3 — INSERT failure is swallowed; outcome stays uploaded with indexError set', async () => {
+    const pg = makePgStub([
+      ...uploadStubs(),
+      [{ purpose_code: 'analytics', framework: 'dpdp' }],
+      new Error('FK violation: property_id'),
+    ])
+    const put = vi.fn().mockResolvedValue({ status: 200, etag: '"e"' })
+    const req = {
+      ...REQ,
+      payload: {
+        property_id: PROPERTY_ID,
+        event_type: 'consent_given',
+        purposes_accepted: ['analytics'],
+      },
+    }
+    const result = await processZeroStorageEvent(pg as never, req, {
+      putObject: put,
+    })
+    // R2 upload succeeded → outcome stays 'uploaded'.
+    expect(result.outcome).toBe('uploaded')
+    expect(result.indexError).toContain('FK violation')
+    expect(result.indexed).toBe(0)
   })
 
   it('uses now() for the date partition when timestamp is unparseable', async () => {
