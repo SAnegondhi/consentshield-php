@@ -1,11 +1,33 @@
 # ADR-1026: Rewind ADR-1010 Phase 3 — Worker connects directly to Supavisor; drop Hyperdrive binding
 
-**Status:** Blocked (Sprint 1.2 discovery — see "Blockers discovered")
+**Status:** Abandoned (Sprint 1.2 discovered CF Workers free-tier 50-subrequest limit blocks direct-Supavisor; paid-plan upgrade out of scope for now)
 **Date proposed:** 2026-04-24
+**Date abandoned:** 2026-04-24
 **Date completed:** —
 **Supersedes (partial):** ADR-1010 Phase 3 Sprint 3.1's *mechanism* choice (Hyperdrive binding). All other Phase 3/4 work — `cs_worker` scoped role, direct-Postgres via `postgres.js`, Supavisor transaction pooler as the origin, Rule 16 carve-out, `SUPABASE_WORKER_KEY` retirement, role-guard removal, 20/20 Miniflare harness — stays intact.
 **Upstream dependency:** —
 **Related:** ADR-1010 (Worker scoped-role migration), ADR-1013 (cs_orchestrator direct-Postgres — same mechanism pattern, already Hyperdrive-free).
+
+---
+
+## Abandonment note (2026-04-24)
+
+The "Revised decision tree" block below (added during Sprint 1.2 rollback) presented three paths forward. Product owner chose **Path 1 — withdraw ADR-1026, stay on Hyperdrive, keep the Worker on CF's free plan.** Rationale: at today's traffic shape, Hyperdrive's intermittent `CONNECTION_CLOSED` is tolerable; the mitigation (KV 5-min cache absorbs most cold paths) is already in place; a paid-tier monthly charge is out of scope until a commercial driver exists.
+
+This ADR stays on file as the factual record of the attempt, the blocker discovered, and the unblock criteria. **Reopen this ADR** (new status Proposed, new date) if any of the following become true:
+
+- Workers Paid plan is adopted for another reason — the 50-subrequest constraint vanishes and the direct-Supavisor path becomes viable as a free side-effect.
+- Hyperdrive's `CONNECTION_CLOSED` failures escalate from "intermittent 10% of colds" to "customer-visible" — at that point paying $5/month to unblock ADR-1026 becomes the cheaper option than engineering around Hyperdrive.
+- Cloudflare raises or removes the free-tier subrequest limit. (Low probability; the limit has stood since 2019.)
+
+Operational state at abandonment:
+- Worker deployed: version `9b5b3024-6e86-481e-962c-0c9267a25d28` (Sprint 4.2 Hyperdrive build).
+- Hyperdrive config `cs-worker-hyperdrive-v2` (`87c60a8ac9b741e38b9abb24d74690cd`): in service.
+- Wrangler secret `CS_WORKER_DSN`: **deleted** 2026-04-24 — dormant secret removed so it doesn't drift out of sync with Supabase cs_worker password over time. If ADR-1026 is reopened, `wrangler secret put CS_WORKER_DSN` re-runs at Sprint 1.1.
+- `.secrets` `CS_WORKER_PASSWORD`: unchanged.
+- CLAUDE.md Rule 16: unchanged — still reads "Hyperdrive exposes only the PostgreSQL wire protocol". The planned Sprint 1.5 rewording to reference Supavisor is not applied.
+
+Every section below is preserved verbatim as the reasoning trace. Treat the "Decision" and "Consequences" blocks as what *would* hold if the ADR were reopened on Workers Paid; they do not describe current state.
 
 ---
 

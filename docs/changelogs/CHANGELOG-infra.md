@@ -2,6 +2,24 @@
 
 Vercel, Cloudflare, Supabase config changes.
 
+## [ADR-1026 — Abandoned; CS_WORKER_DSN wrangler secret deleted] — 2026-04-24
+
+**ADR:** ADR-1026 — Rewind ADR-1010 Phase 3 mechanism, drop Hyperdrive
+**Sprint:** Abandonment
+
+### Cloudflare Worker
+- **Wrangler secret `CS_WORKER_DSN` deleted** from Worker `consentshield-cdn`. Sprint 1.1 uploaded it in anticipation of Sprint 1.2 swapping the read path; with Sprint 1.2 blocked on the free-tier subrequest limit and ADR-1026 abandoned, the secret is pruned to avoid drifting out of sync with Supabase's `cs_worker` password over time. `wrangler secret list` now returns `[]`.
+- Worker left on Sprint 4.2 Hyperdrive build (version `9b5b3024-6e86-481e-962c-0c9267a25d28`). Hyperdrive binding `cs-worker-hyperdrive-v2` (`87c60a8ac9b741e38b9abb24d74690cd`) stays bound. No other surface changed.
+
+### Decision
+- Product-owner call: keep Hyperdrive, stay on CF free plan. Intermittent `CONNECTION_CLOSED` from Hyperdrive upstream becomes a monitored-but-tolerated failure mode (KV 5-min cache absorbs most cold paths). Reopen ADR-1026 only if Workers Paid is adopted for another reason, if Hyperdrive failures escalate to customer-visible, or if CF removes the free-tier subrequest limit.
+
+### Tested
+- [x] `wrangler secret list` — empty. PASS.
+- [x] No Worker redeploy required (code did not change since the Sprint 1.2 rollback commit).
+
+---
+
 ## [ADR-1026 Sprint 1.2 — attempted, rolled back; ADR blocked] — 2026-04-24
 
 **ADR:** ADR-1026 — Rewind ADR-1010 Phase 3 mechanism, drop Hyperdrive
