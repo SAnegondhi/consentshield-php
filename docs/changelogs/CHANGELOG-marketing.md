@@ -2,6 +2,31 @@
 
 Public marketing site (`marketing/` workspace → `consentshield.in`). New in 2026-04-21.
 
+## [ADR-1015 Sprint 1.2 — Scalar playground mount + per-endpoint deep links] — 2026-04-24
+
+**ADR:** ADR-1015 — v1 API integration tests + customer developer documentation
+**Sprint:** Phase 1, Sprint 1.2 — `@scalar/api-reference` mount
+
+### Added
+- `@scalar/api-reference-react@0.9.27` (exact-pinned). React wrapper over Scalar's core engine; fits the Next.js 16 App Router better than the vanilla-JS variant.
+- `marketing/scripts/copy-openapi.ts` — prebuild step that copies `app/public/openapi.yaml` → `marketing/public/openapi.yaml`. Fails loudly (exit 1) if the source is missing so an empty playground can't silently ship.
+- `marketing/package.json` prebuild chain now runs `check-env-isolation → generate-downloads → copy-openapi`; exposed as `bun run copy-openapi` for ad-hoc runs.
+- `marketing/.gitignore` — excludes `public/openapi.yaml` (regenerated on every build).
+- `marketing/src/app/docs/api/page.tsx` — static page that mounts `<ScalarPlayground>` under the docs shell with a breadcrumb + intro.
+- `marketing/src/app/docs/api/_components/scalar-playground.tsx` — client component wrapping `<ApiReferenceReact>`. Config: `url: '/openapi.yaml'`, `theme: 'default'`, metadata block, download button + client button visible.
+- `marketing/src/app/docs/api/_components/scalar-overrides.css` — re-maps Scalar's CSS variables to the marketing site's navy/teal palette. `--scalar-color-accent: var(--teal)`, `--scalar-font: var(--sans)`, `--scalar-heading-font: var(--display)`, etc. Playground reads as part of the site.
+- `marketing/src/app/docs/api/[...path]/page.tsx` — per-endpoint deep-link catchall. Maps 15 structured URLs (e.g. `/docs/api/consent/record`) to Scalar's native anchor form via server-side `redirect()`. Unknown segments fall back to `/docs/api`. The sidebar's API Reference entries in `_data/nav.ts` all resolve through this shim so cookbook recipes and client-library READMEs can link by path instead of opaque anchor fragments.
+
+### Tested
+- [x] `cd marketing && bunx tsc --noEmit` — PASS.
+- [x] `cd marketing && bun run lint` — PASS.
+- [x] `cd marketing && bun run build` — PASS. Route manifest: `/docs/api` (static) + `/docs/api/[...path]` (dynamic). `marketing/public/openapi.yaml` emitted at 83 KB.
+
+### Why
+Without a public playground, evaluators had to read the raw OpenAPI YAML to understand the request/response shapes. The Scalar embed gives them a tryable surface in-browser with their own key (or a sandbox key), linked directly from the cookbook recipes Sprint 2.2 will author. The deep-link catchall makes every endpoint a shareable URL — important for support tickets and client-library READMEs.
+
+---
+
 ## [ADR-1015 Sprint 1.1 — /docs/* shell + MDX pipeline + shared components] — 2026-04-24
 
 **ADR:** ADR-1015 — v1 API integration tests + customer developer documentation

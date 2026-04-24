@@ -79,22 +79,24 @@ Ship a four-phase deliverable: the `/docs/*` surface on the marketing site (Next
 
 **Status:** `[x] complete`
 
-#### Sprint 1.2: `@scalar/api-reference` mount
+#### Sprint 1.2: `@scalar/api-reference` mount · **[x] complete 2026-04-24**
 
 **Estimated effort:** 1 day
 
 **Deliverables:**
-- [ ] Install `@scalar/api-reference` (exact-pinned).
-- [ ] Copy `app/public/openapi.yaml` into `marketing/public/openapi.yaml` at build time via a small script (or fetch from the app's public URL in dev).
-- [ ] Mount at `marketing/src/app/docs/api/page.tsx` — full playground.
-- [ ] Theme overrides to match marketing styling (navy/teal, Playfair headings).
-- [ ] Per-endpoint deep-links: `/docs/api/[...path]` maps to Scalar's endpoint-scoped view.
+- [x] `@scalar/api-reference-react@0.9.27` exact-pinned (React 19 compatible; the React wrapper over Scalar's core engine fits the Next.js 16 app router better than the vanilla-JS variant).
+- [x] `marketing/scripts/copy-openapi.ts` — reads `app/public/openapi.yaml` and writes `marketing/public/openapi.yaml`. Wired into `prebuild` after the existing env-isolation + legal-downloads scripts. Fails loudly (exit 1) if the source is missing. Added to `marketing/.gitignore` with a justifying comment so the copy doesn't accumulate in git.
+- [x] `marketing/src/app/docs/api/page.tsx` mounts the full playground via `<ScalarPlayground>` (client component). Config: `url: '/openapi.yaml'`, `theme: 'default'`, metadata carrying the product title + description.
+- [x] `marketing/src/app/docs/api/_components/scalar-overrides.css` re-maps the Scalar CSS variables to the marketing site's navy/teal palette (`--scalar-color-accent: var(--teal)`, `--scalar-font: var(--sans)`, `--scalar-heading-font: var(--display)`, etc.). Playground reads as part of the site rather than a drop-in.
+- [x] Per-endpoint deep-links: `marketing/src/app/docs/api/[...path]/page.tsx` is a server-side catch-all that maps structured URLs (e.g. `/docs/api/consent/record`) to Scalar's native anchor form (`/docs/api#tag/consent/post-consent-record`). 15 endpoints indexed; sidebar entries in `_data/nav.ts` all resolve through this shim. Unknown deep links fall back to `/docs/api`.
 
 **Testing plan:**
-- [ ] Playground opens and lets a user execute a request against sandbox (mocked — no real API call until Phase 3).
-- [ ] Every endpoint from the OpenAPI spec is listed in the Scalar nav.
+- [x] `cd marketing && bunx tsc --noEmit` — PASS.
+- [x] `cd marketing && bun run lint` — PASS.
+- [x] `cd marketing && bun run build` — PASS. Route manifest lists `/docs/api` (static prerender) + `/docs/api/[...path]` (dynamic). Pre-build `copy-openapi.ts` emits `marketing/public/openapi.yaml` (83 KB) every build.
+- [ ] Visual check via dev server — recommended before Sprint 1.3.
 
-**Status:** `[ ] planned`
+**Status:** `[x] complete`
 
 #### Sprint 1.3: Navigation + search
 

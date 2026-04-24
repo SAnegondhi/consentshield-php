@@ -12,3 +12,8 @@ next-env.d.ts
 public/downloads/terms.*
 public/downloads/privacy.*
 public/downloads/dpa.*
+
+# ADR-1015 Phase 1 Sprint 1.2 — OpenAPI spec is copied from
+# app/public/openapi.yaml by scripts/copy-openapi.ts at prebuild time.
+# Single source of truth is the app; marketing is downstream.
+public/openapi.yaml

@@ -4,17 +4,19 @@
   "private": true,
   "scripts": {
     "dev": "next dev --port 3002",
-    "prebuild": "bun scripts/check-env-isolation.ts && bun scripts/generate-downloads.ts",
+    "prebuild": "bun scripts/check-env-isolation.ts && bun scripts/generate-downloads.ts && bun scripts/copy-openapi.ts",
     "build": "next build",
     "start": "next start --port 3002",
     "lint": "eslint src/",
     "downloads": "bun scripts/generate-downloads.ts",
-    "check-env": "bun scripts/check-env-isolation.ts"
+    "check-env": "bun scripts/check-env-isolation.ts",
+    "copy-openapi": "bun scripts/copy-openapi.ts"
   },
   "dependencies": {
     "@mdx-js/loader": "3.1.1",
     "@mdx-js/react": "3.1.1",
     "@next/mdx": "16.2.4",
+    "@scalar/api-reference-react": "0.9.27",
     "@sentry/nextjs": "10.48.0",
     "docx": "9.6.1",
     "next": "16.2.3",
