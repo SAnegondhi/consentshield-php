@@ -66,7 +66,7 @@ Operators handling an enterprise account with 10+ orgs were seeing a 30-row impe
 
 **ADR:** ADR-1019 — `deliver-consent-events` Next.js route
 **Sprint:** Phase 2, Sprint 2.3
-**Migration:** `20260804000043_adr1019_s23_delivery_retry_exhausted.sql`
+**Migration:** `20260804000045_adr1019_s23_delivery_retry_exhausted.sql` (renamed from `…000043_…` after Terminal B claimed the 000043 slot for ADR-1027 Sprint 1.2; the file-number note in the Sprint 3.1 entry above captures the mechanics)
 
 ### Added
 - `admin.record_delivery_retry_exhausted(p_row_id uuid, p_org_id uuid, p_event_type text, p_last_error text) returns boolean` — SECURITY DEFINER. Inserts a single `admin.ops_readiness_flags` row (`blocker_type='infra'`, `severity='high'`, `source_adr='ADR-1019-retry-exhausted'`) when a `delivery_buffer` row crosses `attempt_count >= 10`. Idempotent per `(org_id, event_type)` within pending/in_progress flags — once an operator resolves the flag, a fresh failure wave creates a new one. Returns `true` for a new insert, `false` when an existing open flag covered it.

@@ -2,6 +2,30 @@
 
 API route changes.
 
+## [ADR-1019 Sprint 2.3 — unknown event_type + manual-review escalation] — 2026-04-24
+
+**ADR:** ADR-1019 — `deliver-consent-events` Next.js route
+**Sprint:** Phase 2, Sprint 2.3
+
+### Added — orchestrator
+- `KNOWN_EVENT_TYPES` constant in `app/src/lib/delivery/deliver-events.ts` — the 8 event_type strings from the ADR Decision table (consent_event, artefact_revocation, artefact_expiry_deletion, consent_expiry_alert, tracker_observation, audit_log_entry, rights_request_event, deletion_receipt). Producers MUST add a type here before staging rows with it.
+- Unknown event_type path: sets `delivery_error='unknown_event_type:<value>'` + `last_attempted_at=now()`, **does NOT bump attempt_count**, short-circuits the rest of deliverOne. Row stays visible until a producer ADR lands the type or an operator cleans it up.
+
+### Changed — markFailure
+- `markFailure` now runs `UPDATE … RETURNING attempt_count, org_id, event_type`. When the post-failure count equals `MANUAL_REVIEW_THRESHOLD = 10`, a second UPDATE sets `delivery_error = 'MANUAL_REVIEW: ' + error`, then `admin.record_delivery_retry_exhausted(...)` fires (best-effort — RPC failure is swallowed; the prefixed error is the load-bearing signal). Escalation fires exactly once per row because Sprint 2.2's candidate SELECT already excludes rows at/above the threshold.
+
+### Tested
+- `app/tests/delivery/escalation.test.ts` — 5 tests. Unknown-type quarantine, unknown-type short-circuits config fence, escalation triggers at count 10 (MANUAL_REVIEW UPDATE + RPC call shape verified), no escalation below 10, RPC failure swallowed without rolling back the MANUAL_REVIEW update.
+- `bunx vitest run tests/delivery/` — 37/37 PASS (32 prior + 5 new).
+- `bun run lint` + `bun run build` clean.
+- Pre-existing Sprint 2.1 / 2.2 tests still PASS after the markFailure refactor (they stub `[]` for the RETURNING response → markFailure returns early → no escalation path on attempt_count=0 or 1).
+
+### Schema
+- Migration `20260804000045_adr1019_s23_delivery_retry_exhausted.sql` — `admin.record_delivery_retry_exhausted` RPC + grants. See CHANGELOG-schema.md.
+
+### Deferred to Sprint 4.1
+- Structured logging of the outcome line + Sentry `beforeSend` hardening.
+
 ## [ADR-1019 Sprint 2.2 — batch + backoff] — 2026-04-24
 
 **ADR:** ADR-1019 — `deliver-consent-events` Next.js route

@@ -45,6 +45,27 @@ export type DeliverOutcome =
   | 'upload_failed'
   | 'decrypt_failed'
   | 'endpoint_failed'
+  | 'unknown_event_type'
+
+// ADR-1019 Sprint 2.3 — known event_type values (per Decision table).
+// Unknown types are quarantined without incrementing attempt_count so the
+// row stays visible until a producer ADR adds the type or an operator
+// intervenes. New event_types MUST be added here before they're staged by
+// producers.
+export const KNOWN_EVENT_TYPES: ReadonlySet<string> = new Set([
+  'consent_event',
+  'artefact_revocation',
+  'artefact_expiry_deletion',
+  'consent_expiry_alert',
+  'tracker_observation',
+  'audit_log_entry',
+  'rights_request_event',
+  'deletion_receipt',
+])
+
+// ADR-1019 Sprint 2.3 — manual-review threshold. markFailure escalates on
+// the attempt that PUSHES attempt_count to this value.
+const MANUAL_REVIEW_THRESHOLD = 10
 
 export interface DeliverOneResult {
   outcome: DeliverOutcome
@@ -70,7 +91,6 @@ export interface DeliverDeps {
 // convention set by the ADR-1025 storage routes (4.5 min — safe under
 // Fluid Compute's 300s cap with ~30s headroom for the last row in flight).
 const BATCH_TIME_BUDGET_MS = 270_000
-const MAX_ATTEMPT_COUNT = 10
 
 export interface BatchSummary {
   attempted: number
@@ -105,7 +125,7 @@ export async function deliverBatch(
     select id
       from public.delivery_buffer
      where delivered_at is null
-       and attempt_count < ${MAX_ATTEMPT_COUNT}
+       and attempt_count < ${MANUAL_REVIEW_THRESHOLD}
        and (
          last_attempted_at is null
          or last_attempted_at
@@ -125,6 +145,7 @@ export async function deliverBatch(
     upload_failed: 0,
     decrypt_failed: 0,
     endpoint_failed: 0,
+    unknown_event_type: 0,
   }
   let attempted = 0
   let budgetExceeded = false
@@ -154,7 +175,8 @@ export async function deliverBatch(
     outcomes.unverified_export_config +
     outcomes.decrypt_failed +
     outcomes.endpoint_failed +
-    outcomes.upload_failed
+    outcomes.upload_failed +
+    outcomes.unknown_event_type
 
   return {
     attempted,
@@ -228,6 +250,29 @@ export async function deliverOne(
       orgId: row.org_id,
       eventType: row.event_type,
       durationMs: now() - started,
+    }
+  }
+
+  // Unknown event_type: quarantine WITHOUT incrementing attempt_count so
+  // the row remains visible until a producer ADR adds the type (or an
+  // operator cleans it up). Does not escalate to manual-review: the fix
+  // is "add the type to KNOWN_EVENT_TYPES and redeploy", not "contact
+  // the customer".
+  if (!KNOWN_EVENT_TYPES.has(row.event_type)) {
+    await pg`
+      update public.delivery_buffer
+         set delivery_error    = ${`unknown_event_type:${row.event_type}`},
+             last_attempted_at = now()
+       where id = ${rowId}
+    `
+    return {
+      outcome: 'unknown_event_type',
+      rowId,
+      orgId: row.org_id,
+      eventType: row.event_type,
+      durationMs: now() - started,
+      attempt: row.attempt_count, // not incremented
+      error: `unknown_event_type:${row.event_type}`,
     }
   }
 
@@ -364,14 +409,48 @@ export async function deliverOne(
 }
 
 async function markFailure(pg: Pg, rowId: string, error: string): Promise<void> {
-  await pg`
+  // UPDATE returns the new attempt_count + org_id + event_type in one
+  // round-trip so we can decide escalation without a second SELECT.
+  const updated = (await pg`
     update public.delivery_buffer
        set attempt_count      = attempt_count + 1,
            last_attempted_at  = now(),
            first_attempted_at = coalesce(first_attempted_at, now()),
            delivery_error     = ${error}
      where id = ${rowId}
-  `
+    returning attempt_count, org_id, event_type
+  `) as unknown as Array<{
+    attempt_count: number
+    org_id: string
+    event_type: string
+  }>
+
+  const row = updated[0]
+  if (!row) return
+
+  // Manual-review escalation: exactly once, as the failing attempt lifts
+  // attempt_count to the threshold. The batch candidate SELECT already
+  // excludes rows at/above the threshold, so subsequent reties won't call
+  // markFailure again — but the RPC itself is idempotent per
+  // (org_id, event_type) so a duplicate call is still safe.
+  if (row.attempt_count === MANUAL_REVIEW_THRESHOLD) {
+    await pg`
+      update public.delivery_buffer
+         set delivery_error = ${'MANUAL_REVIEW: ' + error}
+       where id = ${rowId}
+    `
+    // Best-effort readiness-flag insert. A failure here must not prevent
+    // the row from being marked — the MANUAL_REVIEW prefix is the
+    // load-bearing signal.
+    await pg`
+      select admin.record_delivery_retry_exhausted(
+        ${rowId}::uuid,
+        ${row.org_id}::uuid,
+        ${row.event_type},
+        ${error}
+      )
+    `.catch(() => {})
+  }
 }
 
 function errorMessage(err: unknown): string {

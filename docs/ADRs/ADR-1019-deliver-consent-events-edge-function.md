@@ -198,12 +198,26 @@ Unknown `event_type` values must **not** error — the function logs a structure
 **Estimated effort:** 0.5 day
 
 **Deliverables:**
-- [ ] Unknown `event_type` → log structured warning + set `delivery_error = 'unknown_event_type:<value>'` + leave row in place (no increment). Producer ADRs add the type first; delivery tolerates lag.
-- [ ] After `attempt_count >= 10`, row transitions to manual-review: `delivery_error` prefixed with `MANUAL_REVIEW:`, `admin.ops_readiness_flags` row inserted with `blocker_type='infra'`, severity `high`, details include `{row_id, org_id, event_type, last_attempted_at}`. Dedupe by `(org_id, event_type, 'delivery_retry_exhausted')` so one alert per org per event_type at a time.
+- [x] Unknown `event_type` → `delivery_error = 'unknown_event_type:<value>'` + `last_attempted_at = now()`, `attempt_count` **NOT** incremented (per ADR). Row stays in place until a producer ADR adds the type to `KNOWN_EVENT_TYPES` or an operator cleans it up. Short-circuits ALL later checks (config, endpoint, decrypt, upload); the fix is at the producer + `KNOWN_EVENT_TYPES` level, not per-row.
+- [x] `KNOWN_EVENT_TYPES` set in `app/src/lib/delivery/deliver-events.ts` — the 8 values listed in the Decision table (consent_event, artefact_revocation, artefact_expiry_deletion, consent_expiry_alert, tracker_observation, audit_log_entry, rights_request_event, deletion_receipt).
+- [x] Manual-review escalation: `markFailure` now runs `UPDATE ... RETURNING attempt_count, org_id, event_type`. When the new attempt_count equals `MANUAL_REVIEW_THRESHOLD = 10`, a second UPDATE sets `delivery_error = 'MANUAL_REVIEW: ' + error` and a third call hits `admin.record_delivery_retry_exhausted(row_id, org_id, event_type, error)`. The RPC is idempotent per (org_id, event_type) within pending/in_progress flags.
+- [x] Migration `20260804000045_adr1019_s23_delivery_retry_exhausted.sql` — `admin.record_delivery_retry_exhausted(uuid, uuid, text, text)` SECURITY DEFINER + `grant usage on schema admin to cs_delivery` + `grant execute` on the RPC. (Originally authored as `…000043_…`; Terminal B grabbed that slot first for ADR-1027 Sprint 1.2, so the file was renamed to `…000045_…` — same content, next free slot.)
+- [x] RPC failure is swallowed (the `MANUAL_REVIEW:` prefix is the load-bearing signal; operators surface the backlog through Sprint 4.1 metrics even if the flag insert failed once).
+
+**Deferred to Sprint 4.1 (status-page integration):**
+- Structured logging of the outcome line through pino / the existing log adapter.
+- Sentry `beforeSend` hardening to strip `payload` + `write_credential_enc` from captured error shapes.
 
 **Testing plan:**
-- [ ] Inject a row with `event_type='bogus_test_type'` — assert log line + `delivery_error` populated + row not deleted.
-- [ ] Simulate 10 failed attempts on a row — assert the readiness_flag appears exactly once (idempotent).
+- [x] `app/tests/delivery/escalation.test.ts` — 5 tests:
+  - unknown_event_type quarantine: `delivery_error` set, `attempt_count` unchanged (query does NOT contain `attempt_count + 1`).
+  - unknown_event_type short-circuits the config fence (fires even with `ec_id=null`).
+  - markFailure at count 9 → escalation: second UPDATE carries MANUAL_REVIEW prefix + RPC called with (row_id, org_id, event_type).
+  - markFailure at count 0 → no escalation (exactly 2 pg calls).
+  - RPC failure swallowed: deliverOne still returns the normal outcome; MANUAL_REVIEW UPDATE still fired.
+- [x] `bunx vitest run tests/delivery/` — 37/37 PASS (32 prior + 5 new).
+- [x] `bun run lint` + `bun run build` clean.
+- [ ] `bunx supabase db push` against dev — runs with next commit (operator attention unlocks the dev migration).
 
 ### Phase 3 — Triggering
 
@@ -278,6 +292,8 @@ No new migration required. The operator runbook below handles the two live-syste
 - CHANGELOG-api.md — ADR-1019 Sprint 1.2 entry (endpoint derivation helper).
 - CHANGELOG-api.md — ADR-1019 Sprint 2.1 entry (deliver-one orchestrator + internal route).
 - CHANGELOG-api.md — ADR-1019 Sprint 2.2 entry (batch + backoff).
+- CHANGELOG-api.md — ADR-1019 Sprint 2.3 entry (unknown event_type + manual-review).
+- CHANGELOG-schema.md — ADR-1019 Sprint 2.3 entry (admin.record_delivery_retry_exhausted RPC).
 
 ## Acceptance criteria
 
