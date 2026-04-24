@@ -2,6 +2,34 @@
 
 API route changes.
 
+## [ADR-1019 Sprint 2.1 — deliver-one orchestrator + internal route] — 2026-04-24
+
+**ADR:** ADR-1019 — `deliver-consent-events` Next.js route
+**Sprint:** Phase 2, Sprint 2.1
+
+### Added — orchestrator
+- `app/src/lib/delivery/deliver-events.ts` — `deliverOne(pg, rowId, deps?)`. Single-round-trip SELECT + LEFT JOIN on `export_configurations`; quarantines rows with missing/unverified config, unsupported provider, decrypt failure, or upload failure (all set `delivery_error` + bump `attempt_count`; row kept for retry). On confirmed 2xx PUT, marks `delivered_at=now()` AND `DELETE` in a single `pg.begin(...)` transaction (Rule 2 — buffer tables are transient). Returns a structured `DeliverOneResult` shape, never the payload.
+- `app/src/lib/delivery/canonical-json.ts` — `canonicalJson(v)` with recursive sorted keys, JSON-escaped strings, and a trailing LF. Content-hash reproducibility for ADR-1014 Sprint 3.2 positive.
+- `app/src/lib/delivery/object-key.ts` — `objectKeyFor(prefix, row)` → `<prefix><event_type>/<YYYY>/<MM>/<DD>/<id>.json`. UTC date partition.
+
+### Added — route
+- `app/src/app/api/internal/deliver-consent-events/route.ts` — bearer-authed POST (`STORAGE_PROVISION_SECRET`). Accepts `{delivery_buffer_id: uuid}` in Sprint 2.1. `{scan: true}` returns 501 until Sprint 2.2 lands the batch path. Status-code mapping: `delivered|already_delivered`=200, `not_found`=404, recoverable failure (quarantine)=202, malformed body=400, bad bearer=401.
+
+### Changed — sigv4
+- `app/src/lib/storage/sigv4.ts` — `PutObjectOptions` gains an optional `metadata?: Record<string, string>`. Keys lower-cased and `x-amz-meta-`-prefixed, merged into the alphabetical canonical-headers block, and included in `SignedHeaders`. Pre-existing callers (verify probe, migrate, audit export) are unaffected — the 7 existing sigv4 unit tests still PASS.
+
+### Tested
+- `app/tests/delivery/canonical-json.test.ts` — 10 tests.
+- `app/tests/delivery/object-key.test.ts` — 7 tests.
+- `app/tests/delivery/deliver-events.test.ts` — 8 tests covering every `DeliverOutcome`; happy path verifies the canonical body, the correct object key, all four metadata headers, and the tx UPDATE + DELETE sequence.
+- `bun run lint` — 0 violations. `bun run build` — Next.js 16 clean.
+- Live E2E deferred to Sprint 3.1 where the trigger/cron wiring exercises the full round-trip.
+
+### Deferred to Sprint 2.2+
+- `deliverBatch(limit=200)` + exponential backoff — Sprint 2.2.
+- Unknown event_type warning + manual-review escalation at `attempt_count >= 10` — Sprint 2.3.
+- Sentry `beforeSend` hardening + structured logging wiring — Sprint 2.3 error-handling pass.
+
 ## [ADR-1019 Sprint 1.2 — endpoint derivation helper] — 2026-04-24
 
 **ADR:** ADR-1019 — `deliver-consent-events` Next.js route

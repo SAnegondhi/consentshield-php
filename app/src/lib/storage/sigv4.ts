@@ -20,6 +20,10 @@ export interface SigV4Options {
 export interface PutObjectOptions extends SigV4Options {
   body: Uint8Array | Buffer
   contentType?: string
+  // ADR-1019 Sprint 2.1 — optional x-amz-meta-* headers. Keys are lower-cased
+  // and prefixed with `x-amz-meta-` before signing. Values must be US-ASCII
+  // (RFC 7230); caller guarantees no PII.
+  metadata?: Record<string, string>
 }
 
 export interface PresignGetOptions extends SigV4Options {
@@ -43,13 +47,33 @@ export async function putObject(opts: PutObjectOptions): Promise<{ status: numbe
 
   const canonicalUri = canonicalUriFor(opts.bucket, opts.key)
   const canonicalQuery = ''
+
+  // Normalise metadata into sorted, lower-cased, prefixed pairs. The sigv4
+  // canonical-headers block requires every signed header — including user
+  // metadata — to appear alphabetically.
+  const metaPairs: Array<[string, string]> = []
+  if (opts.metadata) {
+    for (const [k, v] of Object.entries(opts.metadata)) {
+      const name = `x-amz-meta-${k.toLowerCase()}`
+      metaPairs.push([name, v])
+    }
+    metaPairs.sort((a, b) => (a[0] < b[0] ? -1 : a[0] > b[0] ? 1 : 0))
+  }
+
+  const fixedHeaders: Array<[string, string]> = [
+    ['content-length', String(body.length)],
+    ['content-type', contentType],
+    ['host', host],
+    ['x-amz-content-sha256', bodyHash],
+    ['x-amz-date', amzDate],
+  ]
+  const allHeaders = [...fixedHeaders, ...metaPairs].sort((a, b) =>
+    a[0] < b[0] ? -1 : a[0] > b[0] ? 1 : 0,
+  )
+
   const canonicalHeaders =
-    `content-length:${body.length}\n` +
-    `content-type:${contentType}\n` +
-    `host:${host}\n` +
-    `x-amz-content-sha256:${bodyHash}\n` +
-    `x-amz-date:${amzDate}\n`
-  const signedHeaders = 'content-length;content-type;host;x-amz-content-sha256;x-amz-date'
+    allHeaders.map(([name, value]) => `${name}:${value}`).join('\n') + '\n'
+  const signedHeaders = allHeaders.map(([name]) => name).join(';')
 
   const canonicalRequest = [
     'PUT',
@@ -76,15 +100,20 @@ export async function putObject(opts: PutObjectOptions): Promise<{ status: numbe
     `SignedHeaders=${signedHeaders}, Signature=${signature}`
 
   const url = `${opts.endpoint}${canonicalUri}`
+  const requestHeaders: Record<string, string> = {
+    Authorization: authorization,
+    'Content-Type': contentType,
+    'Content-Length': String(body.length),
+    'x-amz-content-sha256': bodyHash,
+    'x-amz-date': amzDate,
+  }
+  for (const [name, value] of metaPairs) {
+    requestHeaders[name] = value
+  }
+
   const resp = await fetch(url, {
     method: 'PUT',
-    headers: {
-      Authorization: authorization,
-      'Content-Type': contentType,
-      'Content-Length': String(body.length),
-      'x-amz-content-sha256': bodyHash,
-      'x-amz-date': amzDate,
-    },
+    headers: requestHeaders,
     body,
   })
 

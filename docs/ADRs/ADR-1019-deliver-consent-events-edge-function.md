@@ -148,14 +148,30 @@ Unknown `event_type` values must **not** error — the function logs a structure
 **Estimated effort:** 1 day
 
 **Deliverables:**
-- [ ] `supabase/functions/deliver-consent-events/index.ts` — request handler accepting `{delivery_buffer_id: uuid}` via body OR `{scan: true}` via body for the cron path. Calls `cs_delivery` pool (via `CS_DELIVERY_DATABASE_URL` matching the Vault-style pattern other Edge Functions use).
-- [ ] `index.ts::deliverOne(id)` — (a) `SELECT` row with `export_config_id` join, (b) refuse if `is_verified=false`, (c) decrypt credential, (d) serialise payload canonically, (e) PUT to R2, (f) in one transaction `UPDATE delivered_at = now()` + `DELETE`.
-- [ ] Structured logs: `{fn:'deliver-consent-events', row_id, org_id, event_type, bucket, object_key, attempt, duration_ms, outcome}` — never the payload.
-- [ ] Sentry `beforeSend` hook stripping `payload` + `write_credential_enc` from any error capture.
+- [x] `app/src/app/api/internal/deliver-consent-events/route.ts` — Next.js POST handler accepting `{delivery_buffer_id: uuid}` in the request body. Bearer-authed with `STORAGE_PROVISION_SECRET` (same shared bearer the other internal storage routes use). Returns 404 for not_found, 200 for delivered / already_delivered, 202 for recoverable failures (quarantined rows, upload failures, etc.), 400 for malformed body, 401 for bad bearer, 501 for `{scan: true}` (Sprint 2.2).
+- [x] `app/src/lib/delivery/deliver-events.ts` — `deliverOne(pg, rowId, deps?)`:
+  - SELECT the delivery_buffer row LEFT JOINed to its `export_configurations` row (14 columns, 1 round-trip).
+  - Short-circuit `already_delivered` when `delivered_at IS NOT NULL`.
+  - Quarantine (`attempt_count++`, `delivery_error=<reason>`, leave row in place) when: no export_config / unverified config / unsupported provider / decrypt failure / upload failure.
+  - Derive endpoint via `endpointForProvider()`; derive org key via `deriveOrgKey()`; decrypt credentials via `decryptCredentials()`.
+  - Canonical-serialise payload + PUT to R2 via `sigv4.putObject` with metadata headers `cs-row-id`, `cs-org-id`, `cs-event-type`, `cs-created-at`.
+  - On 2xx — `UPDATE delivered_at = now()` AND `DELETE` in one `pg.begin(...)` transaction (Rule 2 — buffer tables are transient).
+  - Returns a `DeliverOneResult` structured-log shape — never the payload.
+- [x] `app/src/lib/delivery/canonical-json.ts` — `canonicalJson(v)`: sorted keys (recursive), JSON-escaped strings, trailing LF. Ensures content-hash reproducibility for ADR-1014 Sprint 3.2.
+- [x] `app/src/lib/delivery/object-key.ts` — `objectKeyFor(prefix, row)`: `<prefix><event_type>/<YYYY>/<MM>/<DD>/<id>.json`; UTC date; null/undefined prefix treated as bucket-rooted.
+- [x] `app/src/lib/storage/sigv4.ts` extended with optional `metadata?: Record<string, string>` on `PutObjectOptions`. Metadata keys are lower-cased, `x-amz-meta-` prefixed, sorted into canonical headers, signed. No behavioural change for callers that don't pass metadata (seven pre-existing sigv4 tests still PASS).
+
+**Deferred to later sprints:**
+- Sentry `beforeSend` hook stripping `payload` + `write_credential_enc` — Sentry is configured at the app boundary, not per-orchestrator; revisit as part of Sprint 2.3 error-handling pass when the manual-review flag lands.
+- Structured console logging of the outcome line — the `DeliverOneResult` shape is the structured line; wiring it to pino or the existing log adapter is Sprint 2.3 scope.
 
 **Testing plan:**
-- [ ] Unit: given a mock row + mock S3 client that succeeds, function updates+deletes the row. Given a mock S3 that 403s, function increments attempt_count + preserves the row.
-- [ ] Integration (requires R2 test credentials): seed a real `delivery_buffer` row on a test org with a verified export_config, invoke the function, assert R2 object exists with correct metadata headers + canonical-serialised body + assert the DB row is gone.
+- [x] `app/tests/delivery/canonical-json.test.ts` — 10 tests. Top-level + nested key sort, array order, primitives, string escaping, order-independent output, LF terminator, non-finite + unsupported-type throws. PASS.
+- [x] `app/tests/delivery/object-key.test.ts` — 7 tests. All layout permutations + UTC date + zero-padding + string-date input + invalid-date throw. PASS.
+- [x] `app/tests/delivery/deliver-events.test.ts` — 8 tests. not_found / already_delivered / no_export_config quarantine / unverified_export_config quarantine / endpoint_failed / decrypt_failed / upload_failed (throws) / happy path. Happy path asserts correct object key + canonical body + metadata headers + tx UPDATE + tx DELETE. PASS.
+- [x] `bun run lint` — 0 violations.
+- [x] `bun run build` — Next.js 16 clean. New route registered; type check clean.
+- [ ] **Integration E2E (real CF bucket)** — deferred to the Sprint 3.1 trigger/cron wiring commit, where it makes the most sense to exercise the full path: DB insert → trigger → route → R2 put → row delete. Will match the `scripts/verify-adr-1025-sprint-*.ts` harness style.
 
 #### Sprint 2.2 — Batch + backoff
 
@@ -253,6 +269,7 @@ No new migration required. The operator runbook below handles the two live-syste
 
 - CHANGELOG-api.md — ADR-1019 Sprint 1.1 entry (cs_delivery Next.js client helper).
 - CHANGELOG-api.md — ADR-1019 Sprint 1.2 entry (endpoint derivation helper).
+- CHANGELOG-api.md — ADR-1019 Sprint 2.1 entry (deliver-one orchestrator + internal route).
 
 ## Acceptance criteria
 
