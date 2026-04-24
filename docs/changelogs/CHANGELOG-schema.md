@@ -2,6 +2,53 @@
 
 Database migrations, RLS policies, roles.
 
+## [ADR-1027 Sprint 3.1 — admin.impersonation_sessions_by_account() RPC] — 2026-04-24
+
+**ADR:** ADR-1027 — Admin account-awareness pass
+**Sprint:** Phase 3, Sprint 3.1 — Impersonation-log account view
+
+### Added
+- `supabase/migrations/20260804000044_adr1027_s31_impersonation_by_account.sql`:
+  - `admin.impersonation_sessions_by_account(p_window_days int default 30)` SECURITY DEFINER RPC, support-tier gated.
+  - CTE resolves `account_id` via `coalesce(target_account_id, organisations.account_id)` so ADR-0055 direct-account rows AND pre-0055 org-scoped rows both roll up correctly.
+  - Duration is computed as `coalesce(ended_at, now()) - started_at` in epoch seconds — in-flight sessions count live.
+  - Aggregates: `count(*) filter (where status='active')` for in-flight count, `count(distinct target_org_id)` for orgs touched, `sum(seconds)` floored to `bigint` for total duration, `min/max(started_at)` for the session window.
+  - Returns ordered by `max(started_at) desc` so the most recent activity surfaces first.
+  - Raises on `p_window_days <= 0`.
+- File-number note: Terminal A had an uncommitted `20260804000043_adr1019_s23_delivery_retry_exhausted.sql` colliding with Sprint 1.2's `20260804000043` (which was already applied to dev DB). Renamed Terminal A's local file to `20260804000045_*` to resolve; both migrations applied cleanly.
+
+### Tested
+- [x] `tests/admin/impersonation-by-account.test.ts` — **5/5 PASS**:
+  1. support-role call succeeds, returns array;
+  2. row shape carries all 10 expected columns with correct types; `session_count >= orgs_touched` and `session_count >= active_count` invariants hold;
+  3. `p_window_days <= 0` raises;
+  4. 7-day window count ≤ 90-day window count;
+  5. read_only role rejected.
+- [x] `bunx supabase db push` — applied cleanly alongside Terminal A's ADR-1019 Sprint 2.3 migration (after rename).
+
+### Why
+Operators handling an enterprise account with 10+ orgs were seeing a 30-row impersonation log per customer-support push. The per-account rollup collapses that to 1 row per (account, operator) with session count + orgs touched + total duration. Same data, one pivot; turns "re-aggregate in my head across 30 rows" into "read one row". Feeds the new `/impersonation-log` panel's Accounts tab.
+
+---
+
+## [ADR-1019 Sprint 2.3 — admin.record_delivery_retry_exhausted RPC] — 2026-04-24
+
+**ADR:** ADR-1019 — `deliver-consent-events` Next.js route
+**Sprint:** Phase 2, Sprint 2.3
+**Migration:** `20260804000043_adr1019_s23_delivery_retry_exhausted.sql`
+
+### Added
+- `admin.record_delivery_retry_exhausted(p_row_id uuid, p_org_id uuid, p_event_type text, p_last_error text) returns boolean` — SECURITY DEFINER. Inserts a single `admin.ops_readiness_flags` row (`blocker_type='infra'`, `severity='high'`, `source_adr='ADR-1019-retry-exhausted'`) when a `delivery_buffer` row crosses `attempt_count >= 10`. Idempotent per `(org_id, event_type)` within pending/in_progress flags — once an operator resolves the flag, a fresh failure wave creates a new one. Returns `true` for a new insert, `false` when an existing open flag covered it.
+- `grant usage on schema admin to cs_delivery` — required so the Next.js delivery route (under `cs_delivery`) can resolve the admin namespace at call time.
+- `grant execute on function admin.record_delivery_retry_exhausted(uuid, uuid, text, text) to cs_delivery`.
+
+### Rationale
+Per the ADR-1019 Sprint 2.3 design: `delivery_error` prefixed with `MANUAL_REVIEW:` is the load-bearing signal; the readiness_flag is the operator-facing surface. SECURITY DEFINER keeps the write fenced — cs_delivery cannot INSERT arbitrary rows into `admin.ops_readiness_flags`, only rows conforming to this exact shape.
+
+### Tested
+- Unit (orchestrator-side): 5 tests in `app/tests/delivery/escalation.test.ts` cover the RPC call shape + idempotency on the caller side + RPC failure swallow.
+- Live verification: deferred — runs as part of Sprint 3.1's E2E (first live delivery failure with 10+ retries will naturally exercise the path).
+
 ## [ADR-1027 Sprint 1.2 — admin.admin_dashboard_tiles() RPC + account-tier tiles] — 2026-04-24
 
 **ADR:** ADR-1027 — Admin account-awareness pass

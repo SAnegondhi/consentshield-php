@@ -130,7 +130,7 @@ A live checklist of each panel against the ADR that ports it into code. Tick whe
 | Dashboard · account-tier tiles (account count, accounts-by-plan, trial→paid gauge) | ADR-1027 Sprint 1.2 | ✅ 2026-04-24 | ✅ 2026-04-24 |
 | Pipeline / Security / Billing · `<AccountContextCard>` sidebar + group-by-account toggle | ADR-1027 Sprint 2.1 | ✅ 2026-04-24 (orgs-detail compact strip + Pipeline group-by toggle; security + billing remain account-scoped today so the card is redundant there) | ✅ 2026-04-24 |
 | Support Tickets · parent-account header strip + account filter | ADR-1027 Sprint 2.2 | ✅ 2026-04-24 (list Account · Org column + account select filter; detail compact AccountContextCard strip) | ✅ 2026-04-24 |
-| Impersonation log · per-account rollup view | ADR-1027 Sprint 3.1 | ☐ | ☐ |
+| Impersonation log · per-account rollup view | ADR-1027 Sprint 3.1 | ✅ 2026-04-24 (new /impersonation-log panel with per-session + per-account tabs) | ✅ 2026-04-24 |
 | Accounts · account-level Notes card + org-detail surfacing of account notes | ADR-1027 Sprint 3.2 | ☐ | ☐ |
 | Accounts · default sectoral template picker + wizard pre-selection | ADR-1027 Sprint 3.3 | ☐ | ☐ |
 | Customer-side "Support sessions" tab (W-Admin-CustomerVisibility) | ADR-0029 Sprint 4.1 | ⚠️ HTML wireframe update deferred; implementation preceded formal wireframe | ✅ 2026-04-17 |

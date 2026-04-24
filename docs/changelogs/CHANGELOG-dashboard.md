@@ -2,6 +2,27 @@
 
 Next.js UI changes.
 
+## [ADR-1027 Sprint 3.1 — /impersonation-log panel with per-session + per-account tabs] — 2026-04-24
+
+**ADR:** ADR-1027 — Admin account-awareness pass
+**Sprint:** Phase 3, Sprint 3.1 — Impersonation-log account view
+
+### Added
+- `admin/src/app/(operator)/impersonation-log/page.tsx` — new Server Component. Parallel-fetches the full sessions list (last 30 days, 500-row cap), the `admin.impersonation_sessions_by_account(30)` rollup, admin display names, and the `organisations` + `accounts` lookup. Resolves account names per session for pre-ADR-0055 rows that only have `target_org_id`. Header line summarises window + total count + any in-flight sessions (amber if > 0).
+- `admin/src/app/(operator)/impersonation-log/log-tabs.tsx` — client component. Toggle between **Sessions** view and **Accounts** view. Sessions table: Started · Operator · Target (Account · Org stack) · Reason (code + detail with tooltip) · Duration (live-tallies open sessions) · Status pill (active amber · completed green · expired grey · force_ended red). Accounts table: Account · Operator · Sessions · Orgs touched · Total duration · First · Last · Active (highlighted amber when > 0).
+- `admin/src/app/(operator)/layout.tsx` — new nav entry **Impersonation Log** under Audit Log.
+
+### Tested
+- [x] `cd admin && bunx tsc --noEmit` — PASS.
+- [x] `cd admin && bun run lint` — PASS (one `react-hooks/purity` eslint-disable on the server component's `Date.now()` window-start computation; unavoidable and safe in a `force-dynamic` server component).
+- [x] RPC: `tests/admin/impersonation-by-account.test.ts` 5/5 PASS.
+- [ ] Component interaction — visual check via dev server recommended (toggle re-renders without round-trip; status pill tones render correctly; account row amber highlight for `active_count > 0`).
+
+### Why
+Rule 23 guarantees time-boxed + reason-required + customer-notified impersonation, but the only surface for operators to SEE those sessions was embedded on each `/orgs/[orgId]` detail page (last 10 for that org). A single customer-support push across 10 orgs in one enterprise account was 10 separate org-detail views. The new panel collapses the whole history into one screen with the account pivot already in place — the surface Rule 23 deserves.
+
+---
+
 ## [ADR-1027 Sprint 2.2 — Support ticket account filter + AccountContextCard on detail] — 2026-04-24
 
 **ADR:** ADR-1027 — Admin account-awareness pass

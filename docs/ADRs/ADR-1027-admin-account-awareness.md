@@ -180,18 +180,27 @@ Close every admin-account-awareness drift in one ADR. No deferrals to later ADRs
 
 ### Phase 3 — Impersonation rollup + account notes + account-default template
 
-#### Sprint 3.1 — Impersonation-log account view
+#### Sprint 3.1 — Impersonation-log account view · **[x] complete 2026-04-24**
 
 **Estimated effort:** 0.5 day
 
 **Prerequisite wireframe:** Admin audit-log / impersonation view gets a "Group by account" toggle in the wireframe.
 
 **Deliverables:**
-- [ ] `admin.impersonation_sessions_by_account()` RPC — per-account aggregation (account_id, orgs_touched, total_duration, started_at, admin_user).
-- [ ] Toggle in the impersonation view swaps the row shape between per-session and per-account.
+- [x] Migration `20260804000044_adr1027_s31_impersonation_by_account.sql` — `admin.impersonation_sessions_by_account(p_window_days int default 30)` SECURITY DEFINER RPC, support-tier gated. Uses `target_account_id` directly for ADR-0055 rows and derives from `target_org_id → organisations.account_id` for pre-0055 rows in the same CTE. Returns `(account_id, account_name, admin_user_id, admin_name, orgs_touched, session_count, total_seconds, first_started, last_started, active_count)`. Raises on `p_window_days <= 0`.
+- [x] New page `admin/src/app/(operator)/impersonation-log/page.tsx` + client `log-tabs.tsx`. Parallel fetches the sessions list (500-row cap, 30d window), the account rollup (`impersonation_sessions_by_account(30)`), admin user names, and the org→account lookup. Client toggle flips between per-session and per-account render without a round-trip.
+- [x] Per-session table: columns `Started · Operator · Target (account · org) · Reason · Duration · Status`. Reason detail truncated with tooltip. Status pill tones active/amber · completed/green · expired/grey · force_ended/red.
+- [x] Per-account table: columns `Account · Operator · Sessions · Orgs touched · Total duration · First · Last · Active`. Active count highlighted amber when > 0 so operators spot in-flight account-scoped pushes at a glance.
+- [x] Nav entry added in `admin/src/app/(operator)/layout.tsx` (Impersonation Log, under Audit Log).
 
 **Testing plan:**
-- [ ] Integration: one operator impersonates three orgs in the same account → per-account view returns one row with `orgs_touched = 3`.
+- [x] `tests/admin/impersonation-by-account.test.ts` — five tests: (1) support-role can call and receives an array; (2) returned row shape matches expected column types + `session_count >= orgs_touched` + `session_count >= active_count`; (3) p_window_days <= 0 raises; (4) narrower window never returns more rows than wider; (5) read_only role rejected.
+
+**Test results:**
+- [x] `cd admin && bunx tsc --noEmit` — PASS.
+- [x] `cd admin && bun run lint` — PASS (one expected `react-hooks/purity` eslint-disable on the `Date.now()` window-start computation in the server component).
+- [x] `bunx supabase db push` — applied cleanly.
+- [x] `bunx vitest run tests/admin/impersonation-by-account.test.ts` — **5/5 PASS** on live dev project.
 
 #### Sprint 3.2 — Account-level notes
 

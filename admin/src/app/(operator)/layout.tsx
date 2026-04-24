@@ -50,6 +50,7 @@ const NAV_ITEMS: NavItem[] = [
   { label: 'Status Page', href: '/status', adr: 'ADR-1018', live: true },
   { label: 'Admin Users', href: '/admins', adr: 'ADR-0045', live: true },
   { label: 'Audit Log', href: '/audit-log', adr: 'ADR-0028', live: true },
+  { label: 'Impersonation Log', href: '/impersonation-log', adr: 'ADR-1027', live: true },
 ]
 
 export default async function OperatorLayout({
