@@ -1,7 +1,8 @@
 # ADR-1003: Processor Posture + Healthcare Category Unlock
 
-**Status:** Proposed
+**Status:** In Progress
 **Date proposed:** 2026-04-19
+**Date started:** 2026-04-24
 **Date completed:** —
 **Related plan:** `docs/plans/ConsentShield-V2-Whitepaper-Closure-Plan.md` Phase 3
 **Depends on:** ADR-1001 (API keys), ADR-1002 (verify + record endpoints)
@@ -46,18 +47,31 @@ Deliver processor-posture enforcement and the healthcare category unlock:
 
 **Estimated effort:** 1 day
 
+**Amendments (2026-04-24):**
+
+1. **Single bundled KV key** at `storage_modes:v1` holding the whole `{<org_id>: <mode>}` map, not one key per org. Rationale: Worker hot path is per-request, not per-org; one KV read per instance-warmup serves every distinct org in that instance. Matches `sync-admin-config-to-kv` (ADR-0027 Sprint 3.2). Scales to ≥ 10k orgs (< 200KB payload vs KV's 25MB value limit) and mode changes are rare ("managed migration" per §2.2).
+2. **Gated write RPC landed now**, not deferred to ADR-0044 integration. There is no storage_mode write site in running code today; future callers go through `admin.set_organisation_storage_mode(p_org_id, p_new_mode, p_reason)` (platform_operator+ gate, audit-logged, fires dispatch). This is the ADR-0044 plan-gating extension.
+
 **Deliverables:**
-- [ ] `public.get_storage_mode(p_org_id)` STABLE SQL function
-- [ ] Cloudflare KV entry `storage_mode:<org_id>` populated by a pg_cron job every minute and on every mode change via trigger
-- [ ] `worker/src/storage-mode.ts`: read mode from KV with 60 s in-Worker cache; cold path hits Supabase via org bootstrap
-- [ ] `app/src/lib/storage/mode.ts`: same helper for Next.js handlers
-- [ ] ADR-0044 plan gating extended to refuse `storage_mode='zero_storage'` change without explicit admin-console action
+- [x] Migration `20260804000050_adr1003_s11_storage_mode_resolver.sql`:
+  - `public.get_storage_mode(p_org_id)` STABLE, granted to cs_api / cs_orchestrator / cs_delivery / cs_admin.
+  - `public.org_storage_modes_snapshot()` SECURITY DEFINER, returns jsonb map.
+  - `admin.set_organisation_storage_mode(...)` platform_operator+ gated, audit-logged as `adr1003_storage_mode_change` (or `_noop` for same-value flips).
+  - `public.dispatch_storage_mode_sync()` SECURITY DEFINER via `net.http_post` + Vault URL + shared `cs_provision_storage_secret` bearer.
+  - AFTER UPDATE OF storage_mode trigger with `IS DISTINCT FROM` guard + EXCEPTION swallow.
+  - `pg_cron 'storage-mode-kv-sync'` every minute (safety net).
+- [x] `app/src/app/api/internal/storage-mode-sync/route.ts` — bearer-authed POST. Reads `org_storage_modes_snapshot()`, PUTs JSON to CF KV at `storage_modes:v1` via CF REST API. Returns `{ok, kv_key, org_count, payload_bytes, duration_ms}`.
+- [x] `worker/src/storage-mode.ts` — `getStorageMode(env, orgId)` + `isZeroStorage(env, orgId)`. Reads the bundled KV key, module-scope 60 s cache, fail-safe to `'standard'` on missing key / unknown org / malformed value.
+- [x] `app/src/lib/storage/mode.ts` — `getStorageMode(pg, orgId)` via `public.get_storage_mode`. No KV layer on the Next.js side — a single indexed SELECT is cheaper than a CF API round-trip and immediately correct.
+- [x] Operator runbook step: seed `cs_storage_mode_sync_url` in Vault (the bearer is already shared from ADR-1025).
 
 **Testing plan:**
-- [ ] Mode change propagates to KV within 60 s; Worker picks it up
-- [ ] Cache hit rate measured; cold path < 5 ms
+- [x] `app/tests/worker/storage-mode.test.ts` — 13 tests. Type guard, KV hit/miss/malformed, unknown-org fallback, cache TTL honoured (one KV read covers many lookups), cache re-reads after TTL. PASS.
+- [x] `app/tests/storage/mode.test.ts` — 5 tests. Type guard + Next.js helper RPC call shape + null/empty/unknown fallbacks. PASS.
+- [x] `bun run lint` — 0 violations. `bun run build` — Next.js 16 clean. `cd worker && bunx tsc --noEmit` — clean.
+- [ ] Live: flip a test org via `admin.set_organisation_storage_mode(...)` → assert KV bundle updated within 5 s → Worker reads the new mode within 60 s. Pending operator (needs the Vault URL seed + `bunx supabase db push`).
 
-**Status:** `[ ] planned`
+**Status:** `[x] complete (code); live verification pending operator runbook step.`
 
 #### Sprint 1.2: Worker branch paths
 

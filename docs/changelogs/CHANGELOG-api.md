@@ -2,6 +2,27 @@
 
 API route changes.
 
+## [ADR-1003 Sprint 1.1 — storage-mode sync route + helpers] — 2026-04-24
+
+**ADR:** ADR-1003 — Processor Posture + Healthcare Category Unlock
+**Sprint:** Phase 1, Sprint 1.1
+
+### Added — route
+- `app/src/app/api/internal/storage-mode-sync/route.ts` — bearer-authed POST (shared `STORAGE_PROVISION_SECRET`). Reads `public.org_storage_modes_snapshot()` and PUTs the resulting jsonb to Cloudflare KV at key `storage_modes:v1` via the CF REST KV API. Returns `{ok, kv_key, org_count, payload_bytes, duration_ms}`. Triggered by the AFTER UPDATE trigger on `organisations.storage_mode` (per-change refresh) + the `storage-mode-kv-sync` pg_cron (60 s safety net).
+
+### Added — helpers
+- `worker/src/storage-mode.ts` — `getStorageMode(env, orgId)` + `isZeroStorage(env, orgId)` + `isStorageMode` type guard. Reads the bundled KV key, module-scope 60 s cache, fail-safe fallback to `'standard'` on any missing / malformed / unknown-org case. **Rule 16 intact** — zero npm deps.
+- `app/src/lib/storage/mode.ts` — `getStorageMode(pg, orgId)` via `public.get_storage_mode`. No KV layer on the Next.js side — single indexed SELECT is cheaper than a CF round-trip and immediately correct.
+
+### Tested
+- `app/tests/worker/storage-mode.test.ts` — 13 tests. KV hit, miss, malformed value, unknown-org fallback, cache TTL honoured (one KV read covers many lookups), cache re-read after TTL, type guard, `isZeroStorage` branches. PASS.
+- `app/tests/storage/mode.test.ts` — 5 tests. Type guard + RPC call shape + null/empty/unknown fallbacks. PASS.
+- `bun run lint` clean. `bun run build` clean. `cd worker && bunx tsc --noEmit` clean.
+
+### Deferred
+- Sprint 1.2 (Worker write-path branches — `events.ts` / `observations.ts`): zero-storage bypass of `consent_events` + `tracker_observations` INSERT.
+- Sprint 1.3 (Edge Function branches + invariant test): `process-consent-event` zero-storage path; tests/integration/zero-storage-invariant.test.ts.
+
 ## [ADR-1019 Sprint 2.3 — unknown event_type + manual-review escalation] — 2026-04-24
 
 **ADR:** ADR-1019 — `deliver-consent-events` Next.js route

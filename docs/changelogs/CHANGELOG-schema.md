@@ -2,6 +2,38 @@
 
 Database migrations, RLS policies, roles.
 
+## [ADR-1003 Sprint 1.1 — storage_mode resolver + KV sync plumbing] — 2026-04-24
+
+**ADR:** ADR-1003 — Processor Posture + Healthcare Category Unlock
+**Sprint:** Phase 1, Sprint 1.1
+**Migration:** `20260804000050_adr1003_s11_storage_mode_resolver.sql`
+
+### Added
+- `public.get_storage_mode(p_org_id uuid) returns text` — STABLE SQL. Returns `standard | insulated | zero_storage`; falls back to `standard` for missing orgs. Granted to `cs_api, cs_orchestrator, cs_delivery, cs_admin`.
+- `public.org_storage_modes_snapshot() returns jsonb` — SECURITY DEFINER. Single jsonb object mapping `<org_id>: <mode>` for every org. Feeds the Next.js KV-sync route. Granted to `cs_orchestrator` only.
+- `admin.set_organisation_storage_mode(p_org_id uuid, p_new_mode text, p_reason text) returns jsonb` — SECURITY DEFINER. **Single gated write surface** for `organisations.storage_mode`. `platform_operator+` gate; rejects reasons < 10 chars; rejects non-canonical modes; audit-logged as `adr1003_storage_mode_change` (or `_noop` for same-value flips). On change, fires `dispatch_storage_mode_sync()` inline so the KV bundle refreshes before the RPC returns. Granted to `cs_admin`.
+- `public.dispatch_storage_mode_sync() returns bigint` — SECURITY DEFINER. `net.http_post` to the Next.js route. Vault secrets: `cs_storage_mode_sync_url` + shared `cs_provision_storage_secret` bearer from ADR-1025. Soft-fails when Vault is unconfigured. Granted to `cs_orchestrator`.
+- AFTER UPDATE OF `storage_mode` trigger `organisations_storage_mode_sync` on `public.organisations` — fires the dispatch when the value changes. `IS DISTINCT FROM` guard; EXCEPTION swallow so trigger failure never rolls back the UPDATE.
+- `pg_cron 'storage-mode-kv-sync'` — every minute, `select public.dispatch_storage_mode_sync();`. Safety-net for trigger misses or Vault-unconfigured windows.
+
+### Amendments vs the ADR proposal
+- **Single bundled KV key** `storage_modes:v1` (not one key per org). Same rationale as the ADR-0027 `admin:config:v1` bundle — single KV read per Worker instance warmup serves every distinct org in that instance; scales to ≥ 10k orgs well under KV's 25MB value limit; mode changes are rare so the full-bundle refresh cost is negligible.
+- **ADR-0044 plan-gating extension realised as a gated RPC** now rather than deferred. There is no `storage_mode` write site in running code; future callers (plan-change RPCs, CSV imports, etc.) must go through `admin.set_organisation_storage_mode`.
+
+### Operator follow-up
+- Seed the URL secret:
+  ```sql
+  select vault.create_secret(
+    'https://app.consentshield.in/api/internal/storage-mode-sync',
+    'cs_storage_mode_sync_url'
+  );
+  ```
+- `bunx supabase db push` from repo root to apply the migration.
+
+### Tested
+- Static consistency check vs ADR-1025 / ADR-1019 dispatch patterns — identical `SECURITY DEFINER` + Vault lookup + `net.http_post` + `EXCEPTION WHEN OTHERS` shape.
+- Live verification steps documented inline in the migration's tail block.
+
 ## [ADR-1027 Sprint 3.3 — accounts.default_sectoral_template_id + RPCs + account_detail envelope extension] — 2026-04-24
 
 **ADR:** ADR-1027 — Admin account-awareness pass
