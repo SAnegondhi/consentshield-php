@@ -123,6 +123,25 @@
       "name": "@consentshield/shared-types",
       "version": "0.1.0",
     },
+    "testing": {
+      "name": "@consentshield/testing",
+      "version": "0.1.0",
+      "dependencies": {
+        "next": "16.2.3",
+        "react": "19.2.5",
+        "react-dom": "19.2.5",
+      },
+      "devDependencies": {
+        "@tailwindcss/postcss": "4.2.2",
+        "@types/node": "20.19.39",
+        "@types/react": "19.2.14",
+        "@types/react-dom": "19.2.3",
+        "eslint": "9.39.4",
+        "eslint-config-next": "16.2.3",
+        "tailwindcss": "4.2.2",
+        "typescript": "5.9.3",
+      },
+    },
     "tests/e2e": {
       "name": "@consentshield/e2e",
       "version": "0.1.0",
@@ -238,6 +257,8 @@
     "@consentshield/marketing": ["@consentshield/marketing@workspace:marketing"],
 
     "@consentshield/shared-types": ["@consentshield/shared-types@workspace:packages/shared-types"],
+
+    "@consentshield/testing": ["@consentshield/testing@workspace:testing"],
 
     "@consentshield/worker": ["@consentshield/worker@workspace:worker"],
 

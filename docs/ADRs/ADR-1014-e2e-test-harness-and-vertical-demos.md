@@ -21,9 +21,9 @@
 | Phase 2 — Vertical demo sites on Railway | 4/4 `[x]` | ✅ Complete (Playwright runtime green deferred per-sprint pending ADR-1010 Worker migration) |
 | Phase 3 — Full-pipeline E2E suites | 6/7 `[x]` + 1 `[~]` | 🟡 Sprint 3.2 partial — R2 delivery + end-to-end trace-id blocked on `consent_events.trace_id` column + Worker header propagation. `deliver-consent-events` Edge Function itself has since shipped (ADR-1019). |
 | Phase 4 — Stryker mutation testing | 0/4 `[ ]` | ⏳ Planned |
-| Phase 5 — Partner reproduction kit + evidence publication | 3/4 `[x]` | 🟡 Sprint 5.1 complete 2026-04-25 (partner bootstrap — unblocks ADR-1015 Phase 3). Sprint 5.2 complete 2026-04-25 (`/docs/test-verification` runbook). Sprint 5.4 complete 2026-04-25 (8 sacrificial controls + CI gate + `/docs/test-verification/controls`). Sprint 5.3 planned. |
+| Phase 5 — Partner reproduction kit + evidence publication | 4/4 `[x]` | ✅ Complete 2026-04-25. Sprint 5.1 (partner bootstrap — unblocks ADR-1015 Phase 3) · Sprint 5.2 (`/docs/test-verification` runbook) · Sprint 5.3 (`testing.consentshield.in` public index — code-complete; Vercel provisioning is operator follow-up) · Sprint 5.4 (8 sacrificial controls + CI gate). |
 
-18 of 24 sprints fully complete; 1 partial; 5 planned.
+19 of 24 sprints fully complete; 1 partial; 4 planned (all Phase 4 — Stryker mutation testing).
 
 ---
 
@@ -513,12 +513,31 @@ Mutation testing intentionally mutates production code (change `===` to `!==`, f
 #### Sprint 5.3: `testing.consentshield.in` public index
 
 **Deliverables:**
-- [ ] Next.js static site deployed to a dedicated Vercel project (separate from marketing/app/admin to isolate outages).
-- [ ] Lists every published run: date, commit SHA, pass/fail counts, mutation score, artefact links.
-- [ ] Filtered views: per vertical, per sprint, per phase.
-- [ ] RSS feed for run completion.
+- [x] Next.js 16 static site at `testing/` — new Bun workspace (`@consentshield/testing`). Dedicated Vercel project planned; deliberately isolated from `marketing` / `app` / `admin` so outages in any of those don't hide the evidence index and vice versa. Fully static — every route prerenders at build time from `testing/src/data/runs.ts`; no runtime data source, no ambient cloud reads, no R2 SDK dependency.
+- [x] `PublishedRun` schema at `testing/src/data/types.ts` captures: runId (ULID-shape, matches `E2E_RUN_ID`) · ISO 8601 date · 12-char short SHA · branch · nullable `mutationScore` (null until Phase 4 sprints ship) · tally (total / expected / unexpected / skipped / flaky, matching Playwright's JSON-reporter stats block) · derived status (green / partial / red via `tallyStatus`) · browsers · verticals · sprints · phases · archive URL + SHA-256 seal root · partnerReproduction flag · notes. Helpers for stable reverse-chrono sort, per-filter queries, and distinct-tag enumeration.
+- [x] Seed entry: one clearly-labelled reference run (commit 02c330b6c3c5, Sprint 5.4 controls dry-run, 8 expected / 0 unexpected, sealRoot 708d3df842469684). More entries land as CI publishes.
+- [x] List view at `/` — filter chips for Phase / Sprint / Vertical, reverse-chrono `RunCard` grid, dashed empty-state block when no runs exist. `StatusPill` renders healthy/partial/red; `RunCard` surfaces tally stats, sprint + vertical chips, notes line-clamp-2.
+- [x] Run detail at `/runs/[runId]` — 5-stat grid (total / expected / unexpected / flaky / mutation), coverage block (browsers / verticals / sprints / phases linked to their filter views), notes, evidence-archive block (download button + verify CLI snippet + exit-code semantics), reproduce runbook (3 steps with git checkout of the exact commit + pointer to `/docs/test-verification`). Graceful state when `archiveUrl === null`.
+- [x] Filtered views at `/verticals/[slug]` / `/sprints/[id]` / `/phases/[n]` — all use `generateStaticParams` against the data helpers; `notFound()` guards against off-taxonomy paths. Each view has breadcrumb back + count summary + same `RunCard` grid.
+- [x] RSS 2.0 feed at `/feed.xml` — Route Handler, `dynamic: 'force-static'`, hand-rolled XML (Rule 15). One `<item>` per run with title = `branch · commit · status`, link to the run page, `pubDate`, description covering tally + mutation score + notes, optional `<enclosure>` pointing at the archive when available. `<atom:link rel="self">` for feed-reader self-reference.
+- [x] `/about` page — partner-facing "what this site is / why it's hosted separately / how to trust a published run (3 steps) / how entries land here / report an issue" under a `prose` layout.
+- [x] `/robots.txt` allow-all + host declaration.
+- [x] Root layout: minimal header (ConsentShield · Testing wordmark with teal dot + Runs / About / RSS / Reproduce nav) + `max-w-6xl px-6` container + footer (copyright attribution with ADR-1014 link + evidence-verify command reminder). Tailwind v4 via `@tailwindcss/postcss`. Security headers in `next.config.ts` match the marketing baseline (HSTS, nosniff, referrer-policy, X-Frame-Options=DENY, Permissions-Policy deny-all, CSP with self-only defaults).
+- [x] `testing/README.md` — how to add a run + route map + verify-archive snippet + operator-action section covering first-time Vercel project provisioning (vercel link, production domain, DNS CNAME, env vars=none) + non-goals (no dynamic data source, no auth, no search; rationale for each).
 
-**Status:** `[ ] planned`
+**Operator actions pending — Vercel provisioning:** Per the repo's "hard-to-reverse operations need user confirmation" policy, the Vercel side of this deployment is listed as operator follow-up rather than script-automated: (1) `cd testing && vercel link` to create a new Vercel project `consentshield-testing` (do NOT link to an existing one); (2) set the production domain to `testing.consentshield.in` + CNAME DNS; (3) no env vars required for v1; (4) `vercel deploy --prebuilt` after confirming `bun run build` locally. Documented in `testing/README.md`.
+
+**Architecture note — why static + git-tracked data:** Reviewers must trust what they see. A DB-backed or R2-backed index would require trusting infrastructure we control. With `src/data/runs.ts` as a git-tracked literal, every publication is a reviewable commit; the PR diff IS the publication record. Partners can `git log src/data/runs.ts` to see the full history of every published run. This trades ergonomics (no web-form to "add a run") for trust (every entry is fully inspectable). The same rule applies to the RSS feed — hand-rolled XML without an RSS library, per Rule 15.
+
+**Scope deviation — mutation score deferred:** The `PublishedRun.mutationScore` field is nullable and the seed entry has it `null`. Stryker runs don't exist yet (Phase 4 hasn't started). When Phase 4 ships, published runs will carry integer percentages; until then the UI renders `—` in both card and detail views. The schema + rendering are ready; the value is a future sprint's responsibility.
+
+**Testing plan:**
+- [x] `bun install` at repo root — workspace registered; 0 new install changes (deps already in lockfile via marketing's identical dep set).
+- [x] `cd testing && bun run build` — clean compile (1364ms), clean TypeScript (1023ms), 9 prerendered pages. `/` `/about` `/feed.xml` `/robots.txt` static; `/phases/5` `/runs/06EW0J6DWR37XMF841KD0D183W` `/sprints/5.4` prerendered from `generateStaticParams`; `/verticals/[slug]` generated with zero entries (seed run has empty verticals array, which is realistic for a controls-only run).
+- [ ] Live Vercel deployment + `testing.consentshield.in` DNS cutover — operator action per the checklist above. Not done in this sprint.
+- [ ] Partner feedback after first external review engagement. Expected: one or two round-trips on copy clarity + filter ergonomics; no structural rework because the static-data-source invariant is load-bearing.
+
+**Status:** `[x] complete 2026-04-25 — code-complete and build-clean; Vercel provisioning deferred to operator per hard-to-reverse-ops policy.`
 
 #### Sprint 5.4: Sacrificial "must-fail" controls
 

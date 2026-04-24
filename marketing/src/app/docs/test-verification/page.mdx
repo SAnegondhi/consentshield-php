@@ -226,14 +226,16 @@ bunx tsx scripts/e2e-verify-evidence.ts tests/e2e/evidence/<commit>/<runId>
 
 ## Compare against the reference run
 
-<Callout tone="info" title="Reference archive — Sprint 5.3">
-A public index of every CI run — date, commit SHA, pass/fail counts,
-mutation score, archive download — will live at
-**testing.consentshield.in** once
-[ADR-1014 Sprint 5.3](https://github.com/aiSpirit-systems/consentshield/blob/main/docs/ADRs/ADR-1014-e2e-test-harness-and-vertical-demos.md)
-ships. Until then, ask support@consentshield.in for the latest sealed
-archive from `main` and compare file counts + per-test outcomes
-against yours.
+<Callout tone="info" title="Reference archive — testing.consentshield.in">
+The public index of every CI run — date, commit SHA, pass/fail counts,
+mutation score, archive download — lives at
+**[testing.consentshield.in](https://testing.consentshield.in)**.
+Each entry links to its sealed archive; verify it locally with
+`bunx tsx scripts/e2e-verify-evidence.ts <path>`. Filtered views per
+vertical, per sprint, and per phase; RSS feed at
+[testing.consentshield.in/feed.xml](https://testing.consentshield.in/feed.xml).
+If a run you want to compare against isn't listed yet, email
+support@consentshield.in for an off-index copy.
 </Callout>
 
 Partner runs are expected to match our reference run on **per-test

@@ -2,6 +2,22 @@
 
 Public marketing site (`marketing/` workspace → `consentshield.in`). New in 2026-04-21.
 
+## [ADR-1014 Sprint 5.3 — /docs/test-verification reference-archive callout flipped live] — 2026-04-25
+
+**ADR:** ADR-1014 — E2E test harness + vertical demo sites
+**Sprint:** Phase 5, Sprint 5.3 (cross-reference from marketing)
+
+### Changed
+- `marketing/src/app/docs/test-verification/page.mdx` — "Compare against the reference run" callout title flipped from `Reference archive — Sprint 5.3` to `Reference archive — testing.consentshield.in`. Body rewritten from "will live at … once Sprint 5.3 ships" to a live pointer at `testing.consentshield.in` + `/feed.xml` + the verify-CLI reminder. The "ask support for an archive" fallback kept for runs that haven't been published yet.
+
+### Why
+- Sprint 5.3 ships the public index (code-complete; see CHANGELOG-infra for the workspace creation). The marketing page was already carrying a forward-reference callout; Sprint 5.3's close-out flips it from "coming" to "live" so reviewers landing on `/docs/test-verification` end up on `testing.consentshield.in` without a hop.
+
+### Tested
+- No build required — MDX change is self-contained; marketing build verified during Sprint 5.4 already covers the page's other routing. A full marketing build on the next Sprint will reconfirm.
+
+---
+
 ## [ADR-1014 Sprint 5.4 — sacrificial-controls runbook at /docs/test-verification/controls] — 2026-04-25
 
 **ADR:** ADR-1014 — E2E test harness + vertical demo sites

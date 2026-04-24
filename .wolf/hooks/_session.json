@@ -191,6 +191,11 @@
       "count": 1,
       "tokens": 209,
       "first_read": "2026-04-24T16:23:55.900Z"
+    },
+    "/Users/sudhindra/projects/aiSpirit/consent-sheild/marketing/src/app/docs/test-verification/page.mdx": {
+      "count": 1,
+      "tokens": 3241,
+      "first_read": "2026-04-24T16:33:50.122Z"
     }
   },
   "files_written": [
@@ -571,11 +576,179 @@
       "action": "create",
       "tokens": 609,
       "at": "2026-04-24T16:24:04.351Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/testing/package.json",
+      "action": "create",
+      "tokens": 171,
+      "at": "2026-04-24T16:29:23.303Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/testing/tsconfig.json",
+      "action": "create",
+      "tokens": 97,
+      "at": "2026-04-24T16:29:25.230Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/testing/next.config.ts",
+      "action": "create",
+      "tokens": 424,
+      "at": "2026-04-24T16:29:32.606Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/testing/postcss.config.mjs",
+      "action": "create",
+      "tokens": 26,
+      "at": "2026-04-24T16:29:33.265Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/testing/next-env.d.ts",
+      "action": "create",
+      "tokens": 61,
+      "at": "2026-04-24T16:29:34.563Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/testing/src/app/globals.css",
+      "action": "create",
+      "tokens": 441,
+      "at": "2026-04-24T16:29:45.624Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/testing/src/data/types.ts",
+      "action": "create",
+      "tokens": 1043,
+      "at": "2026-04-24T16:30:06.606Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/testing/src/data/runs.ts",
+      "action": "create",
+      "tokens": 915,
+      "at": "2026-04-24T16:30:27.260Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/testing/src/app/layout.tsx",
+      "action": "create",
+      "tokens": 815,
+      "at": "2026-04-24T16:30:44.552Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/testing/src/components/status-pill.tsx",
+      "action": "create",
+      "tokens": 190,
+      "at": "2026-04-24T16:30:47.578Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/testing/src/components/run-card.tsx",
+      "action": "create",
+      "tokens": 744,
+      "at": "2026-04-24T16:30:57.183Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/testing/src/components/filter-chips.tsx",
+      "action": "create",
+      "tokens": 230,
+      "at": "2026-04-24T16:31:00.309Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/testing/src/app/page.tsx",
+      "action": "create",
+      "tokens": 811,
+      "at": "2026-04-24T16:31:16.029Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/testing/src/app/about/page.tsx",
+      "action": "create",
+      "tokens": 1326,
+      "at": "2026-04-24T16:31:37.006Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/testing/src/app/runs/[runId]/page.tsx",
+      "action": "create",
+      "tokens": 2365,
+      "at": "2026-04-24T16:32:09.383Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/testing/src/app/verticals/[slug]/page.tsx",
+      "action": "create",
+      "tokens": 419,
+      "at": "2026-04-24T16:32:18.951Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/testing/src/app/sprints/[id]/page.tsx",
+      "action": "create",
+      "tokens": 414,
+      "at": "2026-04-24T16:32:23.447Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/testing/src/app/phases/[n]/page.tsx",
+      "action": "create",
+      "tokens": 438,
+      "at": "2026-04-24T16:32:28.095Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/testing/src/app/feed.xml/route.ts",
+      "action": "create",
+      "tokens": 828,
+      "at": "2026-04-24T16:32:45.423Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/testing/src/app/robots.ts",
+      "action": "create",
+      "tokens": 69,
+      "at": "2026-04-24T16:32:46.562Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/testing/README.md",
+      "action": "create",
+      "tokens": 1117,
+      "at": "2026-04-24T16:33:14.557Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/package.json",
+      "action": "edit",
+      "tokens": 27,
+      "at": "2026-04-24T16:33:22.965Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/marketing/src/app/docs/test-verification/page.mdx",
+      "action": "edit",
+      "tokens": 182,
+      "at": "2026-04-24T16:33:58.298Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/docs/ADRs/ADR-1014-e2e-test-harness-and-vertical-demos.md",
+      "action": "edit",
+      "tokens": 1761,
+      "at": "2026-04-24T16:34:49.537Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/docs/ADRs/ADR-1014-e2e-test-harness-and-vertical-demos.md",
+      "action": "edit",
+      "tokens": 134,
+      "at": "2026-04-24T16:35:00.606Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/docs/ADRs/ADR-index.md",
+      "action": "edit",
+      "tokens": 328,
+      "at": "2026-04-24T16:35:13.550Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/docs/changelogs/CHANGELOG-infra.md",
+      "action": "edit",
+      "tokens": 1237,
+      "at": "2026-04-24T16:36:01.279Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/docs/changelogs/CHANGELOG-marketing.md",
+      "action": "edit",
+      "tokens": 407,
+      "at": "2026-04-24T16:36:17.899Z"
     }
   ],
   "edit_counts": {
-    "docs/ADRs/ADR-1014-e2e-test-harness-and-vertical-demos.md": 9,
-    "docs/ADRs/ADR-index.md": 5,
+    "docs/ADRs/ADR-1014-e2e-test-harness-and-vertical-demos.md": 11,
+    "docs/ADRs/ADR-index.md": 6,
     "docs/ADRs/ADR-1003-processor-posture-and-healthcare-unlock.md": 2,
     "supabase/migrations/20260804000054_adr1003_s14_rpc_consent_record_mode_fence.sql": 1,
     "app/src/lib/delivery/zero-storage-bridge.ts": 2,
@@ -585,13 +758,13 @@
     "app/tests/delivery/zero-storage-bridge.test.ts": 1,
     "app/tests/consent/record.test.ts": 1,
     "tests/integration/zero-storage-invariant.test.ts": 10,
-    "docs/changelogs/CHANGELOG-infra.md": 2,
+    "docs/changelogs/CHANGELOG-infra.md": 3,
     "docs/changelogs/CHANGELOG-schema.md": 1,
     "docs/changelogs/CHANGELOG-api.md": 1,
-    "marketing/src/app/docs/test-verification/page.mdx": 2,
+    "marketing/src/app/docs/test-verification/page.mdx": 3,
     "marketing/src/app/docs/_data/nav.ts": 2,
     "marketing/src/app/docs/_data/search-index.ts": 2,
-    "docs/changelogs/CHANGELOG-marketing.md": 2,
+    "docs/changelogs/CHANGELOG-marketing.md": 3,
     "tests/e2e/controls/smoke-healthz-negative.spec.ts": 1,
     "tests/e2e/controls/arithmetic-negative.spec.ts": 1,
     "tests/e2e/controls/string-contains-negative.spec.ts": 1,
@@ -601,14 +774,35 @@
     "tests/e2e/controls/boolean-truth-negative.spec.ts": 1,
     "tests/e2e/controls/deep-equal-negative.spec.ts": 1,
     "scripts/e2e-verify-controls.ts": 3,
-    "package.json": 1,
+    "package.json": 2,
     "marketing/src/app/docs/test-verification/controls/page.mdx": 1,
     "tests/e2e/specs/pair-matrix.md": 1,
-    "tests/e2e/controls/README.md": 1
+    "tests/e2e/controls/README.md": 1,
+    "testing/package.json": 1,
+    "testing/tsconfig.json": 1,
+    "testing/next.config.ts": 1,
+    "testing/postcss.config.mjs": 1,
+    "testing/next-env.d.ts": 1,
+    "testing/src/app/globals.css": 1,
+    "testing/src/data/types.ts": 1,
+    "testing/src/data/runs.ts": 1,
+    "testing/src/app/layout.tsx": 1,
+    "testing/src/components/status-pill.tsx": 1,
+    "testing/src/components/run-card.tsx": 1,
+    "testing/src/components/filter-chips.tsx": 1,
+    "testing/src/app/page.tsx": 1,
+    "testing/src/app/about/page.tsx": 1,
+    "testing/src/app/runs/[runId]/page.tsx": 1,
+    "testing/src/app/verticals/[slug]/page.tsx": 1,
+    "testing/src/app/sprints/[id]/page.tsx": 1,
+    "testing/src/app/phases/[n]/page.tsx": 1,
+    "testing/src/app/feed.xml/route.ts": 1,
+    "testing/src/app/robots.ts": 1,
+    "testing/README.md": 1
   },
-  "anatomy_hits": 37,
+  "anatomy_hits": 38,
   "anatomy_misses": 1,
   "repeated_reads_warned": 15,
   "cerebrum_warnings": 0,
-  "stop_count": 6
+  "stop_count": 9
 }

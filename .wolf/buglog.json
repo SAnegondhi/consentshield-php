@@ -13998,6 +13998,70 @@
       "related_bugs": [],
       "occurrences": 1,
       "last_seen": "2026-04-24T16:23:22.112Z"
+    },
+    {
+      "id": "bug-872",
+      "timestamp": "2026-04-24T16:33:22.968Z",
+      "error_message": "Incorrect value in code",
+      "file": "package.json",
+      "root_cause": "Had \"worker\"",
+      "fix": "Changed to \"testing\"",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "json"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-24T16:33:22.968Z"
+    },
+    {
+      "id": "bug-873",
+      "timestamp": "2026-04-24T16:34:49.540Z",
+      "error_message": "Significant refactor of ",
+      "file": "docs/ADRs/ADR-1014-e2e-test-harness-and-vertical-demos.md",
+      "root_cause": "5 lines replaced/restructured",
+      "fix": "Rewrote 9→28 lines (5 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-24T16:34:49.540Z"
+    },
+    {
+      "id": "bug-874",
+      "timestamp": "2026-04-24T16:35:00.609Z",
+      "error_message": "Incorrect value in code",
+      "file": "docs/ADRs/ADR-1014-e2e-test-harness-and-vertical-demos.md",
+      "root_cause": "Had `/docs/test-verification/controls`",
+      "fix": "Changed to `testing.consentshield.in`",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-24T16:35:00.609Z"
+    },
+    {
+      "id": "bug-875",
+      "timestamp": "2026-04-24T16:35:13.553Z",
+      "error_message": "Incorrect value in code",
+      "file": "docs/ADRs/ADR-index.md",
+      "root_cause": "Had `/docs/*`",
+      "fix": "Changed to `testing/`",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-24T16:35:13.553Z"
     }
   ]
 }

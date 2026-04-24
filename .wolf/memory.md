@@ -5299,3 +5299,35 @@
 | 21:53 | Edited docs/changelogs/CHANGELOG-infra.md | expanded (+26 lines) | ~930 |
 | 21:54 | Created tests/e2e/controls/README.md | — | ~569 |
 | 21:54 | ADR-1014 Sprint 5.4 | tests/e2e/controls/*.spec.ts, scripts/e2e-verify-controls.ts, marketing/.../test-verification/controls/page.mdx, pair-matrix.md §8, package.json | 8 sacrificial controls inverted via test.fail(); CI gate at bun run test:e2e:controls; MDX runbook; 24 static docs routes | ~10k |
+| 21:55 | Session end: 63 writes across 30 files (ADR-1014-e2e-test-harness-and-vertical-demos.md, ADR-index.md, ADR-1003-processor-posture-and-healthcare-unlock.md, 20260804000054_adr1003_s14_rpc_consent_record_mode_fence.sql, zero-storage-bridge.ts) | 38 reads | ~262829 tok |
+| 21:57 | Session end: 63 writes across 30 files (ADR-1014-e2e-test-harness-and-vertical-demos.md, ADR-index.md, ADR-1003-processor-posture-and-healthcare-unlock.md, 20260804000054_adr1003_s14_rpc_consent_record_mode_fence.sql, zero-storage-bridge.ts) | 38 reads | ~262829 tok |
+| 21:59 | Created testing/package.json | — | ~171 |
+| 21:59 | Created testing/tsconfig.json | — | ~97 |
+| 21:59 | Created testing/next.config.ts | — | ~424 |
+| 21:59 | Created testing/postcss.config.mjs | — | ~24 |
+| 21:59 | Created testing/next-env.d.ts | — | ~61 |
+| 21:59 | Created testing/src/app/globals.css | — | ~441 |
+| 21:59 | Session end: 69 writes across 35 files (ADR-1014-e2e-test-harness-and-vertical-demos.md, ADR-index.md, ADR-1003-processor-posture-and-healthcare-unlock.md, 20260804000054_adr1003_s14_rpc_consent_record_mode_fence.sql, zero-storage-bridge.ts) | 38 reads | ~264049 tok |
+| 22:00 | Created testing/src/data/types.ts | — | ~1043 |
+| 22:00 | Created testing/src/data/runs.ts | — | ~915 |
+| 22:00 | Created testing/src/app/layout.tsx | — | ~815 |
+| 22:00 | Created testing/src/components/status-pill.tsx | — | ~190 |
+| 22:00 | Created testing/src/components/run-card.tsx | — | ~744 |
+| 22:01 | Created testing/src/components/filter-chips.tsx | — | ~230 |
+| 22:01 | Created testing/src/app/page.tsx | — | ~811 |
+| 22:01 | Created testing/src/app/about/page.tsx | — | ~1326 |
+| 22:02 | Created testing/src/app/runs/[runId]/page.tsx | — | ~2365 |
+| 22:02 | Created testing/src/app/verticals/[slug]/page.tsx | — | ~419 |
+| 22:02 | Created testing/src/app/sprints/[id]/page.tsx | — | ~414 |
+| 22:02 | Created testing/src/app/phases/[n]/page.tsx | — | ~438 |
+| 22:02 | Created testing/src/app/feed.xml/route.ts | — | ~828 |
+| 22:02 | Created testing/src/app/robots.ts | — | ~69 |
+| 22:03 | Created testing/README.md | — | ~1043 |
+| 22:03 | Edited package.json | inline fix | ~27 |
+| 22:03 | Edited marketing/src/app/docs/test-verification/page.mdx | 9→11 lines | ~170 |
+| 22:04 | Edited docs/ADRs/ADR-1014-e2e-test-harness-and-vertical-demos.md | expanded (+19 lines) | ~1644 |
+| 22:05 | Edited docs/ADRs/ADR-1014-e2e-test-harness-and-vertical-demos.md | 3→3 lines | ~125 |
+| 22:05 | Edited docs/ADRs/ADR-index.md | inline fix | ~306 |
+| 22:06 | Edited docs/changelogs/CHANGELOG-infra.md | expanded (+39 lines) | ~1155 |
+| 22:06 | Edited docs/changelogs/CHANGELOG-marketing.md | expanded (+16 lines) | ~380 |
+| 22:07 | ADR-1014 Sprint 5.3 | testing/ new workspace (Next.js static site), testing/src/data/{types,runs}.ts, testing/src/app/{layout,page,about,runs,verticals,sprints,phases,feed.xml,robots}, testing/README.md, marketing .../test-verification page.mdx callout, ADR-1014 + index + CHANGELOG-infra + CHANGELOG-marketing | testing.consentshield.in public run index; code-complete + build-clean (9 prerendered pages); Vercel provisioning deferred to operator. Phase 5 complete (4/4). | ~16k |

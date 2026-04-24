@@ -2,6 +2,45 @@
 
 Vercel, Cloudflare, Supabase config changes.
 
+## [ADR-1014 Sprint 5.3 — testing.consentshield.in public index (Phase 5 closes)] — 2026-04-25
+
+**ADR:** ADR-1014 — E2E test harness + vertical demo sites
+**Sprint:** Phase 5, Sprint 5.3
+
+### Added
+- New Bun workspace `testing/` (`@consentshield/testing`). Next.js 16 static site designed to deploy to a dedicated Vercel project at `testing.consentshield.in`, deliberately isolated from `marketing` / `app` / `admin` so outages don't cross-contaminate. Tailwind v4 via `@tailwindcss/postcss`, React 19, TypeScript strict (extends the root `tsconfig.base.json`). Port 3003 for local dev. Security headers in `next.config.ts` mirror the marketing baseline (HSTS preload, X-Frame-Options=DENY, Permissions-Policy deny-all, CSP self-only).
+- `testing/src/data/types.ts` — `PublishedRun` schema + helpers. Fields: runId (ULID-shape, matches `E2E_RUN_ID`) / date (ISO 8601) / 12-char short SHA / branch / nullable `mutationScore` / Playwright-style tally (total/expected/unexpected/skipped/flaky) / derived status / browsers / verticals / sprints / phases / archive URL + SHA-256 seal root / partnerReproduction flag / notes.
+- `testing/src/data/runs.ts` — git-tracked seed with one clearly-labelled reference entry (commit 02c330b6c3c5, Sprint 5.4 controls dry-run). Every future run is a PR commit against this file. No dynamic data source, no R2 SDK, no ambient cloud reads — the file IS the index.
+- Routes: `/` (list + filter chips), `/runs/[runId]` (full detail + verify-CLI + reproduce runbook), `/verticals/[slug]`, `/sprints/[id]`, `/phases/[n]`, `/feed.xml` (hand-rolled RSS 2.0 per Rule 15), `/about`, `/robots.txt`. All prerender statically (9 routes in the seed build).
+- Shared components: `RunCard` (status pill + tally + sprint/vertical chips + notes), `StatusPill` (healthy / partial / red), `ChipRow` (filter navigation).
+- `testing/README.md` — how-to-add-a-run + route map + verify-archive snippet + operator-action section for first-time Vercel project provisioning + explicit non-goals (no dynamic data source, no auth, no search; rationale for each).
+- Root `package.json` workspaces array now includes `testing`.
+
+### Changed
+- `docs/ADRs/ADR-1014-e2e-test-harness-and-vertical-demos.md` Sprint 5.3 status flipped `[x] complete 2026-04-25`. Progress matrix updated to 19/24 sprints complete + 1 partial + 4 planned. **Phase 5 now 4/4 complete.**
+- `docs/ADRs/ADR-index.md` row amended to record Sprint 5.3 delivery and Phase 5 close.
+
+### Why
+- ADR-1014's auditor-facing contract requires an **independently observable** public index of every CI run. A buried-in-GitHub-artifacts approach fails the "reviewer can verify without insider access" bar. A dedicated subdomain — physically separate from the customer surface — means operators can inspect run evidence during a production outage, and vice versa.
+- Static + git-tracked: every publication is a reviewable commit. Partners running `git log testing/src/data/runs.ts` see the full history of every published run. Trading the ergonomics of a web-form admin UI for the trust property of "no infrastructure between the reviewer and the truth."
+
+### Operator — pending
+- `cd testing && vercel link` — new Vercel project `consentshield-testing`. Do NOT link to an existing project.
+- Production domain `testing.consentshield.in`; DNS CNAME to the Vercel-issued host.
+- No env vars required for v1.
+- `vercel deploy --prebuilt` after the first CI cycle includes `testing` in the workspace build matrix.
+
+### Architecture changes
+- None inside existing workspaces. The new workspace is an additive + isolated surface.
+
+### Tested
+- [x] `bun install` at repo root — workspace registered; 0 new install changes (deps match marketing's set + lockfile).
+- [x] `cd testing && bun run build` — clean compile (1364ms), clean TypeScript (1023ms). 9 prerendered pages: `/` `/about` `/feed.xml` `/robots.txt` (static); `/phases/5` `/runs/06EW0J6DWR37XMF841KD0D183W` `/sprints/5.4` (SSG via `generateStaticParams`). `/verticals/[slug]` generates zero instances because the seed run has an empty verticals array (realistic for a controls-only run).
+- [ ] Live Vercel deployment — operator action.
+- [ ] First external review engagement feedback pass.
+
+---
+
 ## [ADR-1014 Sprint 5.4 — sacrificial controls + CI gate] — 2026-04-25
 
 **ADR:** ADR-1014 — E2E test harness + vertical demo sites

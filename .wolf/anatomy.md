@@ -1,7 +1,7 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-04-24T16:24:04.344Z
-> Files: 1406 tracked | Anatomy hits: 0 | Misses: 0
+> Auto-maintained by OpenWolf. Last scanned: 2026-04-24T16:36:17.886Z
+> Files: 1427 tracked | Anatomy hits: 0 | Misses: 0
 
 ## ../../../../../tmp/
 
@@ -234,7 +234,7 @@
 - `.secrets` — Supabase (~972 tok)
 - `CLAUDE.md` — OpenWolf (~6199 tok)
 - `debug_rpc.ts` — Declares main (~218 tok)
-- `package.json` — Node.js package manifest (~233 tok)
+- `package.json` — Node.js package manifest (~236 tok)
 - `sentry.client.config.ts` (~166 tok)
 - `sentry.server.config.ts` (~166 tok)
 - `tsconfig.base.json` (~110 tok)
@@ -1401,7 +1401,7 @@
 - `ADR-1011-revoked-key-tombstone.md` — ADR-1011: Revoked-key tombstone — rotate+revoke plaintexts return 410 (~1088 tok)
 - `ADR-1012-v1-dx-gap-fixes.md` — ADR-1012: v1 API — day-1 DX gap fixes (~2561 tok)
 - `ADR-1013-cs-orchestrator-direct-postgres.md` — ADR-1013: `cs_orchestrator` direct-Postgres migration (Next.js runtime) (~2726 tok)
-- `ADR-1014-e2e-test-harness-and-vertical-demos.md` — ADR-1014: End-to-end test harness + vertical demo sites (partner-evidence grade) (~17586 tok)
+- `ADR-1014-e2e-test-harness-and-vertical-demos.md` — ADR-1014: End-to-end test harness + vertical demo sites (partner-evidence grade) (~19037 tok)
 - `ADR-1015-v1-api-integration-tests-and-developer-docs.md` — ADR-1015: v1 API integration tests + customer developer documentation (~7655 tok)
 - `ADR-1016-v1-orphan-scope-read-endpoints.md` — ADR-1016: v1 API — close the orphan `read:audit`, `read:security`, `read:score` scopes (~1836 tok)
 - `ADR-1017-admin-ops-readiness-flags.md` — ADR-1017: Admin ops-readiness flags — surface external blockers in the operator console (~1656 tok)
@@ -1415,7 +1415,7 @@
 - `ADR-1025-customer-storage-auto-provisioning.md` — ADR-1025: Customer storage auto-provisioning — hybrid managed R2 default + BYOK escape hatch (~13370 tok)
 - `ADR-1026-drop-hyperdrive-direct-supavisor.md` — ADR-1026: Rewind ADR-1010 Phase 3 — Worker connects directly to Supavisor; drop Hyperdrive binding (~5467 tok)
 - `ADR-1027-admin-account-awareness.md` — ADR-1027: Admin Account-Awareness Pass (~8082 tok)
-- `ADR-index.md` — ADR Index (~6199 tok)
+- `ADR-index.md` — ADR Index (~6349 tok)
 - `ADR-template.md` — ADR-NNNN: Title (~423 tok)
 - `adr-workflow.md` — ADR Workflow Rules (~557 tok)
 
@@ -1443,8 +1443,8 @@
 - `CHANGELOG-dashboard.md` — Changelog — Dashboard (~28074 tok)
 - `CHANGELOG-docs.md` — Changelog — Documentation (~13030 tok)
 - `CHANGELOG-edge-functions.md` — Changelog — Edge Functions (~4251 tok)
-- `CHANGELOG-infra.md` — Changelog — Infrastructure (~22397 tok)
-- `CHANGELOG-marketing.md` — Changelog — Marketing (~14208 tok)
+- `CHANGELOG-infra.md` — Changelog — Infrastructure (~23450 tok)
+- `CHANGELOG-marketing.md` — Changelog — Marketing (~14515 tok)
 - `CHANGELOG-schema.md` — Changelog — Schema (~52508 tok)
 - `CHANGELOG-worker.md` — Changelog — Worker (~6025 tok)
 
@@ -1686,7 +1686,7 @@
 
 ## marketing/src/app/docs/test-verification/
 
-- `page.mdx` — Reproduce our tests (~3241 tok)
+- `page.mdx` — Reproduce our tests (~3274 tok)
 
 ## marketing/src/app/docs/test-verification/controls/
 
@@ -2390,6 +2390,57 @@
 ## test-sites/violator/
 
 - `index.html` — Tracker Times — ConsentShield demo (~1016 tok)
+
+## testing/
+
+- `next-env.d.ts` — / <reference types="next" /> (~61 tok)
+- `next.config.ts` — ADR-1014 Sprint 5.3 — testing.consentshield.in. (~424 tok)
+- `package.json` — Node.js package manifest (~171 tok)
+- `postcss.config.mjs` — Declares config (~24 tok)
+- `README.md` — Project documentation (~977 tok)
+- `tsconfig.json` — TypeScript configuration (~97 tok)
+
+## testing/src/app/
+
+- `globals.css` — Styles: 2 rules, 23 vars (~441 tok)
+- `layout.tsx` — metadata (~815 tok)
+- `page.tsx` — Home (~811 tok)
+- `robots.ts` — Declares robots (~69 tok)
+
+## testing/src/app/about/
+
+- `page.tsx` — metadata (~1326 tok)
+
+## testing/src/app/feed.xml/
+
+- `route.ts` — ADR-1014 Sprint 5.3 — RSS 2.0 feed. (~828 tok)
+
+## testing/src/app/phases/[n]/
+
+- `page.tsx` — generateStaticParams (~438 tok)
+
+## testing/src/app/runs/[runId]/
+
+- `page.tsx` — generateStaticParams (~2365 tok)
+
+## testing/src/app/sprints/[id]/
+
+- `page.tsx` — generateStaticParams (~414 tok)
+
+## testing/src/app/verticals/[slug]/
+
+- `page.tsx` — generateStaticParams (~419 tok)
+
+## testing/src/components/
+
+- `filter-chips.tsx` — ChipRow (~230 tok)
+- `run-card.tsx` — RunCard (~744 tok)
+- `status-pill.tsx` — LABELS (~190 tok)
+
+## testing/src/data/
+
+- `runs.ts` — ADR-1014 Sprint 5.3 — Published-run index. (~915 tok)
+- `types.ts` — Tests that Playwright reported `status === expectedStatus` (positives that passed + controls that fa (~1043 tok)
 
 ## tests/admin/
 

@@ -1,0 +1,51 @@
+@import "tailwindcss";
+
+/* ═══════════════════════════════════════════════════════════════════
+   ConsentShield — Testing & Verification (testing.consentshield.in)
+   ADR-1014 Sprint 5.3.
+
+   Minimal palette — this surface is operational/auditor-facing, not
+   marketing. Desaturated by design; green for healthy runs, amber for
+   partial, red for rogue, slate for muted copy.
+═══════════════════════════════════════════════════════════════════ */
+
+:root {
+  --navy-dark: #091E3E;
+  --navy: #0F2D5B;
+  --teal: #0D7A6B;
+  --teal-light: #E0F4F1;
+  --green-ok: #059669;
+  --amber-partial: #D97706;
+  --red-bad: #DC2626;
+  --slate-700: #334155;
+  --slate-500: #64748B;
+  --slate-300: #CBD5E1;
+  --slate-100: #F1F5F9;
+  --white: #FFFFFF;
+  --ink: #0F172A;
+}
+
+@theme inline {
+  --color-ink: var(--ink);
+  --color-navy: var(--navy);
+  --color-teal: var(--teal);
+  --color-green-ok: var(--green-ok);
+  --color-amber-partial: var(--amber-partial);
+  --color-red-bad: var(--red-bad);
+  --color-slate-700: var(--slate-700);
+  --color-slate-500: var(--slate-500);
+  --color-slate-300: var(--slate-300);
+  --color-slate-100: var(--slate-100);
+}
+
+body {
+  background: var(--white);
+  color: var(--ink);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  -webkit-font-smoothing: antialiased;
+}
+
+code, pre, kbd, samp {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+}
