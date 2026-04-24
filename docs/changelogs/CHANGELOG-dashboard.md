@@ -2,6 +2,31 @@
 
 Next.js UI changes.
 
+## [ADR-1027 Sprint 3.2 — Account notes CRUD on account detail + read-only surfacing on org detail] — 2026-04-24
+
+**ADR:** ADR-1027 — Admin account-awareness pass
+**Sprint:** Phase 3, Sprint 3.2 — Account-level notes
+
+### Admin console
+- `admin/src/app/(operator)/accounts/[accountId]/account-notes-actions.ts` — three server actions (`addAccountNote`, `updateAccountNote`, `deleteAccountNote`). Each forwards a `reason` to the RPC layer so every mutation lands in `admin_audit_log`; all actions `revalidatePath('/accounts/[accountId]')` after success.
+- `admin/src/app/(operator)/accounts/[accountId]/account-notes-card.tsx` — client card. Add form always visible. Per-note edit + delete affordances. Pin / unpin checkbox only shown to platform_operator (second check: the RPC re-enforces). Delete prompts for a reason via `window.prompt` before dispatching — audit-logged. `useTransition` gives pending states; inline error surface.
+- `admin/src/app/(operator)/accounts/[accountId]/page.tsx` — parallel-fetch now also pulls `admin.account_note_list(p_account_id)` and the admin display-name map; new `<AccountNotesCard>` lands between Active-plan-adjustments and Recent-admin-actions.
+- `admin/src/app/(operator)/orgs/[orgId]/page.tsx` — follow-up fetch for `admin.account_note_list(org.account_id)` after org resolves; new read-only "Account-level notes" card renders above the existing org-level "Operator notes" card when account notes exist. Shows first 5 with a +N indicator and a "Manage at account level →" link to `/accounts/[accountId]`. Both card titles now carry tier badges (`ACCOUNT TIER` amber · `ORG TIER` grey) so operators can't confuse the two scopes at a glance.
+
+### Design
+- `docs/admin/design/consentshield-admin-screens.html` Organisations panel — new "Account-level notes" card added above the existing "Operator notes & support history" card in the org detail view. Account-tier card carries an amber `ACCOUNT TIER` pill + a "Manage at account level →" link. Org-tier card gets a grey `ORG TIER` pill to pair with it. Illustrative content references a Tata-scale enterprise example (CIO office as account-wide primary contact, account-wide DPIA review scheduled).
+- `docs/admin/design/ARCHITECTURE-ALIGNMENT-2026-04-16.md` — reconciliation tracker Sprint 3.2 flipped to ✅ wireframe + ✅ code.
+
+### Tested
+- [x] `cd admin && bunx tsc --noEmit` — PASS.
+- [x] `cd admin && bun run lint` — PASS.
+- [x] `tests/admin/account-notes-rpcs.test.ts` — 6/6 PASS (RPC-layer coverage). UI is a thin shell over the RPCs; visual check via dev server recommended.
+
+### Why
+Notes bound to a single org were invisible from sibling orgs in the same enterprise account, or N-way duplicated and drift-prone. Sprint 3.2 gives account-wide context a single place to live, makes it read-only visible on every child org, and keeps write authority on the canonical `/accounts/[id]` page so operators can't accidentally scope a note to one org when they meant the whole account.
+
+---
+
 ## [ADR-1027 Sprint 3.1 — /impersonation-log panel with per-session + per-account tabs] — 2026-04-24
 
 **ADR:** ADR-1027 — Admin account-awareness pass

@@ -7,6 +7,16 @@ import { AccountContextCard } from '@/components/account-context/account-context
 import { AdminMembersSection, type MemberRow as AdminMemberRow } from './members-section'
 import { SdfCard } from './sdf-card'
 
+interface AccountNoteRow {
+  id: string
+  account_id: string
+  admin_user_id: string
+  body: string
+  pinned: boolean
+  created_at: string
+  updated_at: string
+}
+
 // ADR-0029 Sprint 1.1 — Organisation detail page (read-only).
 //
 // Server Component. Fetches the org + peripheral data in parallel:
@@ -71,6 +81,14 @@ export default async function OrganisationDetailPage({ params }: PageProps) {
 
   const org = orgRes.data
   if (!org) notFound()
+
+  // ADR-1027 Sprint 3.2 — surface parent-account notes below.
+  const accountNotesRes = org.account_id
+    ? await supabase
+        .schema('admin')
+        .rpc('account_note_list', { p_account_id: org.account_id })
+    : { data: [] as AccountNoteRow[], error: null }
+  const accountNotes = (accountNotesRes.data ?? []) as AccountNoteRow[]
 
   const adminRole =
     (userRes.data.user?.app_metadata?.admin_role as AdminRole) ?? 'read_only'
@@ -204,6 +222,66 @@ export default async function OrganisationDetailPage({ params }: PageProps) {
         adminRole={adminRole}
       />
 
+      {/* ADR-1027 Sprint 3.2 — Account-level notes, shown above the
+          org-level notes. Read-only here; writes happen on /accounts/[id]
+          so operators don't accidentally scope a note to one org when
+          they meant the whole account. */}
+      {org.account_id && accountNotes.length > 0 ? (
+        <Card
+          title={
+            <span className="flex items-center gap-2">
+              Account-level notes
+              <span className="rounded bg-amber-50 px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wider text-amber-800">
+                account tier
+              </span>
+            </span>
+          }
+        >
+          <div className="flex items-center justify-between pb-2 text-xs text-text-3">
+            <span>
+              {accountNotes.length}{' '}
+              {accountNotes.length === 1 ? 'note' : 'notes'} at the account
+              tier. Visible on every org in this account.
+            </span>
+            <Link
+              href={`/accounts/${org.account_id}`}
+              className="text-red-700 hover:underline"
+            >
+              Manage at account level →
+            </Link>
+          </div>
+          <ul className="space-y-3">
+            {accountNotes.slice(0, 5).map((note) => (
+              <li
+                key={note.id}
+                className={
+                  note.pinned
+                    ? 'rounded border border-amber-200 bg-amber-50 p-3'
+                    : 'rounded border border-[color:var(--border)] p-3'
+                }
+              >
+                <div className="flex items-start justify-between">
+                  <div className="text-xs text-text-3">
+                    <span className="font-medium text-text-2">
+                      {adminNameById.get(note.admin_user_id) ??
+                        note.admin_user_id.slice(0, 8)}
+                    </span>{' '}
+                    · {formatDate(note.created_at)}
+                    {note.pinned ? ' · pinned' : ''}
+                  </div>
+                </div>
+                <p className="mt-1 whitespace-pre-wrap text-sm">{note.body}</p>
+              </li>
+            ))}
+          </ul>
+          {accountNotes.length > 5 ? (
+            <p className="mt-2 text-xs text-text-3">
+              +{accountNotes.length - 5} more at the account level.
+            </p>
+          ) : null}
+        </Card>
+      ) : null}
+
       <section className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         <Card title="Operator notes">
           {notes.length === 0 ? (
@@ -275,7 +353,7 @@ export default async function OrganisationDetailPage({ params }: PageProps) {
   )
 }
 
-function Card({ title, children }: { title: string; children: React.ReactNode }) {
+function Card({ title, children }: { title: React.ReactNode; children: React.ReactNode }) {
   return (
     <section className="rounded-md border border-[color:var(--border)] bg-white shadow-sm">
       <header className="border-b border-[color:var(--border)] px-4 py-2">

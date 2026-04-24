@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation'
 import { createServerClient } from '@/lib/supabase/server'
 import { canOperate, type AdminRole } from '@/lib/admin/role-tiers'
 import { AccountActionBar } from './action-bar'
+import { AccountNotesCard, type AccountNote } from './account-notes-card'
 
 // ADR-0048 Sprint 1.2 — Account detail.
 
@@ -55,9 +56,13 @@ export default async function AccountDetailPage({ params }: PageProps) {
   const { accountId } = await params
   const supabase = await createServerClient()
 
-  const [detailRes, userRes] = await Promise.all([
+  const [detailRes, userRes, notesRes, adminsRes] = await Promise.all([
     supabase.schema('admin').rpc('account_detail', { p_account_id: accountId }),
     supabase.auth.getUser(),
+    supabase
+      .schema('admin')
+      .rpc('account_note_list', { p_account_id: accountId }),
+    supabase.schema('admin').from('admin_users').select('id, display_name'),
   ])
 
   if (detailRes.error) {
@@ -75,6 +80,17 @@ export default async function AccountDetailPage({ params }: PageProps) {
   const adminRole =
     (userRes.data.user?.app_metadata?.admin_role as AdminRole) ?? 'read_only'
   const canWrite = canOperate(adminRole)
+  const canPlatformOperator =
+    adminRole === 'platform_operator' || adminRole === 'platform_owner'
+
+  const notes = (notesRes.data ?? []) as AccountNote[]
+  const adminNameById: Record<string, string | null> = {}
+  for (const a of (adminsRes.data ?? []) as Array<{
+    id: string
+    display_name: string | null
+  }>) {
+    adminNameById[a.id] = a.display_name ?? null
+  }
 
   const { account, organisations, active_adjustments, audit_recent } = envelope
 
@@ -242,6 +258,16 @@ export default async function AccountDetailPage({ params }: PageProps) {
           </div>
         )}
       </Card>
+
+      {/* ADR-1027 Sprint 3.2 — account-level notes. Every write emits an
+          audit row with target_table='admin.account_notes' and the
+          Sprint 1.1 account_id column populated. */}
+      <AccountNotesCard
+        accountId={account.id}
+        notes={notes}
+        adminNameById={adminNameById}
+        canPlatformOperator={canPlatformOperator}
+      />
 
       <Card title="Recent admin actions" pill={`${audit_recent.length}`}>
         {audit_recent.length === 0 ? (

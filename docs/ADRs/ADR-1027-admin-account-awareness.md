@@ -202,22 +202,36 @@ Close every admin-account-awareness drift in one ADR. No deferrals to later ADRs
 - [x] `bunx supabase db push` — applied cleanly.
 - [x] `bunx vitest run tests/admin/impersonation-by-account.test.ts` — **5/5 PASS** on live dev project.
 
-#### Sprint 3.2 — Account-level notes
+#### Sprint 3.2 — Account-level notes · **[x] complete 2026-04-24**
 
 **Estimated effort:** 0.75 day
 
 **Prerequisite wireframe:** Update `docs/admin/design/consentshield-admin-screens.html` — Accounts panel gets a Notes card (mirrors the org-detail Notes card). Org detail panel gains an "Account-level notes" subheading above the org-level notes block with a "View at the account level →" link.
 
 **Deliverables:**
-- [ ] Migration: `admin.account_notes (id, account_id, body, created_by, created_at, updated_at, pinned)` + RLS (`admin` schema; read gated by `require_admin('support')`, write by `require_admin('support')` with platform_operator carve-out for pinned notes). Partial index on `(account_id, created_at desc)`. Every write emits an `admin_audit_log` row with `target_table='admin.account_notes'` and the Sprint 1.1 `account_id` column populated.
-- [ ] Four RPCs: `admin.account_note_list(p_account_id)`, `admin.account_note_add(p_account_id, p_body, p_pinned default false)`, `admin.account_note_update(p_id, p_body, p_pinned)`, `admin.account_note_delete(p_id)`. All SECURITY DEFINER; reason captured on writes; audit rows written in-transaction.
-- [ ] `/accounts/[accountId]/page.tsx` — Notes card (list + add-note form). Pinned notes sort first.
-- [ ] `/orgs/[orgId]/page.tsx` — existing org-notes section gets a sibling "Account-level notes" section above it, calling `admin.account_note_list(org.account_id)`. Link to `/accounts/[accountId]` for full management.
+- [x] Migration `20260804000046_adr1027_s32_account_notes.sql`:
+  - `admin.account_notes (id, account_id, admin_user_id, body, pinned, created_at, updated_at)` + FK to `public.accounts` (cascade delete), partial index `(account_id, pinned desc, created_at desc)`, RLS admin_all policy.
+  - Four SECURITY DEFINER RPCs: `account_note_list(uuid)`, `account_note_add(uuid, text, boolean, text)`, `account_note_update(uuid, text, boolean, text)`, `account_note_delete(uuid, text)`. Every write emits an audit row with `target_table='admin.account_notes'` and the Sprint 1.1 `account_id` column populated — symmetric with the org-note path.
+  - Role gate: support+ can read / add / update body. Pin/unpin and delete require `platform_operator` (or `platform_owner` by tier inheritance) — enforced at the RPC layer; UI also hides the affordances.
+- [x] Server actions in `admin/src/app/(operator)/accounts/[accountId]/account-notes-actions.ts` — `addAccountNote` / `updateAccountNote` / `deleteAccountNote`, all with `revalidatePath('/accounts/[accountId]')` after mutation. Each action forwards a `reason` field to the RPC so the audit log carries the operator's justification.
+- [x] `admin/src/app/(operator)/accounts/[accountId]/account-notes-card.tsx` — client card. Renders list (pinned first, then newest), add form always visible, per-note edit + delete affordances. Pin/unpin checkbox is disabled for support role. Delete prompts for a reason before dispatching (audit-logged). `useTransition` gives pending states; errors surface inline.
+- [x] `admin/src/app/(operator)/accounts/[accountId]/page.tsx` — fetches notes + admin names alongside the existing account_detail call; drops `<AccountNotesCard>` between the Active-plan-adjustments card and the Recent-admin-actions card.
+- [x] `admin/src/app/(operator)/orgs/[orgId]/page.tsx` — follow-up fetch for `admin.account_note_list(org.account_id)` runs after the org resolves; new "Account-level notes" card (read-only) renders above the org-level "Operator notes" card when account notes exist. Displays first 5 notes with a "+N more" affordance and a "Manage at account level →" link to `/accounts/[accountId]`. Card title shows an `account tier` badge so operators never confuse the two tiers.
 
 **Testing plan:**
-- [ ] Unit: `account_note_add` inserts a note + a matching audit row; reading via `account_note_list` returns the note.
-- [ ] Integration: pinned note appears first regardless of timestamp order.
-- [ ] Authorization: support-role can read + add; platform_operator can pin + delete; support cannot pin.
+- [x] `tests/admin/account-notes-rpcs.test.ts` — **6/6 PASS**:
+  1. support role can add; audit row carries `target_table='admin.account_notes'` + `account_id` + `reason`.
+  2. support role cannot pin (RPC raises).
+  3. platform_operator can pin; list returns pinned first.
+  4. `account_note_update` rewrites body and writes an audit row with the supplied reason.
+  5. support cannot delete; platform_operator can; audit row carries `action='delete_account_note'` + `account_id` + `reason`.
+  6. read_only role cannot list.
+
+**Test results:**
+- [x] `cd admin && bunx tsc --noEmit` — PASS.
+- [x] `cd admin && bun run lint` — PASS.
+- [x] `bunx supabase db push` — applied cleanly.
+- [x] `bunx vitest run tests/admin/account-notes-rpcs.test.ts` — **6/6 PASS** on live dev project.
 
 #### Sprint 3.3 — Account-default sectoral template
 

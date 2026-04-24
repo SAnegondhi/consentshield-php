@@ -756,8 +756,22 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:14
             <div class="event"><div class="event-dot"></div><div style="flex:1"><div>Mailchimp connector mapped to <code>marketing</code></div><div class="event-time">1 week ago</div></div></div>
           </div>
         </div>
+        <!-- ADR-1027 Sprint 3.2 — account-level notes surfacing.
+             Read-only here; writes happen on /accounts/[id]. The amber
+             "account tier" pill distinguishes these from the org-level
+             notes card that follows. -->
         <div class="card">
-          <div class="card-header"><div class="card-title">Operator notes &amp; support history</div><button class="btn btn-secondary btn-sm">+ Note</button></div>
+          <div class="card-header">
+            <div class="card-title">Account-level notes <span class="pill" style="background:#fef3c7;color:#92400e;font-size:9px;padding:2px 6px;margin-left:4px">ACCOUNT TIER</span></div>
+            <a href="#" onclick="showPanel('accounts')" style="color:var(--red);font-size:11px;font-weight:500;text-decoration:none">Manage at account level →</a>
+          </div>
+          <div class="card-body" style="padding:0">
+            <div class="event" style="background:#fef3c7"><div class="event-dot amber"></div><div style="flex:1"><div><strong>Sudhindra</strong> · pinned · Enterprise contact is CIO office (cio-team@tata.in). All orgs under this account share the same procurement process.</div><div class="event-time">5 days ago</div></div></div>
+            <div class="event"><div class="event-dot"></div><div style="flex:1"><div><strong>Sudhindra</strong> · Account-wide DPIA review scheduled for Jun 15. Applies to all 3 orgs.</div><div class="event-time">2 weeks ago</div></div></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="card-title">Operator notes &amp; support history <span class="pill" style="background:#e5e7eb;color:var(--text-2);font-size:9px;padding:2px 6px;margin-left:4px">ORG TIER</span></div><button class="btn btn-secondary btn-sm">+ Note</button></div>
           <div class="card-body" style="padding:0">
             <div class="event"><div class="event-dot"></div><div style="flex:1"><div><strong>Sudhindra</strong> · pinned · Founder is solo CTO; prefers email over Slack support.</div><div class="event-time">2 weeks ago</div></div></div>
             <div class="event"><div class="event-dot"></div><div style="flex:1"><div>Support ticket <code>tk_8a31</code> resolved — onboarding question on banner placement.</div><div class="event-time">3 weeks ago</div></div></div>

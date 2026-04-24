@@ -2,6 +2,37 @@
 
 Database migrations, RLS policies, roles.
 
+## [ADR-1027 Sprint 3.2 — admin.account_notes + four CRUD RPCs] — 2026-04-24
+
+**ADR:** ADR-1027 — Admin account-awareness pass
+**Sprint:** Phase 3, Sprint 3.2 — Account-level notes
+
+### Added
+- `supabase/migrations/20260804000046_adr1027_s32_account_notes.sql`:
+  - `admin.account_notes (id, account_id, admin_user_id, body text not null, pinned bool, created_at, updated_at)` with FK to `public.accounts(id) on delete cascade`. Partial index on `(account_id, pinned desc, created_at desc)` — powers the list query with pinned-first ordering in one index scan.
+  - RLS `admin_all` policy (same shape as `admin.org_notes`); `grant select on admin.account_notes to authenticated` so the `admin_all` policy governs reads.
+  - Four SECURITY DEFINER RPCs, all gated and audit-logged:
+    - `admin.account_note_list(p_account_id uuid)` — support+ read.
+    - `admin.account_note_add(p_account_id, p_body, p_pinned default false, p_reason text)` — support+ add; pinning requires platform_operator+ (second `require_admin` check inside the body). Returns the new note id.
+    - `admin.account_note_update(p_note_id, p_body, p_pinned, p_reason)` — support+ edit body; toggling pinned state requires platform_operator+.
+    - `admin.account_note_delete(p_note_id, p_reason)` — platform_operator+ only.
+  - Every write inserts an `admin.admin_audit_log` row in the same transaction with `target_table='admin.account_notes'` and the Sprint 1.1 `account_id` column populated — operator audit is symmetric across the org-note and account-note paths.
+
+### Tested
+- [x] `tests/admin/account-notes-rpcs.test.ts` — **6/6 PASS**:
+  1. support role adds a note; audit row carries `target_table='admin.account_notes'` + `account_id` + supplied reason.
+  2. support role cannot pin (RPC raises).
+  3. platform_operator can pin; `account_note_list` returns pinned first.
+  4. `account_note_update` rewrites body and writes a `update_account_note` audit row.
+  5. support cannot delete; platform_operator can; audit row carries `delete_account_note` + account_id + reason.
+  6. read_only rejected.
+- [x] `bunx supabase db push` — applied cleanly.
+
+### Why
+Enterprise accounts (Tata-scale) have context that applies to every org under them — "CIO office is the primary contact", "DPIA review scheduled account-wide", "compliance team hates Slack, use email". Putting those on a single org was either invisible to operators viewing a sibling org, or N-way duplicated and prone to drift. The account tier gets its own note surface; the org-detail page surfaces the parent-account notes read-only so operators see context without leaving the org view.
+
+---
+
 ## [ADR-1027 Sprint 3.1 — admin.impersonation_sessions_by_account() RPC] — 2026-04-24
 
 **ADR:** ADR-1027 — Admin account-awareness pass
