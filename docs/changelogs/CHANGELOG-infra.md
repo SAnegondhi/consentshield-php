@@ -2,6 +2,32 @@
 
 Vercel, Cloudflare, Supabase config changes.
 
+## [ADR-1014 Sprint 5.1 — partner bootstrap script (Phase 5 opens)] — 2026-04-25
+
+**ADR:** ADR-1014 — E2E test harness + vertical demo sites
+**Sprint:** Phase 5, Sprint 5.1
+
+### Added
+- `scripts/partner-bootstrap.ts` — interactive CLI that walks a third-party reviewer through provisioning an E2E reproduction of the ConsentShield harness against their own Supabase test project. Prompts for Supabase URL + service-role key (hidden input, raw-mode terminal with asterisk echo) + anon key + optional Cloudflare account ID. Validates key shapes (JWT or `sb_secret_*` / `sb_publishable_*`) before any network call. Shells out to `scripts/e2e-bootstrap.ts` with env overrides — `dotenv` does not overwrite already-set keys, so partner input always wins over stale `.env.local`. Post-seeding, intermediate `.env.e2e` is rewritten with a partner-specific header and renamed to `.env.partner` (mode 0600, already gitignored). Idempotent: detects existing `.env.partner` and prompts for rebuild; `--force` bypasses the prompt and passes through to the underlying bootstrap.
+
+### Changed
+- ADR-1014 Sprint 5.1 status flipped `[x] complete 2026-04-25`. Progress matrix at the top of the ADR now shows 16/24 sprints complete + 1 partial + 7 planned (previously 15 + 1 + 8). Phase 5 row updated from "⏳ Planned" to "🟡 Sprint 5.1 complete … Sprints 5.2 / 5.3 / 5.4 planned".
+- `docs/ADRs/ADR-index.md` row 78 amended to record Phase 5 Sprint 5.1 delivery and restate the ADR-1015 Phase 3 unblock.
+
+### Why
+- ADR-1014 Phase 5 is the "partner reproduction kit" deliverable — the thing that lets prospective auditors / BFSI prospects / enterprise evaluators re-run the full E2E suite against state they control. Sprint 5.1 is the entry point: everything downstream (Sprint 5.2 reproduction docs, Sprint 5.3 public index, Sprint 5.4 sacrificial controls) assumes a partner can get a green bootstrap in under 30 minutes.
+- Sibling unblock: ADR-1015 Phase 3 (integration test harness for the v1 API developer docs) was blocked pending a "sandbox-only fixture endpoint for external consumer tests". With `.env.partner` now reliably produced, Sprint 3.1's fixture factory has its input shape fixed — no separate endpoint is needed; the same bootstrap serves both ADRs.
+
+### Architecture changes
+- Script wraps rather than duplicates. `scripts/e2e-bootstrap.ts` remains the single source of truth for fixture shapes (3 verticals × {auth.user, account, organisation, 3 web_properties, 3 consent_banners, 1 api_key}). The partner script is ~300 LOC of prompt orchestration + envelope rewriting.
+
+### Tested
+- [x] `bunx tsc --noEmit --strict --target ES2022 --module esnext --moduleResolution bundler --esModuleInterop --skipLibCheck scripts/partner-bootstrap.ts scripts/e2e-bootstrap.ts` — clean.
+- [x] `bunx tsx scripts/partner-bootstrap.ts --help` — renders help text + exits 0.
+- [ ] Live partner walk-through deferred to Sprint 5.2 (reproduction runbook authoring) + first external review engagement.
+
+---
+
 ## [ADR-0044 Phase 2.5/2.6 — invitation-email operator setup] — 2026-04-24
 
 **ADR:** ADR-0044 Phase 2.5 (invitation email dispatch) + Phase 2.6 (HMAC-gated marketing endpoint)

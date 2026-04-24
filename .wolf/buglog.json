@@ -13678,6 +13678,150 @@
       "related_bugs": [],
       "occurrences": 1,
       "last_seen": "2026-04-24T13:30:54.634Z"
+    },
+    {
+      "id": "bug-852",
+      "timestamp": "2026-04-24T15:50:18.294Z",
+      "error_message": "Missing error handling in unknown",
+      "file": "docs/ADRs/ADR-1003-processor-posture-and-healthcare-unlock.md",
+      "root_cause": "Code path had no error handling — exceptions would propagate uncaught",
+      "fix": "Added try/catch block",
+      "tags": [
+        "auto-detected",
+        "error-handling",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-24T15:50:18.294Z"
+    },
+    {
+      "id": "bug-853",
+      "timestamp": "2026-04-24T15:52:37.088Z",
+      "error_message": "Type error",
+      "file": "app/src/lib/delivery/zero-storage-bridge.ts",
+      "root_cause": "Missing or incorrect type annotation",
+      "fix": "Added type assertion/annotation",
+      "tags": [
+        "auto-detected",
+        "type-fix",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-24T15:52:37.088Z"
+    },
+    {
+      "id": "bug-854",
+      "timestamp": "2026-04-24T15:53:51.700Z",
+      "error_message": "Type error",
+      "file": "app/src/app/api/v1/consent/record/route.ts",
+      "root_cause": "Missing or incorrect type annotation",
+      "fix": "Added type assertion/annotation",
+      "tags": [
+        "auto-detected",
+        "type-fix",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-24T15:53:51.700Z"
+    },
+    {
+      "id": "bug-855",
+      "timestamp": "2026-04-24T15:54:05.590Z",
+      "error_message": "Wrong reference: renameSync should be unlinkSync",
+      "file": "scripts/partner-bootstrap.ts",
+      "root_cause": "Used \"renameSync\" instead of \"unlinkSync\"",
+      "fix": "Changed renameSync → unlinkSync",
+      "tags": [
+        "auto-detected",
+        "wrong-reference",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-24T15:54:05.590Z"
+    },
+    {
+      "id": "bug-856",
+      "timestamp": "2026-04-24T15:54:09.763Z",
+      "error_message": "Significant refactor of ",
+      "file": "scripts/partner-bootstrap.ts",
+      "root_cause": "3 lines replaced/restructured",
+      "fix": "Rewrote 10→8 lines (3 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-24T15:54:09.763Z"
+    },
+    {
+      "id": "bug-857",
+      "timestamp": "2026-04-24T15:54:21.964Z",
+      "error_message": "Missing await",
+      "file": "app/tests/delivery/zero-storage-bridge.test.ts",
+      "root_cause": "Async call without await — returned Promise instead of value",
+      "fix": "Added await to async call",
+      "tags": [
+        "auto-detected",
+        "async-fix",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-24T15:54:21.964Z"
+    },
+    {
+      "id": "bug-858",
+      "timestamp": "2026-04-24T15:55:15.195Z",
+      "error_message": "Significant refactor of ",
+      "file": "docs/ADRs/ADR-1014-e2e-test-harness-and-vertical-demos.md",
+      "root_cause": "4 lines replaced/restructured",
+      "fix": "Rewrote 8→19 lines (4 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-24T15:55:15.195Z"
+    },
+    {
+      "id": "bug-859",
+      "timestamp": "2026-04-24T15:55:51.106Z",
+      "error_message": "Type error",
+      "file": "tests/integration/zero-storage-invariant.test.ts",
+      "root_cause": "Missing or incorrect type annotation",
+      "fix": "Added type assertion/annotation",
+      "tags": [
+        "auto-detected",
+        "type-fix",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-24T15:55:51.106Z"
+    },
+    {
+      "id": "bug-860",
+      "timestamp": "2026-04-24T15:57:00.056Z",
+      "error_message": "Missing guard clause",
+      "file": "tests/integration/zero-storage-invariant.test.ts",
+      "root_cause": "No early return/throw for edge case: !res.ok",
+      "fix": "Added guard clause: if (!res.ok)",
+      "tags": [
+        "auto-detected",
+        "guard-clause",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-24T15:57:00.056Z"
     }
   ]
 }

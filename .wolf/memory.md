@@ -5214,3 +5214,51 @@
 | 19:01 | Edited docs/changelogs/CHANGELOG-schema.md | expanded (+24 lines) | ~791 |
 | 19:01 | Edited docs/changelogs/CHANGELOG-api.md | expanded (+17 lines) | ~415 |
 | 19:02 | Created tests/integration/zero-storage-hot-row-refresh.test.ts | — | ~2294 |
+| 19:03 | Session end: 77 writes across 31 files (20260804000052_adr1003_s13_zero_storage_artefact_index.sql, zero-storage-bridge.ts, zero-storage-bridge.test.ts, cs-vault-setup.sql, zero-storage-invariant.test.ts) | 47 reads | ~349477 tok |
+| 20:26 | Created .claude/session-handoff.md | — | ~5211 |
+| 20:26 | Session end: 78 writes across 32 files (20260804000052_adr1003_s13_zero_storage_artefact_index.sql, zero-storage-bridge.ts, zero-storage-bridge.test.ts, cs-vault-setup.sql, zero-storage-invariant.test.ts) | 48 reads | ~370339 tok |
+| 20:27 | Created .claude/session-handoff-terminal-a.md | — | ~5589 |
+| 20:27 | Session end: 79 writes across 33 files (20260804000052_adr1003_s13_zero_storage_artefact_index.sql, zero-storage-bridge.ts, zero-storage-bridge.test.ts, cs-vault-setup.sql, zero-storage-invariant.test.ts) | 48 reads | ~376327 tok |
+
+## Session: 2026-04-24 21:13
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+
+## Session: 2026-04-24 21:13
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+| 21:15 | Edited docs/ADRs/ADR-1014-e2e-test-harness-and-vertical-demos.md | modified Progress() | ~383 |
+| 21:15 | Edited docs/ADRs/ADR-1014-e2e-test-harness-and-vertical-demos.md | 7→5 lines | ~45 |
+| 21:15 | Edited docs/ADRs/ADR-1014-e2e-test-harness-and-vertical-demos.md | 5→3 lines | ~23 |
+| 21:15 | Edited docs/ADRs/ADR-index.md | inline fix | ~270 |
+| 21:16 | ADR-1014 status refresh | docs/ADRs/ADR-1014-e2e-test-harness-and-vertical-demos.md, docs/ADRs/ADR-index.md | header flipped Proposed→In Progress + progress matrix added + 2 orphan [ ] planned leftovers removed + index row reflects Phase 1/2/3 close | ~2k |
+| 21:16 | Session end: 4 writes across 2 files (ADR-1014-e2e-test-harness-and-vertical-demos.md, ADR-index.md) | 11 reads | ~54199 tok |
+| 21:20 | Edited docs/ADRs/ADR-1003-processor-posture-and-healthcare-unlock.md | added error handling | ~1350 |
+| 21:22 | Created supabase/migrations/20260804000054_adr1003_s14_rpc_consent_record_mode_fence.sql | — | ~5214 |
+| 21:22 | Edited app/src/lib/delivery/zero-storage-bridge.ts | expanded (+7 lines) | ~256 |
+| 21:22 | Edited app/src/lib/delivery/zero-storage-bridge.ts | modified indexAcceptedPurposes() | ~730 |
+| 21:23 | Created scripts/partner-bootstrap.ts | — | ~3756 |
+| 21:23 | Created app/src/lib/consent/record.ts | — | ~2412 |
+| 21:23 | Edited app/src/app/api/v1/consent/record/route.ts | expanded (+10 lines) | ~331 |
+| 21:24 | Edited scripts/partner-bootstrap.ts | inline fix | ~22 |
+| 21:24 | Edited scripts/partner-bootstrap.ts | 10→8 lines | ~73 |
+| 21:24 | Edited app/tests/delivery/zero-storage-bridge.test.ts | expanded (+76 lines) | ~863 |
+| 21:25 | Created app/tests/consent/record.test.ts | — | ~2726 |
+| 21:25 | Edited docs/ADRs/ADR-1014-e2e-test-harness-and-vertical-demos.md | expanded (+11 lines) | ~832 |
+| 21:25 | Edited docs/ADRs/ADR-1014-e2e-test-harness-and-vertical-demos.md | modified Progress() | ~232 |
+| 21:25 | Edited tests/integration/zero-storage-invariant.test.ts | added 1 import(s) | ~135 |
+| 21:25 | Edited tests/integration/zero-storage-invariant.test.ts | 6→8 lines | ~72 |
+| 21:25 | Edited docs/ADRs/ADR-index.md | inline fix | ~133 |
+| 21:25 | Edited tests/integration/zero-storage-invariant.test.ts | modified seedOrg() | ~290 |
+| 21:25 | Edited tests/integration/zero-storage-invariant.test.ts | 6→7 lines | ~38 |
+| 21:26 | Edited tests/integration/zero-storage-invariant.test.ts | expanded (+6 lines) | ~185 |
+| 21:26 | Edited docs/changelogs/CHANGELOG-infra.md | expanded (+26 lines) | ~837 |
+| 21:26 | Edited tests/integration/zero-storage-invariant.test.ts | 4→7 lines | ~135 |
+| 21:26 | ADR-1014 Sprint 5.1 | scripts/partner-bootstrap.ts, ADR-1014 body, ADR-index.md, CHANGELOG-infra.md, .wolf/anatomy.md | interactive partner-bootstrap shipped; typecheck + --help smoke clean; Sprint 5.1 flipped [x] | ~4.5k |
+| 21:27 | Edited tests/integration/zero-storage-invariant.test.ts | added 3 condition(s) | ~1466 |
+| 21:27 | Edited tests/integration/zero-storage-invariant.test.ts | 12→13 lines | ~121 |
+| 21:27 | Edited tests/integration/zero-storage-invariant.test.ts | 9→9 lines | ~134 |
+| 21:27 | Edited tests/integration/zero-storage-invariant.test.ts | removed 5 lines | ~4 |
+| 21:27 | Edited docs/ADRs/ADR-index.md | inline fix | ~98 |

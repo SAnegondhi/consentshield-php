@@ -1,7 +1,7 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-04-24T13:32:21.063Z
-> Files: 1393 tracked | Anatomy hits: 0 | Misses: 0
+> Auto-maintained by OpenWolf. Last scanned: 2026-04-24T15:57:31.222Z
+> Files: 1396 tracked | Anatomy hits: 0 | Misses: 0
 
 ## ../../../../../tmp/
 
@@ -243,8 +243,8 @@
 
 ## .claude/
 
-- `session-handoff-terminal-a.md` — ⚠️ Next-session assignment — read before picking your next ADR (~3903 tok)
-- `session-handoff.md` — Session handoff — 2026-04-24 (Terminal B · afternoon) (~6322 tok)
+- `session-handoff-terminal-a.md` — Session handoff — 2026-04-25 (Terminal A — ADR-1003 Phase 1→3) (~5239 tok)
+- `session-handoff.md` — Session handoff — 2026-04-24 (Terminal B · evening) (~4886 tok)
 
 ## .github/ISSUE_TEMPLATE/
 
@@ -1055,7 +1055,7 @@
 
 ## app/src/app/api/v1/consent/record/
 
-- `route.ts` — ADR-1002 Sprint 2.1 — POST /v1/consent/record (~2090 tok)
+- `route.ts` — ADR-1002 Sprint 2.1 — POST /v1/consent/record (~2237 tok)
 
 ## app/src/app/api/v1/consent/verify/
 
@@ -1179,7 +1179,7 @@
 
 - `deletion.ts` — ADR-1009 Phase 2 Sprint 2.3 — deletion helpers over the cs_api pool. (~1525 tok)
 - `read.ts` — ADR-1009 Phase 2 Sprint 2.3 — artefact + event read helpers over the (~1698 tok)
-- `record.ts` — ADR-1009 Phase 2 Sprint 2.3 — /v1/consent/record helper over the cs_api pool. (~822 tok)
+- `record.ts` — ADR-1009 Phase 2 Sprint 2.3 + ADR-1003 Sprint 1.4 — /v1/consent/record helper. (~2412 tok)
 - `revoke.ts` — ADR-1009 Phase 2 Sprint 2.3 — revoke helper over the cs_api pool. (~628 tok)
 - `test-delete.ts` — ADR-1005 Phase 2 Sprint 2.1 — test_delete helper over the cs_api pool. (~607 tok)
 - `verify.ts` — ADR-1009 Phase 2 Sprint 2.3 — /v1/consent/verify + /v1/consent/verify/batch (~1303 tok)
@@ -1189,7 +1189,7 @@
 - `canonical-json.ts` — ADR-1019 Sprint 2.1 — canonical JSON serialization for consent-event (~533 tok)
 - `deliver-events.ts` — ADR-1019 Sprint 2.1 — deliver a single delivery_buffer row to R2. (~4127 tok)
 - `object-key.ts` — ADR-1019 Sprint 2.1 — object-key layout for R2 deliveries. (~478 tok)
-- `zero-storage-bridge.ts` — ADR-1003 Sprint 1.2 + 1.3 — zero-storage event bridge. (~3037 tok)
+- `zero-storage-bridge.ts` — ADR-1003 Sprint 1.2 + 1.3 + 1.4 — zero-storage event bridge. (~3319 tok)
 
 ## app/src/lib/invitations/
 
@@ -1256,6 +1256,10 @@
 - `delivery.test.ts` — SUPABASE_URL: seedAuditRow (~1321 tok)
 - `lifecycle.test.ts` — Migration 011 (20260413000011) revokes UPDATE and DELETE on all buffer (~1002 tok)
 
+## app/tests/consent/
+
+- `record.test.ts` — ADR-1009 Phase 2 + ADR-1003 Sprint 1.4 — recordConsent helper unit tests. (~2726 tok)
+
 ## app/tests/delivery/
 
 - `canonical-json.test.ts` — ADR-1019 Sprint 2.1 — canonical JSON serialization tests. (~653 tok)
@@ -1263,7 +1267,7 @@
 - `deliver-events.test.ts` — ADR-1019 Sprint 2.1 — deliverOne unit tests. (~2128 tok)
 - `escalation.test.ts` — ADR-1019 Sprint 2.3 — unknown_event_type + manual-review escalation. (~1801 tok)
 - `object-key.test.ts` — ADR-1019 Sprint 2.1 — object-key layout tests. (~655 tok)
-- `zero-storage-bridge.test.ts` — ADR-1003 Sprint 1.2 + 1.3 — zero-storage bridge orchestrator unit tests. (~3663 tok)
+- `zero-storage-bridge.test.ts` — ADR-1003 Sprint 1.2 + 1.3 — zero-storage bridge orchestrator unit tests. (~4502 tok)
 
 ## app/tests/notifications/
 
@@ -1386,7 +1390,7 @@
 - `ADR-0501-marketing-site-scaffold.md` — ADR-0501 — ConsentShield marketing site (`marketing/`) (~6079 tok)
 - `ADR-1001-truth-in-marketing-and-public-api-foundation.md` — ADR-1001: Truth-in-Marketing + Public API Foundation (~5650 tok)
 - `ADR-1002-dpdp-section6-runtime-enforcement.md` — ADR-1002: DPDP §6 Runtime Enforcement — Verify, Record, Artefact Ops, Deletion API (~7030 tok)
-- `ADR-1003-processor-posture-and-healthcare-unlock.md` — ADR-1003: Processor Posture + Healthcare Category Unlock (~7001 tok)
+- `ADR-1003-processor-posture-and-healthcare-unlock.md` — ADR-1003: Processor Posture + Healthcare Category Unlock (~8226 tok)
 - `ADR-1004-statutory-retention-material-change-silent-failure.md` — ADR-1004: Statutory Retention + Material-Change Re-consent + Silent-Failure Detection (~7531 tok)
 - `ADR-1005-operations-maturity.md` — ADR-1005: Operations Maturity — Webhook Reference, Support Model, Status Page, Multi-channel Alerts, (~7076 tok)
 - `ADR-1006-developer-experience-and-openapi.md` — ADR-1006: Developer Experience — Client Libraries + OpenAPI Spec + CI Drift Check (~2658 tok)
@@ -1397,7 +1401,7 @@
 - `ADR-1011-revoked-key-tombstone.md` — ADR-1011: Revoked-key tombstone — rotate+revoke plaintexts return 410 (~1088 tok)
 - `ADR-1012-v1-dx-gap-fixes.md` — ADR-1012: v1 API — day-1 DX gap fixes (~2561 tok)
 - `ADR-1013-cs-orchestrator-direct-postgres.md` — ADR-1013: `cs_orchestrator` direct-Postgres migration (Next.js runtime) (~2726 tok)
-- `ADR-1014-e2e-test-harness-and-vertical-demos.md` — ADR-1014: End-to-end test harness + vertical demo sites (partner-evidence grade) (~15278 tok)
+- `ADR-1014-e2e-test-harness-and-vertical-demos.md` — ADR-1014: End-to-end test harness + vertical demo sites (partner-evidence grade) (~16171 tok)
 - `ADR-1015-v1-api-integration-tests-and-developer-docs.md` — ADR-1015: v1 API integration tests + customer developer documentation (~7655 tok)
 - `ADR-1016-v1-orphan-scope-read-endpoints.md` — ADR-1016: v1 API — close the orphan `read:audit`, `read:security`, `read:score` scopes (~1836 tok)
 - `ADR-1017-admin-ops-readiness-flags.md` — ADR-1017: Admin ops-readiness flags — surface external blockers in the operator console (~1656 tok)
@@ -1411,7 +1415,7 @@
 - `ADR-1025-customer-storage-auto-provisioning.md` — ADR-1025: Customer storage auto-provisioning — hybrid managed R2 default + BYOK escape hatch (~13370 tok)
 - `ADR-1026-drop-hyperdrive-direct-supavisor.md` — ADR-1026: Rewind ADR-1010 Phase 3 — Worker connects directly to Supavisor; drop Hyperdrive binding (~5467 tok)
 - `ADR-1027-admin-account-awareness.md` — ADR-1027: Admin Account-Awareness Pass (~8082 tok)
-- `ADR-index.md` — ADR Index (~5813 tok)
+- `ADR-index.md` — ADR Index (~6041 tok)
 - `ADR-template.md` — ADR-NNNN: Title (~423 tok)
 - `adr-workflow.md` — ADR Workflow Rules (~557 tok)
 
@@ -1439,7 +1443,7 @@
 - `CHANGELOG-dashboard.md` — Changelog — Dashboard (~28074 tok)
 - `CHANGELOG-docs.md` — Changelog — Documentation (~13030 tok)
 - `CHANGELOG-edge-functions.md` — Changelog — Edge Functions (~4251 tok)
-- `CHANGELOG-infra.md` — Changelog — Infrastructure (~20809 tok)
+- `CHANGELOG-infra.md` — Changelog — Infrastructure (~21556 tok)
 - `CHANGELOG-marketing.md` — Changelog — Marketing (~12875 tok)
 - `CHANGELOG-schema.md` — Changelog — Schema (~51519 tok)
 - `CHANGELOG-worker.md` — Changelog — Worker (~6025 tok)
@@ -1799,6 +1803,7 @@
 - `e2e-reset.ts` — ADR-1014 Sprint 1.2 — idempotent E2E state reset. (~1181 tok)
 - `e2e-verify-evidence.ts` — ADR-1014 Sprint 1.4 — Partner-facing evidence-seal verifier. (~941 tok)
 - `mint-role-jwt.ts` — ADR-1009 Phase 2 — mint an HS256 JWT for a scoped Postgres role so Supabase (~832 tok)
+- `partner-bootstrap.ts` — ADR-1014 Sprint 5.1 — interactive partner reproduction bootstrap. Prompts for Supabase URL + service-role key (hidden) + anon key + optional CF account ID; wraps e2e-bootstrap.ts with env overrides; produces .env.partner (0600, gitignored). Idempotent via --force. Unblocks ADR-1015 Phase 3. (~3723 tok)
 - `smoke-test-rate-limit.ts` — Declares main (~242 tok)
 - `verify-adr-1025-sprint-11.ts` — ADR-1025 Phase 1 Sprint 1.1 end-to-end verification. (~2997 tok)
 - `verify-adr-1025-sprint-21.ts` — ADR-1025 Phase 2 Sprint 2.1 end-to-end verification. (~2293 tok)
@@ -2319,6 +2324,7 @@
 - `20260804000051_adr1003_s12_zero_storage_gate.sql` — ADR-1003 Sprint 1.2 — zero-storage preconditions + mode-flip gate. (~1431 tok)
 - `20260804000052_adr1003_s13_zero_storage_artefact_index.sql` — ADR-1003 Sprint 1.3 — zero-storage consent_artefact_index TTL writes. (~603 tok)
 - `20260804000053_adr1003_s31_hot_row_refresh.sql` — ADR-1003 Sprint 3.1 — zero-storage hot-row TTL refresh. (~4012 tok)
+- `20260804000054_adr1003_s14_rpc_consent_record_mode_fence.sql` — ADR-1003 Sprint 1.4 — rpc_consent_record storage_mode fence + Mode B (~5214 tok)
 
 ## supabase/seed/
 
@@ -2524,7 +2530,7 @@
 - `worker-hyperdrive-reads.test.ts` — ADR-1010 Phase 3 Sprint 3.1 — integration test for the Hyperdrive (~1731 tok)
 - `worker-hyperdrive-writes.test.ts` — ADR-1010 Phase 3 Sprint 3.2 — integration test for the Hyperdrive (~2157 tok)
 - `zero-storage-hot-row-refresh.test.ts` — ADR-1003 Sprint 3.1 — hot-row TTL refresh integration test. (~2294 tok)
-- `zero-storage-invariant.test.ts` — ADR-1003 Sprint 1.3 — zero-storage end-to-end invariant. (~3541 tok)
+- `zero-storage-invariant.test.ts` — ADR-1003 Sprint 1.3 — zero-storage end-to-end invariant. (~5232 tok)
 
 ## tests/rbac/
 

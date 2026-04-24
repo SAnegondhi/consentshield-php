@@ -2,8 +2,9 @@
 
 (c) 2026 Sudhindra Anegondhi a.d.sudhindra@gmail.com
 
-**Status:** Proposed
+**Status:** In Progress
 **Date proposed:** 2026-04-22
+**Date started:** 2026-04-22
 **Date completed:** —
 **Supersedes:** —
 **Depends on:**
@@ -11,6 +12,18 @@
 - ADR-1013 (Next.js runtime fully on direct-Postgres; the harness does not need to mint HS256 scoped-role JWTs).
 - ADR-1009 / 1011 / 1012 (v1 API surface exists and is stable — the API integration dimension is covered by the sibling ADR-1015 but runs against the same harness).
 **Sibling:** ADR-1015 (v1 API integration tests + customer developer docs).
+
+**Progress (as of 2026-04-25):**
+
+| Phase | Sprints | Status |
+|---|---|---|
+| Phase 1 — Harness foundations | 5/5 `[x]` | ✅ Complete |
+| Phase 2 — Vertical demo sites on Railway | 4/4 `[x]` | ✅ Complete (Playwright runtime green deferred per-sprint pending ADR-1010 Worker migration) |
+| Phase 3 — Full-pipeline E2E suites | 6/7 `[x]` + 1 `[~]` | 🟡 Sprint 3.2 partial — R2 delivery + end-to-end trace-id blocked on `consent_events.trace_id` column + Worker header propagation. `deliver-consent-events` Edge Function itself has since shipped (ADR-1019). |
+| Phase 4 — Stryker mutation testing | 0/4 `[ ]` | ⏳ Planned |
+| Phase 5 — Partner reproduction kit + evidence publication | 1/4 `[x]` | 🟡 Sprint 5.1 complete 2026-04-25 (partner bootstrap — unblocks ADR-1015 Phase 3). Sprints 5.2 / 5.3 / 5.4 planned. |
+
+16 of 24 sprints fully complete; 1 partial; 7 planned.
 
 ---
 
@@ -186,8 +199,6 @@ Build a full-pipeline, partner-evidence-grade E2E test harness, delivered in fiv
 
 **Status:** `[x] complete 2026-04-23 — wizard-entry-gate pair shipped; full 7-step traversal reframed to Sprint 5.2.`
 
-**Status:** `[ ] planned`
-
 ---
 
 ### Phase 2 — Vertical demo sites on Railway
@@ -353,8 +364,6 @@ The first-hop negatives (HMAC tampered + origin mismatch, paired with Sprint 1.3
 
 **Status:** `[x] complete 2026-04-23.`
 
-**Status:** `[ ] planned`
-
 #### Sprint 3.4: Deletion connector end-to-end
 
 **Deliverables:**
@@ -467,11 +476,22 @@ Mutation testing intentionally mutates production code (change `===` to `!==`, f
 #### Sprint 5.1: Partner bootstrap script
 
 **Deliverables:**
-- [ ] `scripts/partner-bootstrap.ts` — interactive CLI, prompts for partner's Supabase URL + service-role key + Cloudflare account, runs migrations, seeds fixtures, produces `.env.partner`.
-- [ ] Idempotent; re-running wipes and rebuilds state.
-- [ ] Time target: 30 min wall clock on a partner's first run.
+- [x] `scripts/partner-bootstrap.ts` — interactive CLI, prompts for partner's Supabase URL + service-role key + anon key + Cloudflare account ID (optional), seeds fixtures against their project via `scripts/e2e-bootstrap.ts`, produces `.env.partner` (mode 0600, gitignored). Service-role key is hidden input (raw-mode terminal with asterisk echo + Ctrl-C/Ctrl-D/backspace handling). Input validators reject keys that don't match JWT or `sb_secret_*` / `sb_publishable_*` shapes before any network call.
+- [x] Idempotent. Detects an existing `.env.partner`; prompts for rebuild. `--force` flag skips the prompt and passes through to the underlying bootstrap's `--force` (which wipes + recreates auth users, accounts, orgs, web_properties, banners, api_keys). Re-run against the same Supabase project without `--force` reuses fixtures.
+- [x] Time target: 30 min wall clock on a partner's first run. Breakdown documented in the script header — prompts ~2 min, bootstrap ~10 s, `bun install` ~1 min, `install:browsers` ~3 min, first chromium partner run ~5 min, evidence verify ~5 s = ~12 min with 18 min cushion.
 
-**Status:** `[ ] planned`
+**Scope boundary:** The script does NOT run `bunx supabase db push` on the partner's behalf — that's their call against their own project, and is listed as a prerequisite in the script banner. This keeps ConsentShield out of the migration-driver seat on a DB we don't own.
+
+**Architecture note:** The script is a thin interactive wrapper around `scripts/e2e-bootstrap.ts` rather than a duplicate of the ~700-LOC fixture seeder. It shells out with env overrides (`NEXT_PUBLIC_SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`) — `dotenv` does not overwrite keys already in `process.env`, so the partner's values always win over any stale `.env.local` on the partner's machine. Post-bootstrap, the intermediate `.env.e2e` is rewritten with a partner-specific header and renamed to `.env.partner`.
+
+**Unblocks ADR-1015 Phase 3:** ADR-1015's integration test harness requires `.env.integration`-equivalent env produced on a partner's test project. This script produces that env (as `.env.partner`), so Sprint 3.1's "fixture factory" deliverable can consume the same shape on partner machines.
+
+**Testing plan:**
+- [x] `bunx tsc --noEmit --strict --target ES2022 --module esnext --moduleResolution bundler --esModuleInterop --skipLibCheck scripts/partner-bootstrap.ts scripts/e2e-bootstrap.ts` — clean.
+- [x] `bunx tsx scripts/partner-bootstrap.ts --help` — renders help text + exits 0.
+- [ ] Live partner walk-through deferred to Sprint 5.2 (where the reproduction runbook is authored end-to-end) and the first external review engagement. Self-test against the ConsentShield test project itself is safe (prompts for the same URL the seed bootstrap already writes to, produces an equivalent `.env.partner`) but duplicates `.env.e2e` content; left as a pre-release smoke rather than a recurring CI step.
+
+**Status:** `[x] complete 2026-04-25 — interactive bootstrap + 30-min budget + idempotency + ADR-1015 Phase 3 unblocked.`
 
 #### Sprint 5.2: Documentation — how to reproduce
 
