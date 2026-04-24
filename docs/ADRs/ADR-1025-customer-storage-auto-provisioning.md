@@ -281,17 +281,37 @@ Run on every provisioning, every credential rotation, and nightly-verify cron (r
 
 ### Phase 4 — Observability + rotation
 
-#### Sprint 4.1 — Nightly verify cron + rotation RPC
+#### Sprint 4.1 — Nightly verify + rotation RPC + retention cleanup
 
 **Estimated effort:** 0.5 day
 
+**Scope expansion (2026-04-24):** also ships the retention-cleanup cron that Sprint 3.2 deferred. All three storage-hygiene surfaces land together so the operational picture is complete: silent-token-revocation catch (verify), credential-churn mechanism (rotate), post-migration bucket reclamation (retention). Same Next.js-route + dispatch-function + cron pattern as the earlier sprints.
+
 **Deliverables:**
-- [ ] `pg_cron` job `storage-nightly-verify` (02:00 IST): iterates every `export_configurations` row where `is_verified=true`, runs the probe, flips `is_verified=false` on failure + emits readiness flag.
-- [ ] `admin.storage_rotate_credentials(org_id)` — only valid for `cs_managed_r2`: creates a new bucket-scoped token → verifies → UPDATEs `write_credential_enc` → revokes the old token. No migration required (same bucket).
+- [x] `supabase/migrations/20260804000039_storage_verify_rotate_retention.sql` — six-part migration:
+  1. **Tracking columns**: `storage_migrations.retention_processed_at` + `export_configurations.last_rotation_at` + `export_configurations.last_rotation_error`. Partial index on pending retention rows.
+  2. **`public.dispatch_storage_verify()`** — Vault-backed `net.http_post` to `/api/internal/storage-verify`. Soft-fails on missing Vault.
+  3. **`public.dispatch_storage_rotate(org_id)`** — same pattern for `/api/internal/storage-rotate`.
+  4. **`public.dispatch_storage_retention_cleanup()`** — same pattern for `/api/internal/storage-retention-cleanup`.
+  5. **`pg_cron 'storage-nightly-verify'`** — `30 20 * * *` (02:00 IST daily).
+  6. **`pg_cron 'storage-retention-cleanup'`** — `30 21 * * *` (03:00 IST daily).
+  7. **`admin.storage_rotate_credentials(org_id, reason)`** — admin-triggered rotation. Guards: `admin.require_admin('support')`, ≥10-char reason, org has a cs_managed_r2 `export_configurations` row. Dispatches to the rotate route + audit-logs with action `adr1025_storage_rotate_credentials`.
+- [x] `app/src/lib/storage/org-crypto.ts` — **new** shared helper module consolidating `deriveOrgKey` / `decryptCredentials` / `encryptCredentials` / `normaliseBytea`. Used by the three new orchestrators + future storage work. provision-org.ts + migrate-org.ts keep their inline copies for now (zero-risk refactor deferral; they'll consolidate in a later cleanup).
+- [x] `app/src/lib/storage/nightly-verify.ts` — `verifyAllVerifiedConfigs(pg, deps?)`. Reads every `is_verified=true` row, decrypts creds, runs `runVerificationProbe` against the target bucket. On failure: atomic `is_verified=false` flip + INSERT into `export_verification_failures`. Time budget 270 s (safe under the 300 s Fluid Compute cap). Emits a per-org summary; one bad row doesn't stall the sweep.
+- [x] `app/src/lib/storage/rotate-org.ts` — `rotateStorageCredentials(pg, orgId, deps?)`. Mints a fresh bucket-scoped token via the cfut_ user endpoint, sleeps 5 s for CF edge propagation, runs the probe, encrypts + atomically swaps `write_credential_enc`, revokes the old token. Probe failure: revokes the **new** token, leaves the old creds in place, records `last_rotation_error`. Returns discriminated union `{rotated | not_eligible | not_found | failed}`.
+- [x] `app/src/lib/storage/retention-cleanup.ts` — `processRetentionCleanup(pg, deps?)`. Picks up to 50 storage_migrations rows where `mode='forward_only' AND state='completed' AND retention_until < now() AND retention_processed_at IS NULL`. For each: mints a fresh cleanup token for the old CS-managed bucket, lists + deletes every object via sigv4 S3 API, revokes the cleanup token, deletes the bucket via CF REST API, marks `retention_processed_at`. Per-bucket failures don't stall the sweep — failures are recorded on `storage_migrations.error_text`.
+- [x] Three Next.js internal routes (`/api/internal/storage-verify`, `/api/internal/storage-rotate`, `/api/internal/storage-retention-cleanup`) — all bearer-authed (reuse `STORAGE_PROVISION_SECRET`), delegate to the helpers.
+- [x] **Operator step (completed):** seeded three Vault secrets `cs_storage_verify_url` / `cs_storage_rotate_url` / `cs_storage_retention_url` pointing at `https://app.consentshield.in/api/internal/storage-{verify,rotate,retention-cleanup}`. Bearer reuses `cs_provision_storage_secret`.
 
 **Testing plan:**
-- [ ] Simulate revoked token via CF dashboard → next nightly verify flips `is_verified=false` → readiness flag fires.
-- [ ] Rotation happy path: token_v1 in use → rotate → token_v2 in use + delivery unaffected → token_v1 revoked on CF side (verified via API list).
+- [x] `app/tests/storage/nightly-verify.test.ts` — 6 tests. Zero-rows / all-pass / probe-failure triggers flip+failure-record / decrypt-error-as-failure (no throw) / budget_exceeded flag / unknown-provider surfaces endpoint-derivation error.
+- [x] `app/tests/storage/rotate-org.test.ts` — 6 tests. not_found / not_eligible (BYOK) / happy path (mints + probes + swaps + revokes old) / probe-failure revokes NEW token not OLD / encrypt-failure rolls back by revoking new / revoke-old-failure swallowed as best-effort.
+- [x] `app/tests/storage/retention-cleanup.test.ts` — 6 tests. Empty queue / happy path (empties + deletes + marks processed) / missing-bucket-in-snapshot failure / bucket-delete-409 failure records error_text / cleanup-token mint failure aborts cleanly / missing CLOUDFLARE_ACCOUNT_ID throws.
+- [x] `bunx vitest run tests/storage/` — 108/108 PASS (90 pre-existing + 18 new).
+- [x] Lint + build: 246 files scanned, 0 ESLint / 0 TS / 0 build warnings.
+- [ ] **Live E2E** deferred: nightly verify depends on a real-CF BYOK customer; rotation needs a CS-managed bucket to rotate; retention cleanup needs a forward_only migration whose `retention_until` has elapsed. All three exercised naturally once the first BYOK customer onboards + 30 days elapse.
+
+**Status:** `[x] complete 2026-04-24 — migration + 3 orchestrator helpers + 3 routes + admin RPC + 2 crons + shared org-crypto module. 18 new unit tests. Vault seeded. Next.js 16 build clean. Live-E2E deferred until first-customer BYOK flow exercises all three surfaces.`
 
 #### Sprint 4.2 — Cost monitoring + billing integration
 

@@ -2,6 +2,40 @@
 
 Database migrations, RLS policies, roles.
 
+## [ADR-1025 Sprint 4.1 — storage hygiene crons + rotation RPC + retention tracking] — 2026-04-24
+
+**ADR:** ADR-1025 — Customer storage auto-provisioning
+**Sprint:** Phase 4, Sprint 4.1 — Observability + rotation + retention
+
+### Added
+- `supabase/migrations/20260804000039_storage_verify_rotate_retention.sql` — seven-part migration:
+  1. **Tracking columns**:
+     - `storage_migrations.retention_processed_at timestamptz` — set by the retention-cleanup cron when the old CS-managed bucket is successfully deleted. Partial index `storage_migrations_retention_pending_idx` on pending rows (`state='completed' AND mode='forward_only' AND retention_until IS NOT NULL AND retention_processed_at IS NULL`).
+     - `export_configurations.last_rotation_at timestamptz` + `last_rotation_error text` — operators see rotation history on the admin surface.
+  2. **`public.dispatch_storage_verify()`** — Vault-backed `net.http_post` to `/api/internal/storage-verify`. Soft-fails on missing Vault. EXECUTE to cs_orchestrator only.
+  3. **`public.dispatch_storage_rotate(p_org_id uuid)`** — same pattern for `/api/internal/storage-rotate`.
+  4. **`public.dispatch_storage_retention_cleanup()`** — same pattern for `/api/internal/storage-retention-cleanup`.
+  5. **`pg_cron 'storage-nightly-verify'`** — `30 20 * * *` (02:00 IST daily). Calls `dispatch_storage_verify()`.
+  6. **`pg_cron 'storage-retention-cleanup'`** — `30 21 * * *` (03:00 IST daily). Calls `dispatch_storage_retention_cleanup()`.
+  7. **`admin.storage_rotate_credentials(p_org_id uuid, p_reason text)`** — SECURITY DEFINER. Guards: `admin.require_admin('support')`, ≥10-char reason, org has a `cs_managed_r2` export_configurations row. Dispatches to `/api/internal/storage-rotate` via `dispatch_storage_rotate(org_id)`. Writes `admin.admin_audit_log` entry with action `adr1025_storage_rotate_credentials`. Returns `{enqueued, org_id, net_request_id}`.
+
+### Operator step (completed 2026-04-24)
+Seeded three new Vault secrets via the postgres user + Supavisor pooler:
+- `cs_storage_verify_url` → `https://app.consentshield.in/api/internal/storage-verify`
+- `cs_storage_rotate_url` → `https://app.consentshield.in/api/internal/storage-rotate`
+- `cs_storage_retention_url` → `https://app.consentshield.in/api/internal/storage-retention-cleanup`
+
+Bearer reuses `cs_provision_storage_secret` — same trust boundary as Sprints 2.1 + 3.2.
+
+### Tested
+- `bunx supabase db push` — 1 migration applied cleanly against dev DB.
+- Verification queries in the migration confirm: cron rows landed at their schedules, both new columns visible in information_schema, admin RPC compiles.
+- Nightly-verify + rotation + retention-cleanup orchestrator behaviour covered by 18 new unit tests (90/90 → 108/108 PASS); live E2E deferred until first-customer BYOK flow.
+
+### Architecture changes
+- Three new scheduled jobs active on the platform (`storage-nightly-verify`, `storage-retention-cleanup` — the admin-triggered rotation doesn't need its own cron). Reference documented in the existing §12 cron catalogue of `consentshield-definitive-architecture.md` via the Phase 4 ADR narrative.
+- New admin action `adr1025_storage_rotate_credentials` now appears in `admin.admin_audit_log` alongside the Sprint 2.1 + Sprint 3.2 entries.
+
 ## [ADR-1025 Sprint 3.2 — storage_migrations table + dispatch pipeline + admin.storage_migrate RPC] — 2026-04-24
 
 **ADR:** ADR-1025 — Customer storage auto-provisioning

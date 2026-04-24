@@ -2,6 +2,41 @@
 
 API route changes.
 
+## [ADR-1025 Sprint 4.1 — nightly verify + rotation RPC + retention cleanup] — 2026-04-24
+
+**ADR:** ADR-1025 — Customer storage auto-provisioning
+**Sprint:** Phase 4, Sprint 4.1
+
+### Scope expansion vs the original ADR
+The ADR scoped Sprint 4.1 to nightly verify + rotation RPC. Added the retention-cleanup cron that Sprint 3.2 deferred — all three storage-hygiene surfaces land together so the operational picture is complete in one sprint.
+
+### Added — shared helper
+- `app/src/lib/storage/org-crypto.ts` — consolidates `deriveOrgKey` / `decryptCredentials` / `encryptCredentials` / `normaliseBytea` used by the three new orchestrators. provision-org.ts + migrate-org.ts keep their inline copies for now (zero-risk — they'll consolidate in a later cleanup); this sprint's new modules use the shared helper.
+
+### Added — orchestrator helpers
+- `app/src/lib/storage/nightly-verify.ts` — `verifyAllVerifiedConfigs(pg, deps?)`. Reads every `is_verified=true` export_configurations row, decrypts creds via org-crypto, runs `runVerificationProbe`. On failure: atomic `is_verified=false` flip + `export_verification_failures` INSERT. Time budget 270 s (safe under Fluid Compute 300 s cap). Emits a summary `{checked, succeeded, failed, budget_exceeded, failures[]}`. One bad row doesn't stall the sweep.
+- `app/src/lib/storage/rotate-org.ts` — `rotateStorageCredentials(pg, orgId, deps?)`. Mints a fresh bucket-scoped token for the existing CS-managed bucket, sleeps 5 s for CF edge propagation, probes with the new creds, encrypts + atomically swaps `write_credential_enc`, revokes the old token. Probe failure → revokes the **new** token, leaves old in place, records `last_rotation_error`. Encrypt failure → same rollback. Only valid for `cs_managed_r2` — BYOK rotation is the customer's responsibility. Returns `{rotated | not_eligible | not_found | failed}`.
+- `app/src/lib/storage/retention-cleanup.ts` — `processRetentionCleanup(pg, deps?)`. Picks up to 50 storage_migrations rows where `mode='forward_only' AND state='completed' AND retention_until < now() AND retention_processed_at IS NULL`. Per row: mint fresh cleanup token → list + delete every object via sigv4 S3 API (hand-rolled ListObjectsV2 + existing `deleteObject`) → revoke cleanup token → DELETE bucket via CF REST API → mark `retention_processed_at`. Per-bucket failures record on `storage_migrations.error_text` without stalling the sweep.
+
+### Added — routes
+- `app/src/app/api/internal/storage-verify/route.ts` — bearer-authed POST. Calls `verifyAllVerifiedConfigs`; returns the summary. Called by pg_cron at 02:00 IST.
+- `app/src/app/api/internal/storage-rotate/route.ts` — bearer-authed POST, `{org_id}` body. Calls `rotateStorageCredentials`. Invoked by the admin RPC dispatch.
+- `app/src/app/api/internal/storage-retention-cleanup/route.ts` — bearer-authed POST. Calls `processRetentionCleanup`. Called by pg_cron at 03:00 IST.
+
+### Auth chain
+All three routes reuse `STORAGE_PROVISION_SECRET` (same trust boundary as Sprints 2.1 + 3.2). Three separate Vault URLs (one per route) let dispatch functions target the right endpoint; bearer is shared.
+
+### Tested
+- `app/tests/storage/nightly-verify.test.ts` — 6 tests. Zero rows / all-pass / probe failure triggers atomic flip + failure record / decrypt-error-as-failure (no throw) / budget_exceeded trip mid-sweep / unknown-provider surfaces endpoint-derivation error.
+- `app/tests/storage/rotate-org.test.ts` — 6 tests. not_found / not_eligible (BYOK) / happy path / probe failure revokes NEW not OLD / encrypt failure rolls back / revoke-old failure swallowed as best-effort.
+- `app/tests/storage/retention-cleanup.test.ts` — 6 tests. Empty queue / happy path / missing-bucket snapshot / bucket-delete 409 / cleanup-token mint failure / missing CLOUDFLARE_ACCOUNT_ID.
+- `bunx vitest run tests/storage/` — 108/108 PASS (90 pre-existing + 18 new).
+- `bun run lint` — 246 files, 0 violations. `bun run build` — Next.js 16 clean.
+- 1 migration applied to dev Supabase; 3 Vault secrets seeded via postgres user.
+
+### Scope boundary
+Live E2E deferred until first-customer BYOK flow. The three surfaces exercise naturally: the nightly-verify cron runs every night against production rows once they exist; rotation is operator-triggered and safe to smoke-test manually; retention cleanup fires 30 days after any forward_only migration.
+
 ## [ADR-1025 Sprint 3.2 — storage migration orchestrator + customer migrate route + status polling] — 2026-04-24
 
 **ADR:** ADR-1025 — Customer storage auto-provisioning
