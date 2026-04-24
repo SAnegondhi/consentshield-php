@@ -180,8 +180,9 @@ The previous architecture used a single service role key for all server-side ope
 **Role: cs_worker** (used by Cloudflare Worker)
 
 ```
-CAN INSERT: consent_events, tracker_observations
-CAN SELECT: consent_banners, web_properties (to serve banner config and verify signing secret)
+CAN INSERT: consent_events, tracker_observations, worker_errors
+CAN SELECT: consent_banners, web_properties (to serve banner config and verify signing secret),
+            tracker_signatures (to compile the tracker list compiled into the banner script)
 CAN UPDATE: web_properties.snippet_last_seen_at only
 CANNOT: read organisations, rights_requests, integration_connectors, audit_log, or any other table
 ```
@@ -280,7 +281,7 @@ Connection:  direct Postgres via Supavisor pooler (aws-1-<region>.pooler.
              Runtime uses postgres.js singleton pool (app/src/lib/api/cs-api-client.ts).
 ```
 
-Why direct Postgres instead of a `role: cs_api` JWT on Supabase REST (the pattern `SUPABASE_WORKER_KEY` uses today)? Supabase is rotating project JWT signing keys from HS256 (shared secret) to ECC P-256 (asymmetric). The legacy HS256 secret is flagged "Previously used" in the dashboard and slated for revocation; once revoked, every HS256-signed scoped-role JWT stops working. Direct Postgres connections as LOGIN roles are unaffected by the rotation. This is also the Worker's eventual migration path — tracked as a V2 backlog item.
+Why direct Postgres instead of a `role: cs_api` JWT on Supabase REST (the HS256-JWT-over-PostgREST pattern the Worker and Edge Functions originally used)? Supabase is rotating project JWT signing keys from HS256 (shared secret) to ECC P-256 (asymmetric). The legacy HS256 secret is flagged "Previously used" in the dashboard and slated for revocation; once revoked, every HS256-signed scoped-role JWT stops working. Direct Postgres connections as LOGIN roles are unaffected by the rotation. The Cloudflare Worker completed its migration off HS256 in ADR-1010 Phase 4 (2026-04-23); it now uses `cs_worker` as a LOGIN role over Cloudflare Hyperdrive → Supavisor transaction pooler (see §5.4 below for the mechanism). Edge Functions (`cs_orchestrator`, `cs_delivery`) still use HS256 JWTs — that migration is a pending V2 backlog item; when the HS256 key is revoked, those functions will need the same cutover the Worker has already done.
 
 If the cs_api credential leaks, the attacker can execute the 23 whitelisted v1 RPCs (ADR-1009: 9 business + 2 bootstrap + 1 key-status; ADR-1012: +5; ADR-1005 Sprint 5.1: +2 rights-API; ADR-1016: +3 orphan-scope reads; ADR-1005 Phase 2 Sprint 2.1: +1 test_delete) — but every one of them calls `assert_api_key_binding(p_key_id, p_org_id)` first, which refuses the call unless the plaintext-derived key_id matches the supplied org_id. So even with the credential, there is no cross-tenant read or write without also having a valid Bearer API key that's bound to the target organisation. No direct table reads are possible at all.
 
@@ -290,7 +291,11 @@ If the cs_api credential leaks, the attacker can execute the 23 whitelisted v1 R
 - Emergency debugging (logged, audited, requires justification)
 - The admin-app `auth.admin.*` carve-out (ADR-0045), scoped to user lifecycle operations behind AAL2 + `admin.require_admin('platform_operator')`.
 
-Each role gets its own Supabase database password (for LOGIN roles) or JWT (for scoped roles on Supabase REST, while the HS256 path is still alive), stored as a separate environment variable. The Next.js runtime uses LOGIN + direct-Postgres for both `cs_api` (ADR-1009) and `cs_orchestrator` (ADR-1013); the HS256 JWT path is retained only by Edge Functions (cs_orchestrator, cs_delivery) and the Worker (cs_worker, tracked under ADR-1010).
+Each role gets its own Supabase database password (for LOGIN roles) or JWT (for scoped roles on Supabase REST, while the HS256 path is still alive), stored as a separate environment variable or wrangler binding. Current mechanism per surface:
+
+- Next.js runtime: LOGIN + direct-Postgres via Supavisor pooler — `cs_api` (ADR-1009) and `cs_orchestrator` (ADR-1013).
+- Cloudflare Worker: LOGIN + direct-Postgres via Cloudflare Hyperdrive → Supavisor pooler — `cs_worker` (ADR-1010 Phase 4, cutover completed 2026-04-23). No HS256 JWT in any running Worker code; the `SUPABASE_WORKER_KEY` secret is deleted. Request-scoped postgres.js client pattern with `ctx.waitUntil`-deferred cleanup (ADR-1010 Sprint 4.2).
+- Edge Functions: HS256 JWT claiming the scoped role, signed with the legacy Supabase JWT secret — `cs_orchestrator` (process-consent-event, process-artefact-revocation, check-*) and `cs_delivery` (deliver-consent-events, once ADR-1019 ships). Pending V2 migration when the HS256 key is revoked.
 
 ---
 
@@ -1009,11 +1014,24 @@ NEXT_PUBLIC_TURNSTILE_SITE_KEY=<cf turnstile site key>
 
 ### Cloudflare Worker
 
-```bash
-SUPABASE_URL=<same as above>
-SUPABASE_WORKER_KEY=<cs_worker password>             # Scoped: INSERT consent_events + tracker_observations only
-BANNER_KV=<KV namespace binding>
+All configuration is in `worker/wrangler.toml`:
+
+```toml
+compatibility_flags = ["nodejs_compat"]              # Required for postgres.js (node:stream, node:events, node:buffer).
+
+[vars]
+SUPABASE_URL = "https://<project>.supabase.co"       # Only used by the Miniflare REST fallback path; production never hits REST.
+
+[[kv_namespaces]]
+binding = "BANNER_KV"                                # 5-minute cache of banner/property configs.
+id      = "<kv namespace id>"
+
+[[hyperdrive]]
+binding = "HYPERDRIVE"                               # cs_worker direct-Postgres via Hyperdrive → Supavisor.
+id      = "<hyperdrive config id>"
 ```
+
+No secrets are set on the Worker. `SUPABASE_WORKER_KEY` is deliberately absent — the HS256 JWT secret was deleted at ADR-1010 Phase 4 cutover (2026-04-23). The `cs_worker` role password is embedded in the Hyperdrive config's origin connection string (stored Cloudflare-side, never in the Worker).
 
 ---
 
