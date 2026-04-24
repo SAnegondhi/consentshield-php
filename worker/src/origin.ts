@@ -1,5 +1,5 @@
 import type { Env } from './index'
-import { getDb, hasHyperdrive } from './db'
+import type { Sql } from './db'
 
 export interface PropertyConfig {
   allowed_origins: string[]
@@ -16,19 +16,18 @@ const CORS_HEADERS = { 'Access-Control-Allow-Origin': '*' }
 export async function getPropertyConfig(
   propertyId: string,
   env: Env,
+  sql: Sql | null,
 ): Promise<PropertyConfig | null> {
   // Try KV cache (shared across both mechanisms).
   const cacheKey = `property:config:${propertyId}`
   const cached = await env.BANNER_KV.get(cacheKey, 'json')
   if (cached) return cached as PropertyConfig
 
-  // ADR-1010 Phase 3 Sprint 3.1 — prefer Hyperdrive-backed SQL when
-  // the binding is available (prod + future). Falls through to the
-  // legacy REST path only in the Miniflare harness, which does not
-  // configure a Hyperdrive binding. The fallback disappears at Phase 4
-  // cutover.
-  const config = hasHyperdrive(env)
-    ? await getPropertyConfigSql(propertyId, env)
+  // ADR-1010 Phase 3 Sprint 3.1 / Sprint 4.2 — use the request-scoped
+  // Hyperdrive SQL client if one was opened (prod path), else fall
+  // through to the legacy REST path (Miniflare harness).
+  const config = sql
+    ? await getPropertyConfigSql(propertyId, sql)
     : await getPropertyConfigRest(propertyId, env)
 
   if (config) {
@@ -39,9 +38,8 @@ export async function getPropertyConfig(
 
 async function getPropertyConfigSql(
   propertyId: string,
-  env: Env,
+  sql: Sql,
 ): Promise<PropertyConfig | null> {
-  const sql = getDb(env)
   try {
     const rows = await sql<PropertyConfig[]>`
       select allowed_origins, event_signing_secret
@@ -54,9 +52,9 @@ async function getPropertyConfigSql(
     // Per CLAUDE.md — Worker failures must never break the customer's
     // site. Surface null so banner.ts returns the graceful 404 path.
     return null
-  } finally {
-    await sql.end({ timeout: 1 }).catch(() => {})
   }
+  // No sql.end() here — the per-request client is closed via
+  // ctx.waitUntil at the entrypoint (see openRequestSql in db.ts).
 }
 
 async function getPropertyConfigRest(

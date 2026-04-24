@@ -2,7 +2,7 @@ import type { Env } from './index'
 import { getPropertyConfig } from './origin'
 import { getTrackerSignatures, compactSignatures } from './signatures'
 import { getAdminConfig, isKillSwitchEngaged, isOrgSuspended } from './admin-config'
-import { getDb, hasHyperdrive } from './db'
+import type { Sql } from './db'
 
 interface Purpose {
   id: string
@@ -33,7 +33,11 @@ function noopBannerResponse(reason: string): Response {
   })
 }
 
-export async function handleBannerScript(request: Request, env: Env): Promise<Response> {
+export async function handleBannerScript(
+  request: Request,
+  env: Env,
+  sql: Sql | null,
+): Promise<Response> {
   const url = new URL(request.url)
   const propertyId = url.searchParams.get('prop')
   const orgId = url.searchParams.get('org')
@@ -61,13 +65,13 @@ export async function handleBannerScript(request: Request, env: Env): Promise<Re
   }
 
   // Fetch banner config (KV cache + Supabase fallback)
-  const config = await getBannerConfig(propertyId, env)
+  const config = await getBannerConfig(propertyId, env, sql)
   if (!config) {
     return new Response('Banner not found', { status: 404 })
   }
 
   // Fetch property config (includes signing secret) — already cached by getPropertyConfig
-  const propConfig = await getPropertyConfig(propertyId, env)
+  const propConfig = await getPropertyConfig(propertyId, env, sql)
   if (!propConfig) {
     return new Response('Property not found', { status: 404 })
   }
@@ -76,14 +80,14 @@ export async function handleBannerScript(request: Request, env: Env): Promise<Re
   // cs_worker has UPDATE on snippet_last_seen_at only; see BYPASSRLS +
   // column-grants setup in migration 20260804000008. Non-blocking —
   // any failure here must never break the customer's site.
-  void updateSnippetLastSeen(propertyId, env)
+  void updateSnippetLastSeen(propertyId, env, sql)
 
   const cdnOrigin = new URL(request.url).origin
 
   // Fetch signatures only if monitoring is enabled for this banner
   const monitoringEnabled = config.monitoring_enabled !== false
   const compactSigs = monitoringEnabled
-    ? compactSignatures(await getTrackerSignatures(env))
+    ? compactSignatures(await getTrackerSignatures(env, sql))
     : []
 
   const script = compileBannerScript({
@@ -109,15 +113,17 @@ export async function handleBannerScript(request: Request, env: Env): Promise<Re
   })
 }
 
-async function getBannerConfig(propertyId: string, env: Env): Promise<BannerConfig | null> {
+async function getBannerConfig(
+  propertyId: string,
+  env: Env,
+  sql: Sql | null,
+): Promise<BannerConfig | null> {
   const cacheKey = `banner:config:${propertyId}`
   const cached = await env.BANNER_KV.get(cacheKey, 'json')
   if (cached) return cached as BannerConfig
 
-  // ADR-1010 Phase 3 Sprint 3.1 — Hyperdrive-backed SQL when available;
-  // REST fallback for the Miniflare harness (removed at Phase 4 cutover).
-  const config = hasHyperdrive(env)
-    ? await getBannerConfigSql(propertyId, env)
+  const config = sql
+    ? await getBannerConfigSql(propertyId, sql)
     : await getBannerConfigRest(propertyId, env)
 
   if (config) {
@@ -127,8 +133,7 @@ async function getBannerConfig(propertyId: string, env: Env): Promise<BannerConf
   return config
 }
 
-async function getBannerConfigSql(propertyId: string, env: Env): Promise<BannerConfig | null> {
-  const sql = getDb(env)
+async function getBannerConfigSql(propertyId: string, sql: Sql): Promise<BannerConfig | null> {
   try {
     const rows = await sql<BannerConfig[]>`
       select id,
@@ -148,8 +153,6 @@ async function getBannerConfigSql(propertyId: string, env: Env): Promise<BannerC
     return rows[0] ?? null
   } catch {
     return null
-  } finally {
-    await sql.end({ timeout: 1 }).catch(() => {})
   }
 }
 
@@ -170,9 +173,12 @@ async function getBannerConfigRest(propertyId: string, env: Env): Promise<Banner
   return banners[0] ?? null
 }
 
-async function updateSnippetLastSeen(propertyId: string, env: Env): Promise<void> {
-  if (hasHyperdrive(env)) {
-    const sql = getDb(env)
+async function updateSnippetLastSeen(
+  propertyId: string,
+  env: Env,
+  sql: Sql | null,
+): Promise<void> {
+  if (sql) {
     try {
       await sql`
         update public.web_properties
@@ -181,8 +187,6 @@ async function updateSnippetLastSeen(propertyId: string, env: Env): Promise<void
       `
     } catch {
       // Fire-and-forget semantics preserved — never block the customer.
-    } finally {
-      await sql.end({ timeout: 1 }).catch(() => {})
     }
     return
   }

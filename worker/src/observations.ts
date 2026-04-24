@@ -2,7 +2,7 @@ import type { Env } from './index'
 import { sha256, verifyHMAC, isTimestampValid } from './hmac'
 import { getPropertyConfig, getPreviousSigningSecret, validateOrigin, rejectOrigin } from './origin'
 import { logWorkerError } from './worker-errors'
-import { getDb, hasHyperdrive } from './db'
+import type { Sql } from './db'
 
 interface ObservationPayload {
   org_id: string
@@ -22,6 +22,7 @@ export async function handleObservation(
   request: Request,
   env: Env,
   ctx: ExecutionContext,
+  sql: Sql | null,
 ): Promise<Response> {
   let body: ObservationPayload
 
@@ -39,7 +40,7 @@ export async function handleObservation(
   }
 
   // Step 1: Origin validation
-  const propConfig = await getPropertyConfig(body.property_id, env)
+  const propConfig = await getPropertyConfig(body.property_id, env, sql)
   if (!propConfig) {
     return new Response('Unknown property', { status: 404, headers: CORS_HEADERS })
   }
@@ -47,7 +48,7 @@ export async function handleObservation(
   const originResult = validateOrigin(request, propConfig.allowed_origins)
   if (originResult.status === 'rejected') {
     ctx.waitUntil(
-      logWorkerError(env, {
+      logWorkerError(env, sql, {
         org_id: body.org_id,
         property_id: body.property_id,
         endpoint: '/v1/observations',
@@ -64,7 +65,7 @@ export async function handleObservation(
   if (body.signature && body.timestamp) {
     if (!isTimestampValid(body.timestamp)) {
       ctx.waitUntil(
-        logWorkerError(env, {
+        logWorkerError(env, sql, {
           org_id: body.org_id,
           property_id: body.property_id,
           endpoint: '/v1/observations',
@@ -98,7 +99,7 @@ export async function handleObservation(
 
     if (!hmacValid) {
       ctx.waitUntil(
-        logWorkerError(env, {
+        logWorkerError(env, sql, {
           org_id: body.org_id,
           property_id: body.property_id,
           endpoint: '/v1/observations',
@@ -112,7 +113,7 @@ export async function handleObservation(
   } else {
     if (originResult.status !== 'valid') {
       ctx.waitUntil(
-        logWorkerError(env, {
+        logWorkerError(env, sql, {
           org_id: body.org_id,
           property_id: body.property_id,
           endpoint: '/v1/observations',
@@ -143,14 +144,14 @@ export async function handleObservation(
 
   // ADR-1010 Phase 3 Sprint 3.2 — Hyperdrive-backed INSERT; REST
   // fallback for the Miniflare harness.
-  const writeResult = hasHyperdrive(env)
-    ? await insertObservationSql(observation, env)
+  const writeResult = sql
+    ? await insertObservationSql(observation, sql)
     : await insertObservationRest(observation, env)
 
   if (!writeResult.ok) {
     console.error('Observation write failed:', writeResult.error)
     ctx.waitUntil(
-      logWorkerError(env, {
+      logWorkerError(env, sql, {
         org_id: body.org_id,
         property_id: body.property_id,
         endpoint: '/v1/observations',
@@ -178,9 +179,8 @@ interface ObservationRow {
 
 async function insertObservationSql(
   row: ObservationRow,
-  env: Env,
+  sql: Sql,
 ): Promise<WriteResult> {
-  const sql = getDb(env)
   try {
     await sql`
       insert into public.tracker_observations (
@@ -206,9 +206,8 @@ async function insertObservationSql(
       status: 500,
       error: `hyperdrive_insert_failed: ${err.code ?? ''} ${err.message ?? ''}`.trim(),
     }
-  } finally {
-    await sql.end({ timeout: 1 }).catch(() => {})
   }
+  // No sql.end() — per Sprint 4.2, sql is the per-isolate singleton.
 }
 
 async function insertObservationRest(

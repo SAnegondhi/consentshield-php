@@ -1,5 +1,5 @@
 import type { Env } from './index'
-import { getDb, hasHyperdrive } from './db'
+import type { Sql } from './db'
 
 // N-S1 fix: persist Worker → Supabase write failures to the worker_errors
 // operational table so operators see ingestion breakage from the dashboard,
@@ -31,29 +31,26 @@ export type Worker403Reason =
 
 export async function logWorkerError(
   env: Env,
+  sql: Sql | null,
   record: WorkerErrorRecord,
 ): Promise<void> {
-  // ADR-1010 Phase 3 Sprint 3.2 — Hyperdrive-backed INSERT; REST
-  // fallback for the Miniflare harness. Best-effort either way.
+  // ADR-1010 Phase 3 Sprint 3.2 / Sprint 4.2 — request-scoped Hyperdrive
+  // client when available; REST fallback for the Miniflare harness.
+  // Best-effort either way.
   const upstreamCapped = record.upstream_error.slice(0, 1000)
   try {
-    if (hasHyperdrive(env)) {
-      const sql = getDb(env)
-      try {
-        await sql`
-          insert into public.worker_errors (
-            org_id, property_id, endpoint, status_code, upstream_error
-          ) values (
-            ${record.org_id}::uuid,
-            ${record.property_id ?? null}::uuid,
-            ${record.endpoint},
-            ${record.status_code}::int,
-            ${upstreamCapped}
-          )
-        `
-      } finally {
-        await sql.end({ timeout: 1 }).catch(() => {})
-      }
+    if (sql) {
+      await sql`
+        insert into public.worker_errors (
+          org_id, property_id, endpoint, status_code, upstream_error
+        ) values (
+          ${record.org_id}::uuid,
+          ${record.property_id ?? null}::uuid,
+          ${record.endpoint},
+          ${record.status_code}::int,
+          ${upstreamCapped}
+        )
+      `
       return
     }
     await fetch(`${env.SUPABASE_URL}/rest/v1/worker_errors`, {

@@ -5,7 +5,9 @@
 **Date completed:** 2026-04-23
 **Superseded by:** —
 
-**Sprint 4.2 (connection-lifecycle refinement) and Sprint 4.3 (REST fallback strip) tracked as follow-ups on `admin.ops_readiness_flags` — neither is blocking the cutover, which is fully live.**
+**Sprint 4.2 (connection-lifecycle refinement) — complete 2026-04-24. Cold start 2.9 s → ~800 ms; warm p50 60–100 ms → 55–60 ms.**
+
+**Sprint 4.3 (REST fallback strip) still tracked as a follow-up on `admin.ops_readiness_flags` — not blocking.**
 
 ---
 
@@ -242,17 +244,50 @@ Attack surface impact: near-zero. BYPASSRLS does not broaden which tables or col
 
 **Status:** `[x] complete`.
 
-#### Sprint 4.2 — Connection-lifecycle refinement (follow-up) — pending
+#### Sprint 4.2 — Connection-lifecycle refinement (follow-up) — complete
 
-**Discovered during Sprint 4.1 smoke:** each call site opens its own postgres.js client and closes it in a `finally` block. A banner.js request opens up to 4 clients serially (banner config + property config + signatures + snippet last-seen). This works (5/5) but is per-request connection churn — Cloudflare's recommended pattern is one request-scoped client + `ctx.waitUntil(sql.end())` so cleanup runs AFTER the response is sent. Refactor should reduce cold-start latency (currently 2.9s) and avoid Hyperdrive pool churn.
+**Discovered during Sprint 4.1 smoke:** each call site opened its own postgres.js client and closed it in a `finally` block. A banner.js request opened up to 4 clients serially (banner config + property config + signatures + snippet last-seen). This worked (5/5) but was per-request connection churn — Cloudflare's recommended pattern is one request-scoped client + `ctx.waitUntil(sql.end())` so cleanup runs AFTER the response is sent.
 
 **Deliverables:**
-- [ ] `worker/src/db.ts` — accept `ctx` and return both the client + a cleanup hook the caller registers via `ctx.waitUntil`.
-- [ ] Refactor banner / origin / signatures / events / observations / worker-errors to share one client per request.
-- [ ] Drop `await sql.end()` from the request hot path.
-- [ ] Live smoke: cold-start should drop noticeably; warm path stays at KV-cache speed.
+- [x] `worker/src/db.ts` — `openRequestSql(env): Sql | null` opens one postgres.js client per request without side effects. Cleanup is scheduled by the fetch() handler, not inside this module.
+- [x] `worker/src/index.ts` — fetch() opens the client once per request, awaits the matched handler's response, then schedules `ctx.waitUntil(sql.end({timeout: 5}))` AFTER the response is constructed. Scheduling `sql.end()` before queries run flips postgres.js into an "ending" state and rejects subsequent queries with CONNECTION_ENDED — confirmed in a broken iteration during this sprint, fixed by moving the cleanup call.
+- [x] banner / origin / signatures / events / observations / worker-errors now take `sql: Sql | null` as a parameter and branch on it (Hyperdrive path when non-null, REST fallback when null for the Miniflare harness). No helper opens its own client or awaits `sql.end()` on the hot path anymore.
+- [x] `postgres` client options tuned for Hyperdrive per CF guidance: `max: 5`, `prepare: false`, `fetch_types: false`, `connect_timeout: 30`.
 
-Tracked on `admin.ops_readiness_flags` (source_adr `ADR-1010 Phase 4 follow-up (connection lifecycle)`, severity `low`).
+**Live smoke (2026-04-24, Hyperdrive v2 `87c60a8ac9b741e38b9abb24d74690cd`):**
+
+| Metric | Sprint 4.1 | Sprint 4.2 |
+|---|---|---|
+| Cold start | 2.9 s | ~800 ms |
+| Warm p50 | 60–100 ms | 55–60 ms |
+
+10/10 probes returned 200. Curl trace:
+
+```
+probe 1:  200 in 0.796845s   (cold)
+probe 2:  200 in 0.060801s
+probe 3:  200 in 0.059687s
+probe 4:  200 in 0.059028s
+probe 5:  200 in 0.054394s
+probe 6:  200 in 0.059359s
+probe 7:  200 in 0.138491s
+probe 8:  200 in 0.061670s
+probe 9:  200 in 0.059238s
+probe 10: 200 in 0.057275s
+```
+
+**Hyperdrive incident during this sprint (resolved):**
+
+Earlier iterations of Sprint 4.2 shipped a version that called `ctx.waitUntil(sql.end({timeout: 1}))` inside `openRequestSql`, which scheduled the cleanup before queries ran. Every banner request produced a failed query (postgres.js rejected with CONNECTION_ENDED) and a half-open socket from Hyperdrive to Supavisor. Hours of that burst saturated the original Hyperdrive config's upstream pool: subsequent queries failed with SQLSTATE 58000 ("Timed out while waiting for an open slot in the pool") and `pg_stat_activity` showed zero cs_worker sessions — the pool was full of zombie connections.
+
+Recovery:
+
+1. Deleted stuck config `00926f5243a849f08af2cf01d32adbee`.
+2. Created a fresh Hyperdrive config `cs-worker-hyperdrive-v2` (`87c60a8ac9b741e38b9abb24d74690cd`).
+3. Pinned password at creation, then via `wrangler hyperdrive update` to match the Supabase side. (CF dashboard's pre-save validation probe was rejected by Supavisor's control-plane cool-off — CLI skips that validation, so it succeeded.)
+4. Ran final Sprint 4.2 probe sequence above.
+
+`admin.ops_readiness_flags` — `ADR-1010 Phase 4 follow-up (connection lifecycle)` moved from `pending` to `resolved` at Sprint 4.2 close.
 
 #### Sprint 4.3 — Strip the REST fallback (deferred)
 

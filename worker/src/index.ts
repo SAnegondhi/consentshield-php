@@ -1,6 +1,7 @@
 import { getAdminConfig } from './admin-config'
 import { handleBannerScript } from './banner'
 import { getClientIp, ipBlockedResponse, isIpBlocked } from './blocked-ip'
+import { openRequestSql } from './db'
 import { handleConsentEvent } from './events'
 import { handleObservation } from './observations'
 
@@ -64,25 +65,42 @@ export default {
       }
     }
 
-    // Route dispatch
-    if (pathname === '/v1/banner.js' && request.method === 'GET') {
-      return handleBannerScript(request, env)
-    }
-
-    if (pathname === '/v1/events' && request.method === 'POST') {
-      return handleConsentEvent(request, env, ctx)
-    }
-
-    if (pathname === '/v1/observations' && request.method === 'POST') {
-      return handleObservation(request, env, ctx)
-    }
-
+    // Short-circuit health without touching the DB.
     if (pathname === '/v1/health' && request.method === 'GET') {
       return new Response(JSON.stringify({ status: 'ok', ts: Date.now() }), {
         headers: { 'Content-Type': 'application/json' },
       })
     }
 
-    return new Response('Not found', { status: 404 })
+    // ADR-1010 Sprint 4.2 — open ONE postgres.js client per request,
+    // share it across every downstream helper (banner / origin /
+    // signatures / event insert / observations / worker_errors), and
+    // schedule cleanup via ctx.waitUntil AFTER the response is built.
+    //
+    // Scheduling sql.end() BEFORE queries run flips postgres.js into
+    // an "ending" state and every subsequent query rejects with
+    // CONNECTION_ENDED — which the catch-return-null blocks in banner
+    // / origin silently swallow, producing 404s. Cleanup MUST be
+    // scheduled here, not inside openRequestSql. See db.ts.
+    //
+    // null = Hyperdrive not bound (Miniflare harness); each helper
+    // falls back to its REST path in that case.
+    const sql = openRequestSql(env)
+
+    let response: Response
+    if (pathname === '/v1/banner.js' && request.method === 'GET') {
+      response = await handleBannerScript(request, env, sql)
+    } else if (pathname === '/v1/events' && request.method === 'POST') {
+      response = await handleConsentEvent(request, env, ctx, sql)
+    } else if (pathname === '/v1/observations' && request.method === 'POST') {
+      response = await handleObservation(request, env, ctx, sql)
+    } else {
+      response = new Response('Not found', { status: 404 })
+    }
+
+    if (sql) {
+      ctx.waitUntil(sql.end({ timeout: 5 }).catch(() => {}))
+    }
+    return response
   },
 }

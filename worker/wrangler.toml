@@ -15,11 +15,19 @@ id = "dafd5bef6fa1455c8e8c05ccffcef20b"
 
 # ADR-1010 Phase 1 Sprint 1.2 — cs_worker direct-Postgres via Hyperdrive.
 # Origin: aws-1-ap-northeast-1.pooler.supabase.com:6543 as cs_worker
-# (password rotated, held in .secrets, configured on the Hyperdrive
-# origin). env.HYPERDRIVE.connectionString is populated at runtime.
+# (password held in .secrets, configured on the Hyperdrive origin).
+# env.HYPERDRIVE.connectionString is populated at runtime.
+#
+# Re-created 2026-04-23 (v2) after original config 00926f5243…d14785's
+# upstream pool entered a stuck half-open state that wouldn't recover
+# on config update — every query failed with SQLSTATE 58000 "Timed out
+# while waiting for an open slot in the pool". Direct psql to the same
+# upstream returned rows in <100ms, confirming it was Hyperdrive's
+# pool and not Supavisor. Known CF-side failure pattern; see ADR-1010
+# Sprint 4.2 notes. Old ID kept alive for rollback until v2 is smoked.
 [[hyperdrive]]
 binding = "HYPERDRIVE"
-id = "00926f5243a849f08af2cf01d32adbee"
+id = "87c60a8ac9b741e38b9abb24d74690cd"
 
 [vars]
 SUPABASE_URL = "https://xlqiakmkdjycfiioslgs.supabase.co"

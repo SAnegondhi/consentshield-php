@@ -2,6 +2,31 @@
 
 Cloudflare Worker changes.
 
+## [ADR-1010 Sprint 4.2 — request-scoped postgres.js client + deferred cleanup] — 2026-04-24
+
+**ADR:** ADR-1010 — Cloudflare Worker scoped-role migration
+**Sprint:** Phase 4 follow-up — Sprint 4.2
+
+### Changed
+- `worker/src/db.ts` — replaced `getDb(env)` with `openRequestSql(env): Sql | null`. Opens one postgres.js client per request with `max: 5, prepare: false, fetch_types: false, connect_timeout: 30`. Cleanup is NOT scheduled inside this module — the caller owns that.
+- `worker/src/index.ts` — fetch() opens the client once per request, awaits the route handler, then schedules `ctx.waitUntil(sql.end({timeout: 5}))` AFTER the response is built. Scheduling `sql.end()` earlier flips postgres.js into an "ending" state and rejects subsequent queries; the cleanup MUST run post-response.
+- `worker/src/banner.ts`, `origin.ts`, `signatures.ts`, `events.ts`, `observations.ts`, `worker-errors.ts` — every helper now takes `sql: Sql | null` as a parameter and branches on it (Hyperdrive when non-null, REST fallback when null for Miniflare). No helper opens its own client or awaits `sql.end()` on the hot path anymore.
+- `worker/wrangler.toml` — Hyperdrive binding points at `cs-worker-hyperdrive-v2` (`87c60a8ac9b741e38b9abb24d74690cd`). The original config `00926f5243a849f08af2cf01d32adbee` was deleted during the pool-saturation incident (see below).
+
+### Fixed
+- Hyperdrive pool-saturation incident surfaced during Sprint 4.2 development. An intermediate iteration scheduled `ctx.waitUntil(sql.end({timeout: 1}))` inside `openRequestSql`, which caused every query to reject with CONNECTION_ENDED and left a half-open socket to Hyperdrive per request. Hours of that burst exhausted the upstream pool (SQLSTATE 58000 "Timed out while waiting for an open slot in the pool"); `pg_stat_activity` showed zero cs_worker sessions. Recovery: delete stuck config, create fresh v2, push password via `wrangler hyperdrive update` (CLI bypasses the dashboard's pre-save validation probe, which Supavisor was cool-off-rejecting from CF's control-plane IPs).
+
+### Tested
+- [x] `tsc --noEmit` — clean
+- [x] Miniflare suite — 20/20 PASS unchanged
+- [x] Live smoke, 10 probes: cold 796 ms → warm 55–140 ms (most ~60 ms). Sprint 4.1 baseline was 2.9 s cold / 60–100 ms warm. Cold-start improvement confirmed; warm path within noise.
+- [x] `/v1/health` — 87 ms (unchanged; no DB)
+
+### Operator action
+- None at this time. Hyperdrive config change is transparent to operators; `wrangler deploy` already rebound the Worker to v2.
+
+---
+
 ## [ADR-1010 Phase 3 Sprint 3.2 + Phase 4 — write paths + cutover] — 2026-04-23
 
 **ADR:** ADR-1010 — Cloudflare Worker scoped-role migration **(COMPLETED)**

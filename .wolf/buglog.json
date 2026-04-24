@@ -10639,6 +10639,1034 @@
       ],
       "occurrences": 1,
       "last_seen": "2026-04-23T05:30:00.000Z"
+    },
+    {
+      "id": "bug-664",
+      "timestamp": "2026-04-23T03:02:00.381Z",
+      "error_message": "Wrong reference: postJson should be type",
+      "file": "app/src/lib/notifications/adapters/custom-webhook.ts",
+      "root_cause": "Used \"postJson\" instead of \"type\"",
+      "fix": "Changed postJson → type",
+      "tags": [
+        "auto-detected",
+        "wrong-reference",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-23T03:02:00.381Z"
+    },
+    {
+      "id": "bug-665",
+      "timestamp": "2026-04-23T03:03:09.266Z",
+      "error_message": "Significant refactor of ",
+      "file": "docs/ADRs/ADR-1005-operations-maturity.md",
+      "root_cause": "16 lines replaced/restructured",
+      "fix": "Rewrote 29→38 lines (16 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-23T03:03:09.266Z"
+    },
+    {
+      "id": "bug-666",
+      "timestamp": "2026-04-23T03:19:24.207Z",
+      "error_message": "Null/undefined access in ",
+      "file": "app/src/app/page.tsx",
+      "root_cause": "Property access on potentially null/undefined value",
+      "fix": "Added null safety (optional chaining or null check)",
+      "tags": [
+        "auto-detected",
+        "null-safety",
+        "tsx"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-23T03:19:24.207Z"
+    },
+    {
+      "id": "bug-667",
+      "timestamp": "2026-04-23T03:37:49.631Z",
+      "error_message": "Significant refactor of ",
+      "file": "docs/ADRs/ADR-1018-self-hosted-status-page.md",
+      "root_cause": "5 lines replaced/restructured",
+      "fix": "Rewrote 7→13 lines (5 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-23T03:37:49.631Z"
+    },
+    {
+      "id": "bug-668",
+      "timestamp": "2026-04-23T03:38:19.237Z",
+      "error_message": "Incorrect value in code",
+      "file": "docs/ADRs/ADR-index.md",
+      "root_cause": "Had `status-probes-heartbeat-check`",
+      "fix": "Changed to `run-status-probes`",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-23T03:38:19.237Z"
+    },
+    {
+      "id": "bug-669",
+      "timestamp": "2026-04-23T03:45:39.560Z",
+      "error_message": "Significant refactor of ",
+      "file": "../../../.claude/plans/async-baking-axolotl.md",
+      "root_cause": "2 lines replaced/restructured",
+      "fix": "Rewrote 3→19 lines (2 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-23T03:45:39.560Z"
+    },
+    {
+      "id": "bug-670",
+      "timestamp": "2026-04-23T03:46:03.056Z",
+      "error_message": "Incorrect value in code",
+      "file": "app/src/components/dashboard-nav.tsx",
+      "root_cause": "Had '/dashboard/purposes'",
+      "fix": "Changed to '/dashboard/notices'",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "tsx"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-23T03:46:03.056Z"
+    },
+    {
+      "id": "bug-671",
+      "timestamp": "2026-04-23T03:47:10.857Z",
+      "error_message": "Significant refactor of ",
+      "file": "tests/depa/artefact-lifecycle.test.ts",
+      "root_cause": "10 lines replaced/restructured",
+      "fix": "Rewrote 24→37 lines (10 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-23T03:47:10.857Z"
+    },
+    {
+      "id": "bug-672",
+      "timestamp": "2026-04-23T03:50:26.390Z",
+      "error_message": "Significant refactor of ",
+      "file": "docs/ADRs/ADR-1004-statutory-retention-material-change-silent-failure.md",
+      "root_cause": "2 lines replaced/restructured",
+      "fix": "Rewrote 5→20 lines (2 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-23T03:50:26.390Z"
+    },
+    {
+      "id": "bug-673",
+      "timestamp": "2026-04-23T03:50:26.688Z",
+      "error_message": "Significant refactor of ",
+      "file": "docs/ADRs/ADR-1014-e2e-test-harness-and-vertical-demos.md",
+      "root_cause": "4 lines replaced/restructured",
+      "fix": "Rewrote 8→19 lines (4 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-23T03:50:26.688Z"
+    },
+    {
+      "id": "bug-674",
+      "timestamp": "2026-04-23T03:50:47.970Z",
+      "error_message": "Missing error handling in unknown",
+      "file": "docs/ADRs/ADR-1004-statutory-retention-material-change-silent-failure.md",
+      "root_cause": "Code path had no error handling — exceptions would propagate uncaught",
+      "fix": "Added try/catch block",
+      "tags": [
+        "auto-detected",
+        "error-handling",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-23T03:50:47.970Z"
+    },
+    {
+      "id": "bug-675",
+      "timestamp": "2026-04-23T03:51:04.962Z",
+      "error_message": "Incorrect value in code",
+      "file": "docs/ADRs/ADR-index.md",
+      "root_cause": "Had `/dashboard/compliance/retention`",
+      "fix": "Changed to `consentshield-notices.html`",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-23T03:51:04.962Z"
+    },
+    {
+      "id": "bug-676",
+      "timestamp": "2026-04-23T03:52:57.275Z",
+      "error_message": "Missing error handling in redeployed",
+      "file": "docs/changelogs/CHANGELOG-dashboard.md",
+      "root_cause": "Code path had no error handling — exceptions would propagate uncaught",
+      "fix": "Added try/catch block",
+      "tags": [
+        "auto-detected",
+        "error-handling",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-23T03:52:57.275Z"
+    },
+    {
+      "id": "bug-677",
+      "timestamp": "2026-04-23T03:59:05.215Z",
+      "error_message": "Significant refactor of ",
+      "file": "docs/ADRs/ADR-1005-operations-maturity.md",
+      "root_cause": "9 lines replaced/restructured",
+      "fix": "Rewrote 15→18 lines (9 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-23T03:59:05.215Z"
+    },
+    {
+      "id": "bug-678",
+      "timestamp": "2026-04-23T03:59:36.682Z",
+      "error_message": "Incorrect value in code",
+      "file": "docs/ADRs/ADR-index.md",
+      "root_cause": "Had `POST`",
+      "fix": "Changed to `/v1/integrations/{connector_id}/test_delete`",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-23T03:59:36.682Z"
+    },
+    {
+      "id": "bug-679",
+      "timestamp": "2026-04-23T05:18:14.120Z",
+      "error_message": "Type error",
+      "file": "tests/admin/invoice-issuance.test.ts",
+      "root_cause": "Missing or incorrect type annotation",
+      "fix": "Added type assertion/annotation | Also: // Hard-delete via admin RPC (skips if the issuer has invoic; // expected). Retired issuers that failed to hard-delete sta",
+      "tags": [
+        "auto-detected",
+        "type-fix",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 2,
+      "last_seen": "2026-04-23T05:18:52.131Z"
+    },
+    {
+      "id": "bug-680",
+      "timestamp": "2026-04-23T05:46:01.241Z",
+      "error_message": "Incorrect value in code",
+      "file": "tests/admin/impersonation-audit-trail.test.ts",
+      "root_cause": "Had 'created_at'",
+      "fix": "Changed to 'occurred_at'",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 2,
+      "last_seen": "2026-04-23T05:46:02.219Z"
+    },
+    {
+      "id": "bug-681",
+      "timestamp": "2026-04-23T05:46:03.759Z",
+      "error_message": "Incorrect value in code",
+      "file": "tests/admin/invoice-issuance.test.ts",
+      "root_cause": "Had 'created_at'",
+      "fix": "Changed to 'occurred_at'",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-23T05:46:03.759Z"
+    },
+    {
+      "id": "bug-682",
+      "timestamp": "2026-04-23T07:33:53.336Z",
+      "error_message": "Significant refactor of ",
+      "file": "docs/ADRs/ADR-1014-e2e-test-harness-and-vertical-demos.md",
+      "root_cause": "5 lines replaced/restructured",
+      "fix": "Rewrote 9→15 lines (5 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-23T07:33:53.336Z"
+    },
+    {
+      "id": "bug-683",
+      "timestamp": "2026-04-23T10:40:31.568Z",
+      "error_message": "Missing error handling in unknown",
+      "file": "docs/ADRs/ADR-index.md",
+      "root_cause": "Code path had no error handling — exceptions would propagate uncaught",
+      "fix": "Added try/catch block",
+      "tags": [
+        "auto-detected",
+        "error-handling",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-23T10:40:31.568Z"
+    },
+    {
+      "id": "bug-684",
+      "timestamp": "2026-04-23T11:47:41.373Z",
+      "error_message": "Wrong reference: 1022 should be 1025",
+      "file": "docs/ADRs/ADR-1025-customer-storage-auto-provisioning.md",
+      "root_cause": "Used \"1022\" instead of \"1025\"",
+      "fix": "Changed 1022 → 1025",
+      "tags": [
+        "auto-detected",
+        "wrong-reference",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-23T11:47:41.373Z"
+    },
+    {
+      "id": "bug-685",
+      "timestamp": "2026-04-23T11:48:19.145Z",
+      "error_message": "Wrong reference: 1022 should be 1025",
+      "file": "docs/changelogs/CHANGELOG-docs.md",
+      "root_cause": "Used \"1022\" instead of \"1025\"",
+      "fix": "Changed 1022 → 1025",
+      "tags": [
+        "auto-detected",
+        "wrong-reference",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-23T11:48:19.145Z"
+    },
+    {
+      "id": "bug-686",
+      "timestamp": "2026-04-23T11:51:36.486Z",
+      "error_message": "Significant refactor of ",
+      "file": "docs/ADRs/ADR-1014-e2e-test-harness-and-vertical-demos.md",
+      "root_cause": "4 lines replaced/restructured",
+      "fix": "Rewrote 8→11 lines (4 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-23T11:51:36.486Z"
+    },
+    {
+      "id": "bug-687",
+      "timestamp": "2026-04-23T11:54:58.873Z",
+      "error_message": "Wrong reference: getServiceClient should be getAdminClient",
+      "file": "tests/e2e/signup-to-dashboard.spec.ts",
+      "root_cause": "Used \"getServiceClient\" instead of \"getAdminClient\"",
+      "fix": "Changed getServiceClient → getAdminClient",
+      "tags": [
+        "auto-detected",
+        "wrong-reference",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 2,
+      "last_seen": "2026-04-23T11:54:59.937Z"
+    },
+    {
+      "id": "bug-688",
+      "timestamp": "2026-04-23T11:55:36.106Z",
+      "error_message": "Missing error handling in unknown",
+      "file": "docs/ADRs/ADR-1014-e2e-test-harness-and-vertical-demos.md",
+      "root_cause": "Code path had no error handling — exceptions would propagate uncaught",
+      "fix": "Added try/catch block",
+      "tags": [
+        "auto-detected",
+        "error-handling",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-23T11:55:36.106Z"
+    },
+    {
+      "id": "bug-689",
+      "timestamp": "2026-04-23T12:01:39.111Z",
+      "error_message": "Missing error handling in function",
+      "file": "app/src/lib/storage/sigv4.ts",
+      "root_cause": "Code path had no error handling — exceptions would propagate uncaught",
+      "fix": "Added try/catch block",
+      "tags": [
+        "auto-detected",
+        "error-handling",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-23T12:01:39.111Z"
+    },
+    {
+      "id": "bug-690",
+      "timestamp": "2026-04-23T12:06:20.835Z",
+      "error_message": "Significant refactor of ",
+      "file": "docs/ADRs/ADR-1025-customer-storage-auto-provisioning.md",
+      "root_cause": "9 lines replaced/restructured",
+      "fix": "Rewrote 16→19 lines (9 removed) | Also: - [ ] `app/src/lib/storage/verify.ts` — `runVerifi; - [ ] `supabase/migrations/<ts>_export_verificatio",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 2,
+      "last_seen": "2026-04-23T12:06:46.965Z"
+    },
+    {
+      "id": "bug-691",
+      "timestamp": "2026-04-23T12:32:57.616Z",
+      "error_message": "Significant refactor of ",
+      "file": "worker/src/index.ts",
+      "root_cause": "3 lines replaced/restructured",
+      "fix": "Rewrote 18→27 lines (3 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-23T12:32:57.616Z"
+    },
+    {
+      "id": "bug-692",
+      "timestamp": "2026-04-23T12:46:55.686Z",
+      "error_message": "Wrong reference: CLOURDFLARE_API_TOKEN should be CLOUDFLARE_API_TOKEN",
+      "file": ".secrets",
+      "root_cause": "Used \"CLOURDFLARE_API_TOKEN\" instead of \"CLOUDFLARE_API_TOKEN\"",
+      "fix": "Changed CLOURDFLARE_API_TOKEN → CLOUDFLARE_API_TOKEN",
+      "tags": [
+        "auto-detected",
+        "wrong-reference",
+        "unknown"
+      ],
+      "related_bugs": [],
+      "occurrences": 2,
+      "last_seen": "2026-04-23T12:47:01.433Z"
+    },
+    {
+      "id": "bug-693",
+      "timestamp": "2026-04-23T12:47:43.324Z",
+      "error_message": "Wrong reference: CF_ACCOUNT_API_TOKEN should be CLOUDFLARE_ACCOUNT_API_TOKEN",
+      "file": "app/src/lib/storage/cf-provision.ts",
+      "root_cause": "Used \"CF_ACCOUNT_API_TOKEN\" instead of \"CLOUDFLARE_ACCOUNT_API_TOKEN\"",
+      "fix": "Changed CF_ACCOUNT_API_TOKEN → CLOUDFLARE_ACCOUNT_API_TOKEN",
+      "tags": [
+        "auto-detected",
+        "wrong-reference",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 2,
+      "last_seen": "2026-04-23T12:47:46.533Z"
+    },
+    {
+      "id": "bug-694",
+      "timestamp": "2026-04-23T12:47:49.753Z",
+      "error_message": "Wrong reference: CF_ACCOUNT_API_TOKEN should be CLOUDFLARE_ACCOUNT_API_TOKEN",
+      "file": "app/tests/storage/cf-provision.test.ts",
+      "root_cause": "Used \"CF_ACCOUNT_API_TOKEN\" instead of \"CLOUDFLARE_ACCOUNT_API_TOKEN\"",
+      "fix": "Changed CF_ACCOUNT_API_TOKEN → CLOUDFLARE_ACCOUNT_API_TOKEN",
+      "tags": [
+        "auto-detected",
+        "wrong-reference",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 2,
+      "last_seen": "2026-04-23T12:47:53.092Z"
+    },
+    {
+      "id": "bug-695",
+      "timestamp": "2026-04-23T12:48:19.287Z",
+      "error_message": "Wrong reference: CF_ACCOUNT_API_TOKEN should be CLOUDFLARE_ACCOUNT_API_TOKEN",
+      "file": "docs/ADRs/ADR-1025-customer-storage-auto-provisioning.md",
+      "root_cause": "Used \"CF_ACCOUNT_API_TOKEN\" instead of \"CLOUDFLARE_ACCOUNT_API_TOKEN\"",
+      "fix": "Changed CF_ACCOUNT_API_TOKEN → CLOUDFLARE_ACCOUNT_API_TOKEN",
+      "tags": [
+        "auto-detected",
+        "wrong-reference",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-23T12:48:19.287Z"
+    },
+    {
+      "id": "bug-696",
+      "timestamp": "2026-04-23T12:48:39.599Z",
+      "error_message": "Significant refactor of ",
+      "file": "docs/ADRs/ADR-1025-customer-storage-auto-provisioning.md",
+      "root_cause": "8 lines replaced/restructured",
+      "fix": "Rewrote 12→14 lines (8 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-23T12:48:39.599Z"
+    },
+    {
+      "id": "bug-697",
+      "timestamp": "2026-04-23T12:53:49.076Z",
+      "error_message": "Pre-existing typos in .secrets reference file: CLOURDFLARE_API_TOKEN (line 16) and CLOUDFLADE_S3_CREDENTIALS_SECRET_ACCESS_KEY (line 21)",
+      "file": ".secrets",
+      "root_cause": "Typos introduced when tokens were originally provisioned. No code ever read the misspelled keys, so they were latent — .env.local had the correctly-spelled key + value copy, which is what runtime actually reads.",
+      "fix": "Renamed the two keys to CLOUDFLARE_API_TOKEN and CLOUDFLARE_S3_CREDENTIALS_SECRET_ACCESS_KEY via Edit; token values unchanged. Reference file is now consistent with actual runtime env.",
+      "tags": [
+        "typo",
+        "secrets",
+        "cloudflare",
+        "reference-file",
+        "ADR-1025"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-23T12:53:49.076Z"
+    },
+    {
+      "id": "bug-698",
+      "timestamp": "2026-04-23T12:53:49.076Z",
+      "error_message": "cf-provision.ts read CF_ACCOUNT_ID / CF_ACCOUNT_API_TOKEN but project convention is CLOUDFLARE_* across all other secrets",
+      "file": "app/src/lib/storage/cf-provision.ts",
+      "root_cause": "Drafted in Sprint 1.2 (commit 9c4f06c) with shorter CF_* names before Sprint 1.1 had fixed the actual env-var naming. Mocked tests worked because they stubbed the same names; it would have failed at runtime against a real .env.local that uses CLOUDFLARE_*.",
+      "fix": "Renamed CF_ACCOUNT_ID → CLOUDFLARE_ACCOUNT_ID and CF_ACCOUNT_API_TOKEN → CLOUDFLARE_ACCOUNT_API_TOKEN in cf-provision.ts + cf-provision.test.ts via Edit replace_all. 26/26 tests still green after rename. ADR-1025 Sprint 1.1 and CHANGELOG-api updated.",
+      "tags": [
+        "env-var",
+        "naming-convention",
+        "ADR-1025",
+        "cloudflare"
+      ],
+      "related_bugs": [
+        "bug-697"
+      ],
+      "occurrences": 1,
+      "last_seen": "2026-04-23T12:53:49.076Z"
+    },
+    {
+      "id": "bug-699",
+      "timestamp": "2026-04-23T12:54:38.374Z",
+      "error_message": "Missing error handling in unknown",
+      "file": "worker/src/index.ts",
+      "root_cause": "Code path had no error handling — exceptions would propagate uncaught",
+      "fix": "Added try/catch block",
+      "tags": [
+        "auto-detected",
+        "error-handling",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-23T12:54:38.374Z"
+    },
+    {
+      "id": "bug-700",
+      "timestamp": "2026-04-23T13:06:44.062Z",
+      "error_message": "Missing error handling in unknown",
+      "file": "worker/src/db.ts",
+      "root_cause": "Code path had no error handling — exceptions would propagate uncaught",
+      "fix": "Added try/catch block",
+      "tags": [
+        "auto-detected",
+        "error-handling",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-23T13:06:44.062Z"
+    },
+    {
+      "id": "bug-701",
+      "timestamp": "2026-04-23T16:38:42.091Z",
+      "error_message": "Missing await",
+      "file": "scripts/verify-adr-1025-sprint-11.ts",
+      "root_cause": "Async call without await — returned Promise instead of value",
+      "fix": "Added await to async call",
+      "tags": [
+        "auto-detected",
+        "async-fix",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-23T16:38:42.091Z"
+    },
+    {
+      "id": "bug-702",
+      "timestamp": "2026-04-23T16:39:17.202Z",
+      "error_message": "Significant refactor of ",
+      "file": "scripts/verify-adr-1025-sprint-11.ts",
+      "root_cause": "8 lines replaced/restructured",
+      "fix": "Rewrote 23→35 lines (8 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-23T16:39:17.202Z"
+    },
+    {
+      "id": "bug-703",
+      "timestamp": "2026-04-23T16:40:48.420Z",
+      "error_message": "Missing error handling in function",
+      "file": "scripts/verify-adr-1025-sprint-11.ts",
+      "root_cause": "Code path had no error handling — exceptions would propagate uncaught",
+      "fix": "Added try/catch block",
+      "tags": [
+        "auto-detected",
+        "error-handling",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-23T16:40:48.420Z"
+    },
+    {
+      "id": "bug-704",
+      "timestamp": "2026-04-23T16:43:01.567Z",
+      "error_message": "Null/undefined access in ",
+      "file": "scripts/verify-adr-1025-sprint-11.ts",
+      "root_cause": "Property access on potentially null/undefined value",
+      "fix": "Added null safety (optional chaining or null check)",
+      "tags": [
+        "auto-detected",
+        "null-safety",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-23T16:43:01.567Z"
+    },
+    {
+      "id": "bug-705",
+      "timestamp": "2026-04-23T16:45:33.887Z",
+      "error_message": "Significant refactor of ",
+      "file": "docs/ADRs/ADR-1025-customer-storage-auto-provisioning.md",
+      "root_cause": "7 lines replaced/restructured",
+      "fix": "Rewrote 15→17 lines (7 removed) | Also: - [x] Happy path + every failure branch covered vi; - [ ] Runtime-green against a real CF bucket — pen",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 2,
+      "last_seen": "2026-04-23T16:45:45.444Z"
+    },
+    {
+      "id": "bug-706",
+      "timestamp": "2026-04-23T16:46:24.899Z",
+      "error_message": "Missing error handling in unknown",
+      "file": "docs/changelogs/CHANGELOG-api.md",
+      "root_cause": "Code path had no error handling — exceptions would propagate uncaught",
+      "fix": "Added try/catch block",
+      "tags": [
+        "auto-detected",
+        "error-handling",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-23T16:46:24.899Z"
+    },
+    {
+      "id": "bug-707",
+      "timestamp": "2026-04-23T16:46:43.781Z",
+      "error_message": "Significant refactor of ",
+      "file": "scripts/verify-adr-1025-sprint-11.ts",
+      "root_cause": "2 lines replaced/restructured",
+      "fix": "Rewrote 6→4 lines (2 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-23T16:46:43.781Z"
+    },
+    {
+      "id": "bug-699",
+      "timestamp": "2026-04-23T16:48:56.335Z",
+      "error_message": "cf-provision.ts createBucketScopedToken hit non-existent endpoint /accounts/{id}/r2/tokens — returned CF 404",
+      "file": "app/src/lib/storage/cf-provision.ts",
+      "root_cause": "Sprint 1.2 (commit 9c4f06c) drafted against a hypothetical R2-specific token-mint endpoint. CF does not expose one. Bucket-scoped S3 credentials are minted via the general user-level account-API-tokens endpoint POST /user/tokens with a policy referencing permission_group 2efd5506f9c8494dacb1fa10a3e7d5b6 (Workers R2 Storage Bucket Item Write) + resource key com.cloudflare.edge.r2.bucket.<account>_default_<bucket>. Mocked unit tests did not catch this because they mocked the wrong API shape.",
+      "fix": "Rewrote createBucketScopedToken to hit POST /user/tokens with the correct policy shape + derive S3 creds (access_key_id=result.id, secret_access_key=sha256hex(result.value)). Also rewrote revokeBucketToken to DELETE /user/tokens/{id}. cfFetch gained auth:\"account\"|\"user\" param. Two-token architecture (cfat_ for bucket CRUD + cfut_ for token mint) is a CF platform constraint — /user/tokens strictly rejects account tokens with 9109. Added scripts/verify-adr-1025-sprint-11.ts as live E2E harness to prevent future mocked-API drift. Amended Sprint 1.2 in place per docs-vs-code-drift memory (commit 4a847d3).",
+      "tags": [
+        "ADR-1025",
+        "cloudflare-r2",
+        "api-shape",
+        "mocked-tests-missed-reality",
+        "cf-provision"
+      ],
+      "related_bugs": [
+        "bug-698"
+      ],
+      "occurrences": 1,
+      "last_seen": "2026-04-23T16:48:56.335Z"
+    },
+    {
+      "id": "bug-700",
+      "timestamp": "2026-04-23T16:48:56.335Z",
+      "error_message": "R2 bucket-scoped token PUT returned 401 Unauthorized immediately after mint",
+      "file": "scripts/verify-adr-1025-sprint-11.ts",
+      "root_cause": "CF R2 edge has a ~5-second propagation delay between POST /user/tokens returning success and the credential being valid for sigv4 S3 requests. Same thing in reverse for revocation (~5-10s before R2 rejects).",
+      "fix": "Added a 5-second sleep after createBucketScopedToken in the live verification harness. For production use (Phase 2 Sprint 2.1 Edge Function), either sleep or retry the verification probe with exponential backoff. Revocation propagation not fixed in production — flows that revoke tokens (BYOK migration, rotation) have their own cutover barriers that render the gap irrelevant.",
+      "tags": [
+        "ADR-1025",
+        "cloudflare-r2",
+        "token-propagation",
+        "eventual-consistency"
+      ],
+      "related_bugs": [
+        "bug-699"
+      ],
+      "occurrences": 1,
+      "last_seen": "2026-04-23T16:48:56.335Z"
+    },
+    {
+      "id": "bug-710",
+      "timestamp": "2026-04-23T16:49:17.247Z",
+      "error_message": "Type error",
+      "file": "worker/src/banner.ts",
+      "root_cause": "Missing or incorrect type annotation",
+      "fix": "Added type assertion/annotation",
+      "tags": [
+        "auto-detected",
+        "type-fix",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-23T16:49:17.247Z"
+    },
+    {
+      "id": "bug-711",
+      "timestamp": "2026-04-23T17:02:32.110Z",
+      "error_message": "Significant refactor of ",
+      "file": "docs/ADRs/ADR-1025-customer-storage-auto-provisioning.md",
+      "root_cause": "7 lines replaced/restructured",
+      "fix": "Rewrote 13→19 lines (7 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-23T17:02:32.110Z"
+    },
+    {
+      "id": "bug-712",
+      "timestamp": "2026-04-23T17:11:23.618Z",
+      "error_message": "Type error",
+      "file": "app/tests/storage/cf-provision.test.ts",
+      "root_cause": "Missing or incorrect type annotation",
+      "fix": "Added type assertion/annotation",
+      "tags": [
+        "auto-detected",
+        "type-fix",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-23T17:11:23.618Z"
+    },
+    {
+      "id": "bug-713",
+      "timestamp": "2026-04-23T17:11:28.873Z",
+      "error_message": "Type error",
+      "file": "app/tests/storage/provision-org.test.ts",
+      "root_cause": "Missing or incorrect type annotation",
+      "fix": "Added type assertion/annotation",
+      "tags": [
+        "auto-detected",
+        "type-fix",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-23T17:11:28.873Z"
+    },
+    {
+      "id": "bug-714",
+      "timestamp": "2026-04-23T17:11:45.035Z",
+      "error_message": "Significant refactor of ",
+      "file": "worker/wrangler.toml",
+      "root_cause": "3 lines replaced/restructured",
+      "fix": "Rewrote 7→15 lines (3 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "toml"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-23T17:11:45.035Z"
+    },
+    {
+      "id": "bug-715",
+      "timestamp": "2026-04-23T17:18:52.865Z",
+      "error_message": "Significant refactor of ",
+      "file": "scripts/verify-adr-1025-sprint-21.ts",
+      "root_cause": "2 lines replaced/restructured",
+      "fix": "Rewrote 3→4 lines (2 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-23T17:18:52.865Z"
+    },
+    {
+      "id": "bug-716",
+      "timestamp": "2026-04-23T17:19:49.088Z",
+      "error_message": "Null/undefined access in ",
+      "file": "scripts/verify-adr-1025-sprint-21.ts",
+      "root_cause": "Property access on potentially null/undefined value",
+      "fix": "Added null safety (optional chaining or null check)",
+      "tags": [
+        "auto-detected",
+        "null-safety",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-23T17:19:49.088Z"
+    },
+    {
+      "id": "bug-717",
+      "timestamp": "2026-04-24T00:55:37.865Z",
+      "error_message": "Wrong condition in logic",
+      "file": "scripts/verify-adr-1025-sprint-21.ts",
+      "root_cause": "Condition was: if (seedErr)",
+      "fix": "Changed to: if (acctErr)",
+      "tags": [
+        "auto-detected",
+        "logic-fix",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-24T00:55:37.865Z"
+    },
+    {
+      "id": "bug-718",
+      "timestamp": "2026-04-24T00:58:30.261Z",
+      "error_message": "Missing error handling in unknown",
+      "file": "docs/ADRs/ADR-1025-customer-storage-auto-provisioning.md",
+      "root_cause": "Code path had no error handling — exceptions would propagate uncaught",
+      "fix": "Added try/catch block | Also: **Status:** `[x] code-complete 2026-04-24 — orchestrator + r",
+      "tags": [
+        "auto-detected",
+        "error-handling",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 2,
+      "last_seen": "2026-04-24T00:58:56.864Z"
+    },
+    {
+      "id": "bug-719",
+      "timestamp": "2026-04-24T00:59:34.247Z",
+      "error_message": "Missing error handling in unknown",
+      "file": "docs/changelogs/CHANGELOG-api.md",
+      "root_cause": "Code path had no error handling — exceptions would propagate uncaught",
+      "fix": "Added try/catch block",
+      "tags": [
+        "auto-detected",
+        "error-handling",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-24T00:59:34.247Z"
+    },
+    {
+      "id": "bug-720",
+      "timestamp": "2026-04-24T01:10:43.713Z",
+      "error_message": "Wrong reference: 23c8c2abb576e4026f7cec27539db2a37b31b6ae3300d3876af636b778b08b57 should be 09e1209239b98974ce2bde332e49e7f9895dd1c77f6ffa3b8e7397436ba06a17",
+      "file": ".secrets",
+      "root_cause": "Used \"23c8c2abb576e4026f7cec27539db2a37b31b6ae3300d3876af636b778b08b57\" instead of \"09e1209239b98974ce2bde332e49e7f9895dd1c77f6ffa3b8e7397436ba06a17\"",
+      "fix": "Changed 23c8c2abb576e4026f7cec27539db2a37b31b6ae3300d3876af636b778b08b57 → 09e1209239b98974ce2bde332e49e7f9895dd1c77f6ffa3b8e7397436ba06a17",
+      "tags": [
+        "auto-detected",
+        "wrong-reference",
+        "unknown"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-24T01:10:43.713Z"
+    },
+    {
+      "id": "bug-721",
+      "timestamp": "2026-04-24T02:17:14.716Z",
+      "error_message": "Wrong reference: 09e1209239b98974ce2bde332e49e7f9895dd1c77f6ffa3b8e7397436ba06a17 should be 23c8c2abb576e4026f7cec27539db2a37b31b6ae3300d3876af636b778b08b57",
+      "file": ".secrets",
+      "root_cause": "Used \"09e1209239b98974ce2bde332e49e7f9895dd1c77f6ffa3b8e7397436ba06a17\" instead of \"23c8c2abb576e4026f7cec27539db2a37b31b6ae3300d3876af636b778b08b57\"",
+      "fix": "Changed 09e1209239b98974ce2bde332e49e7f9895dd1c77f6ffa3b8e7397436ba06a17 → 23c8c2abb576e4026f7cec27539db2a37b31b6ae3300d3876af636b778b08b57",
+      "tags": [
+        "auto-detected",
+        "wrong-reference",
+        "unknown"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-24T02:17:14.716Z"
+    },
+    {
+      "id": "bug-722",
+      "timestamp": "2026-04-24T02:28:33.143Z",
+      "error_message": "Significant refactor of ",
+      "file": "worker/src/banner.ts",
+      "root_cause": "3 lines replaced/restructured",
+      "fix": "Rewrote 10→8 lines (3 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-24T02:28:33.143Z"
+    },
+    {
+      "id": "bug-723",
+      "timestamp": "2026-04-24T02:30:15.959Z",
+      "error_message": "Significant refactor of ",
+      "file": "docs/ADRs/ADR-1010-cloudflare-worker-role-migration.md",
+      "root_cause": "7 lines replaced/restructured",
+      "fix": "Rewrote 11→44 lines (7 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-24T02:30:15.959Z"
+    },
+    {
+      "id": "bug-724",
+      "timestamp": "2026-04-24T02:31:11.615Z",
+      "error_message": "Significant refactor of ",
+      "file": "docs/ADRs/ADR-1025-customer-storage-auto-provisioning.md",
+      "root_cause": "3 lines replaced/restructured",
+      "fix": "Rewrote 10→16 lines (3 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-24T02:31:11.615Z"
+    },
+    {
+      "id": "bug-725",
+      "timestamp": "2026-04-24T02:45:00Z",
+      "error_message": "postgres.js queries rejected with CONNECTION_ENDED; observable as fast 404 'Banner not found' (the silent catch in getBannerConfigSql swallows the rejection).",
+      "file": "worker/src/db.ts",
+      "root_cause": "Scheduling ctx.waitUntil(sql.end({timeout: 1})) inside openRequestSql runs sql.end() immediately. postgres.js sets its 'ending' flag and rejects every subsequent query. The try/catch in getBannerConfigSql / getPropertyConfigSql swallows the rejection and returns null, producing a fast 404.",
+      "fix": "openRequestSql only opens the client; no side effects. The fetch() handler in worker/src/index.ts schedules ctx.waitUntil(sql.end({timeout: 5})) AFTER awaiting the route handler's response, so cleanup runs post-response, not pre-query.",
+      "tags": [
+        "worker",
+        "hyperdrive",
+        "postgres-js",
+        "lifecycle",
+        "ctx-waituntil",
+        "adr-1010"
+      ],
+      "related_bugs": ["bug-726"],
+      "occurrences": 1,
+      "last_seen": "2026-04-24T02:45:00Z"
+    },
+    {
+      "id": "bug-726",
+      "timestamp": "2026-04-24T02:50:00Z",
+      "error_message": "Hyperdrive returns SQLSTATE 58000 'Timed out while waiting for an open slot in the pool' on every query, yet pg_stat_activity shows zero cs_worker sessions. Direct psql to the same Supavisor endpoint succeeds in <100ms.",
+      "file": "worker/src/db.ts",
+      "root_cause": "The bug-725 intermediate build ran in production for hours, producing one failed-auth + half-open socket per request. Hyperdrive's upstream pool (origin_connection_limit: 20) filled with zombie half-connections that never completed. Subsequent legitimate queries could not acquire a slot; Hyperdrive rejected them with 58000. Recreating the Hyperdrive config does not recover on its own — Supavisor additionally cool-off-rate-limits the CF control-plane IPs, so CF's dashboard pre-save password validation fails even though data-plane connections would succeed.",
+      "fix": "Delete the stuck Hyperdrive config via `wrangler hyperdrive delete`. Create a fresh config via `wrangler hyperdrive create`. Push the cs_worker password via `wrangler hyperdrive update --origin-password ...` — the CLI path does NOT trigger the dashboard's pre-save validation probe, so it succeeds even while Supavisor is cool-off-rejecting CF control-plane IPs. Requires the CF API token to have `Account > Hyperdrive > Edit` permission (a narrowly-scoped token without this returns code 10000 on every Hyperdrive API call).",
+      "tags": [
+        "worker",
+        "hyperdrive",
+        "supavisor",
+        "pool-exhaustion",
+        "rate-limit",
+        "cf-dashboard",
+        "adr-1010",
+        "incident-recovery"
+      ],
+      "related_bugs": ["bug-725"],
+      "occurrences": 1,
+      "last_seen": "2026-04-24T02:50:00Z"
     }
   ]
 }

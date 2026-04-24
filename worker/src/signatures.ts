@@ -1,6 +1,6 @@
 import type { Env } from './index'
 import { getAdminConfig, toLegacySignatures } from './admin-config'
-import { getDb, hasHyperdrive } from './db'
+import type { Sql } from './db'
 
 export interface TrackerSignature {
   service_name: string
@@ -25,7 +25,10 @@ const CACHE_TTL_SECONDS = 3600 // 1 hour
 // happens in pre-bootstrap environments and when an operator deprecates
 // all entries (treated as "use the seed default" rather than "no
 // monitoring at all").
-export async function getTrackerSignatures(env: Env): Promise<TrackerSignature[]> {
+export async function getTrackerSignatures(
+  env: Env,
+  sql: Sql | null,
+): Promise<TrackerSignature[]> {
   const adminConfig = await getAdminConfig(env)
   if (adminConfig.active_tracker_signatures.length > 0) {
     return toLegacySignatures(adminConfig.active_tracker_signatures)
@@ -34,10 +37,10 @@ export async function getTrackerSignatures(env: Env): Promise<TrackerSignature[]
   const cached = await env.BANNER_KV.get(CACHE_KEY, 'json')
   if (cached) return cached as TrackerSignature[]
 
-  // ADR-1010 Phase 3 Sprint 3.1 — Hyperdrive-backed SQL when available;
-  // REST fallback for the Miniflare harness (removed at Phase 4 cutover).
-  const rows = hasHyperdrive(env)
-    ? await getTrackerSignaturesSql(env)
+  // ADR-1010 Sprint 4.2 — request-scoped Hyperdrive client when available;
+  // REST fallback for the Miniflare harness.
+  const rows = sql
+    ? await getTrackerSignaturesSql(sql)
     : await getTrackerSignaturesRest(env)
 
   if (rows.length > 0) {
@@ -46,8 +49,7 @@ export async function getTrackerSignatures(env: Env): Promise<TrackerSignature[]
   return rows
 }
 
-async function getTrackerSignaturesSql(env: Env): Promise<TrackerSignature[]> {
-  const sql = getDb(env)
+async function getTrackerSignaturesSql(sql: Sql): Promise<TrackerSignature[]> {
   try {
     const rows = await sql<TrackerSignature[]>`
       select service_name,
@@ -60,9 +62,9 @@ async function getTrackerSignaturesSql(env: Env): Promise<TrackerSignature[]> {
     return rows
   } catch {
     return []
-  } finally {
-    await sql.end({ timeout: 1 }).catch(() => {})
   }
+  // No sql.end() — request-scoped client is closed by ctx.waitUntil
+  // registered in openRequestSql (db.ts).
 }
 
 async function getTrackerSignaturesRest(env: Env): Promise<TrackerSignature[]> {
