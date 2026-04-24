@@ -2,6 +2,32 @@
 
 API route changes.
 
+## [ADR-1019 Sprint 1.1 — cs_delivery as third Next.js LOGIN role] — 2026-04-24
+
+**ADR:** ADR-1019 — `deliver-consent-events` Next.js route (amended from Edge Function)
+**Sprint:** Phase 1, Sprint 1.1
+
+### Design amendment
+Same revision applied to every scheduled storage orchestrator this quarter: Supabase Edge Function (Deno) → Next.js API route (Node). Rationale: `sigv4.ts` + `org-crypto.ts` are Node-native; ADR-0040 already delivers to R2 from a Next.js route using the same primitive. Rule 5 least-privilege separation is preserved by adding `cs_delivery` as a third Next.js LOGIN role (alongside `cs_api` for `/api/v1/*` and `cs_orchestrator` for internal orchestration), not by broadening `cs_orchestrator`.
+
+### Added — client helper
+- `app/src/lib/api/cs-delivery-client.ts` — `csDelivery()` returns a module-scope postgres.js singleton. Supavisor transaction-mode pool, `prepare: false`, `max: 5`, `ssl: 'require'`. Mirrors `cs-orchestrator-client.ts` exactly; only the env var + role differ. Used by the Sprint 2.1 orchestrator + `/api/internal/deliver-consent-events` route (to land in Sprint 2.1).
+
+### Added — operator scripts
+- `scripts/adr-1019-sprint-11-grants-audit.sql` — read-only; asserts `cs_delivery` has SELECT/UPDATE(delivered_at)/DELETE on all 10 buffer tables, SELECT on `export_configurations`, EXECUTE on `decrypt_secret(bytea, text)`, `login=t`, `bypassrls=t`. Idempotent; safe to rerun.
+- `scripts/adr-1019-sprint-11-backfill.sql` — quarantines pre-existing undelivered rows (delivery_error='pre-deliver-consent-events', attempt_count=10) so the first real delivery run never re-uploads ancient test fixtures. Idempotent.
+
+### Deferred to Sprint 2.1
+- The orchestrator (`app/src/lib/delivery/deliver-events.ts`) and route (`/api/internal/deliver-consent-events`) are Sprint 2.1 deliverables. Sprint 1.1 ships the primitives.
+
+### Tested
+- Static grants analysis from migrations 20260413000010 + 20260414000010 + 20260414000006 confirms `cs_delivery` has all expected grants + role attributes. No new migration required.
+- Helper DX: `csDelivery()` without the env var throws a clear, actionable error (same shape as `csOrchestrator()`).
+- `bun run lint` — 0 violations on the new file.
+
+### Operator follow-up (next session, pre-Sprint 2.1)
+Password rotation + Vercel env addition + grants audit + backfill are operator runbook steps documented in ADR-1019 § Test Results.
+
 ## [ADR-1025 Sprint 4.2 — monthly storage usage snapshots + admin chargeback panel] — 2026-04-24
 
 **ADR:** ADR-1025 — Customer storage auto-provisioning

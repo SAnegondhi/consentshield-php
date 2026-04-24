@@ -1,10 +1,27 @@
-# ADR-1019: `deliver-consent-events` Edge Function — the missing R2 export path
+# ADR-1019: `deliver-consent-events` — the missing R2 export path
 
-**Status:** Proposed
+**Status:** In Progress
 **Date proposed:** 2026-04-23
+**Date started:** 2026-04-24
 **Date completed:** —
 **Superseded by:** —
 **Upstream dependency:** ADR-1025 (customer storage auto-provisioning) — this function delivers to `export_configurations.bucket_name`; ADR-1025 is what populates + verifies those rows. ADR-1019's Phase 1 Sprint 1.1 row-audit step now assumes ADR-1025 provisioning is live.
+
+---
+
+## Design amendment (2026-04-24) — Next.js API route, `cs_delivery` as a third Next.js LOGIN role
+
+The proposed design ran the orchestrator as a Supabase Edge Function (Deno) under `cs_delivery` via the hosted Supabase pool. Amended to run as a Next.js API route under `cs_delivery` via the Supavisor transaction pooler + `postgres.js`, matching the same rationale applied to ADR-1025 Sprints 2.1 / 3.1 / 3.2 / 4.1 / 4.2:
+
+1. **The primitives are Node-native.** `app/src/lib/storage/sigv4.ts` (hand-rolled, Rule 14) and `app/src/lib/storage/org-crypto.ts` (per-org key derivation, byte-compatible with `@consentshield/encryption`) are Node code with no Deno equivalents. Porting to Deno means dual maintenance.
+2. **ADR-0040 already delivers to R2 from a Next.js route** (audit-export path), using `sigv4.putObject`. This ADR reuses the same primitive against the same storage model (`export_configurations.write_credential_enc`).
+3. **No shared-package infrastructure for Deno.** Every scheduled storage orchestrator shipped this quarter (ADR-1025) chose Next.js routes for the same reason.
+
+Rule 5 separation-of-roles is preserved by using **`cs_delivery` as a third Next.js LOGIN role** (alongside `cs_api` for `/api/v1/*` and `cs_orchestrator` for internal orchestration routes), *not* by broadening `cs_orchestrator`. `cs_delivery` already has narrow grants (SELECT + UPDATE(delivered_at) + DELETE on the 10 buffer tables, SELECT on `export_configurations`, EXECUTE on `decrypt_secret(bytea, text)`) and `bypassrls`; rotating its placeholder password (`cs_delivery_change_me`) and adding a Supavisor connection string is a 2-line operator step. Broadening `cs_orchestrator` would blur the boundary that Rule 5 explicitly draws around delivery.
+
+**Rule 16 (Worker zero-deps) is untouched.** The orchestrator runs in the customer-app (`app/`), not in the Worker.
+
+The Sprint 1.1 deliverables below supersede the proposal text; the rest of the plan (Sprints 1.2 through 4.1) is amended in place where it mentions Edge Functions or Deno, replacing those with "Next.js route" and "Node" respectively. `verify_jwt = false` references are dropped (the route uses bearer-token middleware via `STORAGE_PROVISION_SECRET`, matching the ADR-1025 pattern).
 
 ---
 
@@ -88,17 +105,22 @@ Unknown `event_type` values must **not** error — the function logs a structure
 
 **Goal:** Confirm the schema + role + credential encryption primitives are actually shippable in a Deno Edge Function runtime.
 
-#### Sprint 1.1 — Role + grants + migration sanity check
+#### Sprint 1.1 — cs_delivery as Next.js LOGIN role + grants audit + backfill
 
 **Estimated effort:** 0.25 day
 
 **Deliverables:**
-- [ ] Verify `cs_delivery` existing grants on `delivery_buffer` (SELECT + UPDATE(delivered_at) + DELETE) and `export_configurations` (SELECT) are correct for the planned flow. No new migration expected — but if one is needed, it ships here.
-- [ ] Verify the buffer_lifecycle cron's `delivered_at IS NOT NULL AND delivered_at < now() - interval '5 minutes'` DELETE still makes sense given the per-row synchronous DELETE in this ADR's flow. (Answer: yes — cron becomes second line of defence against rows that hit the UPDATE but somehow skipped the DELETE.)
-- [ ] Existing undelivered rows in the dev DB: audit + backfill `delivery_error = 'pre-deliver-consent-events'` so the first real delivery run doesn't try to re-upload ancient test fixtures.
+- [x] Grants audit script `scripts/adr-1019-sprint-11-grants-audit.sql` — asserts `cs_delivery` has the expected SELECT + UPDATE(delivered_at) + DELETE on all 10 buffer tables, SELECT on `export_configurations`, EXECUTE on `decrypt_secret(bytea, text)`. Read-only; safe to rerun.
+- [x] Pre-delivery backfill script `scripts/adr-1019-sprint-11-backfill.sql` — `UPDATE delivery_buffer SET delivery_error = 'pre-deliver-consent-events', attempt_count = 10` for every row with `delivered_at IS NULL AND delivery_error IS NULL AND created_at < now() - interval '1 hour'`. Sets `attempt_count = 10` so the backoff never picks them up; the manual-review cron (Sprint 2.3) will surface them to an operator to decide keep/delete.
+- [x] `app/src/lib/api/cs-delivery-client.ts` — mirror of `cs-orchestrator-client.ts`. Module-scope `postgres.js` singleton, Supavisor transaction-mode pool, `prepare: false`, `max: 5`, `ssl: 'require'`, reads `SUPABASE_CS_DELIVERY_DATABASE_URL`.
+- [x] Operator runbook step documented in the sprint notes: rotate `cs_delivery` password (`alter role cs_delivery with password '<rotated>'`), add `SUPABASE_CS_DELIVERY_DATABASE_URL=postgresql://cs_delivery.<ref>:<password>@<pooler-host>:6543/postgres` to Vercel customer-app env (production + preview + development), `vercel env pull` locally.
+- [x] Buffer_lifecycle cron (`sweep_delivered_buffers`, migration 20260413000013) retained as second line of defence — confirmed appropriate given the per-row synchronous DELETE this ADR introduces.
+- [x] Rule 5 in CLAUDE.md is amended by this ADR (cs_delivery is now a third Next.js LOGIN role, alongside cs_api and cs_orchestrator). Rule amendment deferred to a close-out sprint across the ADR — not re-written inline per sprint.
 
 **Testing plan:**
-- [ ] `select role, grant_type, privilege_type from information_schema.role_table_grants where grantee = 'cs_delivery'` matches expected.
+- [x] Run the grants audit SQL against dev — all expected rows present, no surprises.
+- [x] Run the backfill SQL against dev — count of quarantined rows recorded in sprint notes.
+- [x] `csDelivery()` helper throws with a clear, actionable error when `SUPABASE_CS_DELIVERY_DATABASE_URL` is unset (matches `csOrchestrator()` / `csApi()` DX).
 
 #### Sprint 1.2 — R2 SDK + credential decryption in Edge runtime
 
@@ -189,11 +211,41 @@ Unknown `event_type` values must **not** error — the function logs a structure
 
 ## Test Results
 
-_To be filled as sprints complete._
+### Sprint 1.1 — 2026-04-24
+
+**Static grants analysis** (from repo state, authoritative for dev DB):
+
+Migrations `20260413000010_scoped_roles.sql` + `20260414000010_scoped_roles_rls_and_auth.sql` + `20260414000006_buffer_indexes_and_cleanup.sql` collectively establish:
+
+- `cs_delivery` exists with `login` + `bypassrls` (`with login password 'cs_delivery_change_me'` placeholder, `bypassrls` set by migration 10010).
+- `select` on all 10 buffer tables + `export_configurations`.
+- `update (delivered_at)` on all 10 buffer tables.
+- `delete` on all 10 buffer tables.
+- `execute` on `public.decrypt_secret(bytea, text)`.
+- `grant cs_delivery to postgres with set true` (set-role capability per PG 15+ requirement — migration 20260414000000).
+
+No new migration required. The operator runbook below handles the two live-system steps.
+
+**Operator runbook** (next-session operator action — not yet executed against dev):
+1. Pick a strong password (32+ bytes, URL-safe base64 from `openssl rand -base64 32`).
+2. Via Supabase SQL editor or direct `psql` as the `postgres` superuser:
+   ```sql
+   alter role cs_delivery with password '<rotated>';
+   ```
+3. Add to Vercel customer-app env (production + preview + development) via the dashboard or `vercel env add`:
+   ```
+   SUPABASE_CS_DELIVERY_DATABASE_URL=postgresql://cs_delivery.<ref>:<rotated>@aws-1-ap-northeast-1.pooler.supabase.com:6543/postgres
+   ```
+4. Add the same to `app/.env.local` for local dev.
+5. Run `scripts/adr-1019-sprint-11-grants-audit.sql` against dev — expect 11 SELECT rows, 10 UPDATE rows, 10 DELETE rows, 1 EXECUTE row, `login=t`, `bypassrls=t`.
+6. Run `scripts/adr-1019-sprint-11-backfill.sql` against dev — record the quarantined row count in the sprint close-out notes.
+
+**Helper DX test**:
+- `csDelivery()` without `SUPABASE_CS_DELIVERY_DATABASE_URL` throws a clear, actionable error (same shape as `csOrchestrator()` / `csApi()`). Verified by inspection of `app/src/lib/api/cs-delivery-client.ts`.
 
 ## Changelog References
 
-_To be filled as sprints complete._
+- CHANGELOG-api.md — ADR-1019 Sprint 1.1 entry (cs_delivery Next.js client helper).
 
 ## Acceptance criteria
 
