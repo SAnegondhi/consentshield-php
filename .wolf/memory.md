@@ -5192,3 +5192,16 @@
 | 18:41 | Edited app/tests/storage/byok-validate-route.test.ts | 23→24 lines | ~296 |
 | 18:41 | Edited app/tests/storage/byok-validate-route.test.ts | toEqual() → happyChecks() | ~471 |
 | 18:42 | Session end: 58 writes across 23 files (20260804000052_adr1003_s13_zero_storage_artefact_index.sql, zero-storage-bridge.ts, zero-storage-bridge.test.ts, cs-vault-setup.sql, zero-storage-invariant.test.ts) | 42 reads | ~302754 tok |
+| 18:43 | Session end: 58 writes across 23 files (20260804000052_adr1003_s13_zero_storage_artefact_index.sql, zero-storage-bridge.ts, zero-storage-bridge.test.ts, cs-vault-setup.sql, zero-storage-invariant.test.ts) | 42 reads | ~302754 tok |
+| 18:49 | Created .github/ISSUE_TEMPLATE/docs-issue.yml | — | ~761 |
+| 18:49 | Edited .github/ISSUE_TEMPLATE/docs-issue.yml | 12→16 lines | ~143 |
+| 18:50 | Created docs/customer-docs/byos-aws-s3.md | — | ~2213 |
+| 18:51 | Edited marketing/src/app/docs/api/[...path]/page.tsx | expanded (+6 lines) | ~575 |
+| 18:51 | Edited marketing/src/app/docs/cookbook/build-dpb-audit-export/page.mdx | inline fix | ~19 |
+| 18:51 | Created docs/customer-docs/byos-cloudflare-r2.md | — | ~2025 |
+| 18:52 | Created docs/runbooks/standard-to-insulated-migration.md | — | ~2461 |
+| 18:53 | Edited docs/ADRs/ADR-1003-processor-posture-and-healthcare-unlock.md | 14→14 lines | ~426 |
+| 18:53 | Edited docs/ADRs/ADR-1015-v1-api-integration-tests-and-developer-docs.md | modified expansion() | ~564 |
+| 18:53 | Edited docs/ADRs/ADR-1015-v1-api-integration-tests-and-developer-docs.md | 8→8 lines | ~268 |
+| 18:53 | Edited docs/changelogs/CHANGELOG-docs.md | expanded (+17 lines) | ~754 |
+| 18:53 | Edited docs/ADRs/ADR-index.md | "/docs/*" → "#slug" | ~159 |

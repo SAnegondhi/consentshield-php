@@ -164,15 +164,15 @@ Deliver processor-posture enforcement and the healthcare category unlock:
 **Estimated effort:** 2 days
 
 **Deliverables:**
-- [ ] `docs/customer-docs/byos-aws-s3.md` — IAM policy JSON, step-by-step bucket creation, credential rotation guidance
-- [ ] `docs/customer-docs/byos-cloudflare-r2.md` — R2 token recipe, API compatibility notes
-- [ ] `docs/runbooks/standard-to-insulated-migration.md` — sequence for moving an existing Standard-mode customer to Insulated
+- [x] `docs/customer-docs/byos-aws-s3.md` — complete write-only IAM policy JSON, bucket creation (aws s3api commands), IAM user + access key sequence, pasting into the dashboard, expected probe output, orphan `cs-probe-*` lifecycle rule, credential rotation procedure, troubleshooting table keyed to the probe-check outcomes.
+- [x] `docs/customer-docs/byos-cloudflare-r2.md` — R2 bucket creation (wrangler + dashboard), honest coverage of R2's permission scopes versus ConsentShield's scope-down probe (the standard "Object Read & Write" scope fails the probe; users need R2 custom permissions), S3 compatibility notes (region=auto, account-scoped endpoint, lifecycle via S3 API), troubleshooting table.
+- [x] `docs/runbooks/standard-to-insulated-migration.md` — operator + customer runbook for the migration cut-over. Pre-flight SQL queries, cut-over-mode comparison (`forward_only` vs `copy_existing`), live monitoring queries, stuck-row diagnosis + manual advance, post-cut-over validation, one-way rollback procedure with the explicit caveat that ConsentShield cannot pull records back from the customer's bucket.
 
 **Testing plan:**
-- [ ] Self-test: follow the AWS doc from scratch, end-to-end, on a fresh AWS account
-- [ ] Self-test: follow the R2 doc from scratch on a fresh Cloudflare account
+- [ ] Self-test: follow the AWS doc from scratch, end-to-end, on a fresh AWS account. Deferred to operator validation.
+- [ ] Self-test: follow the R2 doc from scratch on a fresh Cloudflare account. Deferred to operator validation.
 
-**Status:** `[ ] planned`
+**Status:** `[x] complete (docs written; end-to-end self-tests pending operator run against fresh AWS + Cloudflare accounts).`
 
 ### Phase 3: Zero-Storage end-to-end validation (G-005)
 

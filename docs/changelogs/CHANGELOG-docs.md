@@ -2,6 +2,23 @@
 
 Documentation changes.
 
+## [ADR-1003 Sprint 2.2 — BYOS customer docs + Standard→Insulated runbook] — 2026-04-24
+
+**ADR:** ADR-1003 — Processor Posture + Healthcare Category Unlock
+**Sprint:** Phase 2, Sprint 2.2
+
+### Added
+- `docs/customer-docs/byos-aws-s3.md` — end-to-end AWS S3 BYOS guide. Complete write-only IAM policy JSON (single `s3:PutObject` statement), `aws` CLI commands for bucket creation + public-access block + versioning, IAM user + access key provisioning, the dashboard validation steps with an expected probe-output sample, a justification table for every IAM action we deliberately do NOT grant (ties back to the scope-down invariant), orphan `cs-probe-*` lifecycle rule JSON, 90-day credential rotation procedure, and a troubleshooting section keyed to the Sprint 2.1 per-check outcome labels.
+- `docs/customer-docs/byos-cloudflare-r2.md` — parallel R2 guide. Honest upfront section documenting that R2's standard "Object Read & Write" scope FAILS the Sprint 2.1 scope-down probe — the customer needs R2 custom permissions (or use AWS S3 instead). Covers bucket creation via wrangler, custom-permission API Token recipe mapping to exactly `PutObject`, dashboard validation, S3 API compatibility notes (region=auto, account-scoped endpoint, lifecycle via S3 API), and a troubleshooting section for R2-specific failure modes.
+- `docs/runbooks/standard-to-insulated-migration.md` — operator runbook for the Standard → Insulated cut-over. Role split (customer drives the happy path; operator intervenes on stuck rows), pre-flight SQL queries for `storage_migrations` + `export_configurations`, cut-over-mode comparison table (`forward_only` seconds + zero bandwidth; `copy_existing` minutes-to-hours + 2× bandwidth), live monitoring queries, stuck-row diagnosis (credential expiry / rate-limit / orchestrator downtime) with a manual-advance escape hatch, post-cut-over validation (mode flipped, export_config pointing at new bucket, buffer drains normally, test-event land-in-bucket verification), one-way rollback procedure with the explicit caveat that ConsentShield cannot pull records back from the customer's bucket.
+
+### Rationale
+Sprint 2.1 shipped the scope-down probe code; Sprint 2.2 ships the customer-facing artefact that tells a procurement team exactly what IAM policy to paste. Without the customer docs the dashboard validator would reject over-scoped credentials without naming the fix. The runbook turns the cut-over from a support ticket into a customer-driven flow with a clear escalation path for the operator.
+
+### Tested
+- Static review against the ADR-1003 architecture and the Sprint 2.1 probe semantics.
+- Live self-test against fresh AWS + Cloudflare accounts — deferred to operator.
+
 ## [C-1 + C-2 close-out — ADR-0044 review follow-ups] — 2026-04-24
 
 **Review:** `docs/reviews/2026-04-18-adr-0044-customer-rbac-review.md` §4 C-1 + C-2

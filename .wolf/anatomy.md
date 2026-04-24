@@ -1,7 +1,7 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-04-24T13:11:58.079Z
-> Files: 1387 tracked | Anatomy hits: 0 | Misses: 0
+> Auto-maintained by OpenWolf. Last scanned: 2026-04-24T13:23:39.055Z
+> Files: 1391 tracked | Anatomy hits: 0 | Misses: 0
 
 ## ../../../../../tmp/
 
@@ -245,6 +245,10 @@
 
 - `session-handoff-terminal-a.md` — ⚠️ Next-session assignment — read before picking your next ADR (~3903 tok)
 - `session-handoff.md` — Session handoff — 2026-04-24 (Terminal B · afternoon) (~6322 tok)
+
+## .github/ISSUE_TEMPLATE/
+
+- `docs-issue.yml` — Declares attributes (~810 tok)
 
 ## .github/workflows/
 
@@ -1382,7 +1386,7 @@
 - `ADR-0501-marketing-site-scaffold.md` — ADR-0501 — ConsentShield marketing site (`marketing/`) (~6079 tok)
 - `ADR-1001-truth-in-marketing-and-public-api-foundation.md` — ADR-1001: Truth-in-Marketing + Public API Foundation (~5650 tok)
 - `ADR-1002-dpdp-section6-runtime-enforcement.md` — ADR-1002: DPDP §6 Runtime Enforcement — Verify, Record, Artefact Ops, Deletion API (~7030 tok)
-- `ADR-1003-processor-posture-and-healthcare-unlock.md` — ADR-1003: Processor Posture + Healthcare Category Unlock (~6114 tok)
+- `ADR-1003-processor-posture-and-healthcare-unlock.md` — ADR-1003: Processor Posture + Healthcare Category Unlock (~6351 tok)
 - `ADR-1004-statutory-retention-material-change-silent-failure.md` — ADR-1004: Statutory Retention + Material-Change Re-consent + Silent-Failure Detection (~7531 tok)
 - `ADR-1005-operations-maturity.md` — ADR-1005: Operations Maturity — Webhook Reference, Support Model, Status Page, Multi-channel Alerts, (~7076 tok)
 - `ADR-1006-developer-experience-and-openapi.md` — ADR-1006: Developer Experience — Client Libraries + OpenAPI Spec + CI Drift Check (~2658 tok)
@@ -1394,7 +1398,7 @@
 - `ADR-1012-v1-dx-gap-fixes.md` — ADR-1012: v1 API — day-1 DX gap fixes (~2561 tok)
 - `ADR-1013-cs-orchestrator-direct-postgres.md` — ADR-1013: `cs_orchestrator` direct-Postgres migration (Next.js runtime) (~2726 tok)
 - `ADR-1014-e2e-test-harness-and-vertical-demos.md` — ADR-1014: End-to-end test harness + vertical demo sites (partner-evidence grade) (~15278 tok)
-- `ADR-1015-v1-api-integration-tests-and-developer-docs.md` — ADR-1015: v1 API integration tests + customer developer documentation (~7080 tok)
+- `ADR-1015-v1-api-integration-tests-and-developer-docs.md` — ADR-1015: v1 API integration tests + customer developer documentation (~7655 tok)
 - `ADR-1016-v1-orphan-scope-read-endpoints.md` — ADR-1016: v1 API — close the orphan `read:audit`, `read:security`, `read:score` scopes (~1836 tok)
 - `ADR-1017-admin-ops-readiness-flags.md` — ADR-1017: Admin ops-readiness flags — surface external blockers in the operator console (~1656 tok)
 - `ADR-1018-self-hosted-status-page.md` — ADR-1018: Self-hosted status page on admin + public surfaces (~2962 tok)
@@ -1407,7 +1411,7 @@
 - `ADR-1025-customer-storage-auto-provisioning.md` — ADR-1025: Customer storage auto-provisioning — hybrid managed R2 default + BYOK escape hatch (~13370 tok)
 - `ADR-1026-drop-hyperdrive-direct-supavisor.md` — ADR-1026: Rewind ADR-1010 Phase 3 — Worker connects directly to Supavisor; drop Hyperdrive binding (~5467 tok)
 - `ADR-1027-admin-account-awareness.md` — ADR-1027: Admin Account-Awareness Pass (~8082 tok)
-- `ADR-index.md` — ADR Index (~5751 tok)
+- `ADR-index.md` — ADR Index (~5813 tok)
 - `ADR-template.md` — ADR-NNNN: Title (~423 tok)
 - `adr-workflow.md` — ADR Workflow Rules (~557 tok)
 
@@ -1433,12 +1437,17 @@
 
 - `CHANGELOG-api.md` — Changelog — API (~35172 tok)
 - `CHANGELOG-dashboard.md` — Changelog — Dashboard (~28074 tok)
-- `CHANGELOG-docs.md` — Changelog — Documentation (~12354 tok)
+- `CHANGELOG-docs.md` — Changelog — Documentation (~13030 tok)
 - `CHANGELOG-edge-functions.md` — Changelog — Edge Functions (~4251 tok)
 - `CHANGELOG-infra.md` — Changelog — Infrastructure (~20809 tok)
 - `CHANGELOG-marketing.md` — Changelog — Marketing (~12016 tok)
 - `CHANGELOG-schema.md` — Changelog — Schema (~50818 tok)
 - `CHANGELOG-worker.md` — Changelog — Worker (~6025 tok)
+
+## docs/customer-docs/
+
+- `byos-aws-s3.md` — BYOS on AWS S3 (~2074 tok)
+- `byos-cloudflare-r2.md` — BYOS on Cloudflare R2 (~1898 tok)
 
 ## docs/design/
 
@@ -1506,6 +1515,7 @@
 - `ai-provider-setup.md` — Runbook — AI Translation Provider Setup (Sarvam + Vercel AI Gateway) (~2210 tok)
 - `notification-channel-accounts.md` — Notification channel account setup — Slack / Teams / Discord / PagerDuty (~1889 tok)
 - `ops-readiness-flags.md` — Ops Readiness Flags — operator runbook (~1594 tok)
+- `standard-to-insulated-migration.md` — Runbook — Standard → Insulated migration (~2307 tok)
 - `status-page-setup.md` — Status page — setup + operations runbook (~1662 tok)
 - `zero-storage-restart.md` — Runbook — zero_storage durability + restart posture (~1992 tok)
 
@@ -1587,7 +1597,7 @@
 
 ## marketing/src/app/docs/api/[...path]/
 
-- `page.tsx` — OpenAPI tag the endpoint belongs to (matches Scalar's sidebar grouping). (~1004 tok)
+- `page.tsx` — OpenAPI tag the endpoint belongs to (matches Scalar's sidebar grouping). (~1166 tok)
 
 ## marketing/src/app/docs/api/_components/
 
