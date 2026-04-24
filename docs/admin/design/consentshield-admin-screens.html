@@ -647,7 +647,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:14
             <div>
               <div class="card-sm-label">Billing</div>
               <div style="margin-top:8px;display:flex;flex-direction:column;gap:8px">
-                <div style="display:flex;justify-content:space-between;font-size:12px"><span>Plan</span><strong>Growth (₹5,999/mo)</strong></div>
+                <div style="display:flex;justify-content:space-between;font-size:12px"><span>Plan</span><strong>Growth (₹2,999/mo)</strong></div>
                 <div style="display:flex;justify-content:space-between;font-size:12px"><span>Renews</span><span>May 11</span></div>
                 <div style="display:flex;justify-content:space-between;font-size:12px"><span>Lifetime value</span><strong>₹47,992</strong></div>
                 <div style="display:flex;justify-content:space-between;font-size:12px"><span>Last payment</span><span>Apr 11 · success</span></div>
@@ -732,10 +732,11 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:14
               <div>
                 <label class="label">Plan <span style="color:var(--red)">*</span></label>
                 <select class="input">
-                  <option value="free">Free — ₹0 / 1 org / 14d trial</option>
-                  <option value="growth" selected>Growth — ₹5,999 / 3 orgs / 14d trial</option>
-                  <option value="pro">Pro — ₹14,999 / 10 orgs / 30d trial</option>
-                  <option value="enterprise">Enterprise — custom / unlimited orgs</option>
+                  <option value="trial_starter">Trial (Starter limits) — ₹0 / 1 org · 1 property / 30d trial</option>
+                  <option value="starter">Starter — ₹999/mo / 1 org · 2 properties</option>
+                  <option value="growth" selected>Growth — ₹2,999/mo / 3 orgs · 5 properties each</option>
+                  <option value="pro">Pro — ₹7,999/mo / 10 orgs · 10 properties each</option>
+                  <option value="enterprise">Enterprise — custom / 50 orgs · 25 properties each</option>
                 </select>
               </div>
               <div>

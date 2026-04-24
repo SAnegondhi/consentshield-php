@@ -61,9 +61,11 @@ Every table in ConsentShield's database belongs to exactly one of three categori
 
 Data that ConsentShield needs to function. Organisation configs, banner settings, billing records, team membership, tracker signature definitions, DEPA purpose definitions, consent artefacts, consent expiry scheduling. This is the working set — no different from what any B2B tool holds, plus the DEPA-native consent record that lives in ConsentShield's database while the artefact's lifecycle is active. It stays in ConsentShield's database until explicit lifecycle transitions or org-cascade deletes remove it.
 
-**A.1 — Org-scoped tables:** organisations, organisation_members, web_properties, consent_banners, data_inventory, tracker_overrides, integration_connectors, retention_rules, export_configurations, consent_artefact_index, api_keys, breach_notifications, rights_requests, consent_probes, cross_border_transfers, gdpr_configurations, dpo_engagements, white_label_configs, notification_channels, **purpose_definitions** (DEPA), **purpose_connector_mappings** (DEPA), **consent_artefacts** (DEPA), **consent_expiry_queue** (DEPA), **depa_compliance_metrics** (DEPA)
+**A.1 — Account-scoped tables (ADR-0044):** accounts, account_memberships, invitations, plans (FK-referenced; see A.2), plus the ADR-0050 billing surface (billing.issuer_entities, public.invoices, payment_failures, refunds, plan_overrides, comp_grants, billing_evidence_log).
 
-**A.2 — Global reference tables (no org_id):** tracker_signatures, sector_templates, dpo_partners
+**A.2 — Org-scoped tables:** organisations (carries `account_id` FK post-ADR-0044), org_memberships, web_properties, consent_banners, data_inventory, tracker_overrides, integration_connectors, retention_rules, export_configurations, consent_artefact_index, api_keys, breach_notifications, rights_requests, consent_probes, cross_border_transfers, gdpr_configurations, dpo_engagements, white_label_configs, notification_channels, **purpose_definitions** (DEPA), **purpose_connector_mappings** (DEPA), **consent_artefacts** (DEPA), **consent_expiry_queue** (DEPA), **depa_compliance_metrics** (DEPA)
+
+**A.3 — Global reference tables (no org_id, no account_id):** tracker_signatures, sector_templates, dpo_partners, plans
 
 ### Category A — Orthogonal Property: Delivered to Customer Storage
 
@@ -112,22 +114,55 @@ Zero-Storage is mandatory for health data. Insulated is the default for Growth t
 
 ## 5. Multi-Tenant Isolation
 
+### 5.0 Tenancy Hierarchy (ADR-0044)
+
+Customer tenancy is a four-level hierarchy:
+
+```
+account (billing subject, plan, Razorpay identity)
+  └── organisations (operational unit; `account_id` FK; carries storage_mode, DPIA, SDF status)
+        └── web_properties (domain + HMAC signing secret + allowed_origins)
+              └── consent artefacts / events / tracker observations (data flows)
+```
+
+**Memberships split across two tiers.** A user has zero-or-more `account_memberships` rows (`account_owner` | `account_viewer`) plus zero-or-more `org_memberships` rows (`org_admin` | `admin` | `viewer`). `account_owner` implicitly grants `org_admin` of every org in the account — computed live by `public.effective_org_role(p_org_id)`, not persisted as N membership rows per account.
+
+**Five roles.**
+
+| Role | Scope | Capabilities |
+|---|---|---|
+| `account_owner` | account | Billing, plan changes, invite any role, create/delete orgs; inherits `org_admin` of every org in the account |
+| `account_viewer` | account | Read across every org in the account; no writes |
+| `org_admin` | org | Full admin of one org (members, banners, connectors, credentials); no billing |
+| `admin` | org | Operational admin of one org; cannot read credential columns or invite account-tier members |
+| `viewer` | org | Read-only within one org |
+
+**Invitation-only signup.** `/signup` requires a valid invite token; walk-up signup is removed (ADR-0044 + ADR-0058 split-flow intake). Account-creation invites carry `default_org_name` so acceptance creates account + first org + `account_owner` account-membership + implicit org-admin org-membership in one transaction.
+
+**Single-account-per-identity invariant (ADR-0047).** A given `auth.users` row has exactly one account. Customer identity ≠ admin identity (CLAUDE.md Rule 12); the two pools are disjoint and enforced by both proxies + invitation-accept paths.
+
+Schema lives in `supabase/migrations/20260428000002_accounts_and_plans.sql` (accounts + plans + `organisations.account_id`) and `20260429000001_rbac_memberships.sql` (split-tier memberships + role helpers + JWT hook rebind).
+
 ### 5.1 JWT Custom Claims
 
-After signup and org creation, `org_id` and `org_role` are injected into every JWT via Supabase's custom access token hook:
+The custom access token hook injects `org_id` and `org_role` drawn from the caller's first `org_memberships` row. These claims drive the JWT-side fast paths (Worker banner signing, anon/authenticated RLS select policies) but are no longer authoritative for role decisions — a user with multiple org memberships returns only the first row, and `account_owner` inheritance is not encoded in the JWT. Authoritative role resolution happens per-request via the `current_*_role()` helpers in §5.2.
 
 ```sql
 create or replace function public.custom_access_token_hook(event jsonb)
 returns jsonb language plpgsql security definer set search_path = public as $$
 declare
-  claims jsonb; org_id uuid; org_role text;
+  claims jsonb;
+  v_org_id uuid;
+  v_org_role text;
 begin
   claims := event -> 'claims';
-  select om.org_id, om.role into org_id, org_role
-  from organisation_members om where om.user_id = (event ->> 'user_id')::uuid limit 1;
-  if org_id is not null then
-    claims := jsonb_set(claims, '{org_id}', to_jsonb(org_id::text));
-    claims := jsonb_set(claims, '{org_role}', to_jsonb(org_role));
+  select om.org_id, om.role into v_org_id, v_org_role
+    from public.org_memberships om
+   where om.user_id = (event ->> 'user_id')::uuid
+   limit 1;
+  if v_org_id is not null then
+    claims := jsonb_set(claims, '{org_id}', to_jsonb(v_org_id::text));
+    claims := jsonb_set(claims, '{org_role}', to_jsonb(v_org_role));
   end if;
   return jsonb_set(event, '{claims}', claims);
 end; $$;
@@ -137,15 +172,28 @@ grant execute on function public.custom_access_token_hook to supabase_auth_admin
 
 ### 5.2 RLS Helper Functions
 
+Two JWT-direct helpers and three memberships-live helpers. JWT-direct is faster but stale across org switches; memberships-live is authoritative for every gate.
+
 ```sql
-create or replace function current_org_id() returns uuid language sql stable as $$
+-- JWT-direct (fast; driven by the access-token hook)
+create or replace function public.current_org_id() returns uuid language sql stable as $$
   select (auth.jwt() ->> 'org_id')::uuid;
 $$;
 
-create or replace function is_org_admin() returns boolean language sql stable as $$
-  select (auth.jwt() ->> 'org_role') = 'admin';
-$$;
+-- Authoritative role resolution (memberships-live; SECURITY DEFINER)
+create or replace function public.current_account_id() returns uuid …  -- derives from current_org_id() → organisations.account_id
+create or replace function public.current_account_role() returns text … -- SELECT role FROM account_memberships WHERE user_id = current_uid() AND account_id = current_account_id()
+create or replace function public.current_org_role() returns text …    -- SELECT role FROM org_memberships WHERE user_id = current_uid() AND org_id = current_org_id()
+create or replace function public.effective_org_role(p_org_id uuid) returns text …
+  -- Folds account-tier inheritance:
+  --   account_owner → org_admin (authoritative in every org under the account)
+  --   account_viewer → viewer   (read across every org)
+  --   else          → direct org_memberships row for (user, p_org_id)
 ```
+
+The legacy `is_org_admin()` helper (reading `auth.jwt() ->> 'org_role'`) is retained for backwards compatibility with pre-ADR-0044 RLS policies but is NOT authoritative — new policies and RPC gates use `effective_org_role(p_org_id) = 'org_admin'` or `current_account_role() = 'account_owner'` instead.
+
+Definitions live in `supabase/migrations/20260428000002_accounts_and_plans.sql` (current_account_id) and `20260429000001_rbac_memberships.sql` (remaining helpers + hook).
 
 ### 5.3 Isolation Enforcement Pattern
 

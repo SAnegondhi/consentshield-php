@@ -2,6 +2,29 @@
 
 Documentation changes.
 
+## [C-1 + C-2 close-out — ADR-0044 review follow-ups] — 2026-04-24
+
+**Review:** `docs/reviews/2026-04-18-adr-0044-customer-rbac-review.md` §4 C-1 + C-2
+**Sprint:** None — deferred doc-refresh pass from the 2026-04-18 review
+
+### Changed
+- `docs/architecture/consentshield-definitive-architecture.md` §3 Data Classification — split the old `A.1 Org-scoped tables` entry into three tiers: **A.1 Account-scoped** (accounts, account_memberships, invitations, plans, ADR-0050 billing surface), **A.2 Org-scoped** (organisations + `account_id` FK, org_memberships, the existing per-org operational tables), **A.3 Global reference** (tracker_signatures, sector_templates, dpo_partners, plans). Replaces the legacy single `A.1` list that still named the removed `organisation_members` table.
+- `docs/architecture/consentshield-definitive-architecture.md` §5 Multi-Tenant Isolation — new **§5.0 Tenancy Hierarchy (ADR-0044)** subsection at the top documenting the 4-level account → organisations → web_properties → artefacts hierarchy, 5-role taxonomy with role matrix, invitation-only signup, single-account-per-identity invariant (ADR-0047), and pointers to the two schema migrations (`20260428000002_accounts_and_plans.sql`, `20260429000001_rbac_memberships.sql`).
+- `docs/architecture/consentshield-definitive-architecture.md` §5.1 JWT Custom Claims — replaced the pre-ADR-0044 hook snippet (queried the removed `organisation_members` table) with the current post-0044 hook body from `20260429000001_rbac_memberships.sql`; added the caveat that JWT claims are no longer authoritative for role decisions — `account_owner` inheritance and multi-org membership aren't encoded there.
+- `docs/architecture/consentshield-definitive-architecture.md` §5.2 RLS Helper Functions — removed the stale `is_org_admin()` example; documented the five live helpers (`current_org_id`, `current_account_id`, `current_account_role`, `current_org_role`, `effective_org_role(p_org_id)`) with their inheritance semantics; noted that `is_org_admin()` is retained for pre-0044 policies but isn't authoritative — new gates use `effective_org_role(org_id)` or `current_account_role()`.
+- `docs/admin/design/consentshield-admin-screens.html` — plan dropdown in the account-creation invite panel synced to seeded plans: `trial_starter / starter / growth / pro / enterprise` with prices `₹0 / ₹999 / ₹2,999 / ₹7,999 / custom` and the actual limits from `20260428000002_accounts_and_plans.sql:67-73` (was: the pre-0044 `free / growth / pro / enterprise` with the old ₹5,999 growth price).
+- `docs/admin/design/consentshield-admin-screens.html` — account-detail billing card plan display synced to the seeded ₹2,999/mo growth price (was ₹5,999/mo).
+- `docs/design/screen designs and ux/consentshield-screens.html` — customer wireframe Settings "Current plan" row + dashboard plan card synced to ₹2,999/mo + `3 orgs / 5 properties per org` limits.
+- `docs/reviews/2026-04-18-adr-0044-customer-rbac-review.md` §6 follow-up table — flipped C-1 and C-2 to **Closed** with one-line remediation notes; S-2 (remove-member) also flipped to Closed with a pointer to ADR-0047 since it was shipped six days ago and the review table hadn't been updated.
+
+### Tested
+- Documentation-only. No code paths exercised.
+
+### Why
+The ADR-0044 review left three cosmetic / deferred items open: the architecture doc described v1 flat-org tenancy, the admin wireframe plan picker drifted from seed values, and remove-member was labelled "Phase 2.7 or V2 candidate" but had already shipped as ADR-0047. This pass closes all three. S-1 (marketing HMAC replay nonce) remains open as a V2 candidate; no change.
+
+---
+
 ## [ADR-1026 — authored, attempted, abandoned same-day] — 2026-04-24
 
 **ADRs:** ADR-1026 (new; Abandoned), ADR-1010 (Sprint 4.2 section amended with live-smoke results + Hyperdrive incident block)

@@ -180,6 +180,6 @@ ADR-0044 can be flipped to **Completed** once the §5 fix commit lands. No rewor
 | Item | Where | Status |
 |------|-------|--------|
 | Marketing HMAC replay nonce | S-1 | V2 backlog candidate |
-| Remove-member RPC + UI | S-2 | Phase 2.7 or V2 candidate |
-| Architecture doc hierarchy refresh | C-1 | Next doc-refresh pass |
-| Admin wireframe plan-label sync | C-2 | Next admin-wireframe edit |
+| Remove-member RPC + UI | S-2 | **Closed** — shipped in ADR-0047 (migration `20260504000001_membership_lifecycle.sql`, `/dashboard/settings/members` remove action) |
+| Architecture doc hierarchy refresh | C-1 | **Closed** — 2026-04-24: §3 A.1/A.2/A.3 refreshed, §5.0 Tenancy Hierarchy added, §5.1 hook + §5.2 helpers updated to post-ADR-0044 reality |
+| Admin wireframe plan-label sync | C-2 | **Closed** — 2026-04-24: plan dropdown + account-detail plan display synced to seed (`trial_starter/starter/growth/pro/enterprise`, prices `0/999/2999/7999/null`); customer wireframe Settings plan label synced in the same pass |
