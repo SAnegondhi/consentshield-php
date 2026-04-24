@@ -2,6 +2,39 @@
 
 Public marketing site (`marketing/` workspace → `consentshield.in`). New in 2026-04-21.
 
+## [ADR-1015 Sprint 1.1 — /docs/* shell + MDX pipeline + shared components] — 2026-04-24
+
+**ADR:** ADR-1015 — v1 API integration tests + customer developer documentation
+**Sprint:** Phase 1, Sprint 1.1 — MDX pipeline + shell
+
+### Added
+- MDX pipeline: `@next/mdx@16.2.4` + `@mdx-js/loader@3.1.1` + `@mdx-js/react@3.1.1` + `@types/mdx@2.0.13` (all exact-pinned). `next.config.ts` wraps the nextConfig with `createMDX({})` before `withSentryConfig` so Sentry instrumentation continues to apply. `pageExtensions: ['ts', 'tsx', 'md', 'mdx']` so any `/docs/**/*.mdx` file auto-routes.
+- `marketing/mdx-components.tsx` — top-level MDX component registry (picked up automatically by `@next/mdx`). MDX pages get `<Callout>`, `<CodeTabs>`, `<EndpointHeader>`, `<ParamTable>`, `<StatusGrid>`, `<FeedbackStrip>`, `<Breadcrumb>` without per-file imports.
+- `marketing/src/app/docs/layout.tsx` — three-pane shell (sidebar + content + ToC rail). Marketing root layout still supplies `<Nav>` + `<Footer>` above it.
+- `marketing/src/app/docs/_data/nav.ts` — sidebar taxonomy mirroring the wireframe. Five groups, 35 entries. HTTP-method pills for API-reference entries. Subheadings (`Health` / `Consent` / `Deletion` / `Account & plans`) nest under API Reference.
+- `marketing/src/app/docs/_components/` — seven shared components:
+  - `<Breadcrumb>` — trail rendering.
+  - `<Callout>` — four tones (tip / info / warn / security), configurable title.
+  - `<CodeTabs>` (client) — active-tab state + clipboard copy.
+  - `<EndpointHeader>` — method pill + path with `{param}` highlighting + auth/rate/idempotent metadata row.
+  - `<ParamTable>` — name/type/required/description/default rows.
+  - `<StatusGrid>` — 2xx/4xx/5xx colour-coded chips.
+  - `<FeedbackStrip>` — "was this page useful" with GitHub-issue deep links.
+  - `<DocsSidebar>` (client) — active-link detection via `usePathname`; renders method pills + pin labels + subheadings.
+  - `<DocsTocRail>` (client) — walks the content column DOM for h2/h3 ids; IntersectionObserver tracks active anchor.
+- `marketing/src/app/docs/_styles/docs.css` — docs-specific layout + typography. Class names match the wireframe (`.docs-shell`, `.sb-*`, `.callout`, `.param-table`, `.endpoint-head`, `.code-card`, `.status-grid`, `.feedback-strip`, `.docs-toc`, `.docs-breadcrumb`) so future drift checks can diff by selector. Colour tokens inherit from `globals.css`.
+- `marketing/src/app/docs/page.tsx` — placeholder Developer Hub landing that proves the layout renders. Sprint 2.1 replaces the body with the full wireframe §Page 1 Hub.
+
+### Tested
+- [x] `cd marketing && bunx tsc --noEmit` — PASS.
+- [x] `cd marketing && bun run lint` — PASS (one eslint-disable on the ToC rail's legitimate setState-in-effect; documented inline).
+- [x] `cd marketing && bun run build` — PASS. `/docs` is listed as a static route in the manifest (prerendered).
+
+### Why
+No public developer-docs surface existed before this sprint — prospective integrators had to click through to raw OpenAPI YAML or read ADRs. Sprint 1.1 lands the shell + pipeline + component library that Sprints 2.x (content authoring) and 3.x (external-consumer test suite) write into. Every class name tracks the wireframe so drift catches are fast. No functional surface yet — the `/docs` landing is a placeholder.
+
+---
+
 ## [ADR-0058 follow-up — email relay + explicit signup status] — 2026-04-21
 
 **ADR:** ADR-0058 (follow-up; no new ADR)

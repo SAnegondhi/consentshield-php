@@ -2,8 +2,9 @@
 
 (c) 2026 Sudhindra Anegondhi a.d.sudhindra@gmail.com
 
-**Status:** Proposed
+**Status:** In Progress
 **Date proposed:** 2026-04-22
+**Date started:** 2026-04-24
 **Date completed:** —
 **Supersedes:** —
 **Depends on:**
@@ -57,21 +58,26 @@ Ship a four-phase deliverable: the `/docs/*` surface on the marketing site (Next
 
 ### Phase 1 — Marketing /docs/* surface foundations
 
-#### Sprint 1.1: MDX pipeline + shell
+#### Sprint 1.1: MDX pipeline + shell · **[x] complete 2026-04-24**
 
 **Estimated effort:** 2 days
 
 **Deliverables:**
-- [ ] `marketing/src/app/docs/layout.tsx` — shell per wireframe (top nav + left sidebar + content + ToC rail + wireframe-ribbon banner removed).
-- [ ] MDX config: `next-mdx-remote` or `@next/mdx` (decide once — preference is `@next/mdx` for route colocation).
-- [ ] Shared components: `<CodeTabs>`, `<Callout>`, `<ParamTable>`, `<EndpointHeader>`, `<StatusGrid>`, `<FeedbackStrip>`, `<Breadcrumb>` — implemented to match wireframe styling (reuses marketing site's CSS vars).
-- [ ] Sidebar taxonomy data: `marketing/src/app/docs/_data/nav.ts` (get-started / concepts / cookbook / api-reference / reference).
+- [x] `marketing/src/app/docs/layout.tsx` — three-pane shell (sidebar + content + ToC rail). Top-level `<Nav>` / `<Footer>` inherit from the marketing root layout.
+- [x] MDX config: `@next/mdx@16.2.4` chosen for route colocation (any `/docs/**/*.mdx` file auto-routes). `pageExtensions: ['ts', 'tsx', 'md', 'mdx']` added to `next.config.ts`; `createMDX({})` wraps the nextConfig before `withSentryConfig` so Sentry instrumentation still applies.
+- [x] Shared components under `marketing/src/app/docs/_components/` — `<Breadcrumb>`, `<Callout>` (four tones: tip / info / warn / security), `<CodeTabs>` (client; active-tab state + clipboard copy), `<EndpointHeader>` (method pill + path with `{param}` highlighting + auth/rate/idempotent metadata row), `<ParamTable>`, `<StatusGrid>`, `<FeedbackStrip>`, `<DocsSidebar>` (client; active-link via `usePathname`), `<DocsTocRail>` (client; walks `<main class="docs-content">` DOM on mount + IntersectionObserver for active anchor). Every component matches wireframe class names so drift checks can diff by selector.
+- [x] Sidebar taxonomy: `marketing/src/app/docs/_data/nav.ts` — five groups (Get started · Core concepts · Cookbook · API Reference · Reference) with every link from the wireframe. HTTP-method pills render via `sb-method` classes; subheadings (`Health`, `Consent`, `Deletion`, `Account & plans`) nest under API Reference.
+- [x] `marketing/mdx-components.tsx` — top-level MDX component registry so MDX pages auto-resolve `<Callout>` / `<CodeTabs>` / etc. without per-file imports.
+- [x] `marketing/src/app/docs/_styles/docs.css` — ported from the wireframe. Owns docs-specific layout + typography (class names match the spec: `.docs-shell`, `.sb-*`, `.callout`, `.param-table`, `.endpoint-head`, `.code-card`, `.status-grid`, `.feedback-strip`, `.docs-toc`, `.docs-breadcrumb`). Colour tokens come from marketing's `globals.css`.
+- [x] `marketing/src/app/docs/page.tsx` — placeholder Developer Hub shell that proves the layout renders. Sprint 2.1 replaces the body.
 
 **Testing plan:**
-- [ ] `cd marketing && bun run build` completes.
-- [ ] `/docs` renders a placeholder landing with sidebar + content + ToC visible.
+- [x] `cd marketing && bunx tsc --noEmit` — PASS.
+- [x] `cd marketing && bun run lint` — PASS (one eslint-disable on toc-rail's setState-in-effect, explained in comment; the DOM walk is legitimately an effect).
+- [x] `cd marketing && bun run build` — PASS. Route manifest includes `/docs` (static).
+- [ ] Visual check via dev server — recommended before Sprint 1.2.
 
-**Status:** `[ ] planned`
+**Status:** `[x] complete`
 
 #### Sprint 1.2: `@scalar/api-reference` mount
 

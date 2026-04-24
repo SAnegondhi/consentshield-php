@@ -1,7 +1,9 @@
 import { withSentryConfig } from '@sentry/nextjs'
+import createMDX from '@next/mdx'
 import type { NextConfig } from 'next'
 
 // ADR-0501 Phase 4 — security headers + Sentry wiring.
+// ADR-1015 Phase 1 Sprint 1.1 — MDX pipeline for /docs/* developer docs.
 //
 // CSP (Sprint 4.1) ships in *report-only* mode first; enforce-mode
 // cutover is a follow-up sprint once the browser-reported violations
@@ -46,6 +48,9 @@ const SECURITY_HEADERS = [
 ]
 
 const nextConfig: NextConfig = {
+  // ADR-1015 Phase 1 Sprint 1.1 — MDX files are first-class page
+  // extensions so /docs/concepts/foo.mdx auto-routes to /docs/concepts/foo.
+  pageExtensions: ['ts', 'tsx', 'md', 'mdx'],
   async headers() {
     return [
       {
@@ -56,10 +61,15 @@ const nextConfig: NextConfig = {
   },
 }
 
+// ADR-1015 Phase 1 Sprint 1.1 — MDX plugin. remark/rehype plugin
+// additions (syntax highlighting, auto-slugs, etc.) land in later
+// sprints once the content authoring cadence demands them.
+const withMDX = createMDX({})
+
 // Sentry wrapping — auto-loads sentry.{server,client,edge}.config.ts from
 // project root. Source-map upload is a no-op in local dev; kicks in when
 // SENTRY_AUTH_TOKEN is provided (Vercel env at deploy time).
-export default withSentryConfig(nextConfig, {
+export default withSentryConfig(withMDX(nextConfig), {
   org: 'consentshield',
   project: 'consentshield-marketing',
   silent: !process.env.CI,
