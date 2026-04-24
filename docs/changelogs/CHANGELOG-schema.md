@@ -2,6 +2,27 @@
 
 Database migrations, RLS policies, roles.
 
+## [ADR-1027 Sprint 3.3 — accounts.default_sectoral_template_id + RPCs + account_detail envelope extension] — 2026-04-24
+
+**ADR:** ADR-1027 — Admin account-awareness pass
+**Sprint:** Phase 3, Sprint 3.3 — Account-default sectoral template
+
+### Added
+- `supabase/migrations/20260804000047_adr1027_s33_account_default_template.sql`:
+  - `public.accounts.default_sectoral_template_id uuid` (nullable) + FK to `admin.sectoral_templates(id)` with `on delete set null`.
+  - `admin.set_account_default_template(p_account_id, p_template_id, p_reason)` — platform_operator+ RPC. Accepts NULL to clear; rejects unpublished templates. Audit-logged.
+  - `public.resolve_account_default_template()` — authenticated RPC; reads `public.current_account_id()`. Returns the single-row template when still `status='published'`; empty otherwise. Called by the customer onboarding wizard at Step 4.
+  - `admin.account_detail(p_account_id)` envelope extended: new `default_template: {id, template_code, display_name, version, status} | null` key. Stale (deprecated) templates still render so the operator sees the staleness.
+- `supabase/migrations/20260804000049_adr1027_s33_fix_no_is_active.sql` — fixup re-publishing both functions after the initial migration referenced a non-existent `admin.sectoral_templates.is_active` column. `status = 'published'` is the only gate.
+
+### Tested
+- [x] `tests/admin/account-default-template.test.ts` — **5/5 PASS**: set happy path, support rejected, draft rejected, clear-to-null, audit carries account_id.
+
+### Why
+First-org wizard in multi-org accounts kept picking the sector-detected default, meaning every org had to hand-set the same template the operators already knew should be the baseline. Account-default lets platform_operator pre-select once; the wizard floats it to the top with a teal "Account default" badge. Customer can still override.
+
+---
+
 ## [ADR-1019 Sprint 4.1 — delivery-backlog metrics RPC + readiness-flag cron] — 2026-04-24
 
 **ADR:** ADR-1019 — `deliver-consent-events` Next.js route (completed)

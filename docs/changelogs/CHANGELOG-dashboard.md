@@ -2,6 +2,32 @@
 
 Next.js UI changes.
 
+## [ADR-1027 Sprint 3.3 — Default-template picker on account detail + wizard pre-selection] — 2026-04-24
+
+**ADR:** ADR-1027 — Admin account-awareness pass
+**Sprint:** Phase 3, Sprint 3.3 — Account-default sectoral template
+
+### Admin console
+- `admin/src/app/(operator)/accounts/[accountId]/default-template-actions.ts` — server action `setAccountDefaultTemplate` forwarding to `admin.set_account_default_template`; revalidates `/accounts/[accountId]`.
+- `admin/src/app/(operator)/accounts/[accountId]/default-template-card.tsx` — client card. Current-default block shows status pill (green `published` / amber `stale · <status>`), dropdown of published templates sorted by sector then display_name, Save button disabled until selection changes. Support-role sees a read-only message.
+- `admin/src/app/(operator)/accounts/[accountId]/page.tsx` — parallel fetch for published templates; `<DefaultTemplateCard>` lands above `<AccountNotesCard>`.
+
+### Customer app
+- `app/src/app/(public)/onboarding/actions.ts` — new server action `getAccountDefaultTemplate()` wrapping `public.resolve_account_default_template()`.
+- `app/src/app/(public)/onboarding/_components/step-4-purposes.tsx` — Step 4 now fetches the account-default in parallel with the sector templates. When a matching template exists, it floats to the top of the grid, renders with a teal card border and a "Account default" badge, and the button label becomes "Use account default" (teal-coloured). Non-matching templates render unchanged. If no account default exists, or the default is no longer published, the wizard falls back to pure sector detection — behaviour unchanged from the pre-3.3 flow.
+
+### Tested
+- [x] `cd admin && bunx tsc --noEmit` — PASS.
+- [x] `cd admin && bun run lint` — PASS.
+- [x] `cd app && bun run lint` — PASS.
+- [x] RPC-layer tests (5/5) cover the core contract.
+- [ ] Customer-app wizard interaction — recommend visual check via dev server (teal highlight + badge; "Use account default" button wiring).
+
+### Why
+Enterprise accounts with multiple orgs kept re-picking the same template at each new org onboarding. Sprint 3.3 moves the decision up one tier: an operator (or support agent proxying for a customer) sets the default on `/accounts/[id]` once; the customer wizard pre-surfaces it for every new org. Customer retains full override ability; the default is a hint, not a gate.
+
+---
+
 ## [ADR-1027 Sprint 3.2 — Account notes CRUD on account detail + read-only surfacing on org detail] — 2026-04-24
 
 **ADR:** ADR-1027 — Admin account-awareness pass

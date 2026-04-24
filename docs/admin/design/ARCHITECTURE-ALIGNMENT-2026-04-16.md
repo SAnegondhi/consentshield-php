@@ -132,7 +132,7 @@ A live checklist of each panel against the ADR that ports it into code. Tick whe
 | Support Tickets · parent-account header strip + account filter | ADR-1027 Sprint 2.2 | ✅ 2026-04-24 (list Account · Org column + account select filter; detail compact AccountContextCard strip) | ✅ 2026-04-24 |
 | Impersonation log · per-account rollup view | ADR-1027 Sprint 3.1 | ✅ 2026-04-24 (new /impersonation-log panel with per-session + per-account tabs) | ✅ 2026-04-24 |
 | Accounts · account-level Notes card + org-detail surfacing of account notes | ADR-1027 Sprint 3.2 | ✅ 2026-04-24 (account-detail Notes card with add/edit/delete/pin + org-detail read-only surfacing with tier badge) | ✅ 2026-04-24 |
-| Accounts · default sectoral template picker + wizard pre-selection | ADR-1027 Sprint 3.3 | ☐ | ☐ |
+| Accounts · default sectoral template picker + wizard pre-selection | ADR-1027 Sprint 3.3 | ✅ 2026-04-24 (account-detail picker card + customer wizard teal-highlighted pre-selection with "Use account default" button) | ✅ 2026-04-24 |
 | Customer-side "Support sessions" tab (W-Admin-CustomerVisibility) | ADR-0029 Sprint 4.1 | ⚠️ HTML wireframe update deferred; implementation preceded formal wireframe | ✅ 2026-04-17 |
 | Customer-side org suspension banner state (W-Admin-OrgSuspension) | ADR-0029 Sprint 4.1 | ⚠️ HTML wireframe update deferred; implementation preceded formal wireframe | ✅ 2026-04-17 |
 

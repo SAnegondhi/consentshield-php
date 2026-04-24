@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import {
   applyTemplate,
+  getAccountDefaultTemplate,
   listTemplatesForSector,
   setOnboardingStep,
 } from '../actions'
@@ -25,19 +26,36 @@ export function Step4Purposes({
   onComplete: () => void
 }) {
   const [templates, setTemplates] = useState<TemplateOption[] | null>(null)
+  const [accountDefault, setAccountDefault] = useState<{
+    template_code: string
+    display_name: string
+  } | null>(null)
   const [pending, setPending] = useState<string | null>(null)
   const [error, setError] = useState('')
 
   useEffect(() => {
     let cancelled = false
-    listTemplatesForSector(industry).then((r) => {
+    // ADR-1027 Sprint 3.3 — pull the two in parallel: the sector's
+    // published templates and the account-default (if any). The two
+    // promises are independent so a slow Account fetch never stalls
+    // the template picker render.
+    Promise.all([
+      listTemplatesForSector(industry),
+      getAccountDefaultTemplate(),
+    ]).then(([tplRes, defRes]) => {
       if (cancelled) return
-      if (!r.ok) {
-        setError(r.error)
+      if (!tplRes.ok) {
+        setError(tplRes.error)
         setTemplates([])
-        return
+      } else {
+        setTemplates(tplRes.data)
       }
-      setTemplates(r.data)
+      if (defRes.ok && defRes.data) {
+        setAccountDefault({
+          template_code: defRes.data.template_code,
+          display_name: defRes.data.display_name,
+        })
+      }
     })
     return () => {
       cancelled = true
@@ -102,37 +120,62 @@ export function Step4Purposes({
         </div>
       ) : (
         <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2">
-          {templates.map((t) => (
-            <div
-              key={`${t.template_code}-${t.version}`}
-              className="rounded border border-gray-200 bg-white p-4 hover:border-gray-400"
-            >
-              <div className="flex items-start justify-between gap-2">
-                <div>
-                  <p className="text-sm font-semibold text-gray-900">
-                    {t.display_name}
-                  </p>
-                  <p className="mt-0.5 font-mono text-xs text-gray-500">
-                    {t.template_code} · v{t.version} · {t.purpose_count}{' '}
-                    purposes
-                  </p>
+          {/* ADR-1027 Sprint 3.3 — pre-selection: if the account has a
+              default template AND it's in the sector's published list,
+              float it to the top with a visible "Account default" badge. */}
+          {orderTemplates(templates, accountDefault).map((t) => {
+            const isAccountDefault =
+              accountDefault !== null &&
+              accountDefault.template_code === t.template_code
+            return (
+              <div
+                key={`${t.template_code}-${t.version}`}
+                className={
+                  isAccountDefault
+                    ? 'rounded border-2 border-teal-500 bg-teal-50 p-4'
+                    : 'rounded border border-gray-200 bg-white p-4 hover:border-gray-400'
+                }
+              >
+                <div className="flex items-start justify-between gap-2">
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <p className="text-sm font-semibold text-gray-900">
+                        {t.display_name}
+                      </p>
+                      {isAccountDefault ? (
+                        <span className="rounded bg-teal-600 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-white">
+                          Account default
+                        </span>
+                      ) : null}
+                    </div>
+                    <p className="mt-0.5 font-mono text-xs text-gray-500">
+                      {t.template_code} · v{t.version} · {t.purpose_count}{' '}
+                      purposes
+                    </p>
+                  </div>
+                </div>
+                <p className="mt-2 text-sm text-gray-700">{t.description}</p>
+                <div className="mt-3 flex justify-end">
+                  <button
+                    type="button"
+                    disabled={pending !== null}
+                    onClick={() => handleApply(t.template_code)}
+                    className={
+                      isAccountDefault
+                        ? 'rounded bg-teal-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-teal-700 disabled:opacity-50'
+                        : 'rounded bg-black px-3 py-1.5 text-xs font-medium text-white hover:bg-gray-800 disabled:opacity-50'
+                    }
+                  >
+                    {pending === t.template_code
+                      ? 'Applying…'
+                      : isAccountDefault
+                        ? 'Use account default'
+                        : 'Use this template'}
+                  </button>
                 </div>
               </div>
-              <p className="mt-2 text-sm text-gray-700">{t.description}</p>
-              <div className="mt-3 flex justify-end">
-                <button
-                  type="button"
-                  disabled={pending !== null}
-                  onClick={() => handleApply(t.template_code)}
-                  className="rounded bg-black px-3 py-1.5 text-xs font-medium text-white hover:bg-gray-800 disabled:opacity-50"
-                >
-                  {pending === t.template_code
-                    ? 'Applying…'
-                    : 'Use this template'}
-                </button>
-              </div>
-            </div>
-          ))}
+            )
+          })}
         </div>
       )}
 
@@ -148,4 +191,19 @@ export function Step4Purposes({
       </div>
     </div>
   )
+}
+
+// ADR-1027 Sprint 3.3 — float the account-default template to the top
+// when it matches one of the sector-published templates. Returns a new
+// array; does not mutate input.
+function orderTemplates(
+  templates: TemplateOption[],
+  accountDefault: { template_code: string } | null,
+): TemplateOption[] {
+  if (!accountDefault) return templates
+  const match = templates.find(
+    (t) => t.template_code === accountDefault.template_code,
+  )
+  if (!match) return templates
+  return [match, ...templates.filter((t) => t.template_code !== match.template_code)]
 }

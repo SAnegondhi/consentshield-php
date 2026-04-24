@@ -4,6 +4,10 @@ import { createServerClient } from '@/lib/supabase/server'
 import { canOperate, type AdminRole } from '@/lib/admin/role-tiers'
 import { AccountActionBar } from './action-bar'
 import { AccountNotesCard, type AccountNote } from './account-notes-card'
+import {
+  DefaultTemplateCard,
+  type TemplateOption,
+} from './default-template-card'
 
 // ADR-0048 Sprint 1.2 — Account detail.
 
@@ -22,6 +26,7 @@ interface AccountEnvelope {
     created_at: string
     updated_at: string
     effective_plan: string
+    default_sectoral_template_id: string | null
   }
   organisations: Array<{
     id: string
@@ -46,6 +51,13 @@ interface AccountEnvelope {
     created_at: string
     new_value: Record<string, unknown> | null
   }>
+  default_template: {
+    id: string
+    template_code: string
+    display_name: string
+    version: number
+    status: string
+  } | null
 }
 
 interface PageProps {
@@ -56,13 +68,20 @@ export default async function AccountDetailPage({ params }: PageProps) {
   const { accountId } = await params
   const supabase = await createServerClient()
 
-  const [detailRes, userRes, notesRes, adminsRes] = await Promise.all([
+  const [detailRes, userRes, notesRes, adminsRes, templatesRes] = await Promise.all([
     supabase.schema('admin').rpc('account_detail', { p_account_id: accountId }),
     supabase.auth.getUser(),
     supabase
       .schema('admin')
       .rpc('account_note_list', { p_account_id: accountId }),
     supabase.schema('admin').from('admin_users').select('id, display_name'),
+    supabase
+      .schema('admin')
+      .from('sectoral_templates')
+      .select('id, template_code, display_name, sector, version')
+      .eq('status', 'published')
+      .order('sector')
+      .order('display_name'),
   ])
 
   if (detailRes.error) {
@@ -92,7 +111,15 @@ export default async function AccountDetailPage({ params }: PageProps) {
     adminNameById[a.id] = a.display_name ?? null
   }
 
-  const { account, organisations, active_adjustments, audit_recent } = envelope
+  const publishedTemplates = (templatesRes.data ?? []) as TemplateOption[]
+
+  const {
+    account,
+    organisations,
+    active_adjustments,
+    audit_recent,
+    default_template,
+  } = envelope
 
   return (
     <div className="mx-auto max-w-6xl space-y-4">
@@ -258,6 +285,16 @@ export default async function AccountDetailPage({ params }: PageProps) {
           </div>
         )}
       </Card>
+
+      {/* ADR-1027 Sprint 3.3 — default sectoral template picker.
+          New orgs in this account pre-select this template at wizard
+          Step 4. Customer can still override. */}
+      <DefaultTemplateCard
+        accountId={account.id}
+        currentTemplate={default_template}
+        publishedTemplates={publishedTemplates}
+        canPlatformOperator={canPlatformOperator}
+      />
 
       {/* ADR-1027 Sprint 3.2 — account-level notes. Every write emits an
           audit row with target_table='admin.account_notes' and the

@@ -233,23 +233,38 @@ Close every admin-account-awareness drift in one ADR. No deferrals to later ADRs
 - [x] `bunx supabase db push` — applied cleanly.
 - [x] `bunx vitest run tests/admin/account-notes-rpcs.test.ts` — **6/6 PASS** on live dev project.
 
-#### Sprint 3.3 — Account-default sectoral template
+#### Sprint 3.3 — Account-default sectoral template · **[x] complete 2026-04-24**
 
 **Estimated effort:** 0.75 day
 
 **Prerequisite wireframe:** Update the admin Accounts panel wireframe with a "Default template for new orgs" picker. Update the customer wizard Step 4 wireframe (`docs/design/screen designs and ux/consentshield-screens.html`) to show the account-default badge when it's applied.
 
 **Deliverables:**
-- [ ] Migration: `alter table public.accounts add column default_sectoral_template_id uuid references admin.sectoral_templates(id) on delete set null`. Nullable. Backfill is a no-op (every account starts with none).
-- [ ] `admin.set_account_default_template(p_account_id, p_template_id)` RPC — platform_operator only; writes audit row; validates that the template is `status='published'` and `is_active=true`.
-- [ ] `admin.account_detail` envelope extends to include the resolved template summary (`default_template: {id, code, display_name, version} | null`).
-- [ ] `/accounts/[accountId]/page.tsx` — template picker in the detail page; shows current default, with a disabled state + reason if no published templates match the account's sector yet.
-- [ ] Customer wizard Step 4 (`app/src/app/(dashboard)/onboarding/step-4/*`) — if `accounts.default_sectoral_template_id` is set and the template is still published, pre-select it in the org-creation form and show a small "Pre-selected by account default" badge. Customer can still override via the picker. Falls back to sector-detection default when account-default is null.
+- [x] Migration `20260804000047_adr1027_s33_account_default_template.sql`:
+  - `public.accounts.default_sectoral_template_id uuid` (nullable; FK to `admin.sectoral_templates(id)` with `on delete set null`).
+  - `admin.set_account_default_template(p_account_id, p_template_id, p_reason)` SECURITY DEFINER RPC — platform_operator+ only; accepts NULL to clear; validates `status = 'published'` when setting; audit-logged.
+  - `public.resolve_account_default_template()` SECURITY DEFINER RPC — customer-side, authenticated; reads `current_account_id()` so a caller can only see their own account's default; returns the row when the set template is still `published`, otherwise empty.
+  - `admin.account_detail(p_account_id)` envelope extended with a `default_template` key: `{id, template_code, display_name, version, status} | null`. Stale (deprecated) templates still render so the operator sees the staleness and can fix it; sprint 3.3 initial migration mistakenly used a non-existent `is_active` column and was corrected in `20260804000049_adr1027_s33_fix_no_is_active.sql`.
+- [x] `admin/src/app/(operator)/accounts/[accountId]/default-template-actions.ts` — server action `setAccountDefaultTemplate` that forwards to the RPC + revalidates the page.
+- [x] `admin/src/app/(operator)/accounts/[accountId]/default-template-card.tsx` — client card: shows current default with a status pill (green "published" / amber "stale · <status>"), a single-select dropdown of published templates (platform_operator-only), and a Save button that disables when the selection hasn't changed. Support role sees a read-only message.
+- [x] `admin/src/app/(operator)/accounts/[accountId]/page.tsx` — parallel-fetches published templates alongside the other queries; drops `<DefaultTemplateCard>` above the `<AccountNotesCard>`.
+- [x] `app/src/app/(public)/onboarding/actions.ts` — new server action `getAccountDefaultTemplate()` that wraps `public.resolve_account_default_template()`.
+- [x] `app/src/app/(public)/onboarding/_components/step-4-purposes.tsx` — fetches the account-default alongside the sector templates (parallel); when a matching template exists, floats it to the top of the grid, renders a teal "Account default" badge + teal-highlighted card border, and changes the button label to "Use account default". Customer can still pick any other template. When no account default exists, behaviour is unchanged — falls back to sector detection as before.
 
 **Testing plan:**
-- [ ] Migration: column adds without data loss; FK constraint catches bad template ids.
-- [ ] `set_account_default_template` happy path; rejects unpublished template; rejects non-platform_operator caller.
-- [ ] Wizard: org created with account-default applied carries the correct `sectoral_template_id`; wizard with no default falls back to sector detection.
+- [x] `tests/admin/account-default-template.test.ts` — **5/5 PASS**:
+  1. platform_operator sets a published template; `admin.account_detail` envelope carries `default_template` with status = 'published'.
+  2. support role rejected (platform_operator-tier gate).
+  3. draft template rejected with `must be published` error.
+  4. clearing (passing NULL) returns the envelope to `default_template: null`.
+  5. audit row carries `account_id` + `target_id` both set to the account id.
+
+**Test results:**
+- [x] `cd admin && bunx tsc --noEmit` — PASS.
+- [x] `cd admin && bun run lint` — PASS.
+- [x] `cd app && bun run lint` — PASS (customer-app wizard pre-selection).
+- [x] `bunx supabase db push` — applied cleanly (plus one fixup migration to drop the `is_active` references).
+- [x] `bunx vitest run tests/admin/account-default-template.test.ts` — **5/5 PASS** on live dev project.
 
 ---
 

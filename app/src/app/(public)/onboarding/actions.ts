@@ -132,3 +132,31 @@ export async function listTemplatesForSector(
   }))
   return { ok: true, data: normalised }
 }
+
+// ADR-1027 Sprint 3.3 — resolve the account-default sectoral template
+// for pre-selection at wizard Step 4. Returns `null` when no default is
+// set, or when the set template is no longer published/active.
+export async function getAccountDefaultTemplate(): Promise<
+  ActionResult<
+    | null
+    | {
+        template_id: string
+        template_code: string
+        display_name: string
+        version: number
+      }
+  >
+> {
+  const supabase = await createServerClient()
+  const { data, error } = await supabase.rpc(
+    'resolve_account_default_template',
+  )
+  if (error) return { ok: false, error: error.message }
+  const rows = (data ?? []) as Array<{
+    template_id: string
+    template_code: string
+    display_name: string
+    version: number
+  }>
+  return { ok: true, data: rows[0] ?? null }
+}
