@@ -313,13 +313,34 @@ Run on every provisioning, every credential rotation, and nightly-verify cron (r
 
 **Status:** `[x] complete 2026-04-24 — migration + 3 orchestrator helpers + 3 routes + admin RPC + 2 crons + shared org-crypto module. 18 new unit tests. Vault seeded. Next.js 16 build clean. Live-E2E deferred until first-customer BYOK flow exercises all three surfaces.`
 
-#### Sprint 4.2 — Cost monitoring + billing integration
+#### Sprint 4.2 — Cost monitoring + plan-ceiling tracking
 
 **Estimated effort:** 0.5 day
 
 **Deliverables:**
-- [ ] Monthly admin panel widget: per-org storage-bytes (from CF usage API) + monthly spend estimate + chargeback reporting for Pro / Enterprise tiers.
-- [ ] Alert: single-org storage > plan-tier ceiling → emits ops-readiness flag for sales outreach.
+- [x] `supabase/migrations/20260804000040_storage_usage_snapshots.sql` — five-part migration:
+  1. `public.plans.storage_bytes_limit bigint` column + seed per tier (trial_starter = 1 GiB, starter = 10 GiB, growth = 100 GiB, pro = 1 TiB, enterprise = null/unlimited).
+  2. `public.storage_usage_snapshots` table: `{id, org_id, snapshot_date, storage_provider, bucket_name, payload_bytes, metadata_bytes, object_count, plan_code, plan_ceiling_bytes, over_ceiling (generated), error_text, captured_at}`. UNIQUE on `(org_id, snapshot_date)` so re-runs within the same day upsert. Two indexes: `(org_id, snapshot_date desc)` for history queries + partial index on `over_ceiling=true` for alerting.
+  3. RLS `org_select` policy so customers can read their own snapshots (dashboard display, future sprint). cs_orchestrator gets SELECT + INSERT.
+  4. `public.dispatch_storage_usage_snapshot()` + `pg_cron 'storage-usage-snapshot-monthly'` — `0 23 1 * *` (1st of each month, 04:30 IST on the 2nd). Soft-fails NULL on missing Vault.
+  5. `admin.storage_usage_snapshots_query(p_start_date, p_end_date, p_org_id)` RPC — joins snapshots with organisations for the admin widget, support-tier gated.
+- [x] `app/src/lib/storage/fetch-usage.ts` — `captureStorageUsageSnapshots(pg, deps?)`. Iterates `cs_managed_r2` export_configurations joined with plans, calls CF R2 usage API (`GET /accounts/{id}/r2/buckets/{bucket}/usage`), upserts a snapshot row per org. Captures `{payloadSize, metadataSize, objectCount}`. Time-budgeted at 270 s. Failures are stored on the snapshot row itself so gaps are visible in the admin widget.
+- [x] `app/src/app/api/internal/storage-usage-snapshot/route.ts` — bearer-authed worker, same pattern as Sprint 4.1 routes. Driven by the monthly cron.
+- [x] `admin/src/app/(operator)/storage-usage/page.tsx` — admin chargeback panel. Pulls last 90 days of snapshots via `admin.storage_usage_snapshots_query`. Shows per-org latest snapshot with plan, bucket, usage, ceiling, status (ok / OVER / error). Aggregate stats: orgs tracked, total bytes stored, estimated monthly cost ($0.015/GiB-month — CF R2 standard pricing; excludes Class A/B ops). Over-ceiling rows highlighted + sorted to the top.
+- [x] **Operator step (completed):** seeded Vault secret `cs_storage_usage_url`. Bearer reuses `cs_provision_storage_secret`.
+
+**Testing plan:**
+- [x] `app/tests/storage/fetch-usage.test.ts` — 7 tests. Empty queue / happy path with over-ceiling classification / CF 500 error recorded / CF success=false recorded / enterprise plan (null ceiling) never flagged / budget_exceeded trip mid-sweep / missing CLOUDFLARE_ACCOUNT_ID throws.
+- [x] 115/115 storage tests PASS (108 pre-existing + 7 new).
+- [x] Lint + build: both apps clean (app: 248 files, 0 violations; admin: 0 violations).
+- [ ] **Live-E2E deferred:** no data to capture until the monthly cron runs against production. First snapshot will arrive on the 1st of the following month (or an admin can trigger it manually via direct SQL: `select public.dispatch_storage_usage_snapshot()`).
+
+**Status:** `[x] complete 2026-04-24 — migration + orchestrator + route + admin chargeback widget + monthly cron + admin RPC. 7 new unit tests. Vault seeded. Both apps build clean. Cost estimates in the widget use CF R2 standard pricing; Class A/B ops tracking deferred until the /analytics endpoint is wired (separate follow-up).`
+
+**Follow-ups captured but deferred:**
+- **Class A/B operations count + cost.** The `/usage` endpoint doesn't return operation counts; those come from CF's GraphQL analytics API. Add when there's a real customer whose write-heavy workload warrants distinct ops-cost tracking — for storage-dominated workloads (ConsentShield's usage pattern: compliance-record writes + occasional audit reads), storage dominates by ≥ 95% of the monthly bill.
+- **Razorpay line-item generation** for Pro/Enterprise overages. Manual chargeback for the first customers; automated invoice line items land when ADR-0050 (billing rewrite) is further along.
+- **Customer-facing usage display** on the dashboard storage panel. Requires a customer-facing read path on `storage_usage_snapshots` — the org_select RLS policy is already in place. Deferred to a small UI-only sprint after the first monthly snapshot exists.
 
 ---
 

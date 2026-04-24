@@ -93,12 +93,14 @@ Environment variables added under project `consentshield` → Production (all vi
   - `cs_storage_verify_url` → `https://app.consentshield.in/api/internal/storage-verify` (ADR-1025 Sprint 4.1)
   - `cs_storage_rotate_url` → `https://app.consentshield.in/api/internal/storage-rotate` (ADR-1025 Sprint 4.1)
   - `cs_storage_retention_url` → `https://app.consentshield.in/api/internal/storage-retention-cleanup` (ADR-1025 Sprint 4.1)
-  - All six read by the matching dispatch functions on every trigger + cron invocation. Missing-vault is treated as a soft failure — triggers + crons no-op silently so migrations can land before the operator has a chance to seed.
+  - `cs_storage_usage_url` → `https://app.consentshield.in/api/internal/storage-usage-snapshot` (ADR-1025 Sprint 4.2)
+  - All seven read by the matching dispatch functions on every trigger + cron invocation. Missing-vault is treated as a soft failure — triggers + crons no-op silently so migrations can land before the operator has a chance to seed.
 - **Scheduled storage crons now active** (all run against the same Vercel function, so a shared Fluid Compute cold-start keeps the request-chain warm across the hour):
   - `provision-storage-retry` — `*/5 * * * *` (safety-net for Sprint 2.1's first-data_inventory trigger).
   - `storage-migration-retry` — `* * * * *` (chunk-chain driver for Sprint 3.2).
   - `storage-nightly-verify` — `30 20 * * *` (02:00 IST, Sprint 4.1).
   - `storage-retention-cleanup` — `30 21 * * *` (03:00 IST, Sprint 4.1).
+  - `storage-usage-snapshot-monthly` — `0 23 1 * *` (1st of month, 04:30 IST on 2nd, Sprint 4.2).
 - **Rotation procedure**: update both the Vercel env and the Vault secret in the same window. Dispatches during the gap will soft-fail; the retry crons catch them once both sides are consistent.
 
 ### Verified end-to-end

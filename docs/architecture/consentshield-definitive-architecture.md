@@ -230,7 +230,9 @@ CAN INSERT: audit_log, processing_log, rights_request_events, deletion_receipts,
             export_verification_failures (ADR-1025 Sprint 1.3 — probe failures;
                                           migration 20260804000035),
             storage_migrations (ADR-1025 Sprint 3.2 — BYOK migration orchestrator;
-                                migration 20260804000038)
+                                migration 20260804000038),
+            storage_usage_snapshots (ADR-1025 Sprint 4.2 — monthly usage capture;
+                                     migration 20260804000040)
 CAN SELECT: accounts, account_memberships, organisations, org_memberships, web_properties,
             plans, tracker_signatures, integration_connectors, retention_rules,
             notification_channels, rights_requests, consent_artefact_index,
@@ -242,6 +244,8 @@ CAN SELECT: accounts, account_memberships, organisations, org_memberships, web_p
                                    migration 20260804000037),
             storage_migrations (ADR-1025 Sprint 3.2 — migration orchestrator loads rows at
                                 every chunk; migration 20260804000038),
+            storage_usage_snapshots (ADR-1025 Sprint 4.2 — admin chargeback widget reads
+                                     via admin.storage_usage_snapshots_query),
             consent_events (DEPA — process-consent-event needs the originating event row),
             purpose_definitions (DEPA), purpose_connector_mappings (DEPA),
             consent_artefacts (DEPA), consent_expiry_queue (DEPA),

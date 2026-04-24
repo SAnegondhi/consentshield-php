@@ -1069,6 +1069,13 @@ grant insert on export_verification_failures to cs_orchestrator;  -- migration 3
 -- runs as cs_orchestrator) and by admin.storage_migrate(). Migration 38.
 grant select, insert, update on storage_migrations to cs_orchestrator;
 
+-- storage_usage_snapshots: ADR-1025 Phase 4 Sprint 4.2 — monthly usage
+-- capture. The /api/internal/storage-usage-snapshot route inserts one
+-- row per cs_managed_r2 org from the CF R2 /usage endpoint. Admins read
+-- via admin.storage_usage_snapshots_query (support-tier gated).
+-- Migration 40.
+grant select, insert on storage_usage_snapshots to cs_orchestrator;
+
 -- Can update specific fields for automated workflows
 grant update (status) on rights_requests to cs_orchestrator;
 grant update (assignee_id) on rights_requests to cs_orchestrator;

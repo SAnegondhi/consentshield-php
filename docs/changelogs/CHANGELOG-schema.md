@@ -2,6 +2,35 @@
 
 Database migrations, RLS policies, roles.
 
+## [ADR-1025 Sprint 4.2 — storage_usage_snapshots table + plan ceilings + monthly cron] — 2026-04-24
+
+**ADR:** ADR-1025 — Customer storage auto-provisioning
+**Sprint:** Phase 4, Sprint 4.2 — Cost monitoring + plan-ceiling tracking
+
+### Added
+- `supabase/migrations/20260804000040_storage_usage_snapshots.sql` — five-part migration:
+  1. **`public.plans.storage_bytes_limit bigint`** column added, plus per-tier seeds (trial_starter = 1 GiB, starter = 10 GiB, growth = 100 GiB, pro = 1 TiB, enterprise = NULL for no-ceiling). Tier enforcement via the generated `storage_usage_snapshots.over_ceiling` column (below).
+  2. **`public.storage_usage_snapshots`** table: `{id, org_id, snapshot_date, storage_provider, bucket_name, payload_bytes, metadata_bytes, object_count, plan_code, plan_ceiling_bytes, over_ceiling, error_text, captured_at}`. `over_ceiling` is a `generated always as (...) stored` boolean: `plan_ceiling_bytes IS NOT NULL AND payload_bytes + metadata_bytes > plan_ceiling_bytes`. UNIQUE on `(org_id, snapshot_date)` so re-runs within the same day upsert. Two indexes: `(org_id, snapshot_date desc)` for history queries + partial index on `over_ceiling=true` for alerting queries.
+  3. **RLS**: `org_select` policy for authenticated users (customers can see their own org's snapshots, powering a future dashboard widget). No INSERT/UPDATE/DELETE from authenticated — cs_orchestrator owns writes.
+  4. **cs_orchestrator grants**: SELECT + INSERT on `storage_usage_snapshots`.
+  5. **`public.dispatch_storage_usage_snapshot()`** + **`pg_cron 'storage-usage-snapshot-monthly'`** — `0 23 1 * *` (1st of each month at 23:00 UTC = 04:30 IST on the 2nd). Standard Vault-backed dispatch; soft-fails NULL on missing vault.
+- **`admin.storage_usage_snapshots_query(p_start_date date, p_end_date date, p_org_id uuid default null)`** — SECURITY DEFINER RPC, support-tier gated. Returns the snapshots joined with `public.organisations.name` for the admin chargeback widget.
+
+### Operator step (completed 2026-04-24)
+Seeded one new Vault secret via the postgres user + Supavisor pooler:
+- `cs_storage_usage_url` → `https://app.consentshield.in/api/internal/storage-usage-snapshot`
+
+Bearer reuses `cs_provision_storage_secret`.
+
+### Tested
+- `bunx supabase db push` — 1 migration applied cleanly against dev DB.
+- Verification queries confirm per-plan ceilings seeded, cron row landed at the expected schedule, admin RPC compiles.
+- Orchestrator behaviour via 7 new unit tests (115/115 storage tests PASS); live snapshot collection deferred until the 1st of next month (or manual trigger via `select public.dispatch_storage_usage_snapshot()`).
+
+### Architecture changes
+- New scheduled job `storage-usage-snapshot-monthly` active on the platform (1st of month, 04:30 IST). Brings the total storage-hygiene cron count to four — provision-retry, migration-retry, nightly-verify, retention-cleanup, and now usage-snapshot.
+- `public.plans` schema evolves with `storage_bytes_limit` — the first plan-level quota column (previous limits were per-resource counts like `max_organisations`).
+
 ## [ADR-1025 Sprint 4.1 — storage hygiene crons + rotation RPC + retention tracking] — 2026-04-24
 
 **ADR:** ADR-1025 — Customer storage auto-provisioning

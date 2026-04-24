@@ -2,6 +2,33 @@
 
 API route changes.
 
+## [ADR-1025 Sprint 4.2 — monthly storage usage snapshots + admin chargeback panel] — 2026-04-24
+
+**ADR:** ADR-1025 — Customer storage auto-provisioning
+**Sprint:** Phase 4, Sprint 4.2
+
+### Added — orchestrator
+- `app/src/lib/storage/fetch-usage.ts` — `captureStorageUsageSnapshots(pg, deps?)`. Iterates every `cs_managed_r2` export_configurations row (joined with `public.accounts` + `public.plans` for plan code + ceiling), calls CF R2 usage API (`GET /accounts/{id}/r2/buckets/{bucket}/usage`), upserts a `storage_usage_snapshots` row per org. Captures `{payloadSize, metadataSize, objectCount}`. `over_ceiling` is computed server-side as a generated column on the table (`payload_bytes + metadata_bytes > plan_ceiling_bytes`, null-ceiling never over). 270 s time budget. Failures recorded on the snapshot row's `error_text` field so data gaps are visible in the admin widget.
+
+### Added — route
+- `app/src/app/api/internal/storage-usage-snapshot/route.ts` — bearer-authed POST (same `STORAGE_PROVISION_SECRET` as Sprint 2.1+). Driven by `pg_cron 'storage-usage-snapshot-monthly'` on the 1st of each month at 04:30 IST. Returns the summary for operator inspection.
+
+### Added — admin surface
+- `admin/src/app/(operator)/storage-usage/page.tsx` — server component. Pulls last 90 days of snapshots via `admin.storage_usage_snapshots_query` (support-tier gated SECURITY DEFINER RPC). Shows:
+  - Aggregate stats card: orgs tracked / total bytes stored / estimated monthly cost at $0.015/GiB-month (CF R2 standard pricing, excludes Class A/B ops).
+  - Per-org table: latest snapshot per org sorted by over-ceiling status first then by usage descending. Columns: Org, Plan, Bucket, Usage, Objects, Ceiling, Status (OVER/ok/error), Snapshot date.
+  - Over-ceiling rows highlighted red.
+
+### Tested
+- `app/tests/storage/fetch-usage.test.ts` — 7 tests. Empty queue / happy path with over-ceiling classification / CF 500 recorded / CF success=false recorded / enterprise plan (null ceiling) never flagged over / budget_exceeded trip mid-sweep / missing CLOUDFLARE_ACCOUNT_ID throws.
+- `bunx vitest run tests/storage/` — 115/115 PASS (108 pre-existing + 7 new).
+- Lint clean: app 248 files, 0 violations; admin 0 violations. Both apps build clean.
+
+### Scope boundary
+- **Class A/B ops cost tracking deferred**: the `/usage` endpoint only returns storage metrics. Operation counts come from CF's GraphQL analytics API — separate integration. Storage dominates ≥95% of the monthly bill for ConsentShield's write-pattern, so storage-only tracking captures the load-bearing chargeback signal.
+- **Razorpay line-item generation deferred**: manual chargeback for first customers; automated invoice line items land with the ADR-0050 billing rewrite.
+- **Customer-facing usage display deferred**: the `org_select` RLS policy on `storage_usage_snapshots` is in place; a customer-facing widget on the dashboard storage panel is a small UI-only follow-up after the first monthly snapshot exists.
+
 ## [ADR-1025 Sprint 4.1 — nightly verify + rotation RPC + retention cleanup] — 2026-04-24
 
 **ADR:** ADR-1025 — Customer storage auto-provisioning
