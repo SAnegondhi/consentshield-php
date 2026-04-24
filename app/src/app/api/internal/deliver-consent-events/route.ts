@@ -14,16 +14,20 @@
 
 import { NextResponse } from 'next/server'
 import { csDelivery } from '@/lib/api/cs-delivery-client'
-import { deliverOne } from '@/lib/delivery/deliver-events'
+import { deliverBatch, deliverOne } from '@/lib/delivery/deliver-events'
 
 export const dynamic = 'force-dynamic'
 export const runtime = 'nodejs'
+// Under Fluid Compute the default function timeout is 300s; keep it at
+// that cap explicitly so the scan-mode batch has room for its 270s budget.
+export const maxDuration = 300
 
 const SECRET = process.env.STORAGE_PROVISION_SECRET ?? ''
 
 interface Body {
   delivery_buffer_id?: unknown
   scan?: unknown
+  limit?: unknown
 }
 
 export async function POST(request: Request) {
@@ -45,11 +49,13 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'invalid_json' }, { status: 400 })
   }
 
+  const pg = csDelivery()
+
   if (body.scan === true) {
-    return NextResponse.json(
-      { error: 'scan_mode_not_yet_implemented', sprint: '2.2' },
-      { status: 501 },
-    )
+    const rawLimit = typeof body.limit === 'number' ? body.limit : 200
+    const limit = Math.max(1, Math.min(500, Math.floor(rawLimit)))
+    const summary = await deliverBatch(pg, limit)
+    return NextResponse.json(summary)
   }
 
   const id = body.delivery_buffer_id
@@ -60,7 +66,6 @@ export async function POST(request: Request) {
     )
   }
 
-  const pg = csDelivery()
   const result = await deliverOne(pg, id)
 
   const statusCode =

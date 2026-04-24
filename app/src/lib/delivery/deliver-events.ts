@@ -63,6 +63,108 @@ export interface DeliverDeps {
   now?: () => number
 }
 
+// ADR-1019 Sprint 2.2 — batch + backoff.
+//
+// Per-request wall-time budget. Stops pulling new rows once exceeded; the
+// cron's next 60s tick picks up where we left off. 270 s matches the
+// convention set by the ADR-1025 storage routes (4.5 min — safe under
+// Fluid Compute's 300s cap with ~30s headroom for the last row in flight).
+const BATCH_TIME_BUDGET_MS = 270_000
+const MAX_ATTEMPT_COUNT = 10
+
+export interface BatchSummary {
+  attempted: number
+  delivered: number
+  quarantined: number
+  budgetExceeded: boolean
+  outcomes: Record<DeliverOutcome, number>
+}
+
+export interface DeliverBatchDeps extends DeliverDeps {
+  // Tests override with vi.fn; production callers omit and get the real one.
+  deliverOneFn?: typeof deliverOne
+}
+
+export async function deliverBatch(
+  pg: Pg,
+  limit = 200,
+  deps: DeliverBatchDeps = {},
+): Promise<BatchSummary> {
+  const now = deps.now ?? (() => Date.now())
+  const oneFn = deps.deliverOneFn ?? deliverOne
+  const started = now()
+
+  // Select candidate row ids:
+  //   · not delivered
+  //   · under the manual-review threshold (Sprint 2.3 handles the escalation;
+  //     this sprint skips them so retries don't burn cycles)
+  //   · past the exponential-backoff gate (LEAST(2^attempt_count, 60) min
+  //     since last_attempted_at)
+  //   · oldest-first (first_attempted_at NULLS FIRST, then created_at)
+  const candidates = (await pg`
+    select id
+      from public.delivery_buffer
+     where delivered_at is null
+       and attempt_count < ${MAX_ATTEMPT_COUNT}
+       and (
+         last_attempted_at is null
+         or last_attempted_at
+            + (least(power(2, attempt_count)::int, 60) * interval '1 minute')
+            <= now()
+       )
+     order by first_attempted_at asc nulls first, created_at asc
+     limit ${limit}
+  `) as unknown as Array<{ id: string }>
+
+  const outcomes: Record<DeliverOutcome, number> = {
+    delivered: 0,
+    not_found: 0,
+    already_delivered: 0,
+    no_export_config: 0,
+    unverified_export_config: 0,
+    upload_failed: 0,
+    decrypt_failed: 0,
+    endpoint_failed: 0,
+  }
+  let attempted = 0
+  let budgetExceeded = false
+
+  for (const { id } of candidates) {
+    if (now() - started >= BATCH_TIME_BUDGET_MS) {
+      budgetExceeded = true
+      break
+    }
+    attempted += 1
+    // One bad row doesn't halt the batch. Unexpected throws (e.g. a
+    // transient pg outage) mark the row best-effort; on failure to mark,
+    // log-and-move-on.
+    try {
+      const res = await oneFn(pg, id, deps)
+      outcomes[res.outcome] = (outcomes[res.outcome] ?? 0) + 1
+    } catch (err) {
+      outcomes.upload_failed += 1
+      await markFailure(pg, id, `batch_exception: ${errorMessage(err).slice(0, 380)}`)
+        .catch(() => {})
+    }
+  }
+
+  const delivered = outcomes.delivered
+  const quarantined =
+    outcomes.no_export_config +
+    outcomes.unverified_export_config +
+    outcomes.decrypt_failed +
+    outcomes.endpoint_failed +
+    outcomes.upload_failed
+
+  return {
+    attempted,
+    delivered,
+    quarantined,
+    budgetExceeded,
+    outcomes,
+  }
+}
+
 interface JoinedRow {
   id: string
   org_id: string

@@ -2,6 +2,32 @@
 
 API route changes.
 
+## [ADR-1019 Sprint 2.2 — batch + backoff] — 2026-04-24
+
+**ADR:** ADR-1019 — `deliver-consent-events` Next.js route
+**Sprint:** Phase 2, Sprint 2.2
+
+### Added — batch API
+- `deliverBatch(pg, limit=200, deps?)` in `app/src/lib/delivery/deliver-events.ts`. Candidate SELECT respects the manual-review threshold (`attempt_count < 10`) and the exponential-backoff gate (`last_attempted_at + LEAST(power(2, attempt_count)::int, 60) * interval '1 minute' <= now()`). ORDER BY `first_attempted_at NULLS FIRST, created_at` — oldest-first. Per-request wall-time budget `270_000 ms` (matches ADR-1025 storage-route convention). Soft-fails on individual row throws: caught, counted as `upload_failed`, best-effort `markFailure` with `batch_exception:` prefix. One bad row never halts the batch.
+- `DeliverBatchDeps` extends `DeliverDeps` with `deliverOneFn?: typeof deliverOne` for test isolation.
+- `BatchSummary` return shape: `{attempted, delivered, quarantined, budgetExceeded, outcomes}` where `outcomes` is the full `Record<DeliverOutcome, number>`.
+
+### Changed — route
+- `/api/internal/deliver-consent-events` now accepts `{scan: true, limit?}` alongside `{delivery_buffer_id}`. `limit` clamped to `[1, 500]`. `export const maxDuration = 300` pinned to give the 270s batch budget headroom under Fluid Compute.
+
+### Amendment
+Proposal's 25 s budget targeted the 30 s Supabase Edge Function ceiling. Under Next.js Fluid Compute the hard cap is 300 s, so the budget lifts to 270 s — same figure the ADR-1025 storage orchestrators use.
+
+### Tested
+- `app/tests/delivery/deliver-batch.test.ts` — 7 tests. Empty queue / happy batch of 3 / mixed outcomes / budget exceeded (stops early) / soft-fail on deliverOne throw + markFailure called / candidate query shape / caller-provided limit. PASS.
+- `bunx vitest run tests/delivery/` — 32/32 PASS (25 Sprint 2.1 + 7 Sprint 2.2).
+- `bun run lint` + `bun run build` clean.
+
+### Deferred to Sprint 2.3
+- Unknown-event_type quarantine + manual-review escalation at `attempt_count >= 10` → readiness flag.
+- Structured logging wiring (`DeliverOneResult` / `BatchSummary` through pino or the existing log adapter).
+- Sentry `beforeSend` hardening to strip `payload` + `write_credential_enc` from error captures.
+
 ## [ADR-1019 Sprint 2.1 — deliver-one orchestrator + internal route] — 2026-04-24
 
 **ADR:** ADR-1019 — `deliver-consent-events` Next.js route

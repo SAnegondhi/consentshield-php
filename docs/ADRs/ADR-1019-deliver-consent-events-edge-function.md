@@ -177,14 +177,21 @@ Unknown `event_type` values must **not** error — the function logs a structure
 
 **Estimated effort:** 0.5 day
 
+**Amendment:** The proposal called for a 25 s wall-time budget matching the 30 s Edge Function ceiling. Under Next.js Fluid Compute (300 s cap), the budget lifts to **270 s** — matching the convention set by the ADR-1025 storage routes. `maxDuration = 300` is pinned on the route.
+
 **Deliverables:**
-- [ ] `index.ts::deliverBatch(limit=200)` — ORDER BY `first_attempted_at NULLS FIRST, created_at` (oldest undelivered first, never-attempted first). Respects per-row backoff: `first_attempted_at + LEAST(2^attempt_count, 60) * interval '1 minute' <= now()`.
-- [ ] Per-request budget: max 200 rows per invocation, max 25 s total wall time (leaves 5 s headroom in the 30s Edge Function ceiling). Remaining rows picked up on the next cron tick.
-- [ ] Soft-fail on individual row errors — one bad row does not halt the batch. Log + increment + move on.
+- [x] `deliverBatch(pg, limit=200, deps?)` in `app/src/lib/delivery/deliver-events.ts`:
+  - Candidate SELECT: `delivered_at IS NULL`, `attempt_count < 10` (manual-review threshold; Sprint 2.3 handles escalation), backoff gate `last_attempted_at IS NULL OR last_attempted_at + (LEAST(power(2, attempt_count)::int, 60) * interval '1 minute') <= now()`, ORDER BY `first_attempted_at ASC NULLS FIRST, created_at ASC`, caller-provided limit.
+  - Per-request wall-time budget `BATCH_TIME_BUDGET_MS = 270_000`. `budgetExceeded` flag returned in the summary. Cron's next 60 s tick picks up where we left off.
+  - Soft-fail on individual row throws: caught, counted as `upload_failed`, best-effort `markFailure` with `batch_exception:` prefix so operators can triage. One bad row never halts the batch.
+  - `BatchSummary` return shape: `{attempted, delivered, quarantined, budgetExceeded, outcomes}` where `outcomes` is a full `Record<DeliverOutcome, number>`.
+- [x] `/api/internal/deliver-consent-events` route extended: `{scan: true, limit?: number}` now drives the batch path (was 501 in Sprint 2.1). `limit` clamped to `[1, 500]`. `maxDuration = 300` pinned.
+- [x] `deliverOneFn` added to `DeliverBatchDeps` for test isolation.
 
 **Testing plan:**
-- [ ] Integration: seed 5 rows, invoke batch, assert 5 R2 objects + 5 DB deletes + 0 errors logged.
-- [ ] Integration: seed 3 rows + 1 row with a broken export_config (unverified), invoke batch, assert 3 delivered, 1 remains with `delivery_error` set, `attempt_count > 0` on the broken row.
+- [x] `app/tests/delivery/deliver-batch.test.ts` — 7 tests. Empty queue / happy batch of 3 / mixed outcomes / budget exceeded (stops early) / soft-fail on deliverOne throw + markFailure called / candidate query shape (manual-review threshold + backoff + ordering present) / caller-provided limit propagated. PASS.
+- [x] `bun run lint` — 0 violations. `bun run build` — Next.js 16 clean.
+- [ ] Integration E2E against real CF — deferred to Sprint 3.1.
 
 #### Sprint 2.3 — Unknown event_type handling + operator alerts
 
@@ -270,6 +277,7 @@ No new migration required. The operator runbook below handles the two live-syste
 - CHANGELOG-api.md — ADR-1019 Sprint 1.1 entry (cs_delivery Next.js client helper).
 - CHANGELOG-api.md — ADR-1019 Sprint 1.2 entry (endpoint derivation helper).
 - CHANGELOG-api.md — ADR-1019 Sprint 2.1 entry (deliver-one orchestrator + internal route).
+- CHANGELOG-api.md — ADR-1019 Sprint 2.2 entry (batch + backoff).
 
 ## Acceptance criteria
 
