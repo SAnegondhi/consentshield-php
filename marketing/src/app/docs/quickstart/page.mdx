@@ -1,0 +1,202 @@
+export const metadata = {
+  title: 'Quickstart',
+  description:
+    'Record your first consent artefact in 15 minutes — from API key to verified receipt.',
+}
+
+<Breadcrumb trail={[
+  { label: 'Docs', href: '/docs' },
+  { label: 'Get started', href: '/docs' },
+  { label: 'Quickstart' },
+]} />
+
+# Quickstart — record your first consent artefact
+
+In 15 minutes you will issue an API key, call `POST /v1/consent/record`, and
+verify the resulting artefact. If you get stuck, email
+[dev-support@consentshield.in](mailto:dev-support@consentshield.in) — we
+reply within one business day.
+
+<Callout tone="info" title="Before you start">
+You'll need a ConsentShield account ([sign up here](https://consentshield.in/signup)).
+The trial includes a sandboxed organisation where every request below will
+succeed without a payment method.
+</Callout>
+
+## 1. Issue an API key
+
+In the dashboard go to **Settings → API keys → New key**. Give it a name
+(e.g. *staging-integration*) and copy the plaintext. **You will only see
+it once** — store it in a secret manager, never in source control.
+
+The key looks like `cs_live_01HRG…N7QZ`. Keys are scoped to one
+organisation; a separate `org_id` is embedded inside and verified on every
+request.
+
+<Callout tone="security" title="Never commit keys">
+`cs_live_*` keys grant full tenant API access. A leaked key should be
+rotated immediately via **Settings → API keys → Rotate** — see
+[Rotate an API key safely](/docs/cookbook/rotate-api-key-safely) for the
+zero-downtime procedure.
+</Callout>
+
+## 2. Test the key
+
+Call the health endpoint to confirm authentication works.
+
+<CodeTabs tabs={[
+  {
+    label: 'cURL',
+    language: 'bash',
+    code: `# Expect HTTP 200 + {"ok": true}
+curl "https://api.consentshield.in/v1/_ping" \\
+  -H "Authorization: Bearer $CS_API_KEY"`,
+  },
+  {
+    label: 'Node.js',
+    language: 'typescript',
+    code: `const res = await fetch('https://api.consentshield.in/v1/_ping', {
+  headers: { Authorization: \`Bearer \${process.env.CS_API_KEY}\` },
+})
+const body = await res.json()
+console.log(res.status, body) // 200 { ok: true }`,
+  },
+  {
+    label: 'Python',
+    language: 'python',
+    code: `import os, httpx
+
+r = httpx.get(
+    "https://api.consentshield.in/v1/_ping",
+    headers={"Authorization": f"Bearer {os.environ['CS_API_KEY']}"},
+)
+print(r.status_code, r.json())  # 200 {'ok': True}`,
+  },
+]} />
+
+A non-200 response means the key is wrong, revoked, or missing the
+`Bearer ` prefix — see [authentication](/docs/authentication).
+
+## 3. Record a consent
+
+The minimum viable request needs a data-principal identifier, a purpose
+code (fetched via `GET /v1/purposes`), and the consent outcome. Every
+`POST /v1/consent/record` is **idempotent** when you supply an
+`Idempotency-Key` header — the same key replayed returns the same artefact
+id.
+
+<CodeTabs tabs={[
+  {
+    label: 'cURL',
+    language: 'bash',
+    code: `curl -X POST "https://api.consentshield.in/v1/consent/record" \\
+  -H "Authorization: Bearer $CS_API_KEY" \\
+  -H "Content-Type: application/json" \\
+  -H "Idempotency-Key: order-78421-marketing" \\
+  -d '{
+    "data_principal": { "email": "a@example.in" },
+    "purpose_code":   "marketing_email",
+    "outcome":        "granted",
+    "origin":         "https://shop.example.in/checkout"
+  }'`,
+  },
+  {
+    label: 'Node.js',
+    language: 'typescript',
+    code: `const res = await fetch(
+  'https://api.consentshield.in/v1/consent/record',
+  {
+    method: 'POST',
+    headers: {
+      Authorization: \`Bearer \${process.env.CS_API_KEY}\`,
+      'Content-Type': 'application/json',
+      'Idempotency-Key': 'order-78421-marketing',
+    },
+    body: JSON.stringify({
+      data_principal: { email: 'a@example.in' },
+      purpose_code: 'marketing_email',
+      outcome: 'granted',
+      origin: 'https://shop.example.in/checkout',
+    }),
+  },
+)
+const { artefact_id } = await res.json()`,
+  },
+  {
+    label: 'Python',
+    language: 'python',
+    code: `import os, httpx
+
+r = httpx.post(
+    "https://api.consentshield.in/v1/consent/record",
+    headers={
+        "Authorization": f"Bearer {os.environ['CS_API_KEY']}",
+        "Idempotency-Key": "order-78421-marketing",
+    },
+    json={
+        "data_principal": {"email": "a@example.in"},
+        "purpose_code": "marketing_email",
+        "outcome": "granted",
+        "origin": "https://shop.example.in/checkout",
+    },
+)
+artefact_id = r.json()["artefact_id"]`,
+  },
+]} />
+
+The response looks like:
+
+<CodeTabs tabs={[
+  {
+    label: 'JSON',
+    language: 'json',
+    code: `{
+  "artefact_id": "01HRG5K9X7N5B2VA8P3M9Q4W1T",
+  "recorded_at": "2026-04-24T14:22:08.512Z",
+  "purpose_code": "marketing_email",
+  "purpose_version": 3,
+  "outcome": "granted",
+  "expires_at": "2027-04-24T14:22:08.512Z"
+}`,
+  },
+]} />
+
+## 4. Verify & archive
+
+Use the artefact id to re-verify consent on every subsequent transaction,
+and to produce DPB-facing audit exports.
+
+<CodeTabs tabs={[
+  {
+    label: 'cURL',
+    language: 'bash',
+    code: `# Before sending marketing — re-verify the artefact is still active.
+curl "https://api.consentshield.in/v1/consent/verify?artefact_id=01HRG5K9X7N5B2VA8P3M9Q4W1T" \\
+  -H "Authorization: Bearer $CS_API_KEY"
+
+# Expect: {"status": "active", "expires_at": "2027-04-24T…", ...}`,
+  },
+]} />
+
+<Callout tone="tip" title="You're done">
+That artefact is now the system of record. It survives banner changes,
+session drops, and employee churn. To invalidate it, call
+`POST /v1/consent/artefacts/{id}/revoke` — **never delete rows directly**.
+The buffer tables that back the API are ephemeral; the canonical record
+lives in the customer's own R2/S3 bucket, not ConsentShield's database.
+</Callout>
+
+## What's next
+
+Three common integrations to ship next:
+
+- [Record consent at checkout](/docs/cookbook/record-consent-at-checkout) — capture at purchase time without blocking the submit.
+- [Build a preference center](/docs/cookbook/build-a-preference-center) — self-service consent management for logged-in users.
+- [Handle a rights request](/docs/cookbook/handle-a-rights-request) — end-to-end DPDP §13/§14 fulfilment.
+
+And the core mental model:
+
+- [DPDP Act in 3 minutes](/docs/concepts/dpdp-in-3-minutes) — the law, the vocabulary, the consent contract.
+- [Artefacts vs. events](/docs/concepts/artefacts-vs-events) — which one to call, when.
+
+<FeedbackStrip pagePath="marketing/src/app/docs/quickstart/page.mdx" />

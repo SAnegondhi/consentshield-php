@@ -61,10 +61,18 @@ const nextConfig: NextConfig = {
   },
 }
 
-// ADR-1015 Phase 1 Sprint 1.1 — MDX plugin. remark/rehype plugin
-// additions (syntax highlighting, auto-slugs, etc.) land in later
-// sprints once the content authoring cadence demands them.
-const withMDX = createMDX({})
+// ADR-1015 Phase 2 Sprint 2.1 — MDX plugin chain.
+//   remark-gfm adds GitHub-flavoured markdown (tables, task-lists,
+//     strikethrough, autolinks).
+//   rehype-slug auto-generates id="slug" on every h1-h6 from the
+//     heading text, so the ToC rail + in-page hash links work
+//     without every page authoring explicit ids.
+const withMDX = createMDX({
+  options: {
+    remarkPlugins: [['remark-gfm']],
+    rehypePlugins: [['rehype-slug']],
+  },
+})
 
 // Sentry wrapping — auto-loads sentry.{server,client,edge}.config.ts from
 // project root. Source-map upload is a no-op in local dev; kicks in when

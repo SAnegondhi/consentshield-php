@@ -1,0 +1,169 @@
+export const metadata = {
+  title: 'Artefacts vs. events',
+  description:
+    'Two kinds of record flow through the ConsentShield API — artefacts are the durable evidence; events are the transient log entries that produce them.',
+}
+
+<Breadcrumb trail={[
+  { label: 'Docs', href: '/docs' },
+  { label: 'Core concepts', href: '/docs' },
+  { label: 'Artefacts vs. events' },
+]} />
+
+# Artefacts vs. events
+
+The ConsentShield API distinguishes two kinds of record. Understanding
+which one to call — and when the system produces them on your behalf — is
+the single biggest lift for a new integrator.
+
+## TL;DR
+
+<ParamTable params={[
+  {
+    name: 'Consent artefact',
+    type: 'durable',
+    description: 'A first-class, immutable, DPB-quotable record of a specific consent decision. Has a stable id. Lives in the customer\'s R2/S3 bucket. Queried via /v1/consent/verify, /v1/consent/artefacts.',
+  },
+  {
+    name: 'Consent event',
+    type: 'transient',
+    description: 'A single state-transition row: recorded, revoked, expired, replaced. Buffered for seconds to minutes before delivery to customer storage; deleted from ConsentShield afterwards. Queried via /v1/consent/events for recent history.',
+  },
+]} />
+
+A single artefact typically has **N events** attached: one `recorded`, zero
+or more `replaced` (when a new version supersedes it), and optionally a
+`revoked` or `expired`. The artefact is the **subject**; the events are the
+**verbs** that happened to it.
+
+## Why this split exists — the stateless oracle
+
+ConsentShield is architecturally a **stateless compliance oracle**:
+
+1. A consent decision arrives at the API (`POST /v1/consent/record`).
+2. An artefact is materialised in-memory, signed, and written to the
+   customer's own R2 or S3 bucket.
+3. A corresponding event row is written to ConsentShield's buffer.
+4. A background pipeline delivers the buffered rows to customer
+   storage within minutes.
+5. **Once delivery is confirmed, the ConsentShield row is deleted.**
+
+The customer ends up holding the canonical record. ConsentShield holds
+only what's needed to serve the next verify / revoke / list request —
+and even that is bounded.
+
+<Callout tone="info" title="Why does this matter to my integration?">
+It means you can't rely on ConsentShield as your long-term data store.
+Audit exports, DPB responses, and historical reports all read from your
+R2/S3 bucket directly — we just help you produce and organise the
+artefacts. [Build a DPB audit export](/docs/cookbook/build-dpb-audit-export)
+walks through this path.
+</Callout>
+
+## The artefact life cycle
+
+```
+ POST /v1/consent/record
+          │
+          ▼
+ ┌─────────────────────┐
+ │  artefact created   │   status = active
+ │  (delivered to R2)  │   events  = [recorded]
+ └─────────┬───────────┘
+           │
+           │  POST /v1/consent/record   — user consents to a superseding version
+           │  ───────────────────────▶  events += [replaced]
+           │
+           │  POST /v1/consent/artefacts/{id}/revoke
+           │  ───────────────────────▶  status = revoked · events += [revoked]
+           │
+           │  purpose.auto_delete_on_expiry + time
+           │  ───────────────────────▶  status = expired  · events += [expired]
+           │
+           ▼
+ ┌─────────────────────┐
+ │   terminal state    │   Still queryable via /consent/verify?artefact_id=…
+ │                     │   and /consent/artefacts for audit.
+ └─────────────────────┘
+```
+
+## When to call which endpoint
+
+<ParamTable params={[
+  {
+    name: 'User ticked a consent checkbox',
+    type: 'artefact',
+    description: <>Call <code>POST /v1/consent/record</code>. Receive an <code>artefact_id</code>. Store that id against your user row.</>,
+  },
+  {
+    name: 'Before sending marketing / analytics',
+    type: 'verify',
+    description: <>Call <code>GET /v1/consent/verify?artefact_id=…</code>. Returns <code>active</code> / <code>revoked</code> / <code>expired</code>. If not <code>active</code>, do not process.</>,
+  },
+  {
+    name: 'Bulk pre-flight check (millions of rows)',
+    type: 'verify-batch',
+    description: <>Call <code>POST /v1/consent/verify/batch</code> with up to 1000 ids per call. Avoids per-call round-trip overhead.</>,
+  },
+  {
+    name: 'User hits "unsubscribe" or preference-center toggle',
+    type: 'revoke',
+    description: <>Call <code>POST /v1/consent/artefacts/&#123;id&#125;/revoke</code>. Triggers downstream deletion connectors automatically (see <a href="/docs/concepts/deletion-connectors">deletion connectors</a>).</>,
+  },
+  {
+    name: 'Show the user "what have I consented to?"',
+    type: 'artefacts',
+    description: <>Call <code>GET /v1/consent/artefacts?principal_email=…</code>. Returns every active artefact with its purpose + recorded-at + expires-at.</>,
+  },
+  {
+    name: 'DPB audit / investigation — produce 90-day history',
+    type: 'events',
+    description: <>Call <code>GET /v1/consent/events?from=YYYY-MM-DD&to=YYYY-MM-DD</code>. Streams every event in the window. Often combined with the R2 bucket export for a complete paper trail.</>,
+  },
+]} />
+
+## What lives in the buffer, what lives in R2
+
+<Callout tone="warn" title="The buffer is not your archive">
+Do **not** build reports that read from ConsentShield's `/v1/consent/events`
+beyond a 90-day window. The buffer is a write-ahead log; we delete
+delivered rows within minutes. Historical queries of any age should
+read from your own R2/S3 bucket, where every event and every artefact
+has been durably delivered.
+</Callout>
+
+<ParamTable params={[
+  {
+    name: 'Consent artefacts (durable)',
+    type: 'customer R2/S3',
+    description: 'Full artefact history. Immutable. Queryable via S3 SELECT, Athena, Redshift Spectrum, etc. Structure: <bucket>/consent/<YYYY>/<MM>/<DD>/<artefact_id>.json',
+  },
+  {
+    name: 'Consent events (recent-history buffer)',
+    type: 'ConsentShield DB',
+    description: 'Last 90 days. Window is soft-configurable per plan. Deleted on confirmed delivery to customer storage. Do not cache this data client-side for longer than the SLA states.',
+  },
+  {
+    name: 'Tracker observations',
+    type: 'ConsentShield DB (buffer) + customer R2/S3',
+    description: 'Which trackers fired on which page, in which state of consent. Short buffer; durable copy in the customer\'s R2/S3 bucket.',
+  },
+  {
+    name: 'Rights-request events',
+    type: 'ConsentShield DB + customer R2/S3',
+    description: 'Every rights-request state transition. Customer bucket for long-term audit.',
+  },
+]} />
+
+## Next steps
+
+- [Purpose definitions](/docs/concepts/purpose-definitions) — the
+  metadata every artefact needs.
+- [Rights requests lifecycle](/docs/concepts/rights-requests-lifecycle) —
+  the DPDP §11-14 fulfilment flow.
+- [Deletion connectors](/docs/concepts/deletion-connectors) — the
+  downstream fan-out that revoke triggers.
+- [Build a DPB audit export](/docs/cookbook/build-dpb-audit-export) —
+  end-to-end recipe that joins R2 data with ConsentShield metadata.
+
+<FeedbackStrip pagePath="marketing/src/app/docs/concepts/artefacts-vs-events/page.mdx" />

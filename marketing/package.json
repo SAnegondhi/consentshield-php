@@ -22,7 +22,9 @@
     "next": "16.2.3",
     "pdfkit": "0.18.0",
     "react": "19.2.5",
-    "react-dom": "19.2.5"
+    "react-dom": "19.2.5",
+    "rehype-slug": "6.0.0",
+    "remark-gfm": "4.0.1"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "4.2.2",

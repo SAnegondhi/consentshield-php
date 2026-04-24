@@ -1,0 +1,203 @@
+export const metadata = {
+  title: 'Purpose definitions',
+  description:
+    'Anatomy of a purpose row — the declaration every consent artefact points back to. DPDP §6(1) requires this to be published before collection.',
+}
+
+<Breadcrumb trail={[
+  { label: 'Docs', href: '/docs' },
+  { label: 'Core concepts', href: '/docs' },
+  { label: 'Purpose definitions' },
+]} />
+
+# Purpose definitions
+
+A **purpose** is the reason the Data Fiduciary processes a specific piece
+of personal data. DPDP §6(1) requires the Fiduciary to publish this
+before collection — in the notice the Data Principal reads, in plain
+language, including retention, legal basis, and any downstream transfers.
+
+Every consent artefact points back to exactly one purpose row. The
+ConsentShield API treats purposes as **versioned, immutable records**:
+when a purpose changes materially, a new version is published, and
+in-flight artefacts continue to reference the version the principal
+actually consented to.
+
+## Anatomy
+
+<ParamTable params={[
+  {
+    name: 'purpose_code',
+    type: 'string',
+    required: true,
+    description: 'Stable, human-readable identifier. Lowercase + underscores. Examples: marketing_email, abha_fhir_share, credit_bureau_pull.',
+  },
+  {
+    name: 'display_name',
+    type: 'string',
+    required: true,
+    description: 'Short label shown in banners and preference centers. Typically 3-7 words.',
+  },
+  {
+    name: 'description',
+    type: 'text',
+    required: true,
+    description: 'Plain-language sentence describing what happens with the data. The Data Principal reads this before consenting. Target reading age: 15.',
+  },
+  {
+    name: 'legal_basis',
+    type: "'consent' | 'contract' | 'legal_obligation' | 'legitimate_use'",
+    required: true,
+    description: 'Maps to DPDP §6 (consent) or §7 (legitimate use). If legitimate_use, a consent artefact is not required but an audit artefact is.',
+  },
+  {
+    name: 'data_scope',
+    type: 'string[]',
+    required: true,
+    description: <>Category declarations, not values. <code>[&quot;email&quot;, &quot;phone&quot;]</code> is allowed; <code>[&quot;sudhindra@example.in&quot;]</code> is never allowed — ConsentShield refuses it at ingestion.</>,
+  },
+  {
+    name: 'retention_days',
+    type: 'integer',
+    required: true,
+    description: 'How long this purpose\'s data may be retained after the last processing event. Surfaced to the Data Principal in the notice; enforced by the retention-cleanup cron.',
+  },
+  {
+    name: 'recipients',
+    type: 'object[]',
+    description: 'Downstream processors (deletion connectors fan revocations here). Each entry has name, privacy_url, jurisdiction. Published to the principal as part of the notice.',
+  },
+  {
+    name: 'framework',
+    type: "'dpdp' | 'dpdp+rbi' | 'dpdp+sebi' | 'abdm' | ...",
+    description: 'Sector-specific extensions. dpdp+rbi means KYC retention rules apply (10 years post-closure). abdm means FHIR artefacts fall under the ABDM consent framework.',
+  },
+  {
+    name: 'default_expiry_days',
+    type: 'integer',
+    description: 'Consent artefacts for this purpose auto-expire after N days. Most marketing purposes default to 365; BFSI customer-due-diligence to 3650.',
+  },
+  {
+    name: 'auto_delete_on_expiry',
+    type: 'boolean',
+    description: 'When true, the purpose\'s data is automatically purged on artefact expiry (deletion connectors fire). When false, only consent lapses — the data is retained for the retention_days window.',
+  },
+  {
+    name: 'version',
+    type: 'integer',
+    description: 'Auto-incremented on every material change. Artefacts reference a specific version so historical consent remains valid under the notice the principal actually saw.',
+  },
+]} />
+
+## Reading purposes from the API
+
+Every integration starts with listing the purposes that apply to its
+organisation. The list comes from the sectoral template you applied at
+onboarding plus any custom purposes you've added.
+
+<CodeTabs tabs={[
+  {
+    label: 'cURL',
+    language: 'bash',
+    code: `curl "https://api.consentshield.in/v1/purposes" \\
+  -H "Authorization: Bearer $CS_API_KEY"
+
+# Response:
+# {
+#   "purposes": [
+#     {
+#       "purpose_code": "marketing_email",
+#       "display_name": "Marketing emails",
+#       "version": 3,
+#       "legal_basis": "consent",
+#       "default_expiry_days": 365,
+#       "retention_days": 1095,
+#       ...
+#     },
+#     ...
+#   ]
+# }`,
+  },
+  {
+    label: 'Node.js',
+    language: 'typescript',
+    code: `const res = await fetch('https://api.consentshield.in/v1/purposes', {
+  headers: { Authorization: \`Bearer \${process.env.CS_API_KEY}\` },
+})
+const { purposes } = await res.json()
+// Cache for up to 1 hour — purposes change on a human cadence.`,
+  },
+]} />
+
+## Versioning
+
+Purposes are **immutable once published**. If you change the description
+or expand the `data_scope`, the system publishes a new version (e.g.
+v3 → v4). Existing artefacts continue to point at v3 — the legal basis
+under which they were collected hasn't changed.
+
+<Callout tone="info" title="When to publish a new version">
+**Do** publish a new version when the description changes materially,
+when <code>data_scope</code> grows, when <code>recipients</code> change,
+or when <code>retention_days</code> shortens. **Don't** publish for cosmetic
+changes (typo fixes, translation updates) — ConsentShield treats those
+as version metadata, not a material change.
+</Callout>
+
+When a new version is material, existing artefacts can stay under the
+old version until their next natural touch-point (next login, next
+rights-request, etc.), at which point the principal sees the updated
+notice and re-consents.
+
+<Callout tone="warn" title="Material-change re-consent">
+For banners, ConsentShield re-prompts when <code>purpose.version</code>
+increments. For in-app preference centers, you're responsible for
+triggering the re-consent flow — the API returns
+<code>verify_status = &quot;superseded&quot;</code> when an artefact's
+version is older than the current purpose version. Treat that as
+<code>needs_reconsent</code> in your UI.
+</Callout>
+
+## Sectoral templates
+
+ConsentShield ships **sectoral templates** — pre-composed purpose
+bundles for common sectors. BFSI, Healthcare/ABDM, SaaS, E-commerce.
+At onboarding you pick a template; the purposes land pre-published in
+your organisation.
+
+You can edit the defaults, add custom purposes, or swap to a different
+sectoral template from **Settings → Sector template**. The account-
+default sectoral template (ADR-1027 Sprint 3.3) pre-selects the
+operator's preferred template for every new org in an enterprise
+account — useful for groups deploying across multiple divisions.
+
+## Framework-specific behaviours
+
+<ParamTable params={[
+  {
+    name: 'framework = dpdp',
+    type: 'default',
+    description: 'Plain DPDP. Custom retention windows; recipient disclosures; notice in English + 5 DPDP-mandated Indian languages (feature ADR-1020 ships).',
+  },
+  {
+    name: 'framework = dpdp+rbi',
+    type: 'BFSI',
+    description: 'Retention constrained by RBI KYC Direction (10 years post-closure). ConsentShield refuses to set retention_days < 3650 on these purposes.',
+  },
+  {
+    name: 'framework = abdm',
+    type: 'Healthcare',
+    description: 'Artefacts mint an ABDM consent artefact id; data_scope is limited to FHIR category declarations (never FHIR values). Banner MT is refused — ABDM-framework purpose text must be tenant-uploaded.',
+  },
+]} />
+
+## Next steps
+
+- [Artefacts vs. events](/docs/concepts/artefacts-vs-events) — every
+  artefact points back to a purpose row.
+- [Rights requests lifecycle](/docs/concepts/rights-requests-lifecycle) —
+  how `purpose.recipients` drives downstream deletion fan-out.
+- [Interactive API playground](/docs/api/account/purposes) — try
+  `GET /v1/purposes` against the sandbox.
+
+<FeedbackStrip pagePath="marketing/src/app/docs/concepts/purpose-definitions/page.mdx" />

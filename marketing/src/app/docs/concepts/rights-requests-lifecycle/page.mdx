@@ -1,0 +1,185 @@
+export const metadata = {
+  title: 'Rights requests lifecycle',
+  description:
+    'How the API fulfils DPDP §11-14 — from public submission to receipt, to operator action, to downstream deletion fan-out.',
+}
+
+<Breadcrumb trail={[
+  { label: 'Docs', href: '/docs' },
+  { label: 'Core concepts', href: '/docs' },
+  { label: 'Rights requests lifecycle' },
+]} />
+
+# Rights requests lifecycle
+
+A **rights request** is a Data Principal exercising one of the rights
+DPDP gives them: access (§11), correction (§12), erasure (§13),
+grievance (§14), or nomination. ConsentShield receives the submission,
+verifies the requestor, drives the internal workflow, fans out downstream
+deletions, and produces a tamper-evident receipt the DPB can read.
+
+## The five DPDP rights
+
+<ParamTable params={[
+  {
+    name: 'Access (DPDP §11)',
+    type: '15 days',
+    description: 'Right to a summary of processing, categories of data, recipients, and the rights still available. ConsentShield generates a machine-readable + human-readable export.',
+  },
+  {
+    name: 'Correction (DPDP §12)',
+    type: '15 days',
+    description: 'Right to fix inaccurate or incomplete data. Operator queues the change and marks each downstream connector that has been notified.',
+  },
+  {
+    name: 'Erasure (DPDP §13)',
+    type: '30 days',
+    description: 'Right to erasure when the purpose has been served. Not applicable when retention is legally mandated (KYC, tax). ConsentShield enforces retention_days from the purpose definition as a gate.',
+  },
+  {
+    name: 'Grievance (DPDP §14)',
+    type: '30 days',
+    description: 'Right to raise a grievance with the Fiduciary. Treated as a support ticket with DPB-facing audit — not resolved purely inside ConsentShield.',
+  },
+  {
+    name: 'Nomination',
+    type: 'N/A',
+    description: 'Right to nominate another individual to exercise rights on death or incapacity. Captured at the dashboard, not via the public API.',
+  },
+]} />
+
+## Public submission to internal queue
+
+The public submission endpoint is **not** one of the 15 `/v1/*` API
+endpoints — it's a browser-facing form that Data Principals fill in
+directly. It lives at `rights.<your-org>.consentshield.in` (or a custom
+subdomain). Authentication is **Cloudflare Turnstile + email OTP**:
+the principal gets a one-time code on the email they claim is theirs,
+enters it to verify, and only then is the rights request row created.
+
+The operator side is a queue on the dashboard
+(`/dashboard/rights-requests`) — assign, comment, mark-completed.
+The operator queue is accessible to `org_admin` + `admin` tiers.
+
+## The public API surface
+
+External consumer APIs can submit rights requests programmatically too
+(useful for first-party mobile apps where you want to avoid sending the
+user to a browser):
+
+<CodeTabs tabs={[
+  {
+    label: 'cURL — list',
+    language: 'bash',
+    code: `# List rights requests — operator view.
+curl "https://api.consentshield.in/v1/rights/requests?status=open" \\
+  -H "Authorization: Bearer $CS_API_KEY"`,
+  },
+  {
+    label: 'cURL — submit',
+    language: 'bash',
+    code: `# Programmatic submission — bypasses Turnstile, requires a
+# server-side API key (never expose this in a browser).
+curl -X POST "https://api.consentshield.in/v1/rights/requests" \\
+  -H "Authorization: Bearer $CS_API_KEY" \\
+  -H "Content-Type: application/json" \\
+  -d '{
+    "request_type": "erasure",
+    "data_principal": { "email": "a@example.in" },
+    "reason": "User closed account via mobile app",
+    "source": "mobile-app-settings"
+  }'`,
+  },
+]} />
+
+## The lifecycle
+
+```
+ Principal submits rights request
+          │
+          │  rights_request row created (status = open)
+          │  notification email fires to compliance contact (SLA timer starts)
+          ▼
+ ┌────────────────────────────┐
+ │  status: open              │
+ │  operator triages          │
+ └────────┬───────────────────┘
+          │
+          │  Operator assigns + starts work
+          ▼
+ ┌────────────────────────────┐
+ │  status: in_progress       │
+ │  fulfilment per request    │
+ └────────┬───────────────────┘
+          │
+          │  For erasure: deletion connectors fire automatically
+          │  For access:   export bundle assembled
+          │  For correction: operator-mediated change
+          │
+          ▼
+ ┌────────────────────────────┐
+ │  status: completed         │
+ │  deletion_receipts ref'd   │
+ │  audit trail delivered R2  │
+ └────────────────────────────┘
+```
+
+## SLA enforcement
+
+DPDP §11-14 doesn't specify exact days — the DPDP Rules, 2025 do.
+ConsentShield treats the SLA as **status-dependent**:
+
+- **Access / Correction**: 15 days from submission.
+- **Erasure / Grievance**: 30 days from submission.
+
+The dashboard raises an amber warning at 66% of the window and a red
+warning at 90%. The `rights_request_events` buffer carries every
+state transition; the audit export surfaces SLA-breach events to the DPB.
+
+<Callout tone="warn" title="SLA clock stops for identity-unverifiable requests">
+If the requestor can't clear the Turnstile + email OTP verification,
+the request never leaves the `unverified` state — no SLA timer. Once
+they verify, the clock starts.
+</Callout>
+
+## Deletion fan-out
+
+When an erasure request completes, ConsentShield fans the deletion to
+every downstream processor referenced by the artefact's purpose
+definition:
+
+1. The revocation event writes to the buffer.
+2. `process-artefact-revocation` Edge Function reads the event and
+   the purpose's `recipients[]`.
+3. For each recipient, the matching deletion connector is invoked
+   (Mailchimp / HubSpot / CleverTap / custom webhook).
+4. Each connector returns a `deletion_receipt` — a signed, timestamped
+   confirmation that the downstream processor has erased the data.
+5. Receipts are delivered to the customer's R2/S3 bucket. The DPB-
+   facing audit export assembles them into a single fulfilment packet.
+
+See [Deletion connectors](/docs/concepts/deletion-connectors) for the
+full pre-built list and the custom-webhook protocol.
+
+## What the Data Principal sees
+
+On submit, they receive:
+
+- An OTP-verification email (if they submitted via the public portal).
+- A confirmation email with a reference ID (`rr_01HRG…`).
+- A public status page they can visit with that id — shows `submitted`,
+  `verified`, `in_progress`, `completed`, with timestamps.
+
+At completion, they receive the export bundle (for access requests) or
+a completion receipt (for correction / erasure).
+
+## Next steps
+
+- [Handle a rights request](/docs/cookbook/handle-a-rights-request) —
+  end-to-end recipe.
+- [Deletion connectors](/docs/concepts/deletion-connectors) — what
+  fires on erasure fulfilment.
+- [Interactive API playground](/docs/api/deletion/trigger) — programmatic
+  erasure submission.
+
+<FeedbackStrip pagePath="marketing/src/app/docs/concepts/rights-requests-lifecycle/page.mdx" />

@@ -1,0 +1,134 @@
+export const metadata = {
+  title: 'Key rotation & tombstones',
+  description:
+    'Why rotated API keys return 410 Gone (not 401 Unauthorized), and what that means for your incident-response playbook.',
+}
+
+<Breadcrumb trail={[
+  { label: 'Docs', href: '/docs' },
+  { label: 'Core concepts', href: '/docs' },
+  { label: 'Key rotation & tombstones' },
+]} />
+
+# Key rotation & tombstones
+
+ConsentShield distinguishes between **unknown** keys and **previously-valid,
+now-revoked** keys. The distinction matters because:
+
+- A leaked key rotation should be a quiet operational event, not a
+  whodunit investigation.
+- Your monitoring should alert on *tombstone hits* (revoked keys still
+  being used somewhere) separately from *authentication failures*
+  (wrong keys, typos, missing headers).
+
+## 401 vs 410
+
+<ParamTable params={[
+  {
+    name: '401 Unauthorized',
+    type: 'unknown key',
+    description: 'The key prefix or hash doesn\'t match any known key. Could be a typo, a malformed header, or an attacker probing. Retry with a valid key.',
+  },
+  {
+    name: '410 Gone',
+    type: 'rotated key',
+    description: 'The key hash matches a tombstoned, previously-valid key. The plaintext is no longer accepted. The integration that\'s still using this key needs to be updated — this is an operational signal, not a security incident.',
+  },
+]} />
+
+The 410 return is ADR-1011. It was added because a 401 on a rotated key
+sent every integration team down the "is this a breach?" rabbit hole.
+Tombstoning makes the cause explicit: *"this was your key; it's been
+rotated; update your config."*
+
+## Rotation flow
+
+1. Operator visits **Settings → API keys → Rotate**.
+2. Generates a new plaintext (`cs_live_02JPQ…`).
+3. Old plaintext is tombstoned: its hash is written to
+   `public.revoked_api_key_hashes` with a rotation timestamp and
+   operator attribution.
+4. Any subsequent request using the old plaintext returns **410 Gone**,
+   not 401.
+5. Operator distributes the new plaintext to every deployment that
+   used the old key.
+
+<Callout tone="tip" title="Zero-downtime rotation is safe">
+Because a rotated key returns 410 (not 401), your monitoring can tell
+the difference between "hasn't been rolled yet" and "misconfigured". We
+recommend a 24-hour overlap window where the old and new keys are both
+active (ADR-1011 supports this via the key-generation dashboard).
+</Callout>
+
+## Tombstone metadata
+
+The 410 response body carries:
+
+<CodeTabs tabs={[
+  {
+    label: 'JSON',
+    language: 'json',
+    code: `{
+  "error": {
+    "code": "api_key_rotated",
+    "message": "This API key was rotated on 2026-04-22T10:14:08Z and is no longer accepted.",
+    "rotated_at": "2026-04-22T10:14:08Z",
+    "key_id_prefix": "cs_live_01HRG"
+  }
+}`,
+  },
+]} />
+
+`key_id_prefix` is the first 10 characters of the rotated key — enough
+to identify which of your keys rolled, without revealing the new or old
+full plaintext to whoever is hitting the API with the stale value.
+
+## What your incident playbook should do
+
+When your monitoring sees 410s:
+
+1. **Don't page the security team.** This is an ops signal, not an
+   attack.
+2. Identify which service is still using the old key. The
+   `key_id_prefix` tells you which key rotated; your secret-manager
+   tells you which deployments hold it.
+3. Roll the new key to those deployments.
+4. Confirm 410s stop.
+
+When your monitoring sees 401s:
+
+1. Check the `error.code`:
+   - `missing_authorization_header` — header not being sent.
+   - `malformed_bearer` — header doesn't start with `Bearer cs_live_`.
+   - `invalid_api_key` — key doesn't exist at all. This is a typo,
+     a compromised-and-removed key, or an attacker. Investigate.
+
+## Rotation procedure
+
+For the zero-downtime recipe, see
+[Rotate an API key safely](/docs/cookbook/rotate-api-key-safely).
+The short version:
+
+1. Create a new key.
+2. Deploy the new key to one production instance as a canary.
+3. Watch the admin dashboard for requests distribution — you should see
+   both old and new keys in use.
+4. Deploy to the rest of the fleet.
+5. Revoke the old key after 24 hours of zero requests.
+
+## Tombstone retention
+
+Tombstones are retained for **2 years**. After that, the hash is purged
+and the key (if anyone still has the plaintext lying around) would
+return 401 — treated as an unknown key. This retention window covers
+DPDP audit scenarios where the DPB might want to identify which key
+was in use on a historical date.
+
+## Next steps
+
+- [Authentication](/docs/authentication) — the full Bearer scheme.
+- [Rotate an API key safely](/docs/cookbook/rotate-api-key-safely) —
+  zero-downtime cookbook recipe.
+- [Error codes](/docs/errors) — full 401 / 410 / 429 / 5xx catalog.
+
+<FeedbackStrip pagePath="marketing/src/app/docs/concepts/key-rotation-and-tombstones/page.mdx" />

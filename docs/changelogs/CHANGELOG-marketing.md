@@ -2,6 +2,37 @@
 
 Public marketing site (`marketing/` workspace → `consentshield.in`). New in 2026-04-21.
 
+## [ADR-1015 Sprint 2.1 — Developer Hub + Quickstart + 6 concepts + Authentication + Rate-limits] — 2026-04-24
+
+**ADR:** ADR-1015 — v1 API integration tests + customer developer documentation
+**Sprint:** Phase 2, Sprint 2.1 — Developer Hub + Quickstart + Concepts
+
+### Added
+- `marketing/src/app/docs/page.tsx` — Developer Hub replaces the Sprint 1.1 placeholder. 4-card grid (Quickstart / Core concepts / Cookbook / API reference) + 6-row at-a-glance ParamTable (Base URL, Authentication, Endpoints, Rate limit, SDKs, Data residency) + "Not a developer?" info callout + "Stay in the loop" section.
+- `marketing/src/app/docs/quickstart/page.mdx` — 4-step walkthrough. cURL + Node + Python samples for each step. Idempotency-Key demonstrated on `POST /v1/consent/record`. "What's next" panel links to 3 cookbook recipes + 2 concept pages.
+- `marketing/src/app/docs/concepts/dpdp-in-3-minutes/page.mdx` — DPDP Act primer. Scope, four pillars, penalties, how consent artefacts satisfy §6(4), DPDP-vs-GDPR comparison, primary-source citations.
+- `marketing/src/app/docs/concepts/artefacts-vs-events/page.mdx` — the stateless-oracle mental model. TL;DR table, architecture explainer, artefact lifecycle ASCII diagram, when-to-call-which matrix across all 6 consent endpoints, buffer-vs-R2 durability breakdown.
+- `marketing/src/app/docs/concepts/purpose-definitions/page.mdx` — 11-row purpose-row anatomy, read-from-API samples, versioning + material-change re-consent rules, sectoral templates, framework-specific behaviour (dpdp / dpdp+rbi / abdm).
+- `marketing/src/app/docs/concepts/rights-requests-lifecycle/page.mdx` — all 5 DPDP rights with §11-14 citations + SLA windows, public-portal + programmatic submission flows, lifecycle diagram, SLA enforcement thresholds (66% amber / 90% red), deletion fan-out integration.
+- `marketing/src/app/docs/concepts/deletion-connectors/page.mdx` — pre-built (Mailchimp/HubSpot/ADR-0039 OAuth) vs custom-webhook. Fan-out flow diagram. Full HTTP spec of the custom-webhook callback, HMAC verification sample in Node, receipt format, operator health view.
+- `marketing/src/app/docs/concepts/key-rotation-and-tombstones/page.mdx` — 401 vs 410 distinction (ADR-1011), rotation flow, tombstone metadata shape, operational-playbook guidance (don't page security on 410s), 2-year retention window.
+- `marketing/src/app/docs/authentication/page.mdx` — Bearer scheme with cURL + Node + Python samples, `cs_live_*` vs `cs_test_*` prefix matrix, key structure, rotation procedure, common-errors StatusGrid (401/403/410/429), what-keys-don't-authenticate (Worker banner + rights portal + admin console), `GET /v1/keys/self` introspection.
+- `marketing/src/app/docs/rate-limits/page.mdx` — 5-tier per-plan matrix (Trial through Enterprise), `X-RateLimit-*` header semantics, jittered-backoff code samples (Node + Python), batch-vs-looped guidance, per-endpoint sub-limits (5 req/min cap on `/v1/deletion/trigger`), upgrade procedure.
+
+### Dependencies (exact-pinned)
+- `rehype-slug@6.0.0` — auto-generates `id="slug"` on every heading from its text. ToC rail and hash anchors now work without per-page id authoring.
+- `remark-gfm@4.0.1` — GitHub-flavoured markdown (tables, task-lists, strikethrough, autolinks). Wired into `next.config.ts`'s `createMDX({ options: { remarkPlugins, rehypePlugins }})`.
+
+### Tested
+- [x] `cd marketing && bunx tsc --noEmit` — PASS.
+- [x] `cd marketing && bun run lint` — PASS.
+- [x] `cd marketing && bun run build` — PASS. Route manifest: `/docs`, `/docs/api`, `/docs/api/[...path]`, `/docs/authentication`, `/docs/rate-limits`, `/docs/quickstart`, plus all 6 concept paths — all 10 MDX pages prerender static.
+
+### Why
+Phase 1 shipped the shell; Phase 2 Sprint 2.1 fills the first 10 pages a new integrator needs before they open the playground. Every concept has a cross-reference to the corresponding cookbook recipe (Sprint 2.2) and API-reference page (Phase 3's Scalar + endpoint-scoped pages) so the reader never dead-ends. Sprint 2.2 next (7 cookbook recipes × 3 languages each) is the heaviest authoring pass of the ADR.
+
+---
+
 ## [ADR-1015 Sprint 1.3 — Cmd-K search palette + Edit-on-GitHub + keyboard shortcuts] — 2026-04-24
 
 **ADR:** ADR-1015 — v1 API integration tests + customer developer documentation

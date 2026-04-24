@@ -1,0 +1,145 @@
+export const metadata = {
+  title: 'DPDP Act in 3 minutes',
+  description:
+    'The Digital Personal Data Protection Act, 2023 — the law, the vocabulary, the consent contract — in enough detail to decide if ConsentShield fits.',
+}
+
+<Breadcrumb trail={[
+  { label: 'Docs', href: '/docs' },
+  { label: 'Core concepts', href: '/docs' },
+  { label: 'DPDP Act in 3 minutes' },
+]} />
+
+# DPDP Act in 3 minutes
+
+The Digital Personal Data Protection Act, 2023 (DPDP) is India's first
+comprehensive data-protection law. It covers every **Data Fiduciary**
+(anyone who decides the purpose of processing) with personal data of
+Indian residents. The DPDP Rules, 2025 and the Data Protection Board's
+(DPB's) enforcement practice fill in the operational detail.
+
+## Who does DPDP cover?
+
+- Every business processing personal data of Indian residents — regardless
+  of where the business is located.
+- **Data Fiduciaries** (B2C: banks, e-commerce, fintech, clinics,
+  ride-hailing…) decide the purpose and means of processing.
+- **Data Processors** (SaaS vendors like ConsentShield) process on behalf
+  of a Fiduciary under a contract.
+- **Data Principals** are the individuals whose data is being processed —
+  every Indian resident.
+
+## The four pillars
+
+<ParamTable params={[
+  {
+    name: '1. Consent',
+    type: 'DPDP §5-6',
+    description: 'Must be free, specific, informed, unconditional, and unambiguous. For every purpose. Withdrawable at any time. Processing without consent (or a recognised "legitimate use") is illegal.',
+  },
+  {
+    name: '2. Purpose limitation',
+    type: 'DPDP §6(1)',
+    description: 'Data collected for one purpose cannot be used for another without fresh consent. Purposes must be described in plain language before collection.',
+  },
+  {
+    name: '3. Data principal rights',
+    type: 'DPDP §11-14',
+    description: 'Right to access, correction, erasure, grievance, and nomination. Must be fulfilled within the period specified in the Rules (14-30 days depending on request type).',
+  },
+  {
+    name: '4. Data-breach notification',
+    type: 'DPDP §8(6)',
+    description: 'Every personal-data breach must be notified to the DPB and affected principals. No delay threshold — notification obligation is triggered on discovery.',
+  },
+]} />
+
+## Penalties
+
+The DPB can impose up to **₹250 crore** per violation (Schedule of the
+Act). The Fiduciary's board and senior management are personally
+named in enforcement orders. Repeat violations compound.
+
+<Callout tone="warn" title="Penalty is per violation, not per business">
+A single breach affecting 1 million principals is typically treated as
+1 violation, not 1 million. But multiple independent failures (no consent
+record + no breach notification + expired purpose) each stack separately.
+A 2023-era enforcement view in Indian telecom (TRAI's predecessor
+regime) treated three separate obligations as three violations — DPDP is
+expected to follow the same logic.
+</Callout>
+
+## Where consent artefacts come in
+
+DPDP §6(4) requires the Fiduciary to maintain **"an audit trail of the
+grant and withdrawal of consent"**. The DPB can compel production of
+that trail with 48 hours' notice.
+
+The trail isn't just a log — it's a set of artefacts:
+
+- Who consented (identifier linked to a data principal).
+- What was collected (purpose + data scope).
+- When (timestamp + banner version).
+- Under what notice (the exact text the principal read).
+- Where from (origin + device metadata).
+- What they can do next (rights-request link + withdrawal URL).
+
+ConsentShield produces one immutable **consent artefact** per consent
+decision, stores it in the customer's own R2 or S3 bucket (not
+ConsentShield's database — see [stateless oracle](/docs/concepts/artefacts-vs-events)),
+and exposes the whole archive via the `/v1/*` API and the dashboard.
+
+## What DPDP does *not* require
+
+- Localisation of every piece of data in India. (Only the DPB can notify
+  cross-border transfer restrictions to specific countries.)
+- A DPO for every business. (Only "Significant Data Fiduciaries" —
+  threshold notified by the DPB.)
+- A specific technical implementation. (The law is outcome-based — record
+  the consent, honour the rights, notify the breach.)
+
+## DPDP vs GDPR
+
+<ParamTable params={[
+  {
+    name: 'Consent standard',
+    type: 'similar',
+    description: 'Both require free, specific, informed, unambiguous consent. DPDP adds "unconditional" explicitly.',
+  },
+  {
+    name: 'Legitimate use',
+    type: 'narrower',
+    description: 'DPDP §7 lists 9 enumerated "legitimate uses" (employment, public interest, medical emergency, etc.). GDPR Article 6 has 6 bases with broader interpretation.',
+  },
+  {
+    name: 'Penalties',
+    type: 'flat-fee',
+    description: 'DPDP caps at ₹250 crore per violation. GDPR scales with global turnover (up to 4% or €20M). On large multinationals DPDP penalties are materially lower — but compound fast on repeat.',
+  },
+  {
+    name: 'Children',
+    type: 'stricter',
+    description: 'DPDP requires verifiable parental consent for anyone under 18 for processing that "entails a risk of harm". GDPR permits consent at 16 (or 13 per member state).',
+  },
+  {
+    name: 'Data Protection Officer',
+    type: 'SDF-only',
+    description: 'DPDP DPO requirement triggers only when the DPB designates a Fiduciary as "Significant". GDPR requires a DPO more broadly.',
+  },
+]} />
+
+## Next steps
+
+- [Artefacts vs. events](/docs/concepts/artefacts-vs-events) — the two
+  primary records the API produces.
+- [Purpose definitions](/docs/concepts/purpose-definitions) — the
+  declarations the Fiduciary must publish before collection.
+- [Rights requests lifecycle](/docs/concepts/rights-requests-lifecycle) —
+  how the API fulfils DPDP §11-14.
+
+## Primary sources
+
+- [DPDP Act, 2023 (MeitY PDF)](https://www.meity.gov.in/static/uploads/2024/06/2bf1f0e9f04e6fb4f8fef35e82c42aa5.pdf)
+- [DPDP Rules, 2025 (PIB notified copy, 14-Nov-2025)](https://static.pib.gov.in/WriteReadData/specificdocs/documents/2025/nov/doc20251117695301.pdf)
+
+<FeedbackStrip pagePath="marketing/src/app/docs/concepts/dpdp-in-3-minutes/page.mdx" />

@@ -1,0 +1,185 @@
+export const metadata = {
+  title: 'Authentication',
+  description:
+    'Bearer-token authentication scheme for the ConsentShield API — key prefixes, rotation, tombstone behaviour, and incident response.',
+}
+
+<Breadcrumb trail={[
+  { label: 'Docs', href: '/docs' },
+  { label: 'Get started', href: '/docs' },
+  { label: 'Authentication' },
+]} />
+
+# Authentication
+
+The ConsentShield API uses **Bearer-token authentication** over HTTPS.
+Every request carries an `Authorization` header with a `cs_live_*` (or
+`cs_test_*`) API key. Tokens are org-scoped — one key authenticates as
+exactly one organisation.
+
+## The Bearer scheme
+
+<CodeTabs tabs={[
+  {
+    label: 'cURL',
+    language: 'bash',
+    code: `curl "https://api.consentshield.in/v1/_ping" \\
+  -H "Authorization: Bearer cs_live_01HRG5K9X7N5B2VA8P3M9Q4W1T"`,
+  },
+  {
+    label: 'Node.js',
+    language: 'typescript',
+    code: `const res = await fetch('https://api.consentshield.in/v1/_ping', {
+  headers: {
+    Authorization: \`Bearer \${process.env.CS_API_KEY}\`,
+  },
+})`,
+  },
+  {
+    label: 'Python',
+    language: 'python',
+    code: `import httpx
+
+r = httpx.get(
+    "https://api.consentshield.in/v1/_ping",
+    headers={"Authorization": f"Bearer {CS_API_KEY}"},
+)`,
+  },
+]} />
+
+The scheme is **case-sensitive** — `Bearer ` (capital B, one space)
+followed by the plaintext key. No surrounding quotes. No `Token` prefix.
+
+## Key prefixes
+
+<ParamTable params={[
+  {
+    name: 'cs_live_*',
+    type: 'production',
+    required: true,
+    description: 'The production API key. Targets real customer data, costs money per call (on metered plans), and triggers deletion-connector fan-out. Treat like any other production credential.',
+  },
+  {
+    name: 'cs_test_*',
+    type: 'sandbox',
+    description: 'Sandbox key. Same API surface; routes to a fixture org that\'s reset nightly. Rate limits are elevated; webhook deliveries dry-run. Perfect for CI and integration tests. Issue via Settings → API keys → New → Test key.',
+  },
+]} />
+
+<Callout tone="security" title="Never expose cs_live_* in the browser">
+`cs_live_*` keys grant full tenant API access. Do not inline them in
+browser JavaScript, build artefacts, public repos, or mobile-app
+binaries. For customer-facing flows use a server-side proxy or the
+public banner script (which uses a short-lived HMAC signing secret, not
+an API key).
+</Callout>
+
+## Key structure
+
+```
+cs_live_01HRG5K9X7N5B2VA8P3M9Q4W1T
+│       │
+│       └── 26-char opaque token (ULID-derived; unique per key)
+└────────── 7-char prefix (cs_live_ or cs_test_)
+```
+
+The prefix is intentionally longer than 3 characters so scanning tools
+(`truffleHog`, `gitleaks`, GitHub Secret Scanning) can reliably detect
+leaked keys in public repos.
+
+## Rotation
+
+Rotation is **zero-downtime** when done correctly:
+
+1. Issue a new key in **Settings → API keys → New key**.
+2. Deploy the new plaintext to one production instance.
+3. Monitor for ~24 hours; confirm the new key is in use and the old key
+   traffic is draining.
+4. Deploy to the rest of the fleet.
+5. Revoke the old key via **Settings → API keys → Revoke**.
+
+After revocation, the old plaintext returns **410 Gone** (not 401). See
+[key rotation & tombstones](/docs/concepts/key-rotation-and-tombstones)
+for the full behaviour and the recommended incident-response playbook.
+
+For the full recipe:
+[Rotate an API key safely](/docs/cookbook/rotate-api-key-safely).
+
+## Common authentication errors
+
+<StatusGrid statuses={[
+  {
+    code: '401',
+    label: 'Unauthorized',
+    description: <>The <code>Authorization</code> header is missing or malformed. The key doesn&apos;t exist (typo, never-issued, or revoked beyond the tombstone retention window).</>,
+  },
+  {
+    code: '403',
+    label: 'Forbidden',
+    description: <>The key is valid but the call violates a scope constraint — for example, an API key configured for one org is trying to access another org&apos;s data. Usually means the <code>org_id</code> URL parameter doesn&apos;t match the key&apos;s binding.</>,
+  },
+  {
+    code: '410',
+    label: 'Gone',
+    description: <>The key was rotated. Response body carries <code>rotated_at</code> and <code>key_id_prefix</code>. Update your deployment to the new plaintext. See <a href="/docs/concepts/key-rotation-and-tombstones">tombstones</a>.</>,
+  },
+  {
+    code: '429',
+    label: 'Too Many Requests',
+    description: <>Rate-limit exceeded. <code>Retry-After</code> header tells you when to retry. See <a href="/docs/rate-limits">rate limits</a>.</>,
+  },
+]} />
+
+## What keys *don't* authenticate
+
+Bearer tokens authenticate calls to the `/v1/*` REST API. They do **not**
+authenticate:
+
+- **The Worker banner script.** The banner uses a short-lived HMAC
+  signing secret issued per `web_property`, not an API key. Leaked
+  secrets are rotated via the banner-snippet refresh.
+- **The public rights-request portal.** Public portal submissions use
+  Cloudflare Turnstile + email OTP, not API keys — the person
+  submitting is unauthenticated on purpose.
+- **The admin console.** Admin surfaces use session cookies (Supabase
+  Auth + AAL2); they live at `admin.consentshield.in` and refuse
+  `cs_live_*` tokens.
+
+## Key-metadata introspection
+
+Your integration can introspect the key it's using — useful for self-
+diagnostic pages and support scenarios.
+
+<CodeTabs tabs={[
+  {
+    label: 'cURL',
+    language: 'bash',
+    code: `curl "https://api.consentshield.in/v1/keys/self" \\
+  -H "Authorization: Bearer $CS_API_KEY"
+
+# Response:
+# {
+#   "key_id_prefix": "cs_live_01HRG",
+#   "org_id":        "01HRG...WPNF",
+#   "created_at":    "2026-04-22T09:14:08Z",
+#   "last_used_at":  "2026-04-24T14:30:22Z",
+#   "label":         "staging-integration",
+#   "scopes":        ["read:all", "write:consent", ...]
+# }`,
+  },
+]} />
+
+`GET /v1/keys/self` is unauthenticated-by-default in terms of what it
+reveals — the response never includes the plaintext, only the non-secret
+metadata.
+
+## Next steps
+
+- [Rate limits](/docs/rate-limits) — how to keep your requests under
+  the per-plan ceiling.
+- [Key rotation & tombstones](/docs/concepts/key-rotation-and-tombstones) —
+  why rotated keys return 410, not 401.
+- [Rotate an API key safely](/docs/cookbook/rotate-api-key-safely) —
+  zero-downtime cookbook recipe.
+
+<FeedbackStrip pagePath="marketing/src/app/docs/authentication/page.mdx" />

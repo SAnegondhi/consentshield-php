@@ -1,0 +1,185 @@
+export const metadata = {
+  title: 'Deletion connectors',
+  description:
+    'Pre-built and custom-webhook connectors that fan out consent revocations to downstream processors — Mailchimp, HubSpot, custom endpoints.',
+}
+
+<Breadcrumb trail={[
+  { label: 'Docs', href: '/docs' },
+  { label: 'Core concepts', href: '/docs' },
+  { label: 'Deletion connectors' },
+]} />
+
+# Deletion connectors
+
+When a Data Principal revokes consent or submits an erasure request, the
+Fiduciary must forward the deletion to every downstream processor that
+received the data. DPDP §6(5) makes that the Fiduciary's obligation, not
+a best-effort.
+
+ConsentShield automates the fan-out. A single `POST /v1/consent/artefacts/{id}/revoke`
+propagates through the purpose's `recipients[]` and produces a
+**deletion receipt** per connector — a signed, timestamped proof that the
+downstream processor has erased the data.
+
+## Connector types
+
+<ParamTable params={[
+  {
+    name: 'Pre-built',
+    type: 'ADR-0018, ADR-0039',
+    description: 'Mailchimp, HubSpot. OAuth (ADR-0039) or API-key auth. Full lifecycle: create, revoke, receipt. Configured under Settings → Connectors in the dashboard.',
+  },
+  {
+    name: 'Custom webhook',
+    type: 'ADR-0007',
+    description: <>Your own HTTPS endpoint that implements the callback protocol. Signed with HMAC-SHA256 using a per-connector shared secret. See <a href="/docs/cookbook/wire-deletion-connector-webhook">cookbook recipe</a>.</>,
+  },
+  {
+    name: 'Queued for 2026-Q3',
+    type: 'ADR-1007',
+    description: 'CleverTap, Razorpay, WebEngage, MoEngage, Intercom, Freshdesk, Shopify, WooCommerce, Segment. Plus WordPress + Shopify plugins for marketing-site-level capture.',
+  },
+]} />
+
+## The fan-out flow
+
+```
+ POST /v1/consent/artefacts/{id}/revoke
+          │
+          │  revocation event → delivery_buffer
+          │
+          ▼
+ process-artefact-revocation Edge Function
+          │
+          │  1. Resolves the artefact\'s purpose + recipients[]
+          │  2. For each recipient, looks up the configured connector
+          │  3. Invokes the connector\'s delete endpoint
+          │
+          ▼
+ ┌─────────────────────┐
+ │ Mailchimp: DELETE   │──▶ receipt: mc_…
+ │ /lists/{id}/members │
+ └─────────────────────┘
+ ┌─────────────────────┐
+ │ HubSpot: POST       │──▶ receipt: hs_…
+ │ /contacts/batch/    │
+ │ archive             │
+ └─────────────────────┘
+ ┌─────────────────────┐
+ │ custom-webhook:     │──▶ receipt: cb_…
+ │ POST + HMAC sig     │
+ └─────────────────────┘
+          │
+          ▼
+ deletion_receipts buffer → delivered to customer R2/S3
+```
+
+## Custom webhook protocol
+
+Your endpoint receives a signed JSON POST. The signature uses HMAC-SHA256
+over the raw body + timestamp, with the shared secret you configured
+when adding the connector.
+
+<CodeTabs tabs={[
+  {
+    label: 'Incoming request',
+    language: 'http',
+    code: `POST /consent-shield/delete HTTP/1.1
+Host: your-app.example.in
+Content-Type: application/json
+X-ConsentShield-Timestamp: 1714230720
+X-ConsentShield-Signature: hmac-sha256=7f3a…
+
+{
+  "event":        "artefact_revocation",
+  "artefact_id":  "01HRG5K9X7N5B2VA8P3M9Q4W1T",
+  "principal":    { "email": "a@example.in" },
+  "purpose_code": "marketing_email",
+  "revoked_at":   "2026-04-24T14:30:22.118Z",
+  "callback_url": "https://api.consentshield.in/v1/deletion/receipts/cb_01HRG…",
+  "callback_sig": "sig_01HRG…"
+}`,
+  },
+  {
+    label: 'Signature verification (Node)',
+    language: 'typescript',
+    code: `import crypto from 'node:crypto'
+
+function verify(
+  rawBody: string,
+  timestamp: string,
+  signature: string,
+  secret: string,
+): boolean {
+  // 5-minute replay window.
+  const age = Math.abs(Date.now() / 1000 - Number(timestamp))
+  if (age > 300) return false
+
+  const expected = crypto
+    .createHmac('sha256', secret)
+    .update(\`\${timestamp}.\${rawBody}\`)
+    .digest('hex')
+  return crypto.timingSafeEqual(
+    Buffer.from(signature.replace('hmac-sha256=', '')),
+    Buffer.from(expected),
+  )
+}`,
+  },
+]} />
+
+Your endpoint must:
+
+1. Verify the timestamp is within 5 minutes of now.
+2. Verify the HMAC signature.
+3. Perform the deletion in your own systems.
+4. POST to `callback_url` with a success/failure receipt, signed with
+   `callback_sig`.
+5. Return 200 OK to the original request.
+
+Failures trigger the exponential backoff in ADR-0011 (1h / 6h / 24h).
+After 5 failed attempts, the connector is marked **unhealthy** and
+raises an operator alert.
+
+<Callout tone="security" title="The callback_sig protects the receipt">
+Your endpoint signs the response receipt with `callback_sig`
+(a per-event signature ConsentShield includes in the outbound request).
+Without it, an attacker on your network could forge a "deleted" receipt
+and the DPB audit would be compromised.
+</Callout>
+
+## Receipt format
+
+Each connector produces a `deletion_receipt` row with:
+
+- `id` — ConsentShield's receipt id (`dr_01HRG…`).
+- `artefact_id` — the artefact that was revoked.
+- `connector_name` — `mailchimp` / `hubspot` / `custom-webhook:<slug>`.
+- `downstream_id` — the processor's own confirmation reference.
+- `delivered_at` — when the processor confirmed deletion.
+- `signature` — HMAC-SHA256 over the row.
+
+Receipts are delivered to the customer's R2/S3 bucket at
+`<bucket>/deletion_receipts/<YYYY>/<MM>/<DD>/<receipt_id>.json`. Your
+DPB audit exports join the `rights_request` with every receipt that
+fulfilled it.
+
+## Operator health view
+
+Under **Settings → Connectors** the dashboard shows per-connector health:
+
+- Last successful delete.
+- Queue depth (how many pending deletions are waiting).
+- Failure count in the last 24 hours.
+- Rotate credentials / disable connector.
+
+Connector failures surface on the admin status page
+(`status.consentshield.in`) as a `delivery-pipeline` subsystem signal.
+
+## Next steps
+
+- [Wire a deletion-connector webhook](/docs/cookbook/wire-deletion-connector-webhook) — end-to-end recipe.
+- [Handle a rights request](/docs/cookbook/handle-a-rights-request) — how revocations get fanned out as part of an erasure flow.
+- [Webhook signatures reference](/docs/webhook-signatures) — full HMAC + timestamp scheme.
+
+<FeedbackStrip pagePath="marketing/src/app/docs/concepts/deletion-connectors/page.mdx" />

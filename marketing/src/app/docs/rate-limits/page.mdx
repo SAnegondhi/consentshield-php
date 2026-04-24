@@ -1,0 +1,196 @@
+export const metadata = {
+  title: 'Rate limits & quotas',
+  description:
+    'Plan-scoped rate limits, X-RateLimit-* headers, 429 handling, and the per-tier quota matrix for the ConsentShield API.',
+}
+
+<Breadcrumb trail={[
+  { label: 'Docs', href: '/docs' },
+  { label: 'Get started', href: '/docs' },
+  { label: 'Rate limits' },
+]} />
+
+# Rate limits & quotas
+
+The ConsentShield API applies **plan-scoped rate limits** per API key
+and per organisation. Limits are published in response headers so your
+integration can pace requests before hitting a 429. Trial tiers share a
+pooled limit; paid plans get dedicated buckets.
+
+## Per-plan matrix
+
+<ParamTable params={[
+  {
+    name: 'Trial (Starter limits)',
+    type: '30-day trial',
+    description: '5 req/sec · 60 req/min · 10 000 req/day. Sandbox-only for high-volume testing; upgrade to Starter before going live.',
+  },
+  {
+    name: 'Starter',
+    type: '₹999/mo',
+    description: '10 req/sec · 300 req/min · 100 000 req/day. Suitable for most SaaS integrations with < 10 000 daily actives.',
+  },
+  {
+    name: 'Growth',
+    type: '₹2 999/mo',
+    description: '30 req/sec · 1 500 req/min · 1 000 000 req/day. Covers mid-market SaaS and most first-party mobile apps.',
+  },
+  {
+    name: 'Pro',
+    type: '₹7 999/mo',
+    description: '100 req/sec · 5 000 req/min · 10 000 000 req/day. Enterprise-grade throughput; batch endpoints recommended at this scale.',
+  },
+  {
+    name: 'Enterprise',
+    type: 'custom',
+    description: 'Negotiated. Typical: 1 000 req/sec sustained + dedicated infrastructure + contractual SLA.',
+  },
+]} />
+
+Limits are per API key unless otherwise negotiated. Multi-key deployments
+(separate keys for checkout + preference-center + ops-console) effectively
+scale linearly up to the org-level pooled ceiling, which is 10× the per-key
+limit.
+
+## Rate-limit headers
+
+Every response — 200s, 4xxs, 5xxs — carries the rate-limit state:
+
+<ParamTable params={[
+  {
+    name: 'X-RateLimit-Limit',
+    type: 'integer',
+    description: 'The rolling-window ceiling (typically 1-minute). Fixed per plan.',
+  },
+  {
+    name: 'X-RateLimit-Remaining',
+    type: 'integer',
+    description: 'Requests remaining in the current window. Decrements on every accepted request.',
+  },
+  {
+    name: 'X-RateLimit-Reset',
+    type: 'Unix timestamp',
+    description: 'When the window rolls and Remaining resets to Limit.',
+  },
+  {
+    name: 'Retry-After',
+    type: 'seconds',
+    description: 'Only on 429 responses. Number of seconds to wait before retrying. Never 0.',
+  },
+]} />
+
+## Handling 429s
+
+<CodeTabs tabs={[
+  {
+    label: 'Node.js',
+    language: 'typescript',
+    code: `async function callWithBackoff<T>(
+  fn: () => Promise<Response>,
+  maxRetries = 3,
+): Promise<T> {
+  for (let attempt = 0; attempt <= maxRetries; attempt++) {
+    const res = await fn()
+    if (res.status !== 429) return res.json()
+
+    const retryAfter = Number(res.headers.get('Retry-After') ?? 1)
+    // Add jitter so a burst of clients doesn't synchronise retries.
+    const delayMs = retryAfter * 1000 + Math.random() * 250
+    await new Promise((r) => setTimeout(r, delayMs))
+  }
+  throw new Error('Rate limit persisted past maxRetries')
+}`,
+  },
+  {
+    label: 'Python',
+    language: 'python',
+    code: `import time
+import random
+import httpx
+
+def call_with_backoff(client: httpx.Client, method: str, url: str, **kwargs):
+    for attempt in range(4):
+        r = client.request(method, url, **kwargs)
+        if r.status_code != 429:
+            return r
+        retry_after = float(r.headers.get("Retry-After", 1))
+        # Jitter so burst clients don't synchronise.
+        time.sleep(retry_after + random.uniform(0, 0.25))
+    raise RuntimeError("rate limit persisted")`,
+  },
+]} />
+
+<Callout tone="warn" title="Do not busy-loop on 429">
+Retrying immediately after a 429 is the fastest way to get escalated
+limits (per-IP cooldown) dropped on you. Always honour
+<code>Retry-After</code>. Add 10-250 ms of jitter — busy-loop retries
+across many clients can synchronise and re-hit the limit in lockstep.
+</Callout>
+
+## Batch endpoints vs looped single calls
+
+High-volume flows should use the batch endpoints:
+
+- `POST /v1/consent/verify/batch` — verify up to 1 000 artefact ids in
+  one call (counts as 1 request against the rate limit).
+- `GET /v1/consent/events?cursor=…` — cursor-paginated event stream
+  (each page = 1 request).
+
+A marketing campaign pre-checking 100 000 artefacts in batches of 1 000
+costs 100 requests. Looped single calls would cost 100 000 — and would
+fail on any plan below Enterprise.
+
+## Burst allowances
+
+Each tier has a **burst allowance** — a short-lived spike budget on top
+of the published rate. Typically 3× the published per-second limit for
+up to 10 seconds before the token bucket empties. Burst windows are
+useful for startup scenarios (warming caches on deploy) but shouldn't
+be depended on for steady-state load.
+
+## Per-endpoint sub-limits
+
+A few endpoints have tighter sub-limits regardless of plan:
+
+<ParamTable params={[
+  {
+    name: 'POST /v1/consent/record',
+    type: 'plan limit',
+    description: 'Follows the published plan limit. Idempotent (Idempotency-Key supported) so safe to retry.',
+  },
+  {
+    name: 'POST /v1/deletion/trigger',
+    type: '5 req/min (all plans)',
+    description: 'Hard-capped — deletion-fan-out is expensive. Rights requests submitted at higher rates should be queued into a background worker, not called synchronously from a web request.',
+  },
+  {
+    name: 'POST /v1/consent/artefacts/{id}/revoke',
+    type: 'plan limit',
+    description: 'Plan-scoped. Revocations trigger connector fan-out; a burst of revocations is usually a bulk-unsubscribe event, which the plan limit covers on paid tiers.',
+  },
+]} />
+
+## When limits change
+
+Plan-limit changes are published in the [API changelog](/docs/changelog)
+at least 30 days before they take effect. Limit **decreases** (stricter)
+are rare and always announced; **increases** (more generous) we ship
+without warning.
+
+## Upgrading
+
+Plan changes take effect at the start of the next billing period. For
+mid-period upgrades, contact support — we pro-rate on a per-day basis
+and lift the new ceiling immediately. Enterprise tier negotiations are
+handled via sales@consentshield.in.
+
+## Next steps
+
+- [Error codes](/docs/errors) — full 429 payload + neighbouring codes.
+- [Batch-verify consents](/docs/cookbook/batch-verify-consents) —
+  cookbook recipe using `POST /v1/consent/verify/batch` to stay under
+  the rate limit at scale.
+- [Interactive API playground](/docs/api) — headers are visible in
+  every response.
+
+<FeedbackStrip pagePath="marketing/src/app/docs/rate-limits/page.mdx" />
