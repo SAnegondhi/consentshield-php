@@ -7,6 +7,8 @@ interface StatusResponse {
   onboarding_step: number
   onboarded_at: string | null
   first_consent_at: string | null
+  // ADR-1025 Sprint 2.2 — storage provisioning state (soft-banner fuel).
+  storage_verified: boolean | null
 }
 
 const POLL_INTERVAL_MS = 5_000
@@ -25,6 +27,11 @@ export function Step7FirstConsent({
   const [firstConsentAt, setFirstConsentAt] = useState<string | null>(null)
   const [elapsedSec, setElapsedSec] = useState(0)
   const [error, setError] = useState('')
+  // ADR-1025 Sprint 2.2 — tracks export_configurations.is_verified. `null`
+  // means no row yet (provisioning trigger in flight), `false` means
+  // verification hasn't succeeded, `true` means storage is ready. Hides
+  // the soft banner when `true`.
+  const [storageVerified, setStorageVerified] = useState<boolean | null>(null)
 
   const startedAtRef = useRef<number | null>(null)
   if (startedAtRef.current === null) {
@@ -44,6 +51,8 @@ export function Step7FirstConsent({
         }
         const json = (await res.json()) as StatusResponse
         if (cancelled) return
+
+        setStorageVerified(json.storage_verified)
 
         if (json.first_consent_at) {
           setFirstConsentAt(json.first_consent_at)
@@ -91,6 +100,7 @@ export function Step7FirstConsent({
 
   return (
     <div className="mx-auto max-w-2xl rounded-lg border border-gray-200 bg-white p-8 shadow-sm">
+      {storageVerified !== true ? <StorageInitialisingBanner /> : null}
       <h1 className="text-2xl font-semibold">
         {stage === 'consented'
           ? 'First consent captured!'
@@ -191,4 +201,29 @@ function fmtElapsed(sec: number): string {
   const m = Math.floor(sec / 60)
   const s = sec % 60
   return `${m}m ${s.toString().padStart(2, '0')}s`
+}
+
+// ADR-1025 Sprint 2.2 — soft banner shown while the CS-managed R2 bucket is
+// still being provisioned in the background. Non-blocking: the wizard's
+// other actions (waiting for first consent, proceeding to dashboard) stay
+// fully usable. Disappears on the next poll tick once
+// `export_configurations.is_verified` flips to true.
+function StorageInitialisingBanner() {
+  return (
+    <div
+      role="status"
+      aria-live="polite"
+      className="mb-6 flex items-start gap-3 rounded-md border border-blue-200 bg-blue-50 p-3 text-sm text-blue-900"
+    >
+      <Spinner />
+      <div>
+        <div className="font-medium">Storage initialising</div>
+        <p className="mt-0.5 text-xs text-blue-800">
+          We&apos;re provisioning your compliance-record bucket in the
+          background. You can keep using the wizard — this banner clears
+          automatically when storage is ready (usually &lt; 30 seconds).
+        </p>
+      </div>
+    </div>
+  )
 }

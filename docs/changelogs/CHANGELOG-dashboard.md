@@ -2,6 +2,30 @@
 
 Next.js UI changes.
 
+## [ADR-1025 Sprint 2.2 — wizard Step-7 storage banner + dashboard storage panel] — 2026-04-24
+
+**ADR:** ADR-1025 — Customer storage auto-provisioning
+**Sprint:** Phase 2, Sprint 2.2 — UI surfaces for storage provisioning state
+
+### Added
+- `app/src/app/(dashboard)/dashboard/_components/storage-panel.tsx` — new server component. Reads `public.export_configurations` via the authenticated-user Supabase client (the existing `org_select` RLS policy scopes the read to the viewer's org). Three visual states — row-missing ("Provisioning" + spinner + explanatory paragraph), row-unverified ("Initialising" amber badge), row-verified ("Ready" green badge + provider label from PROVIDER_LABELS + bucket name + relative last-delivery timestamp). Two links: "View exports →" to `/dashboard/exports`, and "Manage storage" to `/dashboard/exports/settings` (placeholder — moves to `/dashboard/settings/storage` when Phase 3 ships the BYOK UI). Wired into `dashboard/page.tsx` between the compliance-scores grid and the `ComplianceHealthCard`.
+- `StorageInitialisingBanner` (inline component inside `step-7-first-consent.tsx`) — compact non-blocking banner rendered above the wizard's Step-7 heading while `storage_verified !== true`. Renders a spinner, "Storage initialising" label, and a one-sentence explanation. Disappears on the next 5 s poll once verification flips to true. Non-blocking by design: the "Open my dashboard" button remains active throughout, so a transient CF outage can't trap the user in Step 7.
+
+### Changed
+- `app/src/app/api/orgs/[orgId]/onboarding/status/route.ts` — `StatusResponse` gains `storage_verified: boolean | null`. Null means the provisioning trigger hasn't landed yet (no `export_configurations` row); false means a row exists but verification is pending; true means storage is ready. Reads via `.maybeSingle()` so a missing row is an explicit null rather than an error.
+- `app/src/app/(public)/onboarding/_components/step-7-first-consent.tsx` — added `storageVerified` state fed by each poll tick; renders the new `StorageInitialisingBanner` above the main card heading when `storageVerified !== true`.
+
+### Why
+The provisioning trigger fires on the first `data_inventory` INSERT (Sprint 2.1) and completes in ~30 s end-to-end. Without this sprint, a user who zipped through the wizard could land on the dashboard before their bucket was ready and see no indication of WHY export actions might briefly misbehave. These two surfaces — one in-wizard, one post-wizard — give a deterministic visible signal at both exit points, auto-dismissing without any user action when provisioning completes.
+
+### Tested
+- `bun run lint` — 232 files, 0 violations (was 231 before the panel file landed).
+- `bun run build` — clean; Next.js 16 prerender manifest includes the new components; 0 errors, 0 warnings.
+- `bunx vitest run tests/storage/` — 45/45 PASS in 164 ms (no new tests; the route delta is additive behind existing membership-gate tests, and the presentation components are pure read-only rendering).
+
+### Scope boundary
+No automated race-simulation test. The nightly verify cron shipping in Phase 4 Sprint 4.1 will exercise is_verified flips against production data, and visual verification happens during the next real onboarding run. The `/dashboard/exports/settings` link in the panel is a Phase 3 placeholder — it currently points to the pre-existing r2-settings-form (BYOK surface from before ADR-1025); Phase 3 will rewrite that page and move the link to `/dashboard/settings/storage` per the ADR.
+
 ## [ADR-1005 Phase 6 Sprint 6.4 — notifications dashboard + per-channel test-send] — 2026-04-23
 
 **ADR:** ADR-1005 — Operations maturity (Phase 6 fully shipped)

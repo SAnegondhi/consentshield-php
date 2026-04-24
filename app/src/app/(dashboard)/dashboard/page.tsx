@@ -8,6 +8,7 @@ import {
   nowIso,
 } from '@consentshield/compliance'
 import { ScoreGauge } from './score-gauge'
+import { StoragePanel } from './_components/storage-panel'
 
 export default async function DashboardPage() {
   const supabase = await createServerClient()
@@ -272,6 +273,11 @@ export default async function DashboardPage() {
           <p className="text-sm text-gray-600">days until full enforcement</p>
           <p className="mt-3 text-xs text-gray-500">13 May 2027 · ₹250 crore per violation</p>
         </section>
+      </div>
+
+      {/* ADR-1025 Sprint 2.2 — compliance-record storage destination */}
+      <div className="max-w-md">
+        <StoragePanel orgId={membership.org_id} />
       </div>
 
       {/* ADR-1004 Phase 3 Sprint 3.2 — Compliance Health widget */}

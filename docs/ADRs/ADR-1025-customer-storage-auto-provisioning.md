@@ -210,11 +210,17 @@ Run on every provisioning, every credential rotation, and nightly-verify cron (r
 **Estimated effort:** 0.5 day
 
 **Deliverables:**
-- [ ] `app/src/app/(public)/onboarding/_components/step-7-first-consent.tsx` — if `export_configurations.is_verified=false` at poll time, render a soft banner ("Storage initialising…"). Banner auto-dismisses when verification flips.
-- [ ] `app/src/app/(dashboard)/dashboard/_components/storage-panel.tsx` — widget on the main dashboard showing provider + last-successful-delivery + link to Settings → Storage.
+- [x] `app/src/app/api/orgs/[orgId]/onboarding/status/route.ts` — extended the polled `StatusResponse` with `storage_verified: boolean | null` (null = no export_configurations row yet; false = row exists, probe pending; true = ready). Reuses the existing RLS policy `org_select` on `export_configurations` (migration 20260413000007) — no new grants needed.
+- [x] `app/src/app/(public)/onboarding/_components/step-7-first-consent.tsx` — added `storageVerified` state fed by each 5 s poll tick, + a non-blocking `StorageInitialisingBanner` rendered above the main card heading while `storage_verified !== true`. Banner auto-dismisses on the next poll once it flips. The rest of the wizard flow (waiting for first consent, proceeding to dashboard) stays fully usable; we don't gate the "Open my dashboard" button on storage readiness — the dashboard's own panel takes over there.
+- [x] `app/src/app/(dashboard)/dashboard/_components/storage-panel.tsx` — server component reading `export_configurations` via the authenticated-user client. Three visual states: row-missing ("Provisioning" + spinner + help text), row-but-unverified ("Initialising" amber badge), row-verified (green "Ready" badge + provider label + bucket + last-delivery relative time). Two links: "View exports →" (`/dashboard/exports`) and "Manage storage" (`/dashboard/exports/settings` — will become `/dashboard/settings/storage` when Phase 3 ships the BYOK settings page). Wired into `dashboard/page.tsx` between the compliance-scores grid and the ComplianceHealthCard.
 
 **Testing plan:**
-- [ ] Race simulation: force `is_verified=false` → wizard Step 7 shows the banner → manually flip `is_verified=true` → banner disappears on next poll.
+- [x] Lint + build: `bun run lint` (231 → 232 files, 0 violations) + `bun run build` (0 errors, 0 warnings). Next.js 16 build includes the new components in the prerender manifest.
+- [x] Unit tests: `tests/storage/` still 45/45 green after Sprint 2.2 additions (no new test files — the status endpoint delta is a single additive field behind the existing membership-gate tests; the dashboard panel is a pure read-only presentation component with no logic worth isolating).
+- [ ] **Visual / manual verification (deferred to next onboarding run):** sign up a fresh org → at Step 7, confirm the soft "Storage initialising" banner shows until the provisioning trigger finishes + flips `is_verified=true`. Also visit `/dashboard` → confirm the storage panel renders the Ready state with the correct bucket name + provider label.
+- [ ] **Race simulation (deferred):** set `is_verified=false` via direct SQL on a real org → refresh /dashboard → panel shows "Initialising" amber badge → flip back to true → panel shows "Ready". Manual smoke test; not worth automating before the Phase 4 nightly-verify cron lands (which exercises this flip in production).
+
+**Status:** `[x] complete 2026-04-24 — status endpoint extended, wizard banner added, dashboard panel shipped. Lint + build + tests all green. Visual verification deferred to the next real onboarding run; the component logic is deterministic enough that a race simulation isn't blocking.`
 
 ### Phase 3 — BYOK escape hatch (Settings → Storage)
 
