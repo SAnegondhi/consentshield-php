@@ -48,6 +48,7 @@ const DESCRIPTIONS: Record<string, { description?: string; keywords?: string[] }
   '/docs/webhook-signatures': { description: 'HMAC-SHA256 scheme + replay defence + raw-body gotcha', keywords: ['hmac', 'signature', 'webhook', 'verify', 'sha256', 'signing secret'] },
   '/docs/changelog': { description: 'API-specific changelog (distinct from product changelog)', keywords: ['changelog', 'versions', 'releases', 'deprecation', 'sunset'] },
   '/docs/status': { description: 'Platform health + uptime targets + incident notifications', keywords: ['status', 'uptime', 'incident', 'sla', 'downtime'] },
+  '/docs/test-verification': { description: 'Partner reproduction — clone, bootstrap, run E2E against your own Supabase, verify sealed evidence', keywords: ['reproduce', 'partner', 'audit', 'e2e', 'evidence', 'reproducibility', 'sealed', 'manifest', 'bootstrap'] },
   '/openapi.yaml': { description: 'Full OpenAPI 3.1 spec', keywords: ['openapi', 'yaml', 'spec'] },
   'https://status.consentshield.in': { description: 'Status page + uptime', keywords: ['status', 'uptime', 'outage'] },
 }

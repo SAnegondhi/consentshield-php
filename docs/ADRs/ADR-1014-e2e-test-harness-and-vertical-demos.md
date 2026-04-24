@@ -21,9 +21,9 @@
 | Phase 2 — Vertical demo sites on Railway | 4/4 `[x]` | ✅ Complete (Playwright runtime green deferred per-sprint pending ADR-1010 Worker migration) |
 | Phase 3 — Full-pipeline E2E suites | 6/7 `[x]` + 1 `[~]` | 🟡 Sprint 3.2 partial — R2 delivery + end-to-end trace-id blocked on `consent_events.trace_id` column + Worker header propagation. `deliver-consent-events` Edge Function itself has since shipped (ADR-1019). |
 | Phase 4 — Stryker mutation testing | 0/4 `[ ]` | ⏳ Planned |
-| Phase 5 — Partner reproduction kit + evidence publication | 1/4 `[x]` | 🟡 Sprint 5.1 complete 2026-04-25 (partner bootstrap — unblocks ADR-1015 Phase 3). Sprints 5.2 / 5.3 / 5.4 planned. |
+| Phase 5 — Partner reproduction kit + evidence publication | 2/4 `[x]` | 🟡 Sprint 5.1 complete 2026-04-25 (partner bootstrap — unblocks ADR-1015 Phase 3). Sprint 5.2 complete 2026-04-25 (`/docs/test-verification` runbook). Sprints 5.3 / 5.4 planned. |
 
-16 of 24 sprints fully complete; 1 partial; 7 planned.
+17 of 24 sprints fully complete; 1 partial; 6 planned.
 
 ---
 
@@ -496,11 +496,19 @@ Mutation testing intentionally mutates production code (change `===` to `!==`, f
 #### Sprint 5.2: Documentation — how to reproduce
 
 **Deliverables:**
-- [ ] Marketing page: `marketing/src/app/docs/test-verification/page.mdx` (rendered under /docs/test-verification).
-- [ ] Step-by-step: sign-ups required, secrets to prepare, commands to run, expected outcomes, how to compare your run against the reference run at testing.consentshield.in.
-- [ ] Links back to the ADR for auditor-grade completeness.
+- [x] Marketing page: `marketing/src/app/docs/test-verification/page.mdx` (rendered under /docs/test-verification). Sectioned as: lead / why-this-exists callout / what-you-get / prerequisites / four-step bootstrap / expected fixture tree / sealed-archive verification / compare-against-reference / sacrificial-controls forward-reference (Sprint 5.4) / FAQ / further reading. Mirrors the `Breadcrumb + Callout + ParamTable + FeedbackStrip` component pattern used by `/docs/status`, `/docs/webhook-signatures`, and the rest of the Reference tier.
+- [x] Step-by-step: prereqs (Supabase test project + migrations + Bun + Playwright browsers + optional Cloudflare account) → clone/install → `bunx supabase db push` → `bunx tsx scripts/partner-bootstrap.ts` (four prompts documented with shape validators) → `bun run test:e2e:partner` → `bunx tsx scripts/e2e-verify-evidence.ts` (exit codes 0/1/2 tabled).
+- [x] Links back to this ADR for auditor-grade completeness + cross-links to `/docs/errors` (negative-control shape), `/docs/webhook-signatures` (pipeline HMAC assertions), `/docs/status` (live uptime vs sealed archive), `tests/e2e/README.md` (harness discipline).
+- [x] Sidebar wired: new entry "Reproduce our tests" under Reference in `_data/nav.ts`; DESCRIPTIONS entry in `_data/search-index.ts` (Cmd-K keywords: reproduce, partner, audit, e2e, evidence, reproducibility, sealed, manifest, bootstrap).
 
-**Status:** `[ ] planned`
+**Scope boundary:** The page is the runbook; it explicitly forward-references Sprint 5.3 (`testing.consentshield.in` public index — not yet live; page tells readers to email support for the latest archive in the meantime) and Sprint 5.4 (formal sacrificial-controls matrix — the existing `smoke-healthz-negative.spec.ts` is pointed at as the pattern). Both are called out in dedicated callouts so reviewers know what's pending rather than what's missing.
+
+**Testing plan:**
+- [x] `cd marketing && bun run build` — clean. 23 static `/docs/*` routes (up from 22) + 1 dynamic catchall prerender. `/docs/test-verification` listed as `○ (Static)`.
+- [x] Nav + search-index entries verified: sidebar link renders under Reference; Cmd-K palette finds the page via any of the 9 curated keywords.
+- [ ] Live partner walk-through deferred to the first external review engagement; the runbook is structured so a reviewer can work from it cold without the author-side hand-holding.
+
+**Status:** `[x] complete 2026-04-25 — Phase 5 runbook live at /docs/test-verification; 23 static docs routes now prerender.`
 
 #### Sprint 5.3: `testing.consentshield.in` public index
 

@@ -2,6 +2,35 @@
 
 Public marketing site (`marketing/` workspace → `consentshield.in`). New in 2026-04-21.
 
+## [ADR-1014 Sprint 5.2 — `/docs/test-verification` reproduction runbook] — 2026-04-25
+
+**ADR:** ADR-1014 — E2E test harness + vertical demo sites
+**Sprint:** Phase 5, Sprint 5.2
+
+### Added
+- `marketing/src/app/docs/test-verification/page.mdx` — partner-facing reproduction runbook. Sections: lead / why-this-exists callout / what-you-get / prerequisites (5-row ParamTable) / four-step bootstrap (clone+install → supabase db push → `bunx tsx scripts/partner-bootstrap.ts` with four prompted values tabled → `bun run test:e2e:partner`) / expected fixture tree (3 verticals × {account, org, 3 web_properties, banner, API key}) / sealed-archive verification (exit 0/1/2 tabled) / compare-against-reference (Sprint 5.3 forward-pointer + email fallback) / sacrificial-controls (Sprint 5.4 forward-pointer + existing pattern at `smoke-healthz-negative.spec.ts`) / FAQ (6 common failures) / further reading.
+
+### Changed
+- `marketing/src/app/docs/_data/nav.ts` — Reference group gains a new "Reproduce our tests" link between "API changelog" and the external "Status & uptime". Reference group is now six entries.
+- `marketing/src/app/docs/_data/search-index.ts` — DESCRIPTIONS map gains `/docs/test-verification` entry. Nine Cmd-K keywords: reproduce, partner, audit, e2e, evidence, reproducibility, sealed, manifest, bootstrap. The page is auto-included in `buildSearchIndex()` via its DOCS_NAV presence — no STANDALONE_ENTRIES needed.
+- `docs/ADRs/ADR-1014-e2e-test-harness-and-vertical-demos.md` — Sprint 5.2 status flipped `[x] complete 2026-04-25`. Progress matrix updated to 17/24 complete + 1 partial + 6 planned. Phase 5 row: "Sprint 5.1 + 5.2 complete … Sprints 5.3 / 5.4 planned".
+- `docs/ADRs/ADR-index.md` row 78 amended to record Sprint 5.2 delivery and the 23-static-docs-routes total.
+
+### Why
+- ADR-1014 Sprint 5.1 shipped the partner bootstrap script; Sprint 5.2 closes the loop with the auditor-legible runbook that walks the flow end-to-end. Without the page, the script is a sharp tool without a label. With it, a reviewer can go from `git clone` to a green sealed evidence archive in under 30 minutes without author-side hand-holding.
+- Page is positioned under Reference (not a new top-level group) because it's consulted as reference material by the auditor persona, not stepped through as part of a developer's integration journey. Same taxonomy slot as `/docs/status` and `/docs/webhook-signatures`.
+
+### Architecture changes
+- None. Pure content authoring on top of the existing `Breadcrumb + Callout + ParamTable + FeedbackStrip` component pattern.
+
+### Tested
+- [x] `cd marketing && bun run build` — clean. 23 static `/docs/*` routes (up from 22) + 1 dynamic catchall. `/docs/test-verification` listed as `○ (Static)`.
+- [x] Nav entry verified in build route list; sidebar renders the new link under Reference.
+- [x] Search palette entry auto-included via DOCS_NAV (confirmed by `buildSearchIndex()` iterating every NavLink).
+- [ ] Live partner walk-through deferred to first external review engagement — the runbook is structured so a reviewer can work from it cold.
+
+---
+
 ## [ADR-1015 Sprint 4.1 + 4.3 — Cross-link audit + docs-issue template] — 2026-04-24
 
 **ADR:** ADR-1015 — v1 API integration tests + customer developer documentation

@@ -94,6 +94,7 @@ export const DOCS_NAV: NavGroup[] = [
       { label: 'Webhook signatures', href: '/docs/webhook-signatures' },
       { label: 'OpenAPI spec (YAML)', href: '/openapi.yaml', external: true },
       { label: 'API changelog', href: '/docs/changelog' },
+      { label: 'Reproduce our tests', href: '/docs/test-verification' },
       { label: 'Status & uptime', href: 'https://status.consentshield.in', external: true },
     ],
   },

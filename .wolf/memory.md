@@ -5266,3 +5266,11 @@
 | 21:29 | Edited docs/ADRs/ADR-1003-processor-posture-and-healthcare-unlock.md | 19→16 lines | ~701 |
 | 21:30 | Edited docs/changelogs/CHANGELOG-schema.md | modified org() | ~1092 |
 | 21:31 | Edited docs/changelogs/CHANGELOG-api.md | added error handling | ~929 |
+| 21:32 | Session end: 33 writes across 14 files (ADR-1014-e2e-test-harness-and-vertical-demos.md, ADR-index.md, ADR-1003-processor-posture-and-healthcare-unlock.md, 20260804000054_adr1003_s14_rpc_consent_record_mode_fence.sql, zero-storage-bridge.ts) | 29 reads | ~222094 tok |
+| 21:38 | Created marketing/src/app/docs/test-verification/page.mdx | — | ~3300 |
+| 21:38 | Edited marketing/src/app/docs/_data/nav.ts | 11→12 lines | ~139 |
+| 21:38 | Edited marketing/src/app/docs/_data/search-index.ts | 1→2 lines | ~122 |
+| 21:39 | Edited docs/ADRs/ADR-1014-e2e-test-harness-and-vertical-demos.md | added error handling | ~686 |
+| 21:39 | Edited docs/ADRs/ADR-1014-e2e-test-harness-and-vertical-demos.md | 3→3 lines | ~83 |
+| 21:39 | Edited docs/ADRs/ADR-index.md | inline fix | ~123 |
+| 21:40 | Edited docs/changelogs/CHANGELOG-marketing.md | added error handling | ~872 |

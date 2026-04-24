@@ -1,7 +1,7 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-04-24T16:01:15.391Z
-> Files: 1396 tracked | Anatomy hits: 0 | Misses: 0
+> Auto-maintained by OpenWolf. Last scanned: 2026-04-24T16:10:47.229Z
+> Files: 1397 tracked | Anatomy hits: 0 | Misses: 0
 
 ## ../../../../../tmp/
 
@@ -1401,7 +1401,7 @@
 - `ADR-1011-revoked-key-tombstone.md` — ADR-1011: Revoked-key tombstone — rotate+revoke plaintexts return 410 (~1088 tok)
 - `ADR-1012-v1-dx-gap-fixes.md` — ADR-1012: v1 API — day-1 DX gap fixes (~2561 tok)
 - `ADR-1013-cs-orchestrator-direct-postgres.md` — ADR-1013: `cs_orchestrator` direct-Postgres migration (Next.js runtime) (~2726 tok)
-- `ADR-1014-e2e-test-harness-and-vertical-demos.md` — ADR-1014: End-to-end test harness + vertical demo sites (partner-evidence grade) (~16171 tok)
+- `ADR-1014-e2e-test-harness-and-vertical-demos.md` — ADR-1014: End-to-end test harness + vertical demo sites (partner-evidence grade) (~16718 tok)
 - `ADR-1015-v1-api-integration-tests-and-developer-docs.md` — ADR-1015: v1 API integration tests + customer developer documentation (~7655 tok)
 - `ADR-1016-v1-orphan-scope-read-endpoints.md` — ADR-1016: v1 API — close the orphan `read:audit`, `read:security`, `read:score` scopes (~1836 tok)
 - `ADR-1017-admin-ops-readiness-flags.md` — ADR-1017: Admin ops-readiness flags — surface external blockers in the operator console (~1656 tok)
@@ -1415,7 +1415,7 @@
 - `ADR-1025-customer-storage-auto-provisioning.md` — ADR-1025: Customer storage auto-provisioning — hybrid managed R2 default + BYOK escape hatch (~13370 tok)
 - `ADR-1026-drop-hyperdrive-direct-supavisor.md` — ADR-1026: Rewind ADR-1010 Phase 3 — Worker connects directly to Supavisor; drop Hyperdrive binding (~5467 tok)
 - `ADR-1027-admin-account-awareness.md` — ADR-1027: Admin Account-Awareness Pass (~8082 tok)
-- `ADR-index.md` — ADR Index (~6041 tok)
+- `ADR-index.md` — ADR Index (~6086 tok)
 - `ADR-template.md` — ADR-NNNN: Title (~423 tok)
 - `adr-workflow.md` — ADR Workflow Rules (~557 tok)
 
@@ -1444,7 +1444,7 @@
 - `CHANGELOG-docs.md` — Changelog — Documentation (~13030 tok)
 - `CHANGELOG-edge-functions.md` — Changelog — Edge Functions (~4251 tok)
 - `CHANGELOG-infra.md` — Changelog — Infrastructure (~21556 tok)
-- `CHANGELOG-marketing.md` — Changelog — Marketing (~12875 tok)
+- `CHANGELOG-marketing.md` — Changelog — Marketing (~13649 tok)
 - `CHANGELOG-schema.md` — Changelog — Schema (~52508 tok)
 - `CHANGELOG-worker.md` — Changelog — Worker (~6025 tok)
 
@@ -1588,8 +1588,8 @@
 
 ## marketing/src/app/docs/_data/
 
-- `nav.ts` — HTTP method pill for API-reference entries; undefined elsewhere. (~1422 tok)
-- `search-index.ts` — Group label (appears as a muted header in the palette). (~2124 tok)
+- `nav.ts` — HTTP method pill for API-reference entries; undefined elsewhere. (~1442 tok)
+- `search-index.ts` — Group label (appears as a muted header in the palette). (~2200 tok)
 
 ## marketing/src/app/docs/_styles/
 
@@ -1683,6 +1683,10 @@
 ## marketing/src/app/docs/status/
 
 - `page.mdx` — Status & uptime (~1185 tok)
+
+## marketing/src/app/docs/test-verification/
+
+- `page.mdx` — Reproduce our tests (~3300 tok)
 
 ## marketing/src/app/docs/webhook-signatures/
 

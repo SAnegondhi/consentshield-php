@@ -1,0 +1,290 @@
+export const metadata = {
+  title: 'Reproduce our tests',
+  description:
+    'Partner-evidence-grade reproduction of the ConsentShield end-to-end test suite against your own Supabase project. Clone, seed, run, verify the sealed evidence archive.',
+}
+
+<Breadcrumb trail={[
+  { label: 'Docs', href: '/docs' },
+  { label: 'Reference', href: '/docs' },
+  { label: 'Reproduce our tests' },
+]} />
+
+# Reproduce our tests
+
+This page is for reviewers — audit firms, BFSI prospects, enterprise
+procurement, compliance officers — who need to **independently verify**
+that the ConsentShield end-to-end test suite does what we say it does,
+against state you control.
+
+You will: clone the repo, point it at your own Supabase test project,
+seed three fixtures (ecommerce, healthcare, BFSI), run the suite, and
+verify the sealed evidence archive. Wall-clock budget: **~30 minutes**
+on a warm machine with a Supabase project already created.
+
+<Callout tone="info" title="Why we built this">
+Every auditor-facing test-coverage claim we make must be re-runnable
+against state the reviewer controls. A shared read-only sandbox is not
+sufficient evidence — you cannot trust state you did not write.
+This page is the contract: everything it describes is the same code
+path our own CI exercises. Tracked under
+[ADR-1014](https://github.com/aiSpirit-systems/consentshield/blob/main/docs/ADRs/ADR-1014-e2e-test-harness-and-vertical-demos.md).
+</Callout>
+
+## What you get
+
+- **Three vertical-specific fixtures** — one account each for an
+  ecommerce retailer, a clinic, and a BFSI fintech. Each fixture owns
+  an organisation, three web properties (live + localhost probe +
+  sandbox), a consent banner tuned for its vertical, and a sandbox API
+  key.
+- **A full pipeline** — the browser-driven suite exercises banner →
+  Cloudflare Worker HMAC → buffer → delivery → R2 object → receipt.
+  Negative controls run alongside positives; mutation testing gates
+  the whole run.
+- **A sealed evidence archive** — every run writes a content-hashed
+  bundle of Playwright reports, response bodies, and per-test trace
+  IDs. A tiny verifier CLI re-hashes the bundle and refuses any
+  tampering.
+
+## Prerequisites
+
+<ParamTable params={[
+  {
+    name: 'Supabase test project',
+    type: 'You own it. Not production.',
+    description: 'The bootstrap WILL wipe fixtures with the same names on re-run (--force). Create a new project at supabase.com for this exercise if you do not already have a disposable one.',
+  },
+  {
+    name: 'Schema migrations applied',
+    type: 'bunx supabase db push',
+    description: 'Run from the cloned repo root against your Supabase project. The bootstrap performs a sanity check on api_keys existence and will abort with a clear error if migrations are missing.',
+  },
+  {
+    name: 'Bun ≥ 1.1',
+    type: 'https://bun.sh',
+    description: 'The repo is a Bun workspace monorepo. Node is not a substitute — several scripts rely on Bun-specific features (bunx, workspace resolution).',
+  },
+  {
+    name: 'Playwright browsers',
+    type: 'chromium + webkit',
+    description: 'Downloaded on demand via `cd tests/e2e && bun run install:browsers`. Roughly 450 MB; needs a few minutes on first install.',
+  },
+  {
+    name: 'Cloudflare account (optional)',
+    type: 'For Worker-path tests only',
+    description: 'Only required if you want to run the Worker HMAC / ingestion tests. Pipeline tests without a WORKER_URL skip cleanly with a pointer to the setup steps — the rest of the suite still exercises RPC-level contracts against your Supabase.',
+  },
+]} />
+
+## Four-step bootstrap
+
+### 1. Clone + install
+
+```bash
+git clone https://github.com/aiSpirit-systems/consentshield.git
+cd consentshield
+bun install
+```
+
+One checkout, one `bun install`. The workspace pulls in every app
+(`app/`, `admin/`, `marketing/`, `worker/`, `tests/e2e/`) and the
+shared packages.
+
+### 2. Apply migrations against your Supabase project
+
+```bash
+export SUPABASE_ACCESS_TOKEN=sbp_...       # from supabase.com → account → access tokens
+export SUPABASE_PROJECT_REF=abcdefghij      # your project's ref
+bunx supabase link --project-ref "$SUPABASE_PROJECT_REF"
+bunx supabase db push
+```
+
+Migrations are ordered and idempotent against an empty project. Expect
+~90 seconds; subsequent re-runs are a no-op. If anything fails, scroll
+back to the first error — later failures cascade from it.
+
+### 3. Run the partner bootstrap
+
+```bash
+bunx tsx scripts/partner-bootstrap.ts
+```
+
+You will be prompted for four values:
+
+<ParamTable params={[
+  {
+    name: 'Supabase project URL',
+    type: 'https://<ref>.supabase.co',
+    description: 'Visible input. The bootstrap rejects values that do not parse as a Supabase HTTPS URL and re-prompts.',
+  },
+  {
+    name: 'Service-role key',
+    type: 'Secret',
+    description: 'Hidden input (asterisks). Accepted shapes: legacy JWT (eyJ...) or rotated sb_secret_* token. The key never leaves your machine and is never logged.',
+  },
+  {
+    name: 'Anon key',
+    type: 'Visible',
+    description: 'Required by the Playwright harness to issue anon-authed requests where applicable.',
+  },
+  {
+    name: 'Cloudflare account ID',
+    type: 'Optional — press Enter to skip',
+    description: 'Stored as CLOUDFLARE_ACCOUNT_ID in .env.partner. Only consulted by Worker-path tests.',
+  },
+]} />
+
+On completion, the script writes `.env.partner` at the repo root with
+mode `0600`. The file is gitignored. It contains every fixture ID
+(accounts, orgs, web_properties, banners, api_keys), their signing
+secrets, and a plaintext sandbox `cs_test_*` Bearer key per vertical.
+
+Re-run with `--force` to wipe and rebuild every fixture:
+
+```bash
+bunx tsx scripts/partner-bootstrap.ts --force
+```
+
+### 4. Run the suite
+
+```bash
+cd tests/e2e && bun run install:browsers && cd ../..
+bun run test:e2e:partner
+```
+
+`test:e2e:partner` is a thin alias that sets `PLAYWRIGHT_PARTNER=1` so
+the harness loads `.env.partner` rather than our internal `.env.e2e`.
+A full chromium + webkit pass takes roughly 5–8 minutes depending on
+network round-trip to your Supabase region. Pipeline tests that
+require a Worker skip with a clear message if `WORKER_URL` is unset —
+RPC-level contract tests still run and still produce evidence.
+
+## Expected fixture tree
+
+After a successful bootstrap, your Supabase project contains:
+
+<ParamTable params={[
+  {
+    name: 'Ecommerce — Demo Apparel Co',
+    type: 'accounts + organisations + 3 web_properties',
+    description: '"Storefront" + "Checkout" + "Sandbox probe". Banner carries essential (contract) + analytics + marketing (both consent). API key scoped sandbox rate-tier.',
+  },
+  {
+    name: 'Healthcare — Demo Clinic Care',
+    type: 'accounts + organisations + 3 web_properties',
+    description: '"Clinic website" + "Patient portal" + "Sandbox probe". Banner carries clinical_care (contract) + research_deidentified + marketing_health_optin (both consent). Vertical enforces no-FHIR-persistence during pipeline tests.',
+  },
+  {
+    name: 'BFSI — Demo Fintech',
+    type: 'accounts + organisations + 3 web_properties',
+    description: '"Marketing site" + "Onboarding" + "Sandbox probe". Banner carries kyc_mandatory (legal_obligation — non-revocable) + credit_bureau_share + marketing_sms (both consent).',
+  },
+]} />
+
+Each fixture emits env vars prefixed by its vertical — `FIXTURE_ECOM_*`,
+`FIXTURE_HEALTH_*`, `FIXTURE_BFSI_*` — plus `TEST_API_KEY_{ECOM,HEALTH,BFSI}`
+for the sandbox Bearer keys.
+
+## Verify the sealed evidence archive
+
+Every run writes an archive to `tests/e2e/evidence/<commitShort>/<runId>/`:
+
+```
+manifest.json        run metadata + per-test outcomes + attachment inventory
+seal.txt             SHA-256 ledger + root hash over the whole archive
+attachments/
+  playwright-report/ HTML report (open in browser)
+  results.json       Playwright JSON reporter output
+  responses/*.json   raw HTTP response bodies from each test
+  trace-ids/*.txt    per-test trace IDs
+```
+
+Verify integrity with the bundled CLI:
+
+```bash
+bunx tsx scripts/e2e-verify-evidence.ts tests/e2e/evidence/<commit>/<runId>
+```
+
+<ParamTable params={[
+  {
+    name: 'Exit 0',
+    type: 'Intact',
+    description: 'Every file hash matches the ledger; the root hash matches the seal. The archive is as-run.',
+  },
+  {
+    name: 'Exit 1',
+    type: 'Tampered',
+    description: 'Per-file MODIFIED / ADDED / REMOVED report. Treat as evidence of mishandling — do NOT accept downstream.',
+  },
+  {
+    name: 'Exit 2',
+    type: 'IO / usage error',
+    description: 'Path not found, unreadable, or invalid manifest. Re-download and re-check.',
+  },
+]} />
+
+## Compare against the reference run
+
+<Callout tone="info" title="Reference archive — Sprint 5.3">
+A public index of every CI run — date, commit SHA, pass/fail counts,
+mutation score, archive download — will live at
+**testing.consentshield.in** once
+[ADR-1014 Sprint 5.3](https://github.com/aiSpirit-systems/consentshield/blob/main/docs/ADRs/ADR-1014-e2e-test-harness-and-vertical-demos.md)
+ships. Until then, ask support@consentshield.in for the latest sealed
+archive from `main` and compare file counts + per-test outcomes
+against yours.
+</Callout>
+
+Partner runs are expected to match our reference run on **per-test
+pass/fail outcomes** but will differ on:
+
+- Timings — round-trip to your Supabase region is not the same as ours.
+- Trace IDs — ULID-shaped, one per test, regenerated every run.
+- Response payload UUIDs — fixture orgs/accounts/properties have
+  fresh IDs on every `--force` rebuild.
+
+Outcome shape is what matters. Any per-test `status: 'failed'` in
+your `manifest.json` that is `'passed'` in ours is a divergence worth
+emailing us about.
+
+## Sacrificial "must-fail" controls
+
+<Callout tone="warn" title="Sprint 5.4 — coming">
+Alongside positives, the suite carries intentionally-broken controls
+(HMAC check removed, RLS bypassed, etc.) that MUST fail red. If any
+control is recorded `'passed'` in `manifest.json`, **the whole run is
+invalid** — assertions are not discriminating what we claim they do.
+The formal control matrix ships with ADR-1014 Sprint 5.4.
+</Callout>
+
+Until the formal matrix lands, one sacrificial control already ships
+as a pattern — `tests/e2e/controls/smoke-healthz-negative.spec.ts`.
+Inspect it to understand the shape: the control asserts an
+impossible condition (HTTP 200 from a URL that returns 404) so any
+green result means the harness stopped honouring expected-failure
+semantics.
+
+## FAQ
+
+**The bootstrap says "schema check failed — run bunx supabase db push first".** Your project's schema is empty. Re-run step 2.
+
+**"Does not look like a Supabase key".** The validator rejects values that are neither a JWT (`eyJ...`) nor an `sb_secret_*` / `sb_publishable_*` token. Double-check you copied the whole string without line breaks.
+
+**The browser-based pipeline tests skip with "WORKER_URL not set".** Expected unless you are running a Cloudflare Worker locally. Follow [tests/e2e/README.md](https://github.com/aiSpirit-systems/consentshield/blob/main/tests/e2e/README.md) section "Running pipeline tests against the Worker". RPC-level contract tests still run and still produce observable-state assertions.
+
+**Can I re-run without wiping?** Yes — the bootstrap is idempotent without `--force`. It reuses existing fixtures matched by name (e.g. `e2e-fixture-ecommerce`) and only mints a new API key if no active one exists.
+
+**Can I target a production Supabase project?** No. The bootstrap wipes fixtures with the names listed above. If those names collide with real data in your production project, that data will be deleted. Use a disposable project.
+
+**My Supabase project is in a different region from yours. Is that a problem?** No. Latency differs; outcomes do not.
+
+## Further reading
+
+- [ADR-1014](https://github.com/aiSpirit-systems/consentshield/blob/main/docs/ADRs/ADR-1014-e2e-test-harness-and-vertical-demos.md) — the full decision record behind this suite.
+- [Errors](/docs/errors) — how the suite's negative controls map to RFC 7807 error shapes.
+- [Webhook signatures](/docs/webhook-signatures) — the HMAC scheme the pipeline tests assert against.
+- [Status & uptime](/docs/status) — live platform health, which the evidence archives do not cover.
+- `tests/e2e/README.md` — harness-level discipline (pair-matrix, spec-doc-per-test, observable-state invariants).
+
+<FeedbackStrip pagePath="marketing/src/app/docs/test-verification/page.mdx" />
