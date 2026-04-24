@@ -12,6 +12,8 @@ export interface AuditDetailRow {
   target_id: string | null
   target_pk: string | null
   org_id: string | null
+  account_id: string | null
+  account_name: string | null
   impersonation_session_id: string | null
   old_value: unknown
   new_value: unknown
@@ -87,6 +89,18 @@ export function AuditDetailDrawer({
               <code className="font-mono text-xs">{row.target_id}</code>
             ) : row.target_pk ? (
               <code className="font-mono text-xs">{row.target_pk}</code>
+            ) : (
+              <span className="text-text-3">—</span>
+            )}
+          </Row>
+          <Row label="Account">
+            {row.account_id ? (
+              <div className="space-y-1">
+                <div className="text-xs">{row.account_name ?? '(account)'}</div>
+                <code className="font-mono text-[11px] text-text-3">
+                  {row.account_id}
+                </code>
+              </div>
             ) : (
               <span className="text-text-3">—</span>
             )}

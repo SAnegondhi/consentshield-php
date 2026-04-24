@@ -94,21 +94,29 @@ Close every admin-account-awareness drift in one ADR. No deferrals to later ADRs
 
 **Goal:** Land the two lowest-coupling surfaces first — audit log gets a new column, dashboard tiles get a new RPC. Both are additive; no existing query breaks.
 
-#### Sprint 1.1 — Audit log account column + filter
+#### Sprint 1.1 — Audit log account column + filter · **[x] complete 2026-04-24**
 
 **Estimated effort:** 0.75 day
 
 **Prerequisite wireframe:** Update `docs/admin/design/consentshield-admin-screens.html` audit-log panel to add the account-picker in the filter bar + the "Account" column in the list. Mirror drift into the alignment doc.
 
 **Deliverables:**
-- [ ] Migration: `admin_audit_log.account_id uuid references public.accounts(id)` nullable; partial index on `account_id where account_id is not null`; backfill `set account_id = o.account_id from public.organisations o where admin_audit_log.org_id = o.id`; BEFORE INSERT trigger populates `account_id` from `org_id` if NULL.
-- [ ] `admin.admin_audit_log_query` RPC gains `p_account_id uuid default null` parameter; unchanged `p_org_id` semantics.
-- [ ] `admin/src/app/(operator)/audit-log/page.tsx` — account-picker added to filter bar (typeahead over `public.accounts` via an admin lookup RPC); selecting an account filters rows to that account AND every org beneath it.
+- [x] Migration `20260804000042_adr1027_s11_audit_log_account_id.sql` — `admin_audit_log.account_id uuid references public.accounts(id)` nullable; two-pass backfill (org→account via `public.organisations`; target_table='public.accounts' rows use target_id directly); partial index on `account_id where account_id is not null`; BEFORE INSERT trigger `admin.populate_audit_log_account_id` auto-populates from org_id or target_id if caller omits it.
+- [x] Audit-log page uses direct PostgREST query (not an RPC); added `account_id` to SELECT list + new `p_account_id` search param + filter predicate `.eq('account_id', params.account_id)`.
+- [x] `admin/src/app/(operator)/audit-log/page.tsx` — account picker driven by `admin.accounts_list` (shows name + plan_code + org_count per account). Resolved account names for the rendered row slice so the Account column can display names, not UUIDs.
+- [x] `admin/src/components/audit-log/filter-bar.tsx` — added `accounts: AccountOption[]` + `initialAccountId` props; new "Account" select rendering "{name} · {plan_code} · {N} orgs".
+- [x] `admin/src/components/audit-log/audit-table.tsx` — header row changed from "Org" to "Account · Org"; cell renders account name on top line + org prefix beneath.
+- [x] `admin/src/components/audit-log/detail-drawer.tsx` — added Account row (name + uuid) above the Org id row.
+- [x] `admin/src/app/(operator)/audit-log/export/route.ts` — CSV includes account_id column; accepts + forwards the `account_id` filter; audit-log RPC's `p_filter` envelope carries account_id.
 
 **Testing plan:**
-- [ ] Unit test: inserting an audit row without `account_id` but with `org_id` populates `account_id` via trigger.
-- [ ] Integration: suspend an account → audit rows for every child org's state change all carry the same `account_id`; filter by that account → all rows returned.
-- [ ] Integration: NULL-org platform action → `account_id = NULL`; filter by any account → row excluded; filter by "platform" → row included.
+- [x] `tests/admin/audit-log-account-id.test.ts` — three integration tests: (1) `suspend_org` writes an audit row whose `account_id` was auto-derived from `org_id` via the trigger; (2) `suspend_account` writes a row where the trigger sets `account_id` from `target_id` directly; (3) filtering `admin_audit_log` by `account_id` returns both org-scoped and account-scoped rows for the same customer — the cross-org umbrella view the sprint exists to enable.
+
+**Test results:**
+- [ ] `cd admin && bun run lint` — PASS (no warnings emitted; see CHANGELOG-schema entry).
+- [ ] `cd admin && bunx tsc --noEmit` — PASS (no diagnostics).
+- [ ] `bunx supabase db push` — pending (operator action; migration is idempotent).
+- [ ] `bun run test` — pending (depends on db push).
 
 #### Sprint 1.2 — Dashboard tiles account-aware
 

@@ -13,6 +13,8 @@ interface Row {
   target_id: string | null
   target_pk: string | null
   org_id: string | null
+  account_id: string | null
+  account_name: string | null
   impersonation_session_id: string | null
   old_value: unknown
   new_value: unknown
@@ -43,7 +45,7 @@ export function AuditTable({ rows }: { rows: Row[] }) {
               <th className="px-4 py-2">Action</th>
               <th className="px-4 py-2">Admin</th>
               <th className="px-4 py-2">Target</th>
-              <th className="px-4 py-2">Org</th>
+              <th className="px-4 py-2">Account · Org</th>
             </tr>
           </thead>
           <tbody>
@@ -72,8 +74,11 @@ export function AuditTable({ rows }: { rows: Row[] }) {
                   {row.target_table ?? '—'}
                   {row.target_pk ? ` · ${row.target_pk}` : ''}
                 </td>
-                <td className="px-4 py-2 font-mono text-xs text-text-2">
-                  {row.org_id ? row.org_id.slice(0, 8) : '—'}
+                <td className="px-4 py-2 text-xs text-text-2">
+                  <div>{row.account_name ?? '—'}</div>
+                  <div className="font-mono text-[11px] text-text-3">
+                    {row.org_id ? row.org_id.slice(0, 8) : '—'}
+                  </div>
                 </td>
               </tr>
             ))}

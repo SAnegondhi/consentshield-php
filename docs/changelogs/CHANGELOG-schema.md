@@ -2,6 +2,40 @@
 
 Database migrations, RLS policies, roles.
 
+## [ADR-1027 Sprint 1.1 — admin_audit_log.account_id column + trigger + backfill] — 2026-04-24
+
+**ADR:** ADR-1027 — Admin account-awareness pass
+**Sprint:** Phase 1, Sprint 1.1 — Audit log account column + filter
+
+### Added
+- `supabase/migrations/20260804000042_adr1027_s11_audit_log_account_id.sql`:
+  1. **`admin.admin_audit_log.account_id uuid`** (nullable) column added, plus `admin_audit_log_account_id_fkey` referencing `public.accounts(id)`. Nullable on purpose — platform-tier actions (`block_ip`, `deprecate_connector`, `publish_sectoral_template`) have no account scope.
+  2. **Two-pass backfill**: first, every row with `org_id is not null` inherits `account_id` via `public.organisations.account_id`. Second, rows where `target_table = 'public.accounts'` populate `account_id = target_id` directly. Platform-tier rows stay NULL.
+  3. **BEFORE INSERT trigger `admin.populate_audit_log_account_id`**: if the caller provides `account_id`, unchanged. Otherwise, derives from `target_id` for account-tier targets or from `org_id → organisations.account_id` for org-scoped targets. Runs as the table owner so the INSERT revoke on `authenticated` + `cs_admin` doesn't block the trigger body.
+  4. **Partial index** `admin_audit_log_account_idx` on `(account_id, occurred_at desc)` where `account_id is not null` — powers the new account filter on `/audit-log`.
+
+### Admin console
+- `admin/src/app/(operator)/audit-log/page.tsx` — `account_id` search param + filter predicate added; account-picker now driven by `admin.accounts_list` (support-tier RPC) returning `{id, name, plan_code, org_count}`; resolved account names for the rendered row slice so the Account column renders names, not UUIDs.
+- `admin/src/components/audit-log/filter-bar.tsx` — new Account select between Action and Org filters.
+- `admin/src/components/audit-log/audit-table.tsx` — "Org" column replaced with "Account · Org" (account name top line, org uuid prefix beneath).
+- `admin/src/components/audit-log/detail-drawer.tsx` — Account row added above Org id.
+- `admin/src/app/(operator)/audit-log/export/route.ts` — CSV carries `account_id`; filter envelope forwards the new param to `admin.audit_bulk_export`.
+
+### Design
+- `docs/admin/design/consentshield-admin-screens.html` — audit-log panel filter bar adds the Account select; list column renamed to "Account · Org" with multi-row cell sample including a `suspend_account` row whose Org is `—` (target is the account itself) and an `extend_trial` row with both populated.
+- `docs/admin/design/ARCHITECTURE-ALIGNMENT-2026-04-16.md` — reconciliation tracker row added for Sprint 1.1 (wireframe ✅ 2026-04-24, code ☐ pending db push + smoke).
+
+### Tested
+- [x] `cd admin && bunx tsc --noEmit` — PASS (no diagnostics after the four-file edit).
+- [x] `cd admin && bun run lint` — PASS (no warnings).
+- [x] `tests/admin/audit-log-account-id.test.ts` — three integration tests authored (org-scoped trigger backfill, account-scoped trigger backfill, cross-tier account filter returns both shapes).
+- [ ] `bunx supabase db push` — **pending** (operator action; migration is idempotent). Tests run against the live dev project so they depend on the column being present.
+
+### Why
+Post-ADR-0044 the tenancy centre of gravity is `public.accounts`, but every admin audit row still keyed only on `org_id` + `target_id`. Filtering by account required a client-side join through `organisations`. Rows whose target is the account itself (`suspend_account`) had NULL `org_id` and were invisible in org-scoped filters. Adding `account_id` as a first-class column closes both gaps in one pass and unblocks Sprint 2.1's `<AccountContextCard>` / group-by-account toggle which depend on account-indexed audit queries.
+
+---
+
 ## [ADR-1025 Sprint 4.2 — storage_usage_snapshots table + plan ceilings + monthly cron] — 2026-04-24
 
 **ADR:** ADR-1025 — Customer storage auto-provisioning

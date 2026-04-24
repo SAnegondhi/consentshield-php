@@ -61,6 +61,7 @@ interface PageProps {
     admin_user_id?: string
     action?: string
     org_id?: string
+    account_id?: string
     from?: string
     to?: string
     page?: string
@@ -72,18 +73,19 @@ export default async function AuditLogPage({ searchParams }: PageProps) {
   const page = Math.max(0, parseInt(params.page ?? '0', 10) || 0)
   const supabase = await createServerClient()
 
+  const SELECT_COLS =
+    'id, occurred_at, admin_user_id, action, target_table, target_id, target_pk, org_id, account_id, impersonation_session_id, old_value, new_value, reason, request_ip, request_ua, api_route'
+
   let query = supabase
     .schema('admin')
     .from('admin_audit_log')
-    .select(
-      'id, occurred_at, admin_user_id, action, target_table, target_id, target_pk, org_id, impersonation_session_id, old_value, new_value, reason, request_ip, request_ua, api_route',
-      { count: 'exact' },
-    )
+    .select(SELECT_COLS, { count: 'exact' })
     .order('occurred_at', { ascending: false })
 
   if (params.admin_user_id) query = query.eq('admin_user_id', params.admin_user_id)
   if (params.action) query = query.eq('action', params.action)
   if (params.org_id) query = query.ilike('org_id::text', `${params.org_id}%`)
+  if (params.account_id) query = query.eq('account_id', params.account_id)
   if (params.from) query = query.gte('occurred_at', `${params.from}T00:00:00Z`)
   if (params.to) {
     const toDate = new Date(`${params.to}T00:00:00Z`)
@@ -103,10 +105,7 @@ export default async function AuditLogPage({ searchParams }: PageProps) {
     const retry = await supabase
       .schema('admin')
       .from('admin_audit_log')
-      .select(
-        'id, occurred_at, admin_user_id, action, target_table, target_id, target_pk, org_id, impersonation_session_id, old_value, new_value, reason, request_ip, request_ua, api_route',
-        { count: 'exact' },
-      )
+      .select(SELECT_COLS, { count: 'exact' })
       .order('occurred_at', { ascending: false })
       .eq('org_id', params.org_id)
       .range(from, to)
@@ -129,9 +128,33 @@ export default async function AuditLogPage({ searchParams }: PageProps) {
     (adminUsers ?? []).map((u) => [u.id, u.display_name ?? null]),
   )
 
+  // Resolve account names for the rendered slice (plus any account picked
+  // in the current filter, so the filter bar can display its own selection
+  // label even if no visible row belongs to that account on this page).
+  const accountIds = Array.from(
+    new Set(
+      rows
+        .map((r) => r.account_id)
+        .concat(params.account_id ?? null)
+        .filter((v): v is string => typeof v === 'string' && v.length > 0),
+    ),
+  )
+  const { data: rowAccounts } =
+    accountIds.length > 0
+      ? await supabase
+          .schema('public')
+          .from('accounts')
+          .select('id, name, plan_code')
+          .in('id', accountIds)
+      : { data: [] as Array<{ id: string; name: string; plan_code: string }> }
+  const accountById = new Map(
+    (rowAccounts ?? []).map((a) => [a.id, a]),
+  )
+
   const rowsWithNames = rows.map((r) => ({
     ...r,
     display_name: nameById.get(r.admin_user_id) ?? null,
+    account_name: r.account_id ? accountById.get(r.account_id)?.name ?? null : null,
   }))
 
   // Populate the admin select with everyone who has ever appeared in the
@@ -141,6 +164,16 @@ export default async function AuditLogPage({ searchParams }: PageProps) {
     .from('admin_users')
     .select('id, display_name')
     .order('display_name')
+
+  // Populate the account select via admin.accounts_list — the canonical
+  // operator list (support+ gated, returns name + plan_code + org_count).
+  const { data: allAccounts } = await supabase
+    .schema('admin')
+    .rpc('accounts_list', {
+      p_status: null,
+      p_plan_code: null,
+      p_q: null,
+    })
 
   const filterParams = new URLSearchParams()
   for (const [key, value] of Object.entries(params)) {
@@ -171,10 +204,19 @@ export default async function AuditLogPage({ searchParams }: PageProps) {
 
       <AuditLogFilterBar
         admins={allAdmins ?? []}
+        accounts={
+          (allAccounts ?? []).map((a: { id: string; name: string; plan_code: string; org_count: number }) => ({
+            id: a.id,
+            name: a.name,
+            plan_code: a.plan_code,
+            org_count: Number(a.org_count ?? 0),
+          }))
+        }
         actions={KNOWN_ACTIONS}
         initialAdminId={params.admin_user_id ?? ''}
         initialAction={params.action ?? ''}
         initialOrgId={params.org_id ?? ''}
+        initialAccountId={params.account_id ?? ''}
         initialFrom={params.from ?? ''}
         initialTo={params.to ?? ''}
       />

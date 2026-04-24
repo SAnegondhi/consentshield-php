@@ -19,7 +19,7 @@ export async function GET(request: Request) {
     .schema('admin')
     .from('admin_audit_log')
     .select(
-      'id, occurred_at, admin_user_id, action, target_table, target_id, target_pk, org_id, impersonation_session_id, reason, request_ip, api_route',
+      'id, occurred_at, admin_user_id, action, target_table, target_id, target_pk, org_id, account_id, impersonation_session_id, reason, request_ip, api_route',
     )
     .order('occurred_at', { ascending: false })
     .limit(EXPORT_CAP)
@@ -27,12 +27,14 @@ export async function GET(request: Request) {
   const adminUserId = params.get('admin_user_id')
   const action = params.get('action')
   const orgId = params.get('org_id')
+  const accountId = params.get('account_id')
   const fromDate = params.get('from')
   const toDate = params.get('to')
 
   if (adminUserId) query = query.eq('admin_user_id', adminUserId)
   if (action) query = query.eq('action', action)
   if (orgId) query = query.eq('org_id', orgId)
+  if (accountId) query = query.eq('account_id', accountId)
   if (fromDate) query = query.gte('occurred_at', `${fromDate}T00:00:00Z`)
   if (toDate) {
     const d = new Date(`${toDate}T00:00:00Z`)
@@ -54,6 +56,7 @@ export async function GET(request: Request) {
   if (adminUserId) filterJson.admin_user_id = adminUserId
   if (action) filterJson.action = action
   if (orgId) filterJson.org_id = orgId
+  if (accountId) filterJson.account_id = accountId
   if (fromDate) filterJson.from = fromDate
   if (toDate) filterJson.to = toDate
 
@@ -88,6 +91,7 @@ interface ExportRow {
   target_id: string | null
   target_pk: string | null
   org_id: string | null
+  account_id: string | null
   impersonation_session_id: string | null
   reason: string
   request_ip: string | null
@@ -104,6 +108,7 @@ function toCsv(rows: ExportRow[]): string {
     'target_id',
     'target_pk',
     'org_id',
+    'account_id',
     'impersonation_session_id',
     'reason',
     'request_ip',
@@ -121,6 +126,7 @@ function toCsv(rows: ExportRow[]): string {
         r.target_id ?? '',
         r.target_pk ?? '',
         r.org_id ?? '',
+        r.account_id ?? '',
         r.impersonation_session_id ?? '',
         csvEscape(r.reason),
         r.request_ip ?? '',

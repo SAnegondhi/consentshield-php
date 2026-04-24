@@ -8,22 +8,33 @@ interface AdminOption {
   display_name: string | null
 }
 
+interface AccountOption {
+  id: string
+  name: string
+  plan_code: string
+  org_count: number
+}
+
 interface Props {
   admins: AdminOption[]
+  accounts: AccountOption[]
   actions: string[]
   initialAdminId: string
   initialAction: string
   initialOrgId: string
+  initialAccountId: string
   initialFrom: string
   initialTo: string
 }
 
 export function AuditLogFilterBar({
   admins,
+  accounts,
   actions,
   initialAdminId,
   initialAction,
   initialOrgId,
+  initialAccountId,
   initialFrom,
   initialTo,
 }: Props) {
@@ -52,6 +63,7 @@ export function AuditLogFilterBar({
         push({
           admin_user_id: String(fd.get('admin_user_id') ?? ''),
           action: String(fd.get('action') ?? ''),
+          account_id: String(fd.get('account_id') ?? ''),
           org_id: String(fd.get('org_id') ?? ''),
           from: String(fd.get('from') ?? ''),
           to: String(fd.get('to') ?? ''),
@@ -83,6 +95,22 @@ export function AuditLogFilterBar({
           {actions.map((a) => (
             <option key={a} value={a}>
               {a}
+            </option>
+          ))}
+        </select>
+      </Field>
+
+      <Field label="Account">
+        <select
+          name="account_id"
+          defaultValue={initialAccountId}
+          className="rounded border border-[color:var(--border-mid)] px-2 py-1 text-xs"
+        >
+          <option value="">All accounts</option>
+          {accounts.map((a) => (
+            <option key={a.id} value={a.id}>
+              {a.name} · {a.plan_code} · {a.org_count}{' '}
+              {a.org_count === 1 ? 'org' : 'orgs'}
             </option>
           ))}
         </select>
@@ -124,7 +152,16 @@ export function AuditLogFilterBar({
       </button>
       <button
         type="button"
-        onClick={() => push({ admin_user_id: '', action: '', org_id: '', from: '', to: '' })}
+        onClick={() =>
+          push({
+            admin_user_id: '',
+            action: '',
+            account_id: '',
+            org_id: '',
+            from: '',
+            to: '',
+          })
+        }
         className="rounded border border-[color:var(--border-mid)] bg-white px-3 py-1.5 text-xs text-text-2 hover:bg-bg"
       >
         Reset
