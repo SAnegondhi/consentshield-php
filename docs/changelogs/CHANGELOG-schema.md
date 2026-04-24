@@ -2,6 +2,35 @@
 
 Database migrations, RLS policies, roles.
 
+## [ADR-1019 Sprint 3.1 — deliver-consent-events dispatch + trigger + cron] — 2026-04-24
+
+**ADR:** ADR-1019 — `deliver-consent-events` Next.js route
+**Sprint:** Phase 3, Sprint 3.1
+**Migration:** `20260804000048_adr1019_s31_deliver_consent_events_dispatch.sql`
+
+### Added
+- `public.dispatch_deliver_consent_events(p_row_id uuid default null) returns bigint` — SECURITY DEFINER. Dual-purpose: null `p_row_id` posts `{scan: true}` (cron safety-net); non-null posts `{delivery_buffer_id: <uuid>}` (trigger primary path). Reads `cs_deliver_events_url` + `cs_provision_storage_secret` from Vault (bearer shared with ADR-1025 storage routes — same trust boundary). Soft-fails if Vault is unconfigured; returns `pg_net` request id otherwise. `execute` granted to `cs_orchestrator` only.
+- `public.delivery_buffer_after_insert_deliver()` + trigger `delivery_buffer_dispatch_delivery` on `public.delivery_buffer` — AFTER INSERT FOR EACH ROW, fires the dispatch. `EXCEPTION WHEN OTHERS` swallow is load-bearing: a trigger failure must NOT roll back the producer's INSERT. The 60 s cron covers any miss.
+- `pg_cron` entry `deliver-consent-events-scan` — `* * * * *` (every minute) firing `select public.dispatch_deliver_consent_events();`. Drives the scan/batch path in the route (Sprint 2.2's `deliverBatch`).
+
+### Pattern
+Mirrors ADR-1025 Sprint 2.1's `public.dispatch_provision_storage` shape line-for-line (except for the dual-purpose body arg). Keeps the dispatch mechanism uniform across orchestrators so operators can reason about one pattern, one bearer, one set of Vault entries.
+
+### Operator follow-up
+- Seed the URL secret:
+  ```sql
+  select vault.create_secret(
+    'https://app.consentshield.in/api/internal/deliver-consent-events',
+    'cs_deliver_events_url'
+  );
+  ```
+- Bearer secret (`cs_provision_storage_secret`) already seeded from ADR-1025 — no new bearer.
+- `bunx supabase db push` from the repo root to apply the migration to dev.
+
+### Tested
+- Static (schema consistency): dispatch fn + trigger + cron pattern identical to the proven ADR-1025 pattern. Same `security definer`, same Vault lookup, same `EXCEPTION WHEN OTHERS` swallow, same `grant execute to cs_orchestrator`, same cron schedule shape.
+- Live E2E: deferred to an operator step after the migration is pushed and the Vault URL is seeded. `scripts/verify-adr-1019-sprint-31.ts` lands alongside that first run.
+
 ## [ADR-1027 Sprint 3.2 — admin.account_notes + four CRUD RPCs] — 2026-04-24
 
 **ADR:** ADR-1027 — Admin account-awareness pass

@@ -225,15 +225,26 @@ Unknown `event_type` values must **not** error — the function logs a structure
 
 **Estimated effort:** 0.5 day
 
+**Amendment:** The proposal's Supabase `config.toml` line (`verify_jwt = false`) is no longer applicable — the orchestrator is a Next.js route, not an Edge Function. Bearer auth via `STORAGE_PROVISION_SECRET` handles the trust boundary (Sprint 2.1).
+
 **Deliverables:**
-- [ ] Migration `20260804NNNNNN_deliver_consent_events_trigger.sql`:
-  - `trigger_deliver_consent_events()` — AFTER INSERT on `public.delivery_buffer` fires `net.http_post` to the function with `{delivery_buffer_id: NEW.id}`. Uses the existing `cs_orchestrator_key` Vault JWT pattern from `process-artefact-revocation`. Fail-silent (the cron catches any missed invocations).
-  - `pg_cron` entry running `deliver-consent-events` every 60 s with `{scan: true}` — batch mode, 200-row budget, picks up anything the trigger missed.
-- [ ] `supabase/config.toml` — `[functions.deliver-consent-events] verify_jwt = false` (matches the body-level-auth pattern other trigger-fired functions use; Supabase rotated the HS256 signing secret per Terminal B's 2026-04-22 notes).
+- [x] Migration `20260804000048_adr1019_s31_deliver_consent_events_dispatch.sql`:
+  - `public.dispatch_deliver_consent_events(p_row_id uuid default null)` SECURITY DEFINER. Reads `cs_deliver_events_url` + `cs_provision_storage_secret` (shared bearer with the ADR-1025 storage routes — same trust boundary). Null `p_row_id` posts `{scan: true}`, non-null posts `{delivery_buffer_id: <uuid>}`. Soft-fails if Vault is unconfigured.
+  - `public.delivery_buffer_after_insert_deliver()` SECURITY DEFINER + AFTER INSERT trigger `delivery_buffer_dispatch_delivery`. Best-effort per-row dispatch; `EXCEPTION WHEN OTHERS` swallow is load-bearing so producers never see their INSERT roll back.
+  - `pg_cron` entry `deliver-consent-events-scan` every 60 s firing `select public.dispatch_deliver_consent_events();` (scan mode).
+- [x] Operator runbook step: seed the Vault URL.
+  ```sql
+  select vault.create_secret(
+    'https://app.consentshield.in/api/internal/deliver-consent-events',
+    'cs_deliver_events_url'
+  );
+  ```
+  Bearer `cs_provision_storage_secret` is already seeded from ADR-1025.
 
 **Testing plan:**
-- [ ] `INSERT INTO delivery_buffer (…)` from psql → function fires within 5 s → row is delivered + deleted.
-- [ ] Disable the trigger, insert 10 rows, wait 65 s → cron picks them all up.
+- [ ] `bunx supabase db push` — applies the migration cleanly. Pending operator.
+- [ ] Insert a `delivery_buffer` row against a verified org → trigger fires `net.http_post` → route delivers to R2 → row is deleted, all within ~10 s. Pending live E2E (`scripts/verify-adr-1019-sprint-31.ts` to be added alongside the first live run).
+- [ ] Disable the trigger, insert 10 rows, wait 65 s → cron picks them all up via scan mode. Pending live E2E.
 
 ### Phase 4 — Cutover + observability
 
@@ -294,6 +305,7 @@ No new migration required. The operator runbook below handles the two live-syste
 - CHANGELOG-api.md — ADR-1019 Sprint 2.2 entry (batch + backoff).
 - CHANGELOG-api.md — ADR-1019 Sprint 2.3 entry (unknown event_type + manual-review).
 - CHANGELOG-schema.md — ADR-1019 Sprint 2.3 entry (admin.record_delivery_retry_exhausted RPC).
+- CHANGELOG-schema.md — ADR-1019 Sprint 3.1 entry (dispatch fn + trigger + cron).
 
 ## Acceptance criteria
 
