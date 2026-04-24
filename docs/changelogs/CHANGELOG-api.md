@@ -2,6 +2,31 @@
 
 API route changes.
 
+## [ADR-1025 Sprint 2.1 — customer-storage auto-provisioning orchestrator + /api/internal/provision-storage] — 2026-04-24
+
+**ADR:** ADR-1025 — Customer storage auto-provisioning
+**Sprint:** Phase 2, Sprint 2.1
+
+### Design revision vs the ADR's original shape
+The ADR originally proposed a Supabase Edge Function (Deno) for the provisioning orchestrator. Revised to a Next.js API route (Node) because `cf-provision.ts` / `verify.ts` / `sigv4.ts` are Node-native; porting them to Deno means dual-maintenance (no shared `@consentshield/storage` package yet). Precedent: ADR-1017's probe orchestrator made the same move. Auth (cs_orchestrator direct-Postgres via `csOrchestrator()`) and idempotency guarantees are unchanged. Provisioning runs once per org at signup — Fluid Compute's ~300 ms cold start is immaterial.
+
+### Added
+- `app/src/lib/storage/provision-org.ts` — pure orchestrator helper. `provisionStorageForOrg(pg, orgId, deps?)` runs the 7-step flow: short-circuit-if-verified → createBucket → createBucketScopedToken → 5 s propagation → runVerificationProbe → encrypt + UPSERT export_configurations → flip is_verified. On probe failure: records to `public.export_verification_failures`, best-effort revokes the fresh token, returns without writing credentials. All I/O goes through the injected `pg` client + cf-provision + verify — dep-injection surface for full unit-test coverage. Inline HMAC-SHA256 key derivation matches `@consentshield/encryption.deriveOrgKey` so ciphertext round-trips through `decryptForOrg` on the read path.
+- `app/src/app/api/internal/provision-storage/route.ts` — thin Next.js POST route (Node runtime, `force-dynamic`). Pattern mirrors `/api/internal/invitation-dispatch`: `STORAGE_PROVISION_SECRET` bearer, JSON body `{org_id}`, returns `{status, config_id, bucket_name, probe?}`. Maps `CfProvisionError` codes to HTTP statuses (auth/config → 500, transient → 502). Verification-failure is reported as a 200 with `status: 'verification_failed'` — it's a recorded outcome, not a transport error.
+- `scripts/verify-adr-1025-sprint-21.ts` — live E2E harness. Seeds fixture account + org via service-role Supabase client, deletes stale `export_configurations` row, calls `provisionStorageForOrg` twice, asserts status transitions `provisioned` → `already_provisioned` + DB state (`storage_provider='cs_managed_r2'`, `bucket_name` matches `deriveBucketName(org_id)`, `is_verified=true`, non-empty `write_credential_enc`). All 4 steps green in 13.38 s against real CF + real Supabase dev DB.
+- `STORAGE_PROVISION_SECRET` — new 32-byte base64 secret in `.secrets`, `.env.local`, `app/.env.local`. Vault seed is operator-action (see CHANGELOG-schema).
+
+### Changed
+- Unit test infra: two TS fixups from the Sprint 1.2 amendment — cast `makeFetchMock`'s return to `typeof fetch & {mock: ...}` so tsc accepts it as a `fetchFn` arg; cast `deps.runVerificationProbe` to `ReturnType<typeof vi.fn>` in the probe-arg assertion. Runtime tests were always green; these just satisfy `tsc --noEmit` in tests/.
+
+### Tested
+- `cd app && bunx vitest run tests/storage/` — 45/45 PASS in 319 ms. New: 9 provision-org tests (happy path; two idempotency branches; two probe-failure branches; two config-error branches; two CF-error-propagation branches).
+- `bunx tsx scripts/verify-adr-1025-sprint-21.ts` — 4 steps PASS in 13.38 s. Real CF bucket `cs-cust-ac2660b366c0091817c8` (derived from fixture org_id), real probe (1512 ms), real encrypted credential persisted to `public.export_configurations`.
+- Lint clean: `bun run lint` → 231 files, 0 violations.
+
+### Scope boundary
+Sprint 2.1 proves the orchestration pipeline against real infrastructure. The trigger-path (AFTER INSERT on data_inventory → net.http_post → route) is wired in `supabase/migrations/20260804000036_provision_storage_dispatch.sql` and applied to the dev DB but will remain dormant until the operator seeds two Vault secrets: `cs_provision_storage_url` (reachable app URL) + `cs_provision_storage_secret` (matches `STORAGE_PROVISION_SECRET`). Until then, `dispatch_provision_storage` soft-returns NULL on missing vault — the trigger no-ops silently, and the 5-minute safety-net cron catches the backlog once seeded. Sprint 2.2 builds the customer-facing UI surfaces (Step-7 soft banner + dashboard storage panel); Sprint 4.1 adds the nightly verify cron + rotation RPC; Phase 3 adds the BYOK escape hatch.
+
 ## [ADR-1025 Sprint 1.2 amendment — /user/tokens endpoint + two-token architecture + live E2E verification] — 2026-04-23
 
 **ADR:** ADR-1025 — Customer storage auto-provisioning

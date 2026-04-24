@@ -173,19 +173,37 @@ Run on every provisioning, every credential rotation, and nightly-verify cron (r
 
 ### Phase 2 — Managed auto-provision at onboarding
 
-#### Sprint 2.1 — Background provisioning job + wizard Step-4 trigger
+#### Sprint 2.1 — Background provisioning orchestrator + wizard Step-4 trigger
 
 **Estimated effort:** 1 day
 
+**Design amendment (2026-04-23):** moved the orchestrator from a Supabase Edge Function (Deno) to a Next.js API route (Node). Reason: cf-provision.ts / verify.ts / sigv4.ts are Node-native and sharing them with Deno requires either dual-maintenance or a shared package (ADR-0026 hasn't shipped `@consentshield/storage` yet). Precedent: ADR-1017's probe orchestrator moved to Next.js for the same reason. Provisioning runs once per org at signup — cold-start weight (~300 ms on Fluid Compute) is negligible vs the maintenance savings. The auth-to-Postgres path is unchanged (`cs_orchestrator` via `csOrchestrator()` direct-Postgres — Rule 5).
+
 **Deliverables:**
-- [ ] `supabase/functions/provision-customer-storage/index.ts` Edge Function running as `cs_orchestrator`. Input: `{org_id}`. Runs: bucket-create → token-create → encrypt → INSERT export_configurations → verify → flip is_verified. Idempotent per org_id.
-- [ ] Wizard Step 4 (`save_data_inventory`) RPC extended to fire-and-forget a `net.http_post` to the Edge Function. Non-blocking: wizard advances regardless.
-- [ ] Admin RPC `admin.provision_customer_storage(org_id)` for operator-triggered re-provisioning (audit-logged).
+- [x] `app/src/app/api/internal/provision-storage/route.ts` — Next.js POST route (Node runtime, `force-dynamic`). Shared-bearer HMAC via `STORAGE_PROVISION_SECRET` (pattern mirrors `/api/internal/invitation-dispatch`). Input: `{org_id}`. Delegates to `provisionStorageForOrg` and returns the result envelope `{status, config_id, bucket_name, probe?}`. Distinguishes CfProvisionError (auth/config → 500, transient → 502) from success codes.
+- [x] `app/src/lib/storage/provision-org.ts` — pure orchestration helper. `provisionStorageForOrg(pg, orgId, deps?)` returns `{status: 'provisioned' | 'already_provisioned' | 'verification_failed', configId, bucketName, probe?}`. Inline HMAC-SHA256 key derivation (matches `@consentshield/encryption`'s `deriveOrgKey`) + direct-Postgres call to `encrypt_secret`, so it works with the cs_orchestrator `postgres.js` client. 7-step flow: short-circuit-if-verified → createBucket → createBucketScopedToken → 5s propagation → runVerificationProbe → encrypt + UPSERT export_configurations → flip is_verified. On probe failure: record to `public.export_verification_failures` + revoke the token (best-effort) + return without writing credentials.
+- [x] **Wizard trigger** — `supabase/migrations/20260804000036_provision_storage_dispatch.sql`. AFTER INSERT trigger on `public.data_inventory` that fires `public.dispatch_provision_storage(new.org_id)` ONLY when (a) no `export_configurations` row exists for the org yet AND (b) this is the first `data_inventory` row per org. EXCEPTION WHEN OTHERS swallow is load-bearing — trigger failure must not roll back the wizard's INSERT.
+- [x] **Admin re-provision RPC** `admin.provision_customer_storage(p_org_id uuid, p_reason text)` — in the same migration. Guards with `admin.require_admin('support')`, requires a ≥ 10-char reason, writes an `admin.admin_audit_log` row with action `adr1025_reprovision_storage`, then calls the same dispatch function. Returns `{enqueued: true, org_id, net_request_id}`.
+- [x] **pg_cron safety-net** `provision-storage-retry` — scheduled every 5 min. Sweeps orgs with `data_inventory` rows but no `export_configurations` row, 5+ minutes old, < 24h old. Caps at 50 orgs per run.
+- [x] `supabase/migrations/20260804000037_cs_orchestrator_grants_export_configurations.sql` — grants cs_orchestrator SELECT / INSERT / UPDATE on `public.export_configurations` + SELECT on `public.organisations`. Uncovered during the live E2E — Rule 5's scoped-role model required these explicit grants (bypassrls alone is insufficient for SQL-level privilege checks).
+- [x] `STORAGE_PROVISION_SECRET` generated + persisted to `.secrets`, `.env.local`, `app/.env.local`.
+- [ ] **Operator step (deferred; gates trigger + cron dispatch):** seed Vault secrets so `net.http_post` can dispatch. Run in Supabase Studio SQL Editor:
+  ```sql
+  select vault.create_secret('<STORAGE_PROVISION_SECRET>', 'cs_provision_storage_secret');
+  select vault.create_secret(
+    'https://<app-url>/api/internal/provision-storage',
+    'cs_provision_storage_url'
+  );
+  ```
+  Until seeded, `dispatch_provision_storage` soft-returns NULL on missing vault — the trigger no-ops silently. When the operator seeds and the app URL is reachable, the trigger + cron immediately start firing; the 5-min safety-net catches any orgs that entered the data_inventory window during the gap.
 
 **Testing plan:**
-- [ ] End-to-end onboarding: sign up a fresh org → complete wizard through Step 7 → `export_configurations` row exists + `is_verified=true` + CF dashboard shows the bucket.
-- [ ] Idempotency: run the Edge Function twice for the same org → one row, no errors.
-- [ ] CF API outage simulation (mock 503): Edge Function retries, eventually emits ops-readiness flag.
+- [x] `app/tests/storage/provision-org.test.ts` — Vitest, 9 tests, 222 ms. Happy path (fresh org → provisioned + correct DB round-trips + probe arg shape + no revoke on success); idempotency (is_verified=true → short-circuits with zero CF calls); is_verified=false → full re-provision; probe failure → records to export_verification_failures + revokes token + no upsert; revoke-throws is swallowed; config errors (MASTER_ENCRYPTION_KEY missing, org missing encryption_salt); CF errors propagate (auth, server, 409-handled-by-library).
+- [x] Live E2E via `scripts/verify-adr-1025-sprint-21.ts` — seeds fixture account + org → calls `provisionStorageForOrg` twice → asserts status transitions from `provisioned` → `already_provisioned`, DB row has correct storage_provider / bucket_name / is_verified=true / non-empty write_credential_enc. All 4 steps pass in 13.38 s against real CF + real Supabase dev DB.
+- [ ] **Wizard-trigger flow (blocked on operator vault seed):** INSERT data_inventory row → trigger fires `net.http_post` → export_configurations row materialises within ~30 s. Documented in the ADR-1025 runbook; runs once operator completes the Vault seeding step above.
+- [ ] **Admin re-provision RPC via UI:** admin impersonates support → calls `admin.provision_customer_storage(org, reason)` → `admin_audit_log` row + export_configurations row. Blocked on same operator step.
+
+**Status:** `[x] code-complete 2026-04-24 — orchestrator + route + migration + grants + E2E all shipped; 9 mocked unit tests + 4-step live E2E (13.38 s) against real CF + real Supabase dev DB both green. Original ADR design called for a Supabase Edge Function; revised to a Next.js API route to avoid Deno port of cf-provision.ts — same cs_orchestrator auth, same idempotency, one runtime to maintain. Trigger-path (data_inventory INSERT → net.http_post → route) is applied to dev DB but blocked on operator Vault seeding before it actually fires; the 5-min safety-net cron catches any backlog once seeded.`
 
 #### Sprint 2.2 — Wizard Step-7 soft banner + dashboard storage panel
 

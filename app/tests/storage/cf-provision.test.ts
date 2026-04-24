@@ -41,7 +41,7 @@ interface FakeResp {
   throws?: Error
 }
 
-function makeFetchMock(queue: FakeResp[]): ReturnType<typeof vi.fn> {
+function makeFetchMock(queue: FakeResp[]) {
   return vi.fn(async () => {
     const next = queue.shift()
     if (!next) throw new Error('fetch mock: queue exhausted')
@@ -52,7 +52,9 @@ function makeFetchMock(queue: FakeResp[]): ReturnType<typeof vi.fn> {
       status,
       headers: { 'Content-Type': 'application/json' },
     })
-  })
+  }) as unknown as typeof fetch & {
+    mock: { calls: Array<[string, RequestInit]> }
+  }
 }
 
 // Inject a zero-delay sleep so tests don't actually wait for backoff.

@@ -2,6 +2,35 @@
 
 Database migrations, RLS policies, roles.
 
+## [ADR-1025 Sprint 2.1 — provisioning dispatch + admin RPC + cs_orchestrator grants] — 2026-04-24
+
+**ADR:** ADR-1025 — Customer storage auto-provisioning
+**Sprint:** Phase 2, Sprint 2.1 — Background provisioning orchestrator + wizard Step-4 trigger
+
+### Added
+- `supabase/migrations/20260804000036_provision_storage_dispatch.sql` — four parts:
+  1. `public.dispatch_provision_storage(p_org_id uuid)` — SECURITY DEFINER function that reads URL + secret from Vault (`cs_provision_storage_url`, `cs_provision_storage_secret`) and fires `net.http_post` to the Next.js `/api/internal/provision-storage` endpoint. Soft-returns NULL when Vault secrets are absent so triggers don't error during operator-configuration gaps. EXECUTE granted to cs_orchestrator; REVOKED from public.
+  2. AFTER INSERT trigger `data_inventory_dispatch_provision` on `public.data_inventory`. Fires `dispatch_provision_storage(new.org_id)` only when (a) no `export_configurations` row exists for the org AND (b) this is the first `data_inventory` row per org. EXCEPTION WHEN OTHERS swallow is load-bearing — trigger failure MUST NOT roll back the wizard's INSERT.
+  3. `pg_cron` job `provision-storage-retry` — `*/5 * * * *`. Safety-net: sweeps orgs with `data_inventory` rows but no `export_configurations` row, 5–1440 min old, cap 50 per run. Covers the window where the primary trigger dispatched before the operator seeded Vault (or when the app URL was transiently down).
+  4. `admin.provision_customer_storage(p_org_id uuid, p_reason text)` — operator-triggered re-provision RPC. Guards with `admin.require_admin('support')`, requires ≥ 10-char reason, writes `admin.admin_audit_log` row with action `adr1025_reprovision_storage`, then calls `dispatch_provision_storage`. Returns `{enqueued, org_id, net_request_id}`. EXECUTE granted to cs_admin.
+- `supabase/migrations/20260804000037_cs_orchestrator_grants_export_configurations.sql` — SELECT/INSERT/UPDATE on `public.export_configurations` + SELECT on `public.organisations` granted to cs_orchestrator. Discovered during the live E2E: cs_orchestrator uses `bypassrls` at the RLS layer but still needs explicit SQL-level privilege grants. No DELETE grant — ADR-1025's lifecycle model never deletes `export_configurations` rows from application code.
+
+### Operator step (one-time, outside this migration)
+In Supabase Studio SQL Editor (service-role):
+```sql
+select vault.create_secret('<STORAGE_PROVISION_SECRET from .env.local>', 'cs_provision_storage_secret');
+select vault.create_secret('https://<app-url>/api/internal/provision-storage', 'cs_provision_storage_url');
+```
+Until these land, the trigger + cron are both no-ops (soft-fail). Once seeded, provisioning starts firing on the next `data_inventory` INSERT; any backlog clears via the 5-minute cron.
+
+### Tested
+- `bunx supabase db push` — 2 migrations applied cleanly against dev DB (20260804000036 + 20260804000037).
+- Live E2E via `scripts/verify-adr-1025-sprint-21.ts` — proves the orchestrator flow against the real dev DB + real CF account: fixture account/org seeded → first provision creates bucket + probe + DB row with encrypted credential → second provision short-circuits to `already_provisioned`. 4 steps, 13.38 s.
+- Trigger flow itself is untested end-to-end because it requires the Vault seeding step above + a reachable app URL. The component parts (function logic, trigger wiring, cron scheduling) are applied and visible via the verification queries at the bottom of the migration.
+
+### Architecture changes
+Rule 5 posture unchanged — cs_orchestrator continues to hold the write-side credentials for `/api/internal/*` endpoints. The explicit grants in 20260804000037 make the role's capabilities machine-verifiable instead of relying on bypassrls (which is a role-attribute, not a per-table grant). Future audits should join `information_schema.role_table_grants` with cs_orchestrator's grant surface to assert least-privilege; bypassrls should be treated as a carveout for RLS-enabled tables, not a substitute for base grants.
+
 ## [ADR-1025 Sprint 1.3 — export_verification_failures narrow table] — 2026-04-23
 
 **ADR:** ADR-1025 — Customer storage auto-provisioning
