@@ -16,6 +16,7 @@
 // self-re-dispatch (Sprint 4.1b if / when the customer count warrants).
 
 import type postgres from 'postgres'
+import { endpointForProvider } from './endpoint'
 import { decryptCredentials, deriveOrgKey } from './org-crypto'
 import { runVerificationProbe } from './verify'
 
@@ -179,22 +180,7 @@ async function recordFailure(
 }
 
 function endpointFor(row: ConfigRow): string {
-  // cs_managed_r2 — account-scoped CF R2 endpoint.
-  if (row.storage_provider === 'cs_managed_r2') {
-    const acct = process.env.CLOUDFLARE_ACCOUNT_ID
-    if (!acct) throw new Error('CLOUDFLARE_ACCOUNT_ID not set')
-    return `https://${acct}.r2.cloudflarestorage.com`
-  }
-  // BYOK rows don't store endpoint — derive from region per S3 convention.
-  // (Future: persist endpoint on export_configurations; wiring ships when
-  // BYOK has its first real customer.)
-  const region = row.region ?? 'us-east-1'
-  if (row.storage_provider === 'customer_s3') {
-    return `https://s3.${region}.amazonaws.com`
-  }
-  throw new Error(
-    `cannot derive endpoint for provider='${row.storage_provider}'`,
-  )
+  return endpointForProvider(row.storage_provider, row.region)
 }
 
 function errorMessage(err: unknown): string {

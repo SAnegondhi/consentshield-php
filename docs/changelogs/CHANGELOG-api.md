@@ -2,6 +2,28 @@
 
 API route changes.
 
+## [ADR-1019 Sprint 1.2 — endpoint derivation helper] — 2026-04-24
+
+**ADR:** ADR-1019 — `deliver-consent-events` Next.js route
+**Sprint:** Phase 1, Sprint 1.2
+
+### Amendment
+The proposal's Sprint 1.2 was about validating Deno-runtime viability (esm.sh SDK load + porting org-key.ts to Deno). After the Sprint 1.1 amendment moved the orchestrator to a Next.js route, both items became moot — the Node-native primitives already exist (ADR-0040 + ADR-1025). Sprint 1.2 reduces to the one live sub-task: where the S3-compatible endpoint comes from for each provider.
+
+### Added — shared helper
+- `app/src/lib/storage/endpoint.ts` — `endpointForProvider(provider, region?, deps?)`. Extracted from the inline `endpointFor()` in `nightly-verify.ts`. Provider rules: `cs_managed_r2` → `https://<CLOUDFLARE_ACCOUNT_ID>.r2.cloudflarestorage.com` (throws if env unset); `customer_s3` → `https://s3.<region>.amazonaws.com` (defaults to `us-east-1`); `customer_r2` (BYOK R2) → throws with a clear message (account id not persisted today; additive column deferred until first BYOK-R2 customer); unknown → throws.
+
+### Changed
+- `app/src/lib/storage/nightly-verify.ts` — inline `endpointFor()` reduced to a 1-line pass-through to the shared helper.
+
+### Schema decision
+- The proposal suggested adding `export_configurations.r2_account_id text`. Rejected: speculative. `cs_managed_r2` uses the env-var account; `customer_s3` is region-scoped; `customer_r2` is deferred. Re-evaluate when the first BYOK-R2 customer is onboarded.
+
+### Tested
+- `app/tests/storage/endpoint.test.ts` — 8 tests (all four provider branches + env-unset + region-default + `process.env` fallback). PASS.
+- `app/tests/storage/nightly-verify.test.ts` — existing 6 tests still PASS after the refactor.
+- `bun run lint` — 0 violations.
+
 ## [ADR-1019 Sprint 1.1 — cs_delivery as third Next.js LOGIN role] — 2026-04-24
 
 **ADR:** ADR-1019 — `deliver-consent-events` Next.js route (amended from Edge Function)

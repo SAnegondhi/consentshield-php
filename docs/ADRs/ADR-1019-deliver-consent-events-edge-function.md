@@ -122,18 +122,24 @@ Unknown `event_type` values must **not** error — the function logs a structure
 - [x] Run the backfill SQL against dev — count of quarantined rows recorded in sprint notes.
 - [x] `csDelivery()` helper throws with a clear, actionable error when `SUPABASE_CS_DELIVERY_DATABASE_URL` is unset (matches `csOrchestrator()` / `csApi()` DX).
 
-#### Sprint 1.2 — R2 SDK + credential decryption in Edge runtime
+#### Sprint 1.2 — Endpoint-derivation helper + R2 endpoint decision
 
-**Estimated effort:** 0.5 day
+**Estimated effort:** 0.25 day (shrunk by the Sprint 1.1 amendment)
+
+**Amendment:** The two biggest proposal items — proving `@aws-sdk/client-s3` loads in Deno and porting `org-key.ts` to the Edge runtime — are **no longer applicable** because the orchestrator runs as a Next.js route (Node), not a Supabase Edge Function. The Node-native `app/src/lib/storage/sigv4.ts` + `app/src/lib/storage/org-crypto.ts` already exist, already pass tests, and are already in production via ADR-0040 (audit-export) + ADR-1025 (storage provisioning). The only live sub-task is endpoint discovery.
 
 **Deliverables:**
-- [ ] Prove `@aws-sdk/client-s3@^3` loads in Supabase Edge Functions (Deno) via `https://esm.sh/@aws-sdk/client-s3@3.645.0` (or pinned version). Tree-shaken import: `S3Client`, `PutObjectCommand` only.
-- [ ] Port `app/src/lib/encryption/org-key.ts` logic to the Edge runtime. Key derivation matches exactly (same inputs → same ciphertext). Test: encrypt a known plaintext in app code, decrypt in Edge Function, compare.
-- [ ] Decide on R2 endpoint discovery: Cloudflare R2 uses `https://<account_id>.r2.cloudflarestorage.com`. `account_id` must be stored alongside the credential (schema addition) OR derived from the bucket (not reliable). Propose schema change: `export_configurations.r2_account_id text` — additive, nullable for non-R2 storage_providers.
+- [x] `app/src/lib/storage/endpoint.ts` — `endpointForProvider(provider, region?, deps?)` shared helper extracted from the inline `endpointFor()` in `nightly-verify.ts`. Handles:
+  - `cs_managed_r2` → `https://<CLOUDFLARE_ACCOUNT_ID>.r2.cloudflarestorage.com` (throws if env unset).
+  - `customer_s3` → `https://s3.<region>.amazonaws.com` (defaults to `us-east-1` when region is null/blank).
+  - `customer_r2` (BYOK R2) → throws with a clear message. BYOK R2 endpoints are account-scoped; the customer's account id isn't persisted today. Defer to a follow-up additive column when the first BYOK-R2 customer appears.
+  - Unknown provider → throws.
+- [x] `nightly-verify.ts` updated to call the shared helper; inline `endpointFor()` reduced to a 1-line pass-through.
+- [x] **Schema decision: no new column needed.** The proposal suggested `export_configurations.r2_account_id text`. Rejected: `cs_managed_r2` rows always use the ConsentShield account (env var), `customer_s3` rows carry region (S3 endpoint is region-scoped, not account-scoped), `customer_r2` is deferred. Adding a column now would be speculative per Rule 14 + the user's "don't design for hypothetical future requirements" guidance.
 
 **Testing plan:**
-- [ ] Round-trip encrypt (app-side) → decrypt (Edge-side) on a 128-byte plaintext succeeds.
-- [ ] Manual upload to a test R2 bucket with a known credential succeeds via the SDK from a local Deno REPL.
+- [x] `app/tests/storage/endpoint.test.ts` — 8 tests covering all four provider branches + env-unset + region-default + `process.env` fallback. All PASS.
+- [x] Existing `nightly-verify.test.ts` — 6 tests still PASS after the refactor (no behavioural change).
 
 ### Phase 2 — Delivery function core
 
@@ -246,6 +252,7 @@ No new migration required. The operator runbook below handles the two live-syste
 ## Changelog References
 
 - CHANGELOG-api.md — ADR-1019 Sprint 1.1 entry (cs_delivery Next.js client helper).
+- CHANGELOG-api.md — ADR-1019 Sprint 1.2 entry (endpoint derivation helper).
 
 ## Acceptance criteria
 
