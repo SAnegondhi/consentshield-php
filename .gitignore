@@ -55,6 +55,9 @@ worker/.dev.vars.local
 # Stryker mutation testing — generated reports + per-run temp dir
 worker/reports/
 worker/.stryker-tmp/
+app/reports/
+app/.stryker-tmp/
+app/.stryker-tmp-delivery/
 .stryker-tmp/
 reports/mutation/
 

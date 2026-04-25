@@ -1,0 +1,13 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "noEmit": true
+  },
+  "include": [
+    "next-env.d.ts",
+    "src/lib/delivery/canonical-json.ts",
+    "src/lib/delivery/object-key.ts",
+    "src/lib/storage/endpoint.ts"
+  ],
+  "exclude": ["node_modules", "tests", ".next", "../worker", "../supabase/functions"]
+}

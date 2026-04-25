@@ -9,7 +9,8 @@
     "start": "next start",
     "prelint": "bun ../scripts/check-no-service-role-in-customer-app.ts",
     "lint": "eslint src/",
-    "test": "vitest run"
+    "test": "vitest run",
+    "test:mutation:delivery": "stryker run stryker.delivery.conf.mjs"
   },
   "dependencies": {
     "@consentshield/compliance": "workspace:*",
@@ -36,6 +37,9 @@
     "eslint": "9.39.4",
     "eslint-config-next": "16.2.3",
     "miniflare": "4.20260415.0",
+    "@stryker-mutator/core": "9.6.1",
+    "@stryker-mutator/typescript-checker": "9.6.1",
+    "@stryker-mutator/vitest-runner": "9.6.1",
     "tailwindcss": "4.2.2",
     "typescript": "5.9.3",
     "vercel": "51.6.1",

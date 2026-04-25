@@ -14158,6 +14158,54 @@
       "related_bugs": [],
       "occurrences": 1,
       "last_seen": "2026-04-25T01:31:50.211Z"
+    },
+    {
+      "id": "bug-882",
+      "timestamp": "2026-04-25T01:40:44.714Z",
+      "error_message": "Significant refactor of ",
+      "file": "docs/ADRs/ADR-1014-e2e-test-harness-and-vertical-demos.md",
+      "root_cause": "3 lines replaced/restructured",
+      "fix": "Rewrote 7→51 lines (3 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-25T01:40:44.714Z"
+    },
+    {
+      "id": "bug-883",
+      "timestamp": "2026-04-25T01:41:06.428Z",
+      "error_message": "Incorrect value in code",
+      "file": "docs/ADRs/ADR-index.md",
+      "root_cause": "Had `testing.consentshield.in`",
+      "fix": "Changed to 's Sprint 1.1 amendment the orchestrator is a Next",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-25T01:41:06.428Z"
+    },
+    {
+      "id": "bug-884",
+      "timestamp": "2026-04-25T01:42:47.252Z",
+      "error_message": "Significant refactor of ",
+      "file": "docs/admin/architecture/consentshield-admin-schema.md",
+      "root_cause": "15 lines replaced/restructured",
+      "fix": "Rewrote 18→20 lines (15 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-25T01:42:47.252Z"
     }
   ]
 }
