@@ -5590,3 +5590,16 @@
 | 09:20 | Edited docs/ADRs/ADR-index.md | inline fix | ~426 |
 | 09:21 | Session end: 197 writes across 70 files (vitest.config.ts, hmac.test.ts, origin.test.ts, package.json, stryker.conf.mjs) | 78 reads | ~538015 tok |
 | 09:21 | Edited docs/changelogs/CHANGELOG-api.md | expanded (+32 lines) | ~1642 |
+| 09:22 | Edited app/src/app/api/orgs/[orgId]/audit-export/route.ts | added optional chaining | ~183 |
+| 09:22 | Edited app/src/app/api/orgs/[orgId]/audit-export/route.ts | 13→14 lines | ~81 |
+| 09:22 | Created supabase/migrations/20260804000060_adr1003_s51_sandbox_test_principals.sql | — | ~1738 |
+| 09:22 | Session end: 201 writes across 72 files (vitest.config.ts, hmac.test.ts, origin.test.ts, package.json, stryker.conf.mjs) | 78 reads | ~541901 tok |
+| 09:23 | Edited supabase/migrations/20260804000060_adr1003_s51_sandbox_test_principals.sql | 12→14 lines | ~166 |
+| 09:24 | Created app/src/app/api/v1/_sandbox/test-principals/route.ts | — | ~833 |
+| 09:25 | Edited app/src/app/api/v1/sandbox/test-principals/route.ts | 3→7 lines | ~96 |
+| 09:26 | Edited tests/integration/sandbox-provisioning.test.ts | added 2 condition(s) | ~633 |
+| 09:26 | Session end: 205 writes across 72 files (vitest.config.ts, hmac.test.ts, origin.test.ts, package.json, stryker.conf.mjs) | 80 reads | ~544179 tok |
+| 09:26 | Edited docs/ADRs/ADR-1003-processor-posture-and-healthcare-unlock.md | 4→4 lines | ~484 |
+| 09:27 | Edited docs/ADRs/ADR-1003-processor-posture-and-healthcare-unlock.md | 8→9 lines | ~343 |
+| 09:27 | Edited docs/changelogs/CHANGELOG-schema.md | expanded (+19 lines) | ~693 |
+| 09:27 | Edited docs/changelogs/CHANGELOG-api.md | expanded (+20 lines) | ~721 |

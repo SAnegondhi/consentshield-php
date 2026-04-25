@@ -2,6 +2,26 @@
 
 API route changes.
 
+## [ADR-1003 Sprint 5.1 R2 — sandbox test-principal endpoint + audit-export sandbox marker] — 2026-04-25
+
+**ADR:** ADR-1003 — Processor Posture + Healthcare Category Unlock
+**Sprint:** Phase 5, Sprint 5.1 (round 2 of 3)
+
+### Added
+- `POST /api/v1/sandbox/test-principals` — sandbox-only Bearer-authed endpoint. Returns `{identifier: 'cs_test_principal_NNNNNN', seq: <bigint>}` per call. Implementation reads the ApiKeyContext from the v1 middleware headers, gates on `context.rate_tier === 'sandbox'` with a 403 problem+json otherwise, then hands org_id to `public.rpc_sandbox_next_test_principal` via the cs_orchestrator pool. The RPC is the structural gate (refuses non-sandbox orgs with errcode 42501); the route layer's rate_tier check is defense-in-depth so a caller who minted a `cs_live_*` key against what they think is a sandbox org gets a clearer error message before the RPC trips. Spec deviation: ADR called for `/api/v1/_sandbox/...` but Next.js App Router treats `_folder` as a private folder (no route generated), so the leading underscore had to drop.
+
+### Changed
+- `POST /api/orgs/[orgId]/audit-export` — `manifest.json` written into the export ZIP now carries a `sandbox: <bool>` field next to `format_version` / `org_id` / `generated_at`. Sourced from a single `select sandbox from public.organisations where id = orgId` (RLS already gated by the manifest RPC above). Auditors and downstream pipelines must treat `sandbox: true` exports as test data; production audits should reject them. The `org.json` payload also carries the column transitively from the existing organisations select; the explicit top-level marker exists so consumers don't have to dig.
+
+### Consequences
+- Sprint 5.1's deliverable "Sandbox org exports marked `{ sandbox: true }` in manifest" is met. Existing prod-org exports continue to land with `sandbox: false`; ZIP consumers MAY use the field to route differently (e.g. ship sandbox exports to a /testing/ S3 prefix instead of the audit lake).
+- The test-principal endpoint exists at the canonical `/v1/` path and is part of the OpenAPI surface; clients that ship sandbox-mode helpers (Node SDK ADR-1006) can call it without special-casing the URL.
+
+### Tested
+- Integration tests/integration/sandbox-provisioning.test.ts — two new cases for the underlying RPC (monotonic increment + non-sandbox refusal). 5/5 PASS.
+- Local `cd app && bun run lint && bun run build` — clean. Route registered as `ƒ /api/v1/sandbox/test-principals`.
+- HTTP-level smoke (curl with a real cs_test_* Bearer) deferred to operator validation post-deploy.
+
 ## [ADR-1006 Phase 1 Sprint 1.1 — `@consentshield/node` SDK scaffold] — 2026-04-25
 
 **ADR:** ADR-1006 — Developer Experience: Client Libraries + OpenAPI + CI Drift Check

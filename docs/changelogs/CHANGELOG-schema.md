@@ -2,6 +2,25 @@
 
 Database migrations, RLS policies, roles.
 
+## [ADR-1003 Sprint 5.1 R2 — sandbox test-principal generator + cross-customer view] — 2026-04-25
+
+**ADR:** ADR-1003 — Processor Posture + Healthcare Category Unlock
+**Sprint:** Phase 5, Sprint 5.1 (round 2 of 3)
+**Migration:** `20260804000060_adr1003_s51_sandbox_test_principals.sql`
+
+### Added
+- `public.sandbox_test_principal_counters` — per-sandbox-org monotonic counter (`org_id` PK + `next_seq bigint default 1` + `updated_at`). RLS enabled; revoke-all from public/authenticated/anon; cs_orchestrator gets full mutation rights. Cascade-delete via `org_id` FK to `public.organisations`.
+- `public.rpc_sandbox_next_test_principal(p_org_id uuid) returns jsonb` — atomic fetch-and-increment using a two-step `INSERT … ON CONFLICT DO NOTHING; UPDATE … RETURNING (next_seq - 1)`. Returns `{identifier: 'cs_test_principal_NNNNNN', seq: <bigint>}`. Refuses non-sandbox orgs with `42501 / not_a_sandbox_org`. Granted to `cs_orchestrator` only — the runtime entry is `/api/v1/sandbox/test-principals` which uses the cs_orchestrator pool.
+- `public.depa_compliance_metrics_prod` — view filtering `public.depa_compliance_metrics` to non-sandbox orgs (joins `organisations` + `where coalesce(o.sandbox, false) = false`). Satisfies the Sprint 5.1 deliverable "Compliance score endpoint excludes sandbox orgs from any cross-customer metric" structurally — any future aggregator reads from the view, not the raw table. Granted to `cs_admin`. Customer-facing `/v1/score` is unchanged (per-org read).
+
+### Consequences
+- Sandbox orgs are now usable for end-to-end automation: customers can mint a `cs_test_*` key (R1), generate a per-org sequence of stable test identifiers (R2), and run integration tests without burning real PII into the system. The 100/hr sandbox rate cap (TIER_LIMITS in app/src/lib/api/rate-limits.ts) keeps the surface scoped.
+- Cross-customer aggregators in the codebase today are absent; the view is a forward-promise that the convention is enforceable at the schema layer rather than via a code-side gentleman's agreement. Adding the convention now prevents accidental sandbox inclusion in future leaderboard / percentile / benchmark surfaces.
+
+### Tested
+- Integration — `tests/integration/sandbox-provisioning.test.ts` two new cases — `rpc_sandbox_next_test_principal` returns monotonically-increasing identifiers across three calls and refuses non-sandbox orgs with errcode 42501. 5/5 PASS.
+- Live: migration 60 pushed via `bunx supabase db push`.
+
 ## [ADR-1003 Sprint 5.1 R1 — sandbox org provisioning] — 2026-04-25
 
 **ADR:** ADR-1003 — Processor Posture + Healthcare Category Unlock

@@ -291,9 +291,9 @@ Also closes the secondary gap flagged in Terminal A's handoff: the Sprint 1.3 br
 **Deliverables:**
 - [x] **R1** Migration `20260804000059_adr1003_s51_sandbox_orgs.sql` — `organisations.sandbox boolean default false` + partial index, `public.is_sandbox_org(uuid)` helper (SECURITY DEFINER per migration-57 pattern), `public.rpc_provision_sandbox_org(p_name, p_template_code)` (authenticated account_owner only; creates org + membership + optional template apply + audit row), `public.apply_sectoral_template_for_org(p_org_id, p_template_code)` sibling of the current_org_id-driven helper that takes an explicit org_id (because a freshly-provisioned org isn't on the caller's JWT), and re-published `public.rpc_api_key_create` with a sandbox branch (target org sandbox=true → forces `cs_test_*` prefix + `rate_tier='sandbox'` regardless of caller argument; refuses sandbox rate_tier on non-sandbox org).
 - [x] **R1** `/dashboard/sandbox` page (`app/src/app/(dashboard)/dashboard/sandbox/page.tsx`) — lists caller's sandbox orgs + provisioning form. `app/src/app/(dashboard)/dashboard/sandbox/actions.ts` server action wraps `rpc_provision_sandbox_org`; `provision-form.tsx` renders the form, exposes BFSI Starter + Healthcare Starter as the template hints (with the P0004 caveat for healthcare). Sidebar nav adds the route.
-- [ ] **R2** Test-principal endpoint `POST /api/v1/_sandbox/test-principals` returns `{ identifier: "cs_test_principal_<seq>" }`.
-- [ ] **R2** Compliance-score endpoint excludes sandbox orgs from cross-customer aggregates.
-- [ ] **R2** Export manifest marks sandbox-org exports with `{ sandbox: true }`.
+- [x] **R2** Test-principal endpoint `POST /api/v1/sandbox/test-principals` returns `{ identifier: "cs_test_principal_<6-digit seq>", seq }`. Spec deviation vs the original `/api/v1/_sandbox/...` URL: Next.js App Router treats `_folder` as a private folder (no route), so the leading underscore had to drop. Backed by migration 60: `public.sandbox_test_principal_counters` (per-org monotonic seq, cs_orchestrator-only mutation) + `public.rpc_sandbox_next_test_principal(uuid)` (SECURITY DEFINER; refuses non-sandbox orgs with 42501). Route gates on `context.rate_tier === 'sandbox'` (defense-in-depth — the RPC is the structural gate).
+- [x] **R2** Compliance-score endpoint excludes sandbox orgs from cross-customer aggregates. Forward-promise satisfied via a database view `public.depa_compliance_metrics_prod` (filters out sandbox orgs at the schema layer). Customer-facing `/v1/score` is unchanged — it reads the per-org row directly so a sandbox org still sees its own score in the dashboard. Any aggregator (admin benchmarks, percentile rankings) reads from the view.
+- [x] **R2** Export manifest marks sandbox-org exports with `{ sandbox: true }` at the top of `manifest.json`. Implemented in `app/src/app/api/orgs/[orgId]/audit-export/route.ts`. The flag is read via a tiny `SELECT sandbox FROM organisations WHERE id = orgId` after the manifest RPC has already passed RLS membership.
 - [ ] **R3** Dashboard banner "Sandbox mode — not for production data" on every sandbox-org surface.
 - [ ] **R3** `docs/customer-docs/sandbox.md`.
 
@@ -302,10 +302,11 @@ Also closes the secondary gap flagged in Terminal A's handoff: the Sprint 1.3 br
   - `rpc_provision_sandbox_org` as account_owner → creates org with sandbox=true, suffixed name, caller as org_admin; subsequent `rpc_api_key_create` issues `cs_test_*` plaintext + rate_tier='sandbox' even when caller passed `'starter'`.
   - Same RPC against a non-sandbox org with `rate_tier='sandbox'` raises with the expected message.
   - Non-account-owner caller is rejected with `42501 / not_an_account_owner`.
-- [ ] **R2** Sandbox org exports marked `{ sandbox: true }` in manifest.
-- [ ] **R2** Compliance score endpoint excludes sandbox orgs.
+- [x] **R2** Same test file extended with two cases: `rpc_sandbox_next_test_principal` returns monotonically-increasing identifiers across three calls (`cs_test_principal_000001`, `_000002`, `_000003`); same RPC against a non-sandbox org raises with errcode 42501 / `not_a_sandbox_org`. 5/5 cases PASS.
+- [x] **R2** Sandbox org exports marked `{ sandbox: true }` at the top of `manifest.json`. Verified by inspection (the route writes the field next to `org_id` and `format_version`); end-to-end ZIP-extraction test deferred — would require Next.js HTTP harness.
+- [x] **R2** `public.depa_compliance_metrics_prod` view created with the sandbox filter. Verified by `\d+` after migration push.
 
-**Status:** `[~] in progress (R1 shipped 2026-04-25; R2 + R3 pending)`
+**Status:** `[~] in progress (R1 + R2 shipped 2026-04-25; R3 — sandbox banner + customer doc — pending)`
 
 ---
 

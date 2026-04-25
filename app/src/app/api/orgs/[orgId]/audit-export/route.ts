@@ -50,6 +50,18 @@ export async function POST(
 
   const m = manifest as ManifestShape
 
+  // ADR-1003 Sprint 5.1 R2 — sandbox-org marker on the export manifest.
+  // Sandbox-org exports MUST be distinguishable from prod-org exports
+  // so downstream consumers (auditors, customers' own pipelines) don't
+  // mix them. Read the flag via a tiny extra select; RLS already
+  // enforced membership via the manifest RPC above.
+  const { data: sandboxRow } = await supabase
+    .from('organisations')
+    .select('sandbox')
+    .eq('id', orgId)
+    .maybeSingle()
+  const isSandbox = sandboxRow?.sandbox === true
+
   const zip = new JSZip()
   zip.file('org.json', JSON.stringify(m.org, null, 2))
   zip.file('data_inventory.json', JSON.stringify(m.data_inventory, null, 2))
@@ -186,6 +198,7 @@ export async function POST(
         format_version: m.format_version,
         org_id: m.org_id,
         generated_at: m.generated_at,
+        sandbox: isSandbox,
         section_counts: sectionCountsWithDepa,
       },
       null,

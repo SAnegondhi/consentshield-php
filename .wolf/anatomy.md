@@ -1,7 +1,7 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-04-25T03:51:52.155Z
-> Files: 1470 tracked | Anatomy hits: 0 | Misses: 0
+> Auto-maintained by OpenWolf. Last scanned: 2026-04-25T03:57:47.085Z
+> Files: 1473 tracked | Anatomy hits: 0 | Misses: 0
 
 ## ../../../../../tmp/
 
@@ -982,7 +982,7 @@
 
 ## app/src/app/api/orgs/[orgId]/audit-export/
 
-- `route.ts` — ADR-0017 Phase 1: authenticated users in an org can download an (~3306 tok)
+- `route.ts` — ADR-0017 Phase 1: authenticated users in an org can download an (~3463 tok)
 
 ## app/src/app/api/orgs/[orgId]/billing/checkout/
 
@@ -1048,6 +1048,10 @@
 
 - `route.ts` — ADR-1001 Sprint 2.2 — Canary endpoint to exercise the Bearer middleware. (~324 tok)
 
+## app/src/app/api/v1/_sandbox/test-principals/
+
+- `route.ts` — Next.js API route: POST (~833 tok)
+
 ## app/src/app/api/v1/audit/
 
 - `route.ts` — Next.js API route: GET (~937 tok)
@@ -1111,6 +1115,10 @@
 ## app/src/app/api/v1/rights/requests/
 
 - `route.ts` — Next.js API route: POST, GET (~2750 tok)
+
+## app/src/app/api/v1/sandbox/test-principals/
+
+- `route.ts` — Next.js API route: POST (~888 tok)
 
 ## app/src/app/api/v1/score/
 
@@ -1411,7 +1419,7 @@
 - `ADR-0501-marketing-site-scaffold.md` — ADR-0501 — ConsentShield marketing site (`marketing/`) (~6079 tok)
 - `ADR-1001-truth-in-marketing-and-public-api-foundation.md` — ADR-1001: Truth-in-Marketing + Public API Foundation (~5650 tok)
 - `ADR-1002-dpdp-section6-runtime-enforcement.md` — ADR-1002: DPDP §6 Runtime Enforcement — Verify, Record, Artefact Ops, Deletion API (~7030 tok)
-- `ADR-1003-processor-posture-and-healthcare-unlock.md` — ADR-1003: Processor Posture + Healthcare Category Unlock (~9756 tok)
+- `ADR-1003-processor-posture-and-healthcare-unlock.md` — ADR-1003: Processor Posture + Healthcare Category Unlock (~10176 tok)
 - `ADR-1004-statutory-retention-material-change-silent-failure.md` — ADR-1004: Statutory Retention + Material-Change Re-consent + Silent-Failure Detection (~7531 tok)
 - `ADR-1005-operations-maturity.md` — ADR-1005: Operations Maturity — Webhook Reference, Support Model, Status Page, Multi-channel Alerts, (~7076 tok)
 - `ADR-1006-developer-experience-and-openapi.md` — ADR-1006: Developer Experience — Client Libraries + OpenAPI Spec + CI Drift Check (~4481 tok)
@@ -1460,13 +1468,13 @@
 
 ## docs/changelogs/
 
-- `CHANGELOG-api.md` — Changelog — API (~41546 tok)
+- `CHANGELOG-api.md` — Changelog — API (~42191 tok)
 - `CHANGELOG-dashboard.md` — Changelog — Dashboard (~29233 tok)
 - `CHANGELOG-docs.md` — Changelog — Documentation (~13701 tok)
 - `CHANGELOG-edge-functions.md` — Changelog — Edge Functions (~4251 tok)
 - `CHANGELOG-infra.md` — Changelog — Infrastructure (~24742 tok)
 - `CHANGELOG-marketing.md` — Changelog — Marketing (~14957 tok)
-- `CHANGELOG-schema.md` — Changelog — Schema (~55511 tok)
+- `CHANGELOG-schema.md` — Changelog — Schema (~56127 tok)
 - `CHANGELOG-worker.md` — Changelog — Worker (~8343 tok)
 
 ## docs/customer-docs/
@@ -2388,6 +2396,7 @@
 - `20260804000057_adr1003_s14_get_storage_mode_security_definer.sql` — ADR-1003 Sprint 1.4 follow-up — re-publish public.get_storage_mode as (~683 tok)
 - `20260804000058_adr1003_s51_sandbox_orgs.sql` — ADR-1003 Sprint 5.1 — sandbox org provisioning (G-046), round 1 of 3. (~5049 tok)
 - `20260804000058_adr1014_s32_consent_events_trace_id.sql` — ADR-1014 Sprint 3.2 closeout — consent_events.trace_id column. (~748 tok)
+- `20260804000060_adr1003_s51_sandbox_test_principals.sql` — ADR-1003 Sprint 5.1 — sandbox test-principal generator (round 2 of 3). (~1744 tok)
 
 ## supabase/seed/
 
@@ -2645,7 +2654,7 @@
 - `retention-exemptions.test.ts` — ADR-1004 Phase 1 — regulatory exemptions engine integration tests. (~2474 tok)
 - `rights-api.test.ts` — ADR-1005 Sprint 5.1 — /v1/rights/requests integration tests. (~2842 tok)
 - `rights-request-public.test.ts` — ADR-1014 Phase 3 Sprint 3.3 — public rights-request RPC contract test. (~3841 tok)
-- `sandbox-provisioning.test.ts` — ADR-1003 Sprint 5.1 Round 1 — sandbox provisioning + sandbox API key. (~1461 tok)
+- `sandbox-provisioning.test.ts` — ADR-1003 Sprint 5.1 Round 1 — sandbox provisioning + sandbox API key. (~2077 tok)
 - `score-api.test.ts` — ADR-1016 Sprint 1.3 — /v1/score integration tests. (~734 tok)
 - `security-scans-api.test.ts` — ADR-1016 Sprint 1.2 — /v1/security/scans integration tests. (~1491 tok)
 - `signup-intake.test.ts` — ADR-0058 Sprint 1.5 (deferred) → ADR-1014 Phase 3 Sprint 3.1. (~2689 tok)

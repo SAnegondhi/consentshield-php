@@ -112,6 +112,65 @@ describe('ADR-1003 Sprint 5.1 — sandbox provisioning', () => {
   }, 15000)
 })
 
+describe('ADR-1003 Sprint 5.1 R2 — test-principal generator', () => {
+  let owner: TestOrg
+  let sandboxOrgId: string
+
+  beforeAll(async () => {
+    owner = await createTestOrg('sbx-tp-owner')
+    const { data, error } = await owner.client.rpc('rpc_provision_sandbox_org', {
+      p_name: 'TP test sandbox',
+      p_template_code: null,
+    })
+    if (error) throw new Error(`provision: ${error.message}`)
+    sandboxOrgId = (data as { org_id: string }).org_id
+  }, 60000)
+
+  afterAll(async () => {
+    if (owner) await cleanupTestOrg(owner)
+  }, 60000)
+
+  it('returns monotonically-increasing test-principal identifiers', async () => {
+    // The RPC is granted to cs_orchestrator only — the integration
+    // test reaches it through the service-role client (which is the
+    // closest equivalent to "what cs_orchestrator does at runtime"
+    // for shape verification). The route handler itself can't be
+    // exercised here without spinning Next.js up.
+    const admin = getServiceClient()
+
+    const { data: r1, error: e1 } = await admin.rpc('rpc_sandbox_next_test_principal', {
+      p_org_id: sandboxOrgId,
+    })
+    expect(e1).toBeNull()
+    const env1 = r1 as { identifier: string; seq: number }
+    expect(env1.identifier).toBe('cs_test_principal_000001')
+    expect(env1.seq).toBe(1)
+
+    const { data: r2, error: e2 } = await admin.rpc('rpc_sandbox_next_test_principal', {
+      p_org_id: sandboxOrgId,
+    })
+    expect(e2).toBeNull()
+    const env2 = r2 as { identifier: string; seq: number }
+    expect(env2.identifier).toBe('cs_test_principal_000002')
+    expect(env2.seq).toBe(2)
+
+    const { data: r3 } = await admin.rpc('rpc_sandbox_next_test_principal', {
+      p_org_id: sandboxOrgId,
+    })
+    expect((r3 as { seq: number }).seq).toBe(3)
+  }, 30000)
+
+  it('refuses non-sandbox orgs with 42501', async () => {
+    const admin = getServiceClient()
+    const { error } = await admin.rpc('rpc_sandbox_next_test_principal', {
+      p_org_id: owner.orgId, // the original prod-style org
+    })
+    expect(error).toBeTruthy()
+    expect(error!.code).toBe('42501')
+    expect(error!.message).toMatch(/not_a_sandbox_org/)
+  }, 15000)
+})
+
 describe('ADR-1003 Sprint 5.1 — non-owner refusal', () => {
   let nonOwner: TestOrg
 

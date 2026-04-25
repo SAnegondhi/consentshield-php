@@ -14798,6 +14798,70 @@
       "related_bugs": [],
       "occurrences": 1,
       "last_seen": "2026-04-25T03:50:36.680Z"
+    },
+    {
+      "id": "bug-922",
+      "timestamp": "2026-04-25T03:52:05.131Z",
+      "error_message": "Null/undefined access in ",
+      "file": "app/src/app/api/orgs/[orgId]/audit-export/route.ts",
+      "root_cause": "Property access on potentially null/undefined value",
+      "fix": "Added null safety (optional chaining or null check)",
+      "tags": [
+        "auto-detected",
+        "null-safety",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-25T03:52:05.131Z"
+    },
+    {
+      "id": "bug-923",
+      "timestamp": "2026-04-25T03:55:34.317Z",
+      "error_message": "Type error",
+      "file": "app/src/app/api/v1/sandbox/test-principals/route.ts",
+      "root_cause": "Missing or incorrect type annotation",
+      "fix": "Added type assertion/annotation",
+      "tags": [
+        "auto-detected",
+        "type-fix",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-25T03:55:34.317Z"
+    },
+    {
+      "id": "bug-924",
+      "timestamp": "2026-04-25T03:56:12.879Z",
+      "error_message": "Missing guard clause",
+      "file": "tests/integration/sandbox-provisioning.test.ts",
+      "root_cause": "No early return/throw for edge case: error",
+      "fix": "Added guard clause: if (error)",
+      "tags": [
+        "auto-detected",
+        "guard-clause",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-25T03:56:12.879Z"
+    },
+    {
+      "id": "bug-925",
+      "timestamp": "2026-04-25T03:56:47.940Z",
+      "error_message": "Significant refactor of ",
+      "file": "docs/ADRs/ADR-1003-processor-posture-and-healthcare-unlock.md",
+      "root_cause": "3 lines replaced/restructured",
+      "fix": "Rewrote 4→4 lines (3 removed) | Also: - [ ] **R2** Sandbox org exports marked `{ sandbox; - [ ] **R2** Compliance score endpoint excludes sa",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 2,
+      "last_seen": "2026-04-25T03:57:01.812Z"
     }
   ]
 }
