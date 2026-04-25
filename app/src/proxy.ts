@@ -21,8 +21,28 @@ import { limitsForTier } from '@/lib/api/rate-limits'
 
 const PROBLEM_JSON_HEADERS = { 'Content-Type': 'application/problem+json' }
 
+const API_HOST = 'api.consentshield.in'
+
 export async function proxy(request: NextRequest) {
+  const host = request.headers.get('host') ?? ''
+  const isApiHost = host === API_HOST
+
   const { pathname } = request.nextUrl
+
+  // api.consentshield.in is the public API hostname only. The
+  // beforeFiles rewrite in `next.config.ts` has already normalised
+  // /v1/* and /_ping to /api/v1/* by the time middleware runs, so
+  // anything we see here that isn't already prefixed `/api/v1/` is a
+  // dashboard/login/marketing path that must NOT be reachable on the
+  // API origin. Return 404 with the problem+json shape every other
+  // unauthenticated /api/v1/* error uses, so SDK callers see a
+  // consistent error surface.
+  if (isApiHost && !pathname.startsWith('/api/v1/')) {
+    return NextResponse.json(
+      problemJson(404, 'Not Found', 'Path is not part of the public API surface'),
+      { status: 404, headers: PROBLEM_JSON_HEADERS },
+    )
+  }
 
   // /api/v1/* — Bearer token gate.
   // Deletion-receipts uses its own HMAC callback verification (ADR-0009);
@@ -172,5 +192,12 @@ export const config = {
     '/onboarding',
     '/onboarding/:path*',
     '/api/v1/:path*',
+    // Catch every path on api.consentshield.in so the host-scoped 404
+    // gate above runs against dashboard/login/marketing routes that
+    // would otherwise resolve normally.
+    {
+      source: '/:path*',
+      has: [{ type: 'host', value: 'api.consentshield.in' }],
+    },
   ],
 }
