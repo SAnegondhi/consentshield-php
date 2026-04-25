@@ -162,10 +162,6 @@ export function GateForm({ from }: Props) {
         <button type="submit" className="gate-btn" disabled={phase === 'sending' || email.length === 0}>
           {phase === 'sending' ? 'Sending…' : 'Send me the code'}
         </button>
-        <p className="gate-help">
-          Lost your invitation? Email{' '}
-          <a href="mailto:hello@consentshield.in">hello@consentshield.in</a>.
-        </p>
       </form>
     )
   }

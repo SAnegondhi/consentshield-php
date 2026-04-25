@@ -42,10 +42,6 @@ Two screens, one form per screen, no marketing-design surface area. Text-wirefra
 │           │  └───────────────────────────────────┘   │             │
 │           │                                          │             │
 │           │  [        Send me the code        ]      │             │
-│           │                                          │             │
-│           │  ─────────                                 │             │
-│           │  Lost your invitation? Email              │             │
-│           │  hello@consentshield.in.                  │             │
 │           └─────────────────────────────────────────┘             │
 │                                                                   │
 │                                                                   │
@@ -61,7 +57,7 @@ Two screens, one form per screen, no marketing-design surface area. Text-wirefra
 - **Error states** (rendered as a `<p role="alert">` between input and button):
   - Email not on allowlist → *"This email isn't on the invitee list. If you think this is a mistake, email hello@consentshield.in."* — same generic message regardless of which arm fired (allowlist miss / rate-limit hit / Resend failure) so the gate doesn't enumerate invitees.
   - Network failure → *"Couldn't reach the server. Try again."*
-- **Help line** — `Lost your invitation? Email hello@consentshield.in.` Mailto link. Always rendered, regardless of error state.
+- **No help line / no mailto.** A public mailto on a gate page invites email harvesters and address-list spam; reaching out for a lost invitation is an out-of-band conversation the invitee initiates from the original invitation email's reply path.
 - **No social-login**, **no signup**, **no "remember me"** — all wrong category for an invite-only confidential preview.
 
 ## Screen 2 — OTP entry
