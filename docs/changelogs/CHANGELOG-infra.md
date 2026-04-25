@@ -2,6 +2,39 @@
 
 Vercel, Cloudflare, Supabase config changes.
 
+## [ADR-1003 Sprint 3.2 — zero-storage 100K load harness] — 2026-04-25
+
+**ADR:** ADR-1003 — Processor Posture + Healthcare Category Unlock
+**Sprint:** Phase 3, Sprint 3.2 (harness + skeleton; live run pending operator)
+
+### Added
+- `tests/load/k6/zero-storage-mode-a.js` — k6 scenario for the Worker `/v1/events` path. 100K HMAC-signed events (sha256 of `org_id ‖ property_id ‖ timestamp`), 80/20 accept/reject mix, configurable VUS / ITERATIONS / MAX_DURATION via env, thresholds on `http_req_failed < 0.5%` + `http_req_duration p95 < 750ms / p99 < 2000ms` + custom counter `hmac_rejected == 0`. Stable per-iteration `X-CS-Trace-Id` for `worker_errors` correlation.
+- `tests/load/k6/zero-storage-mode-b.js` — k6 scenario for `/api/v1/consent/record`. Bearer-authed (`cs_live_*` for sustained load; `cs_test_*` is sandbox-rate-capped at 100/hr per Sprint 5.1). 10K-bucket identifier spread to simulate large data-principal populations. Optional `REPLAY_RATIO` env to exercise the idempotent-replay code path during the same run. Thresholds: `http_req_duration p95 < 1500ms / p99 < 3000ms` + `record_4xx == 0`.
+- `tests/load/invariant-probe.ts` — bun script polling the five buffer tables (`consent_events`, `tracker_observations`, `audit_log`, `processing_log`, `delivery_buffer`) every 5s via the cs_orchestrator pool. JSON sample per line; final summary on stderr. Exits non-zero when `max_observed > PASS_THRESHOLD` (default 5). Reads `SUPABASE_CS_ORCHESTRATOR_DATABASE_URL` from env (also accepts `SUPABASE_CS_API_DATABASE_URL` as a fallback for read-only smoke tests).
+- `tests/load/run.sh` — orchestrator. Starts the probe in the background, runs k6, dumps both summaries to `tests/load/output/<mode>-<ts>.{jsonl,summary,json,log}`. Loads `.env.local` so the operator doesn't have to re-export.
+- `tests/load/README.md` — pre-requisites, env contract, run shape, pass-criteria table, post-run SQL verification, known limits.
+
+### Out of scope this sprint
+- The actual live run against prod Supabase + a real BYOS bucket. That's an operator action — costs ~$0.10–1.00 in Supabase compute + R2 ops, requires careful sandbox setup, and produces the `docs/benchmarks/zero-storage-100k.md` numbers.
+- `/v1/consent/verify` read-path scenario. Follow-up.
+- Cross-org concurrent load (multi-tenant interference). Follow-up.
+
+### Operator pre-requisites for the live run
+- `k6` installed (`brew install k6` or via Docker image `grafana/k6`).
+- A test org with `storage_mode='zero_storage'` and a verified BYOS bucket (CS-managed R2 or BYOK).
+- One published web property + banner (Mode A target) + one published API key (`cs_live_*`).
+- At least one published purpose definition (Mode B target).
+- `SUPABASE_CS_ORCHESTRATOR_DATABASE_URL` set in `.env.local`.
+
+### Why a harness commit precedes the live run
+The harness is reusable for every future load-targeted ADR (Phase 4 reconsent fan-out, Sprint 5.1 sandbox stress, ADR-1007 connector-ecosystem expansion at scale). Codifying it as repo infra ahead of the first run means the cost of subsequent runs is a single `tests/load/run.sh mode-a` away — no scaffolding to recreate.
+
+### Tested
+- Static review against the Worker HMAC contract (`worker/src/hmac.ts:verifyHMAC` — `sha256(orgId ‖ propertyId ‖ timestamp)` keyed by `event_signing_secret`).
+- Static review against `app/src/app/api/v1/consent/record/route.ts` and the Sprint 1.4 envelope shape.
+- The probe queries match the five buffer tables enumerated in `tests/integration/zero-storage-invariant.test.ts:BUFFER_TABLES_FOR_INVARIANT`.
+- Live execution: pending operator.
+
 ## [ADR-1014 Sprint 4.4 — aggregate Stryker driver + nightly CI gate + score publication (Phase 4 closes)] — 2026-04-25
 
 **ADR:** ADR-1014 — End-to-end test harness + vertical demo sites

@@ -2,6 +2,22 @@
 
 Documentation changes.
 
+## [ADR-1003 Sprint 3.2 — zero-storage feature matrix + benchmark template] — 2026-04-25
+
+**ADR:** ADR-1003 — Processor Posture + Healthcare Category Unlock
+**Sprint:** Phase 3, Sprint 3.2
+
+### Added
+- `docs/design/zero-storage-feature-matrix.md` — full gap inventory (8 sections, 35+ rows) classifying every customer-visible feature ✅ / ⚠ / ❌ across Standard / Insulated / Zero-Storage. Sections: capture (write path), replay + idempotency, read + audit + audit-export, rights flows, storage mechanics, operational, sandbox, plan / billing, healthcare-specific. Captures the buffer-replay impossibility, dashboard consent-events-list placeholder need, audit-reconstruction-via-bucket-listing pattern, and four V2 follow-ups (consent-events-list zero-storage placeholder, percentile-ranking aggregator UI, sandbox-orgs-don't-count-toward-max_organisations, customer-side bucket replay tooling).
+- `docs/benchmarks/zero-storage-100k.md` — benchmark report skeleton. Run-summary table, Mode A + Mode B metric tables (with thresholds), resource-impact table (Hyperdrive / Worker CPU / Supabase compute / R2 PUT), rough cost roll-up, observations + follow-ups section, re-run cadence, verdict line. All cells are `TBD`; populated after the first live run lands.
+
+### Rationale
+Sprint 3.2 ships in two phases: harness now, live run later. The gap inventory is something procurement and onboarding both need on day one — it's authored from architecture knowledge and doesn't need a load test to be useful. The benchmark template likewise stabilises the format so that the live-run results have a predictable home.
+
+### Tested
+- Static review against the Sprint 1.1 / 1.2 / 1.3 / 1.4 architecture decisions (every claim in the matrix maps to a concrete migration or sprint).
+- Live operator validation deferred until the harness runs and the benchmark is filled.
+
 ## [ADR-1003 Sprint 5.1 R3 — sandbox customer doc] — 2026-04-25
 
 **ADR:** ADR-1003 — Processor Posture + Healthcare Category Unlock

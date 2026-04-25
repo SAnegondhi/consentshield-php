@@ -234,18 +234,26 @@ Also closes the secondary gap flagged in Terminal A's handoff: the Sprint 1.3 br
 
 #### Sprint 3.2: Load test + gap inventory
 
-**Estimated effort:** 4 days
+**Estimated effort:** 4 days. Shipped in two parts (harness + report skeleton + gap inventory authored 2026-04-25; live run + report fill-in pending operator).
 
 **Deliverables:**
-- [ ] Staging load test: 100K consent events in zero-storage mode, measured invariant + end-to-end latency
-- [ ] Gap inventory document `docs/design/zero-storage-feature-matrix.md`: what works in Standard but degrades / requires special handling in Zero-Storage (re-export from buffer not possible; consent re-display requires customer-storage fetch; audit reconstruction from customer's bucket)
-- [ ] Launch-partner onboarding plan (internal test tenant acceptable if no external partner ready)
+- [x] Load-test harness landed at `tests/load/`:
+  - `tests/load/k6/zero-storage-mode-a.js` — Worker `/v1/events` × 100K, HMAC-signed (sha256 of `org_id ‖ property_id ‖ timestamp`), realistic accept/reject mix, k6 `shared-iterations` executor, configurable VUS / ITERATIONS / MAX_DURATION, thresholds on http_req_failed (<0.5%) + http_req_duration p95 (<750ms) + p99 (<2000ms) + custom counter `hmac_rejected == 0`.
+  - `tests/load/k6/zero-storage-mode-b.js` — `/api/v1/consent/record` × 100K, Bearer (`cs_live_*`; `cs_test_*` rate-capped), 10K-bucket identifier spread, optional `REPLAY_RATIO` env to exercise idempotent replay, thresholds on http_req_duration p95 (<1500ms) + p99 (<3000ms) + `record_4xx == 0`.
+  - `tests/load/invariant-probe.ts` — bun script polling the five buffer tables (`consent_events`, `tracker_observations`, `audit_log`, `processing_log`, `delivery_buffer`) every 5s via cs_orchestrator. Emits one JSON sample per line + records max-observed total. Exits non-zero when max > threshold (default 5, tunable via `PASS_THRESHOLD`).
+  - `tests/load/run.sh` — orchestrator: starts probe in background, runs k6, waits, prints summary, dumps probe samples + summary + k6 JSON to `tests/load/output/<mode>-<ts>`.
+  - `tests/load/README.md` — pre-requisites, env-var contract, run shape, pass criteria, post-run SQL verification (per-table counts + index growth + identifier_hash NOT NULL for Mode B + worker_errors window), known limits + gotchas.
+- [x] Gap inventory `docs/design/zero-storage-feature-matrix.md` — full feature × mode matrix (8 sections, 35+ rows) classifying every customer-visible feature as ✅ / ⚠ / ❌ across Standard / Insulated / Zero-Storage. Captures buffer-replay impossibility, dashboard consent-events-list placeholder need, audit-reconstruction-via-bucket-listing pattern, and flags 4 V2 follow-ups.
+- [x] Benchmark report skeleton `docs/benchmarks/zero-storage-100k.md` — table layout for Mode A + Mode B + resource impact + cost roll-up, ready to populate after the live run.
+- [ ] Live 100K-event load test results (filled into the benchmark template). Pending operator: requires a sandbox / non-sandbox zero_storage org with a verified BYOS bucket + a real `cs_live_*` API key + Worker-side HMAC secret; estimated $0.10–$1.00 in Supabase compute + R2 ops; estimated 30 min wall-clock per mode at 50 VUs.
+- [ ] 4-week internal-tenant run with daily invariant-check cron. Cron piece is trivial (re-uses `invariant-probe.ts` with `DURATION_S=300`); the 4-week observation period is just calendar time.
 
 **Testing plan:**
-- [ ] Load test report in `docs/benchmarks/zero-storage-100k.md`
-- [ ] Launch partner (or internal tenant) runs for 4 weeks with daily invariant-check cron; any non-zero count triggers investigation
+- [x] Harness scripts type-check via static review; the shell + k6 + bun pieces are not exercised in CI (require live targets).
+- [ ] Load-test report populated in `docs/benchmarks/zero-storage-100k.md`. Pending operator run.
+- [ ] Launch partner (or internal tenant) runs for 4 weeks with daily invariant-check cron; any non-zero count triggers investigation. Pending start of observation window.
 
-**Status:** `[ ] planned`
+**Status:** `[~] in progress (harness + gap inventory + report skeleton shipped 2026-04-25; live run + observation pending operator)`
 
 ### Phase 4: Healthcare sector template (G-042)
 

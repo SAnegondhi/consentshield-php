@@ -1,7 +1,7 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-04-25T04:06:23.489Z
-> Files: 1480 tracked | Anatomy hits: 0 | Misses: 0
+> Auto-maintained by OpenWolf. Last scanned: 2026-04-25T04:14:30.371Z
+> Files: 1490 tracked | Anatomy hits: 0 | Misses: 0
 
 ## ../../../../../tmp/
 
@@ -1420,7 +1420,7 @@
 - `ADR-0501-marketing-site-scaffold.md` — ADR-0501 — ConsentShield marketing site (`marketing/`) (~6079 tok)
 - `ADR-1001-truth-in-marketing-and-public-api-foundation.md` — ADR-1001: Truth-in-Marketing + Public API Foundation (~5650 tok)
 - `ADR-1002-dpdp-section6-runtime-enforcement.md` — ADR-1002: DPDP §6 Runtime Enforcement — Verify, Record, Artefact Ops, Deletion API (~7030 tok)
-- `ADR-1003-processor-posture-and-healthcare-unlock.md` — ADR-1003: Processor Posture + Healthcare Category Unlock (~10289 tok)
+- `ADR-1003-processor-posture-and-healthcare-unlock.md` — ADR-1003: Processor Posture + Healthcare Category Unlock (~10912 tok)
 - `ADR-1004-statutory-retention-material-change-silent-failure.md` — ADR-1004: Statutory Retention + Material-Change Re-consent + Silent-Failure Detection (~7531 tok)
 - `ADR-1005-operations-maturity.md` — ADR-1005: Operations Maturity — Webhook Reference, Support Model, Status Page, Multi-channel Alerts, (~7076 tok)
 - `ADR-1006-developer-experience-and-openapi.md` — ADR-1006: Developer Experience — Client Libraries + OpenAPI Spec + CI Drift Check (~5308 tok)
@@ -1467,16 +1467,24 @@
 - `consentshield-testing-strategy.md` — ConsentShield — The Testing Question (~8766 tok)
 - `nextjs-16-reference.md` — Next.js 16 — Project Reference (~1408 tok)
 
+## docs/benchmarks/
+
+- `zero-storage-100k.md` — Zero-Storage 100K-event benchmark (~968 tok)
+
 ## docs/changelogs/
 
 - `CHANGELOG-api.md` — Changelog — API (~43534 tok)
 - `CHANGELOG-dashboard.md` — Changelog — Dashboard (~29589 tok)
-- `CHANGELOG-docs.md` — Changelog — Documentation (~14155 tok)
+- `CHANGELOG-docs.md` — Changelog — Documentation (~14619 tok)
 - `CHANGELOG-edge-functions.md` — Changelog — Edge Functions (~4251 tok)
-- `CHANGELOG-infra.md` — Changelog — Infrastructure (~24742 tok)
+- `CHANGELOG-infra.md` — Changelog — Infrastructure (~25637 tok)
 - `CHANGELOG-marketing.md` — Changelog — Marketing (~14957 tok)
 - `CHANGELOG-schema.md` — Changelog — Schema (~56127 tok)
 - `CHANGELOG-worker.md` — Changelog — Worker (~8343 tok)
+
+## docs/competition/
+
+- `ConsentShield-Competitive-Landscape-Briefing-v1.md` — **1. Market Context** (~9974 tok)
 
 ## docs/customer-docs/
 
@@ -1495,6 +1503,7 @@
 - `consentshield-testing-strategy.md` — ConsentShield — The Testing Question (~6253 tok)
 - `consentshield-v2-complete-blueprint.md` — ConsentShield v2 — Complete Product Blueprint (~18422 tok)
 - `ConsentShield-Whitepaper-V2-Gaps-Combined.md` — ConsentShield — Whitepaper-to-Code Gap Document (Combined & Canonical) (~12397 tok)
+- `zero-storage-feature-matrix.md` — Zero-Storage feature matrix (gap inventory) (~2335 tok)
 
 ## docs/design/brand-assets/
 
@@ -1840,7 +1849,9 @@
 - `errors.ts` — RFC 7807 problem-document body shape — matches `app/src/lib/api/auth.ts` (~1382 tok)
 - `http.ts` — Subset of the global fetch signature we depend on — sufficient for stubs. (~2378 tok)
 - `index.ts` — ADR-1006 Phase 1 — `@consentshield/node` public surface. (~248 tok)
-- `types.ts` — §5.1 verify-result statuses. Stable contract — adding a value is a (~838 tok)
+- `record.ts` — Purpose definition ids the data principal accepted. MUST be non-empty. (~953 tok)
+- `revoke.ts` — Free-form short code surfaced in the audit trail. Required. (~548 tok)
+- `types.ts` — §5.1 verify-result statuses. Stable contract — adding a value is a (~2354 tok)
 - `verify.ts` — Single-identifier verify input. camelCase per JS/TS convention. (~2231 tok)
 
 ## packages/node-client/tests/
@@ -2673,6 +2684,17 @@
 - `worker-hyperdrive-writes.test.ts` — ADR-1010 Phase 3 Sprint 3.2 — integration test for the Hyperdrive (~2157 tok)
 - `zero-storage-hot-row-refresh.test.ts` — ADR-1003 Sprint 3.1 — hot-row TTL refresh integration test. (~2294 tok)
 - `zero-storage-invariant.test.ts` — ADR-1003 Sprint 1.3 — zero-storage end-to-end invariant. (~5385 tok)
+
+## tests/load/
+
+- `invariant-probe.ts` — ADR-1003 Sprint 3.2 — buffer-row invariant probe. (~1209 tok)
+- `README.md` — Project documentation (~1582 tok)
+- `run.sh` — ADR-1003 Sprint 3.2 — orchestrator: starts the invariant probe, runs (~814 tok)
+
+## tests/load/k6/
+
+- `zero-storage-mode-a.js` — ADR-1003 Sprint 3.2 — Mode A (Worker /v1/events) load scenario. (~1640 tok)
+- `zero-storage-mode-b.js` — ADR-1003 Sprint 3.2 — Mode B (POST /api/v1/consent/record) load scenario. (~1582 tok)
 
 ## tests/rbac/
 

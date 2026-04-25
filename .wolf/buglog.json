@@ -15038,6 +15038,38 @@
       "related_bugs": [],
       "occurrences": 1,
       "last_seen": "2026-04-25T04:06:20.136Z"
+    },
+    {
+      "id": "bug-937",
+      "timestamp": "2026-04-25T04:13:36.674Z",
+      "error_message": "Significant refactor of ",
+      "file": "docs/ADRs/ADR-1003-processor-posture-and-healthcare-unlock.md",
+      "root_cause": "7 lines replaced/restructured",
+      "fix": "Rewrote 14→22 lines (7 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-25T04:13:36.674Z"
+    },
+    {
+      "id": "bug-938",
+      "timestamp": "2026-04-25T04:13:49.143Z",
+      "error_message": "Type error",
+      "file": "packages/node-client/src/types.ts",
+      "root_cause": "Missing or incorrect type annotation",
+      "fix": "Added type assertion/annotation",
+      "tags": [
+        "auto-detected",
+        "type-fix",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-25T04:13:49.143Z"
     }
   ]
 }
