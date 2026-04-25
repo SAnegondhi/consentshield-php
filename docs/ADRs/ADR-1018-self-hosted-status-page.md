@@ -157,9 +157,9 @@ Phase 1 shipped a working self-hosted status page but the Phase-1 wireframe does
 
 **Deliverables:**
 - [ ] Operator creates Better Stack account, owned by `info@consentshield.in` (canonical org-level identity, not the founder personal Gmail).
-- [ ] Plan tier selected and recorded in this ADR — pick the lowest tier that exposes 30-second checks + multi-region (EU + US + APAC at minimum) + custom domain on the status page + Slack/webhook incident integration. Better Stack does not surface a separate "workspace" identity; the BS team is implicit from the owner email.
+- [ ] Plan tier selected and recorded in this ADR — pick the lowest tier that exposes 30-second checks + multi-region (EU + US + APAC at minimum) + custom domain on the status page + Slack/webhook incident integration. Better Stack has no workspace / team / organisation entity — every resource attaches to the user account that owns it.
 - [ ] Cost recorded in the operator-pending runbook.
-- [ ] API token generated, named `consentshield-marketing-prod`, with monitor + status-page scopes.
+- [ ] API token generated, named `consentshield-marketing-prod`, account-level scope (BS tokens don't have finer scoping).
 - [ ] Token stored in `vercel env` for the `consentshield-marketing` project (env-var name: `BETTERSTACK_API_TOKEN`). Production scope only; preview not needed unless preview-deploy monitors are wanted later.
 
 **Operator runbook:** `docs/runbooks/adr-1018-phase-2-better-stack-sprint-2-1.md`.
@@ -186,7 +186,7 @@ Phase 1 shipped a working self-hosted status page but the Phase-1 wireframe does
 #### Sprint 2.4 — DNS cutover from Phase-1 self-hosted to Better Stack
 
 **Deliverables:**
-- [ ] Better Stack hosted status page configured at `status.betterstack.com/<workspace-slug>` first; smoke-tested.
+- [ ] Better Stack hosted status page resource created (slug chosen at creation time — a per-status-page identifier, not an account-level slug); smoke-tested at whatever `status.betterstack.com/<slug>` URL BS assigns.
 - [ ] Custom domain configured in Better Stack: `status.consentshield.in`. ConsentShield logo + brand palette uploaded.
 - [ ] DNS CNAME `status.consentshield.in` flipped from `cname.vercel-dns.com` (Phase 1) to Better Stack's status-page CNAME target.
 - [ ] Vercel domain alias removed from the `app` project: `bunx vercel domains rm status.consentshield.in --scope sanegondhis-projects`.

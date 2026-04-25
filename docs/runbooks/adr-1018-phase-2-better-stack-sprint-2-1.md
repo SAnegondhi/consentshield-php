@@ -4,7 +4,9 @@
 **Date:** 2026-04-25.
 **Estimated time:** 15 minutes (operator account creation) + 1 minute (Terminal C env-var seeding).
 
-This is the first sprint of the Phase 2 Better Stack integration. It establishes the workspace, selects a plan tier that meets the marketing-copy spec (7 monitors, 30-second checks, multi-region, subscriber notifications, incident posts, custom domain), generates an API token, and seeds the token on the `consentshield-marketing` Vercel project as `BETTERSTACK_API_TOKEN`.
+This is the first sprint of the Phase 2 Better Stack integration. It creates the Better Stack account, selects a plan tier that meets the marketing-copy spec (7 monitors, 30-second checks, multi-region, subscriber notifications, incident posts, custom domain), generates an API token, and seeds the token on the `consentshield-marketing` Vercel project as `BETTERSTACK_API_TOKEN`.
+
+Note on Better Stack's account model: it does **not** have workspaces, teams, or organisations as separate entities. All resources (monitors, status pages, integrations, tokens) attach directly to the user account that owns them. Treat "the Better Stack account" and "the team identity" as one and the same throughout this runbook.
 
 Sprints 2.2 → 2.6 (monitor matrix, incident-comms, DNS cutover, SLA alignment, subscriber notifications) are gated on this sprint completing.
 
@@ -20,7 +22,7 @@ Sprints 2.2 → 2.6 (monitor matrix, incident-comms, DNS cutover, SLA alignment,
 
 1. Open <https://betterstack.com/> in a new tab.
 2. **Sign up** with **`info@consentshield.in`** (the canonical org-level identity, not the founder personal address — this account will outlive the founder's Gmail and is shared with `noreply@consentshield.in` via the Resend/MX setup).
-3. Better Stack doesn't surface a "workspace name" field at signup the way Slack or Linear do — the team / account identity is implicit from the signed-in user. If BS asks for a "team name" or "company" anywhere during onboarding, fill in **`ConsentShield`** for display purposes; otherwise no action.
+3. Better Stack has no workspace / team / organisation entity. Onboarding only asks for the basics tied to the signed-in user. There may be a "company" or "display name" field somewhere in profile settings later — populate it `ConsentShield` if it exists; otherwise no action needed.
 4. Skip any "invite teammates" prompt — solo for now.
 
 ## Step 2 — Pick the plan tier
@@ -66,9 +68,9 @@ Once you're satisfied with the tier:
 
 ## Step 3 — Generate the API token
 
-1. In the Better Stack dashboard, navigate to **Settings → API tokens** (or wherever the current UI surfaces them — typically under team / workspace settings).
+1. In the Better Stack dashboard, navigate to **Settings → API tokens** (the path is account-level since there's no workspace concept).
 2. Create a new token. Name it **`consentshield-marketing-prod`** so it's clear what it gates.
-3. Scope: workspace-wide (BS tokens usually don't have finer scope; if there's a "monitors-write + status-page-write" combo, grant that minimum).
+3. Scope: account-level (BS tokens are typically a single all-or-nothing scope; if the UI lets you restrict to monitors + status-page write, grant that minimum).
 4. **Copy the token to your clipboard.** Better Stack typically shows the token only once.
 
 ## Step 4 — Seed the token on Vercel
