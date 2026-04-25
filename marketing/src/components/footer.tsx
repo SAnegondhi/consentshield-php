@@ -1,8 +1,17 @@
+import { cookies } from 'next/headers'
 import Link from 'next/link'
 import { Logo } from './logo'
 import { DOWNLOAD_BRIEF, ROUTES } from '@/lib/routes'
+import { COOKIE_SESSION } from '@/lib/gate/cookies'
+import { GateLogout } from './gate-logout'
 
-export function Footer() {
+export async function Footer() {
+  // ADR-0502 — show "Sign out of preview" only when a gate session is
+  // present. The signed-out gate page is served unauthenticated and the
+  // link simply doesn't appear there because no session cookie exists.
+  const cookieStore = await cookies()
+  const hasSession = Boolean(cookieStore.get(COOKIE_SESSION))
+
   return (
     <footer className="footer">
       <div className="footer-grid">
@@ -117,6 +126,7 @@ export function Footer() {
           <Link href={ROUTES.terms.href}>Terms</Link>
           <Link href={ROUTES.privacy.href}>Privacy</Link>
           <Link href={ROUTES.contact.href}>Security</Link>
+          {hasSession ? <GateLogout /> : null}
         </div>
       </div>
     </footer>

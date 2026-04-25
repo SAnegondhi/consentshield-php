@@ -2,6 +2,43 @@
 
 API route changes.
 
+## [ADR-1006 Phase 1 Sprint 1.4 — `@consentshield/node` v1.0.0 publish-ready (Phase 1 closes)] — 2026-04-25
+
+**ADR:** ADR-1006 — Developer Experience: Client Libraries + OpenAPI + CI Drift Check
+**Sprint:** Phase 1, Sprint 1.4 (publish-ready dist + coverage gate + integration examples)
+
+### Added
+- **Dual ESM + CJS build via `tsup` 8.5.1** — `packages/node-client/tsup.config.ts` emits `dist/index.{mjs,cjs}` + `dist/index.d.{ts,cts}` + sourcemaps; tree-shake on; target `node18`. Build artefacts: 31.31 KB ESM / 31.53 KB CJS / 27.68 KB types in ~600 ms.
+- `packages/node-client/tsconfig.json` overrides `incremental: false` so the tsup DTS step doesn't reject the inherited `tsBuildInfoFile`-less incremental setting from the base config; excludes `dist`, `examples`, `node_modules`.
+- `packages/node-client/LICENSE.md` — proprietary text per CLAUDE.md authorship rules (single copyright line, permitted-use carve-out, anti-redistribution clause, no-warranty).
+- `packages/node-client/README.md` rewritten for v1.0.0: drops alpha banner; adds the 14-method matrix (consent / listing+iteration / deletion+rights tables); adds the explicit fail-open behaviour table for `verify`/`verifyBatch`; adds `onFailOpen` to the 4-default compliance-posture table; pointer to both example directories.
+- **Coverage gate ≥80%** — `@vitest/coverage-v8` 4.1.4 wired into `vitest.config.ts`. Thresholds: lines / functions / branches / statements all ≥80. New `packages/node-client/tests/iterators.test.ts` (~9 cases) brings `iterateEvents`/`iterateAuditLog`/`iterateDeletionReceipts`/`iterateRightsRequests` over the threshold + extra `recordConsent` / `triggerDeletion` validator-branch coverage. Final coverage: **94.82% statements / 90.56% branches / 95.31% functions / 95.52% lines**.
+- **`packages/node-client/examples/express-verify-middleware/`** — Express 5.1 middleware (`consentRequired(client, opts)`) that verifies consent before every request and refuses with HTTP 451 ("Unavailable For Legal Reasons") on `revoked`/`expired`/`never_consented`. Honours fail-CLOSED default → HTTP 503; honours `failOpen=true` opt-in → passes through with `X-CS-Override` + `X-CS-Trace-Id` headers. Includes `app.ts` runnable demo, README, package.json (workspace-linked SDK).
+- **`packages/node-client/examples/nextjs-mobile-record/`** — Next.js 16.2.3 App Router API route at `app/api/consent/route.ts` that accepts a mobile-app POST and records consent via `client.recordConsent`. Module-load init of `ConsentShieldClient` (validates `CS_API_KEY` at `next build` / first cold start). Trace-id round-trip from inbound `X-CS-Trace-Id` → SDK call → response header. Error surface: `ConsentShieldApiError` → forwards status + problem; SDK `TypeError`/`RangeError` validation → 422; network/timeout → 502.
+
+### Changed
+- `packages/node-client/package.json`:
+  - version 1.0.0-alpha.1 → **1.0.0**
+  - `type: module`, `main`: `./dist/index.cjs`, `module`: `./dist/index.mjs`, `types`: `./dist/index.d.ts`
+  - conditional `exports` map (`import` / `require` with per-condition `types`)
+  - `sideEffects: false` for tree-shaking
+  - `files: [dist, README.md, LICENSE.md]`
+  - new scripts: `build` (tsup), `build:watch`, `test:coverage`, `prepublishOnly` (`bun run build && bun run typecheck && bun run test`)
+  - new devDeps: `tsup` 8.5.1, `@vitest/coverage-v8` 4.1.4
+- `.gitignore` — `packages/node-client/dist/` + `packages/node-client/coverage/`.
+
+### Architecture Changes
+- **Spec amendment for Sprint 1.4 scope.**
+  - "Publish to npm at v1.0.0" — deferred to operator follow-up. SDK is publish-ready (dist/ builds clean, `prepublishOnly` wired, version 1.0.0, LICENSE in place, README finalised); the actual `npm publish` requires the npm token + 2FA, which is operator-level (parallels Sprint 5.3's `vercel link` deferral).
+  - "Internal smoke test in ConsentShield admin app uses the library against staging" — also deferred to operator follow-up; needs a running staging environment with the SDK npm-installed (vs the workspace-linked form used by the examples).
+- **Why fail-CLOSED → HTTP 503 in the Express example (not HTTP 200).** Defaulting to "send the email anyway" when ConsentShield is briefly unreachable is the worst DPDP outcome — you might mail a user whose consent was withdrawn 30 seconds ago. The middleware honours the SDK's fail-CLOSED default, forcing the question: do you treat ConsentShield as a hard dependency (503 → caller retries) or do you opt into fail-open (`failOpen: true` + wire `onFailOpen` to your audit sink)? Either is defensible; the default is the safe one.
+
+### Tested
+- [x] `cd packages/node-client && bun run typecheck` — clean — PASS
+- [x] `cd packages/node-client && bun run test` — **103 passed** (8 files, +9 over Sprint 1.3's 94) — PASS
+- [x] `cd packages/node-client && bun run build` — emits 31.31 KB ESM / 31.53 KB CJS / 27.68 KB types in ~600 ms — PASS
+- [x] `cd packages/node-client && bun run test:coverage` — **94.82% / 90.56% / 95.31% / 95.52%** (statements / branches / functions / lines) — PASS, well above the 80% gate.
+
 ## [ADR-1006 Phase 1 Sprint 1.3 — `@consentshield/node` record/revoke/artefacts/events/deletion/rights/audit + onFailOpen audit-trail wiring] — 2026-04-25
 
 **ADR:** ADR-1006 — Developer Experience: Client Libraries + OpenAPI + CI Drift Check

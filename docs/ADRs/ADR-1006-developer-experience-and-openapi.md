@@ -137,23 +137,30 @@ Ship four languages and one specification:
 
 **Status:** `[x] complete 2026-04-25 — record + revoke + triggerDeletion + 5 list+iterate helpers + getArtefact + createRightsRequest + listRightsRequests + listAuditLog ship; onFailOpen audit-trail callback closes the Sprint 1.2 deferred deliverable. 94 unit tests pass; typecheck clean. Sprint 1.4 next: dual ESM+CJS build via tsup + .d.ts emission + npm publish + Express/Next.js integration examples.`
 
-#### Sprint 1.4: Publish + integration examples
-
-**Estimated effort:** 1 day
+#### Sprint 1.4: Publish + integration examples + coverage gate
 
 **Deliverables:**
-- [ ] TypeScript type definitions shipped (generated from OpenAPI where possible)
-- [ ] README with quickstart
-- [ ] `examples/express-verify-middleware/` — Express middleware that verifies marketing consent before every request
-- [ ] `examples/nextjs-mobile-record/` — Next.js API route recording consent from a mobile app
-- [ ] Publish to npm at v1.0.0
-- [ ] Internal smoke test in ConsentShield admin app uses the library against staging
+- [x] **Dual ESM + CJS build via `tsup` 8.5.1.** `packages/node-client/tsup.config.ts` emits `dist/index.{mjs,cjs}` + `dist/index.d.{ts,cts}` + sourcemaps; treeshake on; target `node18`. Build artefacts: 31.31 KB ESM / 31.53 KB CJS / 27.68 KB types. `packages/node-client/tsconfig.json` overrides `incremental: false` so the tsup DTS step doesn't reject the inherited `tsBuildInfoFile`-less incremental setting.
+- [x] **Published-package layout flipped from TS-source to `dist/`.** `package.json`: `version` 1.0.0-alpha.1 → **1.0.0**; `type: module`; `main`: `./dist/index.cjs`; `module`: `./dist/index.mjs`; `types`: `./dist/index.d.ts`; `exports` map (conditional `import`/`require` with `types` per condition); `sideEffects: false` for tree-shaking; `files: [dist, README.md, LICENSE.md]`. New scripts: `build` (tsup), `build:watch`, `test:coverage`, `prepublishOnly` (`bun run build && bun run typecheck && bun run test`).
+- [x] **`packages/node-client/LICENSE.md`** — proprietary text per CLAUDE.md authorship rules (single copyright line, permitted-use carve-out for the SDK's own client purpose, anti-redistribution clause, no-warranty).
+- [x] **README rewritten for v1.0.0.** Drops the alpha banner. Adds the 14-method matrix (consent / listing+iteration / deletion+rights tables) + the explicit fail-open behaviour table for `verify`/`verifyBatch` + the 4-default compliance-posture table now including `onFailOpen` + a pointer to both example directories.
+- [x] **Coverage gate at ≥80%** wired into `vitest.config.ts` via `@vitest/coverage-v8` 4.1.4. Thresholds: lines / functions / branches / statements all ≥80. Final coverage: **statements 94.82% / branches 90.56% / functions 95.31% / lines 95.52%**. New `packages/node-client/tests/iterators.test.ts` (~9 cases) brings `iterateEvents`/`iterateAuditLog`/`iterateDeletionReceipts`/`iterateRightsRequests` over the threshold + adds extra validator-branch coverage on `recordConsent` (rejected-purpose-defs forwarding + non-array gates) and `triggerDeletion` (non-array purposeCodes/scopeOverride + invalid actorType + non-string entry index).
+- [x] **`examples/express-verify-middleware/`** — Express 5.1 middleware (`consentRequired(client, opts)`) that verifies consent on every request and refuses with HTTP 451 ("Unavailable For Legal Reasons") on `revoked`/`expired`/`never_consented`. Honours fail-CLOSED default → HTTP 503; honours `failOpen=true` opt-in → passes through with `X-CS-Override` + `X-CS-Trace-Id` headers. README explains the fail-CLOSED → 503 rationale (defaulting to "send anyway" is the worst DPDP outcome). Includes `app.ts` runnable demo.
+- [x] **`examples/nextjs-mobile-record/`** — Next.js 16.2.3 App Router API route at `app/api/consent/route.ts` that accepts a mobile-app POST and records consent via `client.recordConsent`. Module-load init of `ConsentShieldClient` (validates `CS_API_KEY` at `next build` / first cold start, never inside a request). Trace-id round-trip from inbound `X-CS-Trace-Id` → SDK call → response header. Error surface: `ConsentShieldApiError` → forwards status + problem; SDK `TypeError`/`RangeError` validation → 422; network/timeout → 502.
+- [x] `.gitignore` extended with `packages/node-client/dist/` + `packages/node-client/coverage/`.
+- [x] `packages/node-client/tsconfig.json` excludes `dist`, `examples`, `node_modules` so the SDK's own typecheck doesn't try to resolve `express` / `next` from the example workspaces (which aren't installed in the SDK workspace itself).
 
-**Testing plan:**
-- [ ] `npm install @consentshield/node` in a scratch project; example runs against staging
-- [ ] Coverage ≥ 80% (`npm test -- --coverage`)
+**Spec amendment for Sprint 1.4 scope:**
+- "**Publish to npm at v1.0.0**" deferred to operator follow-up. The SDK is publish-ready (dist/ builds clean, prepublishOnly script wired, version flipped to 1.0.0, LICENSE in place, README finalised); the actual `npm publish` requires the npm token + 2FA token, which is operator-level (parallels the `vercel link` Sprint 5.3 deferral). Tracked in the V2 backlog under "Sprint 1.4 follow-up — npm publish".
+- "**Internal smoke test in ConsentShield admin app uses the library against staging**" also deferred to operator follow-up — needs a running staging environment with the SDK npm-installed (vs the workspace-linked form used by the examples).
 
-**Status:** `[ ] planned`
+**Tested:**
+- [x] `cd packages/node-client && bun run typecheck` — clean — PASS
+- [x] `cd packages/node-client && bun run test` — **103 passed** (8 files, +9 over Sprint 1.3's 94) — PASS
+- [x] `cd packages/node-client && bun run build` — emits 31.31 KB ESM / 31.53 KB CJS / 27.68 KB types in ~600 ms — PASS
+- [x] `cd packages/node-client && bun run test:coverage` — **94.82 / 90.56 / 95.31 / 95.52** (statements / branches / functions / lines) — PASS, well above the 80% gate.
+
+**Status:** `[x] complete 2026-04-25 — Phase 1 closes. @consentshield/node v1.0.0 publish-ready: dual ESM+CJS build; 103 unit tests; coverage 94.82% / 90.56% / 95.31% / 95.52%; LICENSE.md + README.md finalised; two integration examples (Express middleware + Next.js App Router route) shipped. npm publish + staging smoke test deferred to operator follow-up.`
 
 ### Phase 2: Python library (G-003)
 

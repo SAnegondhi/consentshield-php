@@ -1,7 +1,7 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-04-25T04:23:49.992Z
-> Files: 1497 tracked | Anatomy hits: 0 | Misses: 0
+> Auto-maintained by OpenWolf. Last scanned: 2026-04-25T05:43:41.557Z
+> Files: 1523 tracked | Anatomy hits: 0 | Misses: 0
 
 ## ../../../../../tmp/
 
@@ -48,7 +48,7 @@
 - `feedback_v2_backlog_pattern.md` (~479 tok)
 - `feedback_vitest_serial_for_supabase_auth.md` (~502 tok)
 - `feedback_wireframes_before_adrs.md` (~784 tok)
-- `MEMORY.md` (~2274 tok)
+- `MEMORY.md` (~2295 tok)
 - `project_admin_platform_2026-04-16.md` — What IS implemented as of 2026-04-16 (~1994 tok)
 - `project_admin_platform_2026-04-17.md` — What IS implemented as of 2026-04-17 (~2346 tok)
 - `project_admin_platform_2026-04-18.md` — State as of 2026-04-18 (~609 tok)
@@ -82,7 +82,7 @@
 - `reference_infrastructure.md` (~628 tok)
 - `reference_supabase_platform_gotchas.md` — JWT signing keys are rotating HS256 → ECC P-256 (2026-04-21 finding) (~2109 tok)
 - `reference_vercel_sandbox.md` — Access (~906 tok)
-- `reference_vercel_setup.md` — Projects (~665 tok)
+- `reference_vercel_setup.md` — Projects (monorepo, three Vercel projects share one git repo) (~1501 tok)
 - `user_native_language.md` (~301 tok)
 - `user_role.md` (~306 tok)
 
@@ -231,7 +231,7 @@
 
 ## ./
 
-- `.gitignore` — Git ignore rules (~348 tok)
+- `.gitignore` — Git ignore rules (~380 tok)
 - `.prettierrc` (~29 tok)
 - `.secrets` — Supabase (~972 tok)
 - `CLAUDE.md` — OpenWolf (~6199 tok)
@@ -1418,12 +1418,13 @@
 - `ADR-0057-sectoral-template-switcher.md` — ADR-0057 — Customer-facing sectoral template switcher (Settings → Account) (~1395 tok)
 - `ADR-0058-split-flow-onboarding.md` — ADR-0058 — Split-flow customer onboarding (~6336 tok)
 - `ADR-0501-marketing-site-scaffold.md` — ADR-0501 — ConsentShield marketing site (`marketing/`) (~6079 tok)
+- `ADR-0502-marketing-gate-otp.md` — ADR-0502: Marketing-site invite gate via email OTP (~3526 tok)
 - `ADR-1001-truth-in-marketing-and-public-api-foundation.md` — ADR-1001: Truth-in-Marketing + Public API Foundation (~5650 tok)
 - `ADR-1002-dpdp-section6-runtime-enforcement.md` — ADR-1002: DPDP §6 Runtime Enforcement — Verify, Record, Artefact Ops, Deletion API (~7030 tok)
 - `ADR-1003-processor-posture-and-healthcare-unlock.md` — ADR-1003: Processor Posture + Healthcare Category Unlock (~10912 tok)
 - `ADR-1004-statutory-retention-material-change-silent-failure.md` — ADR-1004: Statutory Retention + Material-Change Re-consent + Silent-Failure Detection (~7531 tok)
 - `ADR-1005-operations-maturity.md` — ADR-1005: Operations Maturity — Webhook Reference, Support Model, Status Page, Multi-channel Alerts, (~7076 tok)
-- `ADR-1006-developer-experience-and-openapi.md` — ADR-1006: Developer Experience — Client Libraries + OpenAPI Spec + CI Drift Check (~6553 tok)
+- `ADR-1006-developer-experience-and-openapi.md` — ADR-1006: Developer Experience — Client Libraries + OpenAPI Spec + CI Drift Check (~7651 tok)
 - `ADR-1007-connector-ecosystem-expansion.md` — ADR-1007: Connector Ecosystem Expansion + Platform Plugins (~2738 tok)
 - `ADR-1008-scale-audit-polish-and-p3-hardening.md` — ADR-1008: Scale + Audit Polish + P3 Hardening (~3065 tok)
 - `ADR-1009-v1-api-role-hardening.md` — ADR-1009: v1 API role hardening — remove service-role shortcut, adopt `cs_api` as designed (~5564 tok)
@@ -1445,7 +1446,7 @@
 - `ADR-1025-customer-storage-auto-provisioning.md` — ADR-1025: Customer storage auto-provisioning — hybrid managed R2 default + BYOK escape hatch (~13370 tok)
 - `ADR-1026-drop-hyperdrive-direct-supavisor.md` — ADR-1026: Rewind ADR-1010 Phase 3 — Worker connects directly to Supavisor; drop Hyperdrive binding (~5467 tok)
 - `ADR-1027-admin-account-awareness.md` — ADR-1027: Admin Account-Awareness Pass (~8082 tok)
-- `ADR-index.md` — ADR Index (~8988 tok)
+- `ADR-index.md` — ADR Index (~9388 tok)
 - `ADR-template.md` — ADR-NNNN: Title (~423 tok)
 - `adr-workflow.md` — ADR Workflow Rules (~557 tok)
 
@@ -1473,12 +1474,12 @@
 
 ## docs/changelogs/
 
-- `CHANGELOG-api.md` — Changelog — API (~45091 tok)
+- `CHANGELOG-api.md` — Changelog — API (~46356 tok)
 - `CHANGELOG-dashboard.md` — Changelog — Dashboard (~29589 tok)
 - `CHANGELOG-docs.md` — Changelog — Documentation (~14619 tok)
 - `CHANGELOG-edge-functions.md` — Changelog — Edge Functions (~4251 tok)
 - `CHANGELOG-infra.md` — Changelog — Infrastructure (~25637 tok)
-- `CHANGELOG-marketing.md` — Changelog — Marketing (~14957 tok)
+- `CHANGELOG-marketing.md` — Changelog — Marketing (~17784 tok)
 - `CHANGELOG-schema.md` — Changelog — Schema (~56127 tok)
 - `CHANGELOG-worker.md` — Changelog — Worker (~8343 tok)
 
@@ -1503,6 +1504,7 @@
 - `consentshield-testing-strategy.md` — ConsentShield — The Testing Question (~6253 tok)
 - `consentshield-v2-complete-blueprint.md` — ConsentShield v2 — Complete Product Blueprint (~18422 tok)
 - `ConsentShield-Whitepaper-V2-Gaps-Combined.md` — ConsentShield — Whitepaper-to-Code Gap Document (Combined & Canonical) (~12397 tok)
+- `marketing-gate-otp-wireframe.md` — Marketing-site invite gate — wireframe spec (~2474 tok)
 - `zero-storage-feature-matrix.md` — Zero-Storage feature matrix (gap inventory) (~2335 tok)
 
 ## docs/design/brand-assets/
@@ -1571,7 +1573,7 @@
 - `.gitignore` — Git ignore rules (~149 tok)
 - `eslint.config.mjs` — ', 'out/**', 'build/**', 'next-env.d.ts']), (~91 tok)
 - `mdx-components.tsx` — useMDXComponents (~208 tok)
-- `next.config.ts` — ADR-0501 Phase 4 — security headers + Sentry wiring. (~874 tok)
+- `next.config.ts` — ADR-0501 Phase 4 — security headers + Sentry wiring. (~969 tok)
 - `package.json` — Node.js package manifest (~330 tok)
 - `postcss.config.mjs` — Declares config (~25 tok)
 - `tsconfig.json` — TypeScript configuration (~102 tok)
@@ -1587,16 +1589,32 @@
 - `copy-openapi.ts` — ADR-1015 Phase 1 Sprint 1.2 — copy openapi.yaml into marketing/public. (~437 tok)
 - `generate-downloads.ts` — Downloads generator — runs as `bun scripts/generate-downloads.ts` (~581 tok)
 
+## marketing/src/
+
+- `middleware.ts` — ADR-0502 Sprint 1.2 — confidential-preview gate enforcement. (~895 tok)
+
 ## marketing/src/app/
 
 - `globals.css` — Styles: 92 rules, 27 vars (~15204 tok)
-- `layout.tsx` — dmSans (~513 tok)
+- `layout.tsx` — dmSans (~643 tok)
 - `page.tsx` — metadata (~571 tok)
-- `robots.ts` — Marketing site — fully crawlable. Contrast with admin/src/app/robots.ts, (~95 tok)
+- `robots.ts` — Confidential preview — fully blocked from indexing + AI training. (~452 tok)
 
 ## marketing/src/app/api/contact/
 
 - `route.ts` — Next.js API route: POST (~1792 tok)
+
+## marketing/src/app/api/gate/logout/
+
+- `route.ts` — POST /api/gate/logout — ADR-0502 Sprint 1.2. (~267 tok)
+
+## marketing/src/app/api/gate/request-otp/
+
+- `route.ts` — POST /api/gate/request-otp — ADR-0502 Sprint 1.2. (~1323 tok)
+
+## marketing/src/app/api/gate/verify-otp/
+
+- `route.ts` — POST /api/gate/verify-otp — ADR-0502 Sprint 1.2. (~1848 tok)
 
 ## marketing/src/app/api/internal/send-email/
 
@@ -1747,6 +1765,11 @@
 
 - `page.tsx` — metadata (~470 tok)
 
+## marketing/src/app/gate/
+
+- `gate-form.tsx` — GateForm — renders form (~1940 tok)
+- `page.tsx` — ADR-0502 Sprint 1.3 — gate entry surface. (~336 tok)
+
 ## marketing/src/app/pricing/
 
 - `page.tsx` — metadata (~775 tok)
@@ -1773,7 +1796,8 @@
 
 ## marketing/src/components/
 
-- `footer.tsx` — Footer (~1119 tok)
+- `footer.tsx` — Footer (~1263 tok)
+- `gate-logout.tsx` — GateLogout (~204 tok)
 - `logo.tsx` — Logo (shield icon + "ConsentShield" wordmark) — used by nav and footer. (~483 tok)
 - `nav.tsx` — Nav (~511 tok)
 
@@ -1818,6 +1842,16 @@
 - `env.ts` — Typed access to marketing-site environment variables with safe (~554 tok)
 - `routes.ts` — Shared route definitions for <Nav/> + <Footer/>. (~532 tok)
 
+## marketing/src/lib/gate/
+
+- `allowlist.ts` — For diagnostics only — never expose this. (~220 tok)
+- `cookies.ts` — Marketing site is `consentshield.in` and `www.consentshield.in`; cookie domain `.consentshield.in` c (~394 tok)
+- `jwt.ts` — HS256 sign + verify using Web Crypto. ADR-0502 Sprint 1.1. (~941 tok)
+- `log.ts` — Keep first three octets of v4, first 64 bits of v6 — `feedback_session_fingerprint_server_only`. (~632 tok)
+- `otp.ts` — 6 numeric digits; biased-free uniform draw via crypto.randomInt. (~276 tok)
+- `rate-limit.ts` — Test-only — not exported through index. (~295 tok)
+- `templates.ts` — Resend OTP-email template. ADR-0502 Sprint 1.1. (~769 tok)
+
 ## packages/compliance/
 
 - `package.json` — Node.js package manifest (~54 tok)
@@ -1838,10 +1872,28 @@
 
 ## packages/node-client/
 
-- `package.json` — Node.js package manifest (~356 tok)
-- `README.md` — Project documentation (~800 tok)
-- `tsconfig.json` — TypeScript configuration (~76 tok)
-- `vitest.config.ts` — /*.test.ts'], (~57 tok)
+- `LICENSE.md` — ConsentShield Node Client — License (~349 tok)
+- `package.json` — Node.js package manifest (~479 tok)
+- `README.md` — Project documentation (~1425 tok)
+- `tsconfig.json` — TypeScript configuration (~105 tok)
+- `tsup.config.ts` — ADR-1006 Phase 1 Sprint 1.4 — dual ESM+CJS build for npm publication. (~276 tok)
+- `vitest.config.ts` — /*.test.ts'], (~227 tok)
+
+## packages/node-client/examples/express-verify-middleware/
+
+- `app.ts` — ADR-1006 Phase 1 Sprint 1.4 — Express middleware demo. Run: (~473 tok)
+- `middleware.ts` — ConsentShield property the verify call is scoped to. (~1165 tok)
+- `package.json` — Node.js package manifest (~86 tok)
+- `README.md` — Project documentation (~482 tok)
+
+## packages/node-client/examples/nextjs-mobile-record/
+
+- `package.json` — Node.js package manifest (~98 tok)
+- `README.md` — Project documentation (~396 tok)
+
+## packages/node-client/examples/nextjs-mobile-record/app/api/consent/
+
+- `route.ts` — ADR-1006 Phase 1 Sprint 1.4 — Next.js App Router API route example. (~946 tok)
 
 ## packages/node-client/src/
 
@@ -1865,6 +1917,7 @@
 - `errors.test.ts` — ADR-1006 Phase 1 Sprint 1.1 — error class hierarchy. (~933 tok)
 - `fail-open-callback.test.ts` — ADR-1006 Phase 1 Sprint 1.3 — onFailOpen callback wiring. (~2094 tok)
 - `http.test.ts` — ADR-1006 Phase 1 Sprint 1.1 — HTTP transport behaviour. (~3343 tok)
+- `iterators.test.ts` — ADR-1006 Phase 1 Sprint 1.4 — async-iterator coverage for events / audit / (~2989 tok)
 - `methods.test.ts` — ADR-1006 Phase 1 Sprint 1.3 — record/revoke/artefacts/events/deletion/ (~5145 tok)
 - `verify-batch.test.ts` — ADR-1006 Phase 1 Sprint 1.2 — verifyBatch() compliance behaviour. (~2450 tok)
 - `verify.test.ts` — ADR-1006 Phase 1 Sprint 1.2 — verify() compliance behaviour. (~2769 tok)

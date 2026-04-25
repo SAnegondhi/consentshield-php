@@ -1,6 +1,6 @@
 {
   "name": "@consentshield/node",
-  "version": "1.0.0-alpha.1",
+  "version": "1.0.0",
   "description": "Official Node.js client for the ConsentShield DPDP compliance API. Fail-closed by default; 2-second request timeout; trace-id correlated.",
   "license": "SEE LICENSE IN LICENSE.md",
   "author": "Sudhindra Anegondhi <a.d.sudhindra@gmail.com>",
@@ -23,26 +23,40 @@
     "audit"
   ],
   "type": "module",
-  "main": "./src/index.ts",
-  "types": "./src/index.ts",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
   "exports": {
     ".": {
-      "types": "./src/index.ts",
-      "default": "./src/index.ts"
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.mjs"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
+      }
     }
   },
-  "files": ["src", "README.md", "LICENSE.md"],
+  "sideEffects": false,
+  "files": ["dist", "README.md", "LICENSE.md"],
   "engines": {
     "node": ">=18"
   },
   "scripts": {
+    "build": "tsup",
+    "build:watch": "tsup --watch",
     "test": "vitest run",
     "test:watch": "vitest",
-    "typecheck": "tsc --noEmit"
+    "test:coverage": "vitest run --coverage",
+    "typecheck": "tsc --noEmit",
+    "prepublishOnly": "bun run build && bun run typecheck && bun run test"
   },
   "dependencies": {},
   "devDependencies": {
     "@types/node": "20.19.39",
+    "@vitest/coverage-v8": "4.1.4",
+    "tsup": "8.5.1",
     "typescript": "5.9.3",
     "vitest": "4.1.4"
   }

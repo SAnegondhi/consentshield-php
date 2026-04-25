@@ -1,0 +1,17 @@
+{
+  "name": "consentshield-nextjs-example",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start"
+  },
+  "dependencies": {
+    "@consentshield/node": "workspace:*",
+    "next": "16.2.3",
+    "react": "19.2.5",
+    "react-dom": "19.2.5"
+  }
+}

@@ -2,6 +2,134 @@
 
 Public marketing site (`marketing/` workspace → `consentshield.in`). New in 2026-04-21.
 
+## [ADR-0502 Sprints 1.1–1.3 — confidential-preview email-OTP gate] — 2026-04-25
+
+**ADR:** ADR-0502 — Marketing-site invite gate via email OTP
+**Sprints:** 1.1 (foundation libs) + 1.2 (middleware + API routes) + 1.3 (UI), bundled in one commit per sprint discipline.
+**Wireframe:** `docs/design/marketing-gate-otp-wireframe.md`
+**Pre-context:** marketing-claims review 2026-04-25 Layer 1 (commit `e50a5ab`) shipped robots.txt + document `<meta name="robots">` + `X-Robots-Tag` header — see "Confidential-preview Layer 1" entry below. ADR-0502 is the access-control half (Layer 2) of that two-layer plan. Vercel Password Protection (the immediate alternative) was rejected on cost: $150/mo for the Standard add-on.
+
+### Added
+
+**Foundation libs (`marketing/src/lib/gate/`)**
+- `jwt.ts` — HS256 sign / verify via Web Crypto. Zero npm dep (Rule 16 spirit).
+- `otp.ts` — 6-digit numeric OTP generator + salted SHA-256 hasher + constant-time hex compare.
+- `allowlist.ts` — `MARKETING_GATE_INVITES` env-var parser (case-insensitive, comma-separated, trimmed); cached set.
+- `cookies.ts` — `cs_mkt_gate_pending` (10 min) + `cs_mkt_gate_session` (30 day) names + `Set-Cookie` builders + `.consentshield.in` domain helper.
+- `log.ts` — structured-JSON `console.log` writer for the five `gate.*` events; truncates IP (first 3 v4 octets / first 4 v6 hextets) and UA (64 chars) per `feedback_session_fingerprint_server_only`.
+- `rate-limit.ts` — in-process Map per-IP throttle (3 OTP requests / 5 minutes); promote to Vercel KV listed as V2 backlog in the ADR.
+- `templates.ts` — Resend email template (HTML + plaintext fallback; no images).
+
+**API routes (`marketing/src/app/api/gate/*`)**
+- `request-otp/route.ts` — validates email, rate-limits per IP, allowlist-gated; on hit, issues a signed `cs_mkt_gate_pending` cookie carrying `{ email, otp_hash, salt, attempts_used, exp }` and POSTs to Resend's REST API directly (no `resend` npm dep — matches the existing `/api/internal/send-email` pattern). Always returns 200 with the same generic ack so the gate doesn't enumerate which emails are on the list.
+- `verify-otp/route.ts` — reads pending cookie, recomputes hash with `crypto.timingSafeEqual`, mints `cs_mkt_gate_session` (30-day HS256 JWT) on match. Tracks `attempts_used` in the re-signed pending cookie; 3 wrong attempts invalidate the pending state and force a fresh request. Honours the `?from=<path>` query so verify returns the visitor where they originally tried to go (sanitised to same-origin paths).
+- `logout/route.ts` — clears both cookies, redirects to `/gate`.
+
+**Middleware (`marketing/src/middleware.ts`)**
+- Runs on every request. Whitelist-based: bypass on `/gate*`, `/api/gate/*`, `/_next/*`, `/monitoring`, `/favicon.ico`, `/icon.svg`, `/robots.txt`, `/sitemap.xml`. Anything else demands a valid `cs_mkt_gate_session` cookie or redirects to `/gate?from=<original-pathname-and-search>`. Fails closed when `MARKETING_GATE_SECRET` is unset (every request bounces to `/gate`).
+
+**UI (`marketing/src/app/gate/*`)**
+- `page.tsx` — server component reading `?from=`. Robots metadata explicitly noindex/nofollow.
+- `gate-form.tsx` — client component with two-screen flow: email → OTP → success-redirect. Resend-OTP and use-different-email links on the OTP screen. Auto-focuses the OTP input on screen swap. Per-state errors per the wireframe.
+- `globals.css` — minimal gate styles (.gate-main, .gate-card, .gate-input, .gate-btn, .gate-error, .gate-info, .gate-link) using existing palette tokens.
+
+**Footer integration**
+- `components/footer.tsx` — reads cookies (`async` server component); shows "Sign out of preview" when `cs_mkt_gate_session` is present.
+- `components/gate-logout.tsx` (new) — client component POSTing to `/api/gate/logout`, then `router.replace(redirect)`.
+
+**Env**
+- `marketing/.env.example` — documents `MARKETING_GATE_SECRET` (32-byte hex) + `MARKETING_GATE_INVITES` (comma-separated).
+
+### Logging
+
+Five gate events are logged, each as one line of structured JSON to Vercel logs:
+
+- `gate.middleware.redirect` — outcome `redirect`. Path included; email omitted (no session yet).
+- `gate.otp.requested` — outcome `accepted` | `rate_limited` | `invalid_input`. Email always included for invited path; truncated IP + truncated UA carried.
+- `gate.otp.verified` — outcome `success` | `mismatch` | `expired` | `attempts_exhausted` | `invalid_input`.
+- `gate.session.minted` — outcome `created`; carries `iat` for audit reconstruction.
+- `gate.session.cleared` — outcome `logout`.
+
+Sentry breadcrumbs piggyback on the same events but **never** include the email — only event name + outcome.
+
+### Why
+
+- Vercel Password Protection priced at ~$150/mo for the Standard add-on; not justifiable for a confidential preview gate.
+- Vercel Authentication (team-membership-based) doesn't fit external invitees.
+- Application-level OTP gate matches the existing OTP-over-magic-link pattern (`feedback_otp_over_magic_link`), reuses the already-wired Resend integration, keeps marketing dependency footprint flat (no new npm dep — Web Crypto + native `node:crypto` only), and gives proper per-invitee revocation.
+
+### Architecture changes
+
+- First middleware on the marketing project; previously every request was unconditionally allowed. Default is now "gated" — fail-closed.
+- All marketing routes shift from prerendered `○ Static` to dynamic `ƒ` because the Footer reads cookies at request time. Acceptable: the gated site is small and can't be CDN-cached anyway (per-user cookie state).
+- Marketing site no longer exposes the home page anonymously. SEO previously affected by Layer 1 (noindex / X-Robots-Tag) is now layered with access control.
+
+### Tested
+
+- [x] `cd marketing && bun run build` — clean. `/gate` listed under build manifest as a dynamic route. Middleware reported as `ƒ Proxy (Middleware)`. PASS.
+- [x] Unit-test plan for jwt / otp / allowlist documented in the ADR; integration tests for the API routes deferred to Sprint 1.5 (post-deploy).
+- [x] Wireframe authored at `docs/design/marketing-gate-otp-wireframe.md` per `feedback_wireframes_before_adrs`.
+- [ ] Sprint 1.4 — operator runs `openssl rand -hex 32` and seeds `MARKETING_GATE_SECRET` + `MARKETING_GATE_INVITES` on production + preview via `bunx vercel@39 env add` per `reference_vercel_setup.md`. First-pass smoke after the env-vars land.
+
+### Pre-release blocker resolution
+
+This ADR closes Layer 2 of the confidential-preview gate. Combined with Layer 1 (e50a5ab — robots / noindex / X-Robots-Tag), `consentshield.in` is now both unindexable and access-controlled. No external sharing of the URL until Sprint 1.4's env-var seeding completes and the founder runs the first-pass smoke.
+
+---
+
+## [Confidential-preview Layer 1 — robots / noindex / X-Robots-Tag] — 2026-04-25
+
+**Commit:** `e50a5ab`
+**Pre-ADR:** companion of ADR-0502 (this commit predates the ADR file by ~1h; ADR-0502 captures both layers retroactively in its context).
+
+### Changed
+
+- `marketing/src/app/robots.ts` — site-wide `Disallow: /` for `*` plus 24 explicit AI-trainer / search User-agents (GPTBot, ChatGPT-User, OAI-SearchBot, ClaudeBot, Claude-Web, anthropic-ai, CCBot, Google-Extended, Applebot-Extended, PerplexityBot, Perplexity-User, Bytespider, cohere-ai, Diffbot, FacebookBot, Meta-ExternalAgent, Meta-ExternalFetcher, YouBot, Amazonbot, omgili, omgilibot, PetalBot, Timpibot, ImagesiftBot). Sitemap reference removed.
+- `marketing/src/app/layout.tsx` — `Metadata.robots = { index: false, follow: false, nocache: true, googleBot: { ... noimageindex, max-snippet -1, max-image-preview none } }`. Document-level `<meta name="robots">` ships on every page.
+- `marketing/next.config.ts` — adds `X-Robots-Tag: noindex, nofollow, noarchive, nosnippet, noimageindex, noai, noimageai` HTTP header on every route.
+
+### Why
+
+The marketing site is now a confidential preview. Layer 1 keeps it out of search-engine indexes and AI training corpora; Layer 2 (ADR-0502) gates access to invited prospects.
+
+---
+
+## [Marketing-claims-vs-reality review FIX-COPY pass] — 2026-04-25
+
+**Review:** `docs/reviews/2026-04-25-marketing-claims-vs-reality-review.md`
+**Commit:** `5392e5b` — 17 files, 543 insertions / 44 deletions
+**Scope:** rewrites of marketing claims that did not match the shipped code at `ae48a96`, per founder decisions on each of the 22 review issues.
+
+### Changed
+
+- Trial duration corrected to 30 days (matches the 30-day RPC default in `supabase/migrations/20260429000001_rbac_memberships.sql:283`) — pricing CTA, signup page, signup form, docs callout link.
+- `/v1/*` endpoint count removed from docs hub + status page; grouping list widened to include `rights` and `security` (was undercounting at 15; actual 21 routes).
+- "DPB-formatted" → "DPB-ready" everywhere; cookbook page adds a no-DPB-spec-yet clarification + default-storage vs BYOS footnote.
+- DEPA positioning rewritten with verifiable feature names (BFSI Regulatory Exemption Engine + statute citations RBI KYC, PMLA, SEBI LODR, CICRA, IRDAI) + public-ADR commitment ("Architecture and ADR record published in our public repo"). Comparative-negative wording removed across DEPA page, hero, moat, home meta description.
+- Contrast section reframed from "every other DPDP tool in India" to a category descriptor (documentation tool vs enforcement engine).
+- Forward commitments visible on public surfaces — DPO marketplace + sandbox-based consent probes carry "Proposed · Q3/Q4 2026" pills; white-label + custom domains marked "(phased rollout — ADR-0800 series)" / "(phased — ADR-0800)" on preview + table.
+- Solutions BFSI tab + Product LAYER_4 upgraded from dual to triple breach (DPB 72h + RBI 6h + SEBI 6h) with statute citations.
+- Sector-templates count corrected to **five** verticals; ADR-1100 series referenced.
+- Story 02 honest two-step framing pending unified deletion dispatcher (ADR-0023).
+- Solutions BFSI stat upgraded from "First — India-native Regulatory Exemption Engine" to "5+ — Statutes mapped (RBI KYC, PMLA, SEBI LODR, CICRA, IRDAI)".
+
+### Why
+
+- Sophisticated DPDP buyers can name MeitY Top 6 contenders and dismiss CS in a 30-second comparison if exclusivity claims survive (per the competitive briefing §9.1 prescription).
+- Marketing-vs-code drift on the trial duration, endpoint count, DPB-format wording, and DPB-export manifest sections was self-correcting once measured against `ae48a96`.
+- Forward commitments now carry **dated public pills** rather than silent "coming soon" so the commitment is visible to procurement and the rewrite never quietly changes meaning later.
+
+### Tested
+
+- [x] `cd marketing && bun run build` — clean.
+- [x] grep sweep for residual exclusivity language — empty result set.
+
+### Pending
+
+- ADR-index updates and new-ADR-series scaffolding deferred pending two open conflicts surfaced during the changelog pass: (1) range collisions between the review's `0500/0600/0700/0800/0900/1100/1200/1300` and the existing `0501+` marketing band + `1001+` v2-whitepaper band; (2) Issue 18's Better Stack decision contradicts the already-shipped self-hosted status page (ADR-1018, Completed 2026-04-23). Both items need the founder's call before the ADR-index can be amended; tracked in `docs/reviews/2026-04-25-marketing-claims-vs-reality-review.md` under a "Pending corrections" trailer to be appended.
+
+---
+
 ## [ADR-1014 Sprint 4.4 — /docs/test-verification/mutation-testing partner-readable explainer] — 2026-04-25
 
 **ADR:** ADR-1014 — End-to-end test harness + vertical demo sites

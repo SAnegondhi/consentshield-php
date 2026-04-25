@@ -1,0 +1,16 @@
+{
+  "name": "consentshield-express-example",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "bun app.ts"
+  },
+  "dependencies": {
+    "@consentshield/node": "workspace:*",
+    "express": "5.1.0"
+  },
+  "devDependencies": {
+    "@types/express": "5.0.0"
+  }
+}
