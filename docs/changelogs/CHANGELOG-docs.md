@@ -2,6 +2,23 @@
 
 Documentation changes.
 
+## [ADR-1003 Sprint 4.1 — Healthcare onboarding + operator runbook] — 2026-04-25
+
+**ADR:** ADR-1003 — Processor Posture + Healthcare Category Unlock
+**Sprint:** Phase 4, Sprint 4.1
+
+### Added
+- `docs/customer-docs/healthcare-onboarding.md` — customer onboarding guide for clinics, hospitals, diagnostic centres, pharmacies and telemedicine providers. Two parallel flows: (A) single-doctor clinic (~15 min, 7 steps from storage-mode flip through banner publish) and (B) multi-doctor practice / hospital (~45 min, adds tenancy decision, per-department connector wiring, RBAC baseline for account_owner / org_admin / admin / viewer tiers, ABDM HIE bridge placeholder). Covers the two-step admin/customer dance the ADR-1003 Sprint 4.1 gate enforces (admin flips storage_mode → customer applies template), BYOS bucket provisioning pointer, purpose-level retention defaults table (7y DISHA on clinical records, 5y ICMR on research, 1-2y on consent-only), operational realities of zero_storage mode for healthcare (no buffer-side replay, export-from-customer-bucket, audit-reconstruction responsibility), and a troubleshooting section keyed to the P0004 error message and common connector-mapping omissions.
+- `docs/runbooks/adr-1003-phase-1-operator-actions.md` — one-shot operator runbook for the ADR-1003 Phase 1 close-out: Vault seed SQL (idempotent `vault.create_secret` for `cs_storage_mode_sync_url` + `cs_deliver_events_url`), Worker wrangler secret commands (`WORKER_BRIDGE_SECRET` + `ZERO_STORAGE_BRIDGE_URL`), Vercel env-var commands (`WORKER_BRIDGE_SECRET` across three environments + `SUPABASE_CS_DELIVERY_DATABASE_URL`), mirror into `app/.env.local`, and five smoke tests (storage-mode KV sync, Mode A invariant, Mode B invariant against `POST /v1/consent/record`, hot-row TTL refresh, integration suite with `--reporter=verbose` to defeat the silent Mode B skip). Per-step rollback path at the foot.
+
+### Rationale
+Sprint 4.1 is the first ConsentShield template to carry a mandatory storage-mode gate, so the customer-facing doc has to tell the account_owner they cannot self-serve the full flow — they need the operator to flip storage_mode first. The operator runbook closes the loop on Phase 1 Vault + env-var seeding that prior ADR-1003 sprints deferred.
+
+### Tested
+- Static review against the ADR-1003 §Phase 4 acceptance criteria + the `apply_sectoral_template` P0004 error message shape.
+- Walk-through against the seed migration (`20260804000056`) to confirm the 7-purpose retention table matches the migration jsonb payload.
+- Live operator-side verification of the runbook commands is deferred to the operator (Vault SQL editor + wrangler/vercel CLI sessions).
+
 ## [ADR-1003 Sprint 2.2 — BYOS customer docs + Standard→Insulated runbook] — 2026-04-24
 
 **ADR:** ADR-1003 — Processor Posture + Healthcare Category Unlock

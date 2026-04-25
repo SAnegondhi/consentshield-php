@@ -254,20 +254,31 @@ Also closes the secondary gap flagged in Terminal A's handoff: the Sprint 1.3 br
 **Estimated effort:** 2 days
 
 **Deliverables:**
-- [ ] Migration `<date>_healthcare_template_seed.sql` adding a `healthcare` row to `admin.sectoral_templates` with:
+- [x] Migration `20260804000056_adr1003_s41_healthcare_template_seed.sql` adding a `healthcare` row to `admin.sectoral_templates` with:
   - Purposes: `teleconsultation`, `prescription_dispensing`, `lab_report_access`, `insurance_claim_share_abdm`, `appointment_reminders`, `marketing`, `research_broad_consent`
   - Data scopes per purpose (labels only — no content values per Security Rule 3)
-  - Retention rules: DISHA 7 years for clinical records; Clinical Establishments Act per-state placeholder
-  - `storage_mode='zero_storage'` default for orgs applying this template
-  - Connector-mapping defaults (appointment reminder vendor placeholder; EMR vendor placeholder)
-- [ ] Admin templates panel (ADR-0030) now shows BFSI + Healthcare as Published
-- [ ] `docs/customer-docs/healthcare-onboarding.md` — single-doctor clinic flow, multi-doctor practice flow
+  - Retention rules: DISHA 7 years for clinical records (2555-day default on `teleconsultation`/`lab_report_access`); ICMR 5 years on `research_broad_consent`; 1-2 year defaults on consent-only purposes
+  - `default_storage_mode='zero_storage'` (new column on `admin.sectoral_templates`) gate enforced at apply time
+  - `connector_defaults` (new jsonb column) carries `appointment_reminder_vendor` (messaging) + `emr_vendor` (EMR) placeholders for the admin templates panel
+- [x] `public.apply_sectoral_template` re-published with the storage_mode gate (raises SQLSTATE `P0004` when the org's storage_mode does not match the template's `default_storage_mode`). BFSI Starter (default_storage_mode NULL) unaffected.
+- [x] Admin templates panel (ADR-0030) detail page surfaces `default_storage_mode` pill and `connector_defaults` section. List page already auto-includes published Healthcare row. BFSI + Healthcare both show as Published.
+- [x] `docs/customer-docs/healthcare-onboarding.md` — single-doctor clinic flow + multi-doctor practice/hospital flow + zero-storage operational realities.
 
 **Testing plan:**
-- [ ] Apply Healthcare template to a fresh sandbox org → 7 purposes seeded, retention rules populated, storage_mode set
-- [ ] Attempting to apply Healthcare template to an Standard-mode org raises a warning requiring explicit operator override (Security Rule 3 is non-negotiable for FHIR)
+- [x] Integration test `tests/integration/healthcare-template.test.ts`:
+  - Asserts seeded row shape (7 purposes by code, `default_storage_mode='zero_storage'`, `connector_defaults` for both vendor slots).
+  - Apply to a zero_storage test org → succeeds; `materialised_count=7`; `purpose_definitions` rows materialised under that org_id.
+  - Apply to a standard test org → `error.code='P0004'`; message names both `storage_mode=zero_storage` (required) and `standard` (actual); zero `purpose_definitions` rows written.
 
-**Status:** `[ ] planned`
+**Status:** `[x] complete`
+
+### Architecture Changes (Sprint 4.1)
+
+- `admin.sectoral_templates` gains two columns:
+  - `default_storage_mode text` — nullable; `check (default_storage_mode in ('standard','insulated','zero_storage'))`. When non-null, `apply_sectoral_template` enforces a strict equality match against the org's current `organisations.storage_mode` and refuses with errcode P0004 otherwise.
+  - `connector_defaults jsonb` — nullable; informational vendor-category metadata for the admin templates panel. Not referenced by `purpose_connector_mappings`.
+- `public.apply_sectoral_template(p_template_code text)` signature unchanged. Body adds the storage_mode pre-flight check; return payload gains `storage_mode` (nullable string).
+- Customer-side template apply cannot flip storage_mode. The single write surface for `organisations.storage_mode` remains `admin.set_organisation_storage_mode` (ADR-1003 Sprint 1.1). Healthcare onboarding is therefore a two-step admin/customer dance: admin flips mode → customer applies template.
 
 ### Phase 5: Sandbox org provisioning (G-046)
 

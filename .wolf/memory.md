@@ -5375,3 +5375,18 @@
 | 06:52 | Edited docs/ADRs/ADR-index.md | inline fix | ~193 |
 | 06:52 | Session end: 21 writes across 12 files (vitest.config.ts, hmac.test.ts, origin.test.ts, package.json, stryker.conf.mjs) | 18 reads | ~57928 tok |
 | 06:54 | Edited docs/changelogs/CHANGELOG-worker.md | added 1 condition(s) | ~1348 |
+| 06:55 | Created tests/integration/healthcare-template.test.ts | — | ~1561 |
+| 06:55 | Session end: 23 writes across 14 files (vitest.config.ts, hmac.test.ts, origin.test.ts, package.json, stryker.conf.mjs) | 21 reads | ~70327 tok |
+| 07:01 | Edited docs/ADRs/ADR-1003-processor-posture-and-healthcare-unlock.md | expanded (+11 lines) | ~823 |
+| 07:02 | Edited docs/changelogs/CHANGELOG-schema.md | modified pre() | ~940 |
+| 07:03 | Created docs/reviews/2026-04-25-marketing-claims-vs-reality-review.md | — | ~315 |
+| 07:03 | Session end: 26 writes across 17 files (vitest.config.ts, hmac.test.ts, origin.test.ts, package.json, stryker.conf.mjs) | 27 reads | ~154681 tok |
+| 07:04 | Edited app/package.json | 3→4 lines | ~37 |
+| 07:04 | Edited app/package.json | 2→5 lines | ~57 |
+| 07:05 | Created app/stryker.delivery.conf.mjs | — | ~757 |
+| 07:05 | Edited .gitignore | 5→8 lines | ~52 |
+| 07:05 | Edited docs/reviews/2026-04-25-marketing-claims-vs-reality-review.md | modified Claim() | ~581 |
+| 07:05 | Created app/tsconfig.stryker.json | — | ~102 |
+| 07:05 | Edited app/stryker.delivery.conf.mjs | expanded (+8 lines) | ~159 |
+| 07:06 | Session end: 33 writes across 19 files (vitest.config.ts, hmac.test.ts, origin.test.ts, package.json, stryker.conf.mjs) | 31 reads | ~172041 tok |
+| 07:06 | Edited docs/changelogs/CHANGELOG-docs.md | expanded (+17 lines) | ~753 |

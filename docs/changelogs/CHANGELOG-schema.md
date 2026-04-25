@@ -2,6 +2,30 @@
 
 Database migrations, RLS policies, roles.
 
+## [ADR-1003 Sprint 4.1 — Healthcare Starter sectoral template] — 2026-04-25
+
+**ADR:** ADR-1003 — Processor Posture + Healthcare Category Unlock
+**Sprint:** Phase 4, Sprint 4.1
+**Migration:** `20260804000056_adr1003_s41_healthcare_template_seed.sql`
+
+### Added
+- `admin.sectoral_templates.default_storage_mode text` (nullable; check constraint `('standard','insulated','zero_storage')`). When non-null, gates `public.apply_sectoral_template`: the org's `organisations.storage_mode` must already match. NULL preserves prior mode-agnostic behaviour for BFSI Starter.
+- `admin.sectoral_templates.connector_defaults jsonb` (nullable). Vendor-category placeholders the admin templates panel surfaces ("you'll need to wire these connectors"). Pure metadata; not referenced by `purpose_connector_mappings`.
+- New seed row in `admin.sectoral_templates`: `template_code='healthcare_starter'`, `sector='healthcare'`, `version=1`, `status='published'`, `default_storage_mode='zero_storage'`, 7 DPDP/DISHA/ABDM/ICMR-aligned purposes (`teleconsultation`, `prescription_dispensing`, `lab_report_access`, `insurance_claim_share_abdm`, `appointment_reminders`, `marketing`, `research_broad_consent`), `connector_defaults` for `appointment_reminder_vendor` (messaging) + `emr_vendor` (EMR). Retention defaults: 7y (DISHA) on clinical-record purposes, 5y (ICMR) on research, 1-2y on consent-only purposes.
+
+### Changed
+- `public.apply_sectoral_template(p_template_code text)` re-published. New top-of-function pre-flight: when `template.default_storage_mode is not null`, fetches `organisations.storage_mode` and raises `template % requires storage_mode=% but this org is %; ask your admin to switch storage mode first` with errcode `P0004` if they don't match. Customer-side apply cannot flip storage_mode — only `admin.set_organisation_storage_mode` can. Return payload now includes `storage_mode` (nullable). BFSI Starter (default_storage_mode NULL) and existing callers unaffected.
+
+### Consequences
+- Healthcare onboarding is now a two-step admin/customer dance: operator flips `organisations.storage_mode` to `zero_storage` via the admin console first; then the account-owner applies the `healthcare_starter` template through the customer app. Security Rule 3 (FHIR / clinical content is never persisted) is enforced structurally — the template cannot apply against a standard or insulated org.
+- The `connector_defaults` jsonb is informational and the admin templates detail page renders a dedicated section; actual deletion-connector wiring still happens per-org under `purpose_connector_mappings`.
+- BFSI Starter remains the only mode-agnostic published template; future sector packs that touch sensitive data plane (e.g. healthcare, defence, biometric) should set `default_storage_mode` explicitly.
+
+### Tested
+- Integration — `tests/integration/healthcare-template.test.ts` — three cases: (1) seeded row shape (7 purposes, default_storage_mode='zero_storage', connector_defaults populated), (2) apply against zero_storage org → materialises 7 purpose_definitions rows, return payload `storage_mode='zero_storage'`, (3) apply against standard org → `error.code='P0004'` with mode names in message + zero rows materialised.
+- Local `cd app && bun run lint && bun run build` — clean. `cd admin && bun run lint && bun run build` — clean.
+- Live: migration 56 pushed (`bunx supabase db push`).
+
 ## [ADR-1003 Sprint 1.4 — rpc_consent_record storage_mode fence] — 2026-04-25
 
 **ADR:** ADR-1003 — Processor Posture + Healthcare Category Unlock

@@ -21,6 +21,14 @@ interface Purpose {
   [k: string]: unknown
 }
 
+type StorageMode = 'standard' | 'insulated' | 'zero_storage'
+
+interface ConnectorDefault {
+  category?: string
+  examples?: string[]
+  rationale?: string
+}
+
 interface Template {
   id: string
   template_code: string
@@ -31,6 +39,8 @@ interface Template {
   status: 'draft' | 'published' | 'deprecated'
   purpose_definitions: Purpose[] | Record<string, unknown>
   notes: string | null
+  default_storage_mode: StorageMode | null
+  connector_defaults: Record<string, ConnectorDefault> | null
   created_at: string
   created_by: string
   published_at: string | null
@@ -51,7 +61,7 @@ export default async function TemplateDetailPage({ params }: PageProps) {
     .schema('admin')
     .from('sectoral_templates')
     .select(
-      'id, template_code, display_name, description, sector, version, status, purpose_definitions, notes, created_at, created_by, published_at, published_by, deprecated_at, superseded_by_id',
+      'id, template_code, display_name, description, sector, version, status, purpose_definitions, notes, default_storage_mode, connector_defaults, created_at, created_by, published_at, published_by, deprecated_at, superseded_by_id',
     )
     .eq('id', templateId)
     .maybeSingle()
@@ -125,7 +135,12 @@ export default async function TemplateDetailPage({ params }: PageProps) {
             {template.template_code} · {template.sector}
           </p>
         </div>
-        <StatusPill status={template.status} />
+        <div className="flex items-center gap-2">
+          {template.default_storage_mode ? (
+            <StorageModePill mode={template.default_storage_mode} />
+          ) : null}
+          <StatusPill status={template.status} />
+        </div>
       </header>
 
       <section className="rounded-md border border-[color:var(--border)] bg-white p-4 shadow-sm">
@@ -248,6 +263,41 @@ export default async function TemplateDetailPage({ params }: PageProps) {
         </footer>
       </section>
 
+      {template.connector_defaults &&
+      Object.keys(template.connector_defaults).length > 0 ? (
+        <section className="rounded-md border border-[color:var(--border)] bg-white shadow-sm">
+          <header className="border-b border-[color:var(--border)] p-4">
+            <h2 className="text-sm font-semibold">
+              Connector defaults
+              <span className="ml-2 text-xs font-normal text-text-3">
+                informational — wire actual connectors per-org under Settings → Integrations
+              </span>
+            </h2>
+          </header>
+          <div className="divide-y divide-[color:var(--border)]">
+            {Object.entries(template.connector_defaults).map(([slot, value]) => (
+              <div key={slot} className="p-4 text-sm">
+                <p className="font-mono text-xs text-text-3">{slot}</p>
+                <p className="mt-1">
+                  <span className="text-xs uppercase tracking-wider text-text-3">
+                    Category:
+                  </span>{' '}
+                  <span className="text-text-2">{value.category ?? '—'}</span>
+                </p>
+                {value.examples && value.examples.length > 0 ? (
+                  <p className="mt-1 text-xs text-text-2">
+                    Examples: {value.examples.join(', ')}
+                  </p>
+                ) : null}
+                {value.rationale ? (
+                  <p className="mt-2 text-xs text-text-3">{value.rationale}</p>
+                ) : null}
+              </div>
+            ))}
+          </div>
+        </section>
+      ) : null}
+
       <section className="rounded-md border border-[color:var(--border)] bg-white p-4 shadow-sm">
         <h2 className="mb-3 text-sm font-semibold">Actions</h2>
         <TemplateDetailActions
@@ -257,6 +307,23 @@ export default async function TemplateDetailPage({ params }: PageProps) {
         />
       </section>
     </div>
+  )
+}
+
+function StorageModePill({ mode }: { mode: StorageMode }) {
+  const tone =
+    mode === 'zero_storage'
+      ? 'bg-purple-100 text-purple-800'
+      : mode === 'insulated'
+        ? 'bg-blue-100 text-blue-800'
+        : 'bg-[color:var(--border)] text-text-2'
+  return (
+    <span
+      className={`rounded-full px-3 py-1 text-xs font-medium ${tone}`}
+      title="Default storage_mode required for orgs applying this template"
+    >
+      {mode}
+    </span>
   )
 }
 

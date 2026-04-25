@@ -1,7 +1,7 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-04-25T01:24:04.367Z
-> Files: 1434 tracked | Anatomy hits: 0 | Misses: 0
+> Auto-maintained by OpenWolf. Last scanned: 2026-04-25T01:36:21.964Z
+> Files: 1438 tracked | Anatomy hits: 0 | Misses: 0
 
 ## ../../../../../tmp/
 
@@ -229,7 +229,7 @@
 
 ## ./
 
-- `.gitignore` — Git ignore rules (~321 tok)
+- `.gitignore` — Git ignore rules (~336 tok)
 - `.prettierrc` (~29 tok)
 - `.secrets` — Supabase (~972 tok)
 - `CLAUDE.md` — OpenWolf (~6199 tok)
@@ -656,8 +656,10 @@
 ## app/
 
 - `next.config.ts` — Declares NOINDEX_VALUE (~148 tok)
-- `package.json` — Node.js package manifest (~364 tok)
+- `package.json` — Node.js package manifest (~424 tok)
+- `stryker.delivery.conf.mjs` — ADR-1014 Phase 4 Sprint 4.2 — Stryker mutation testing for the (~900 tok)
 - `tsconfig.json` — TypeScript configuration (~117 tok)
+- `tsconfig.stryker.json` (~102 tok)
 - `vercel.json` (~33 tok)
 
 ## app/public/
@@ -1390,7 +1392,7 @@
 - `ADR-0501-marketing-site-scaffold.md` — ADR-0501 — ConsentShield marketing site (`marketing/`) (~6079 tok)
 - `ADR-1001-truth-in-marketing-and-public-api-foundation.md` — ADR-1001: Truth-in-Marketing + Public API Foundation (~5650 tok)
 - `ADR-1002-dpdp-section6-runtime-enforcement.md` — ADR-1002: DPDP §6 Runtime Enforcement — Verify, Record, Artefact Ops, Deletion API (~7030 tok)
-- `ADR-1003-processor-posture-and-healthcare-unlock.md` — ADR-1003: Processor Posture + Healthcare Category Unlock (~8293 tok)
+- `ADR-1003-processor-posture-and-healthcare-unlock.md` — ADR-1003: Processor Posture + Healthcare Category Unlock (~8766 tok)
 - `ADR-1004-statutory-retention-material-change-silent-failure.md` — ADR-1004: Statutory Retention + Material-Change Re-consent + Silent-Failure Detection (~7531 tok)
 - `ADR-1005-operations-maturity.md` — ADR-1005: Operations Maturity — Webhook Reference, Support Model, Status Page, Multi-channel Alerts, (~7076 tok)
 - `ADR-1006-developer-experience-and-openapi.md` — ADR-1006: Developer Experience — Client Libraries + OpenAPI Spec + CI Drift Check (~2658 tok)
@@ -1441,11 +1443,11 @@
 
 - `CHANGELOG-api.md` — Changelog — API (~36369 tok)
 - `CHANGELOG-dashboard.md` — Changelog — Dashboard (~28074 tok)
-- `CHANGELOG-docs.md` — Changelog — Documentation (~13030 tok)
+- `CHANGELOG-docs.md` — Changelog — Documentation (~13701 tok)
 - `CHANGELOG-edge-functions.md` — Changelog — Edge Functions (~4251 tok)
 - `CHANGELOG-infra.md` — Changelog — Infrastructure (~23450 tok)
 - `CHANGELOG-marketing.md` — Changelog — Marketing (~14515 tok)
-- `CHANGELOG-schema.md` — Changelog — Schema (~52508 tok)
+- `CHANGELOG-schema.md` — Changelog — Schema (~53354 tok)
 - `CHANGELOG-worker.md` — Changelog — Worker (~7257 tok)
 
 ## docs/customer-docs/
@@ -1514,6 +1516,7 @@
 - `2026-04-18-comprehensive-project-review.md` — ConsentShield — Comprehensive Review as of 2026-04-18 (~3553 tok)
 - `2026-04-20-api-key-security-review.md` — Security Review — API Key Surface (ADR-1001 Sprint 3.1) (~1833 tok)
 - `2026-04-21-v1-api-gap-audit.md` — v1 API Gap Audit — 2026-04-21 (~2913 tok)
+- `2026-04-25-marketing-claims-vs-reality-review.md` — Marketing claims vs. reality review (~806 tok)
 
 ## docs/runbooks/
 
@@ -2583,6 +2586,7 @@
 - `deletion-api.test.ts` — ADR-1002 Sprint 4.1 — deletion trigger + receipts list integration tests. (~3698 tok)
 - `deletion-receipt-confirm.test.ts` — ADR-1014 Phase 3 Sprint 3.4 — deletion-receipt callback RPC + overdue test. (~3720 tok)
 - `discovery.test.ts` — ADR-1012 Sprint 1.2 — /v1/purposes and /v1/properties integration tests. (~1743 tok)
+- `healthcare-template.test.ts` — ADR-1003 Sprint 4.1 — Healthcare Starter sectoral template. (~1561 tok)
 - `introspection.test.ts` — ADR-1012 Sprint 1.1 — /v1/keys/self and /v1/usage integration tests. (~1137 tok)
 - `mrs-sharma.e2e.test.ts` — ADR-1002 Sprint 5.1 — Mrs. Sharma end-to-end scenario. (~3488 tok)
 - `notices-replaced-by.test.ts` — Declares TestOrg (~2319 tok)

@@ -28,7 +28,7 @@
       "first_read": "2026-04-25T01:15:19.940Z"
     },
     "/Users/sudhindra/projects/aiSpirit/consent-sheild/docs/ADRs/ADR-1003-processor-posture-and-healthcare-unlock.md": {
-      "count": 1,
+      "count": 2,
       "tokens": 8293,
       "first_read": "2026-04-25T01:16:47.332Z"
     },
@@ -101,6 +101,61 @@
       "count": 1,
       "tokens": 1784,
       "first_read": "2026-04-25T01:24:27.888Z"
+    },
+    "/Users/sudhindra/projects/aiSpirit/consent-sheild/tests/rls/helpers.ts": {
+      "count": 1,
+      "tokens": 1585,
+      "first_read": "2026-04-25T01:24:37.433Z"
+    },
+    "/Users/sudhindra/projects/aiSpirit/consent-sheild/app/src/lib/delivery/canonical-json.ts": {
+      "count": 1,
+      "tokens": 533,
+      "first_read": "2026-04-25T01:31:31.410Z"
+    },
+    "/Users/sudhindra/projects/aiSpirit/consent-sheild/app/src/lib/delivery/object-key.ts": {
+      "count": 1,
+      "tokens": 478,
+      "first_read": "2026-04-25T01:31:35.091Z"
+    },
+    "/Users/sudhindra/projects/aiSpirit/consent-sheild/app/src/lib/delivery/deliver-events.ts": {
+      "count": 3,
+      "tokens": 4127,
+      "first_read": "2026-04-25T01:31:38.364Z"
+    },
+    "/Users/sudhindra/projects/aiSpirit/consent-sheild/docs/changelogs/CHANGELOG-schema.md": {
+      "count": 1,
+      "tokens": 52508,
+      "first_read": "2026-04-25T01:31:54.569Z"
+    },
+    "/Users/sudhindra/projects/aiSpirit/consent-sheild/app/src/lib/storage/sigv4.ts": {
+      "count": 2,
+      "tokens": 3802,
+      "first_read": "2026-04-25T01:32:06.017Z"
+    },
+    "/Users/sudhindra/projects/aiSpirit/consent-sheild/docs/ADRs/ADR-1014-e2e-test-harness-and-vertical-demos.md": {
+      "count": 2,
+      "tokens": 20680,
+      "first_read": "2026-04-25T01:33:19.374Z"
+    },
+    "/Users/sudhindra/projects/aiSpirit/consent-sheild/app/tests/storage/sigv4.test.ts": {
+      "count": 1,
+      "tokens": 2033,
+      "first_read": "2026-04-25T01:34:21.273Z"
+    },
+    "/Users/sudhindra/projects/aiSpirit/consent-sheild/app/package.json": {
+      "count": 1,
+      "tokens": 236,
+      "first_read": "2026-04-25T01:34:32.041Z"
+    },
+    "/Users/sudhindra/projects/aiSpirit/consent-sheild/app/tsconfig.json": {
+      "count": 1,
+      "tokens": 206,
+      "first_read": "2026-04-25T01:35:41.639Z"
+    },
+    "/Users/sudhindra/projects/aiSpirit/consent-sheild/docs/changelogs/CHANGELOG-docs.md": {
+      "count": 1,
+      "tokens": 13030,
+      "first_read": "2026-04-25T01:35:54.871Z"
     }
   },
   "files_written": [
@@ -235,6 +290,78 @@
       "action": "edit",
       "tokens": 1444,
       "at": "2026-04-25T01:24:04.376Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/tests/integration/healthcare-template.test.ts",
+      "action": "create",
+      "tokens": 1561,
+      "at": "2026-04-25T01:25:12.937Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/docs/ADRs/ADR-1003-processor-posture-and-healthcare-unlock.md",
+      "action": "edit",
+      "tokens": 881,
+      "at": "2026-04-25T01:31:50.208Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/docs/changelogs/CHANGELOG-schema.md",
+      "action": "edit",
+      "tokens": 1008,
+      "at": "2026-04-25T01:32:23.205Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/docs/reviews/2026-04-25-marketing-claims-vs-reality-review.md",
+      "action": "create",
+      "tokens": 337,
+      "at": "2026-04-25T01:33:09.859Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/app/package.json",
+      "action": "edit",
+      "tokens": 37,
+      "at": "2026-04-25T01:34:36.840Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/app/package.json",
+      "action": "edit",
+      "tokens": 57,
+      "at": "2026-04-25T01:34:41.352Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/app/stryker.delivery.conf.mjs",
+      "action": "create",
+      "tokens": 811,
+      "at": "2026-04-25T01:35:03.482Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/.gitignore",
+      "action": "edit",
+      "tokens": 55,
+      "at": "2026-04-25T01:35:09.071Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/docs/reviews/2026-04-25-marketing-claims-vs-reality-review.md",
+      "action": "edit",
+      "tokens": 622,
+      "at": "2026-04-25T01:35:45.308Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/app/tsconfig.stryker.json",
+      "action": "create",
+      "tokens": 102,
+      "at": "2026-04-25T01:35:47.278Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/app/stryker.delivery.conf.mjs",
+      "action": "edit",
+      "tokens": 171,
+      "at": "2026-04-25T01:35:56.060Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/docs/changelogs/CHANGELOG-docs.md",
+      "action": "edit",
+      "tokens": 806,
+      "at": "2026-04-25T01:36:21.973Z"
     }
   ],
   "edit_counts": {
@@ -243,18 +370,26 @@
     "worker/tests/origin.test.ts": 2,
     "worker/package.json": 1,
     "worker/stryker.conf.mjs": 3,
-    ".gitignore": 1,
+    ".gitignore": 2,
     "docs/runbooks/adr-1003-phase-1-operator-actions.md": 1,
     "supabase/migrations/20260804000056_adr1003_s41_healthcare_template_seed.sql": 1,
     "docs/ADRs/ADR-1014-e2e-test-harness-and-vertical-demos.md": 2,
     "docs/customer-docs/healthcare-onboarding.md": 1,
     "admin/src/app/(operator)/templates/[templateId]/page.tsx": 5,
     "docs/ADRs/ADR-index.md": 1,
-    "docs/changelogs/CHANGELOG-worker.md": 1
+    "docs/changelogs/CHANGELOG-worker.md": 1,
+    "tests/integration/healthcare-template.test.ts": 1,
+    "docs/ADRs/ADR-1003-processor-posture-and-healthcare-unlock.md": 1,
+    "docs/changelogs/CHANGELOG-schema.md": 1,
+    "docs/reviews/2026-04-25-marketing-claims-vs-reality-review.md": 2,
+    "app/package.json": 2,
+    "app/stryker.delivery.conf.mjs": 2,
+    "app/tsconfig.stryker.json": 1,
+    "docs/changelogs/CHANGELOG-docs.md": 1
   },
-  "anatomy_hits": 18,
+  "anatomy_hits": 29,
   "anatomy_misses": 2,
-  "repeated_reads_warned": 0,
+  "repeated_reads_warned": 5,
   "cerebrum_warnings": 0,
-  "stop_count": 2
+  "stop_count": 5
 }
