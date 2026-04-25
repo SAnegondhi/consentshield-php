@@ -1,6 +1,6 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-04-25T03:49:45.976Z
+> Auto-maintained by OpenWolf. Last scanned: 2026-04-25T03:51:52.155Z
 > Files: 1470 tracked | Anatomy hits: 0 | Misses: 0
 
 ## ../../../../../tmp/
@@ -1414,7 +1414,7 @@
 - `ADR-1003-processor-posture-and-healthcare-unlock.md` — ADR-1003: Processor Posture + Healthcare Category Unlock (~9756 tok)
 - `ADR-1004-statutory-retention-material-change-silent-failure.md` — ADR-1004: Statutory Retention + Material-Change Re-consent + Silent-Failure Detection (~7531 tok)
 - `ADR-1005-operations-maturity.md` — ADR-1005: Operations Maturity — Webhook Reference, Support Model, Status Page, Multi-channel Alerts, (~7076 tok)
-- `ADR-1006-developer-experience-and-openapi.md` — ADR-1006: Developer Experience — Client Libraries + OpenAPI Spec + CI Drift Check (~3252 tok)
+- `ADR-1006-developer-experience-and-openapi.md` — ADR-1006: Developer Experience — Client Libraries + OpenAPI Spec + CI Drift Check (~4481 tok)
 - `ADR-1007-connector-ecosystem-expansion.md` — ADR-1007: Connector Ecosystem Expansion + Platform Plugins (~2738 tok)
 - `ADR-1008-scale-audit-polish-and-p3-hardening.md` — ADR-1008: Scale + Audit Polish + P3 Hardening (~3065 tok)
 - `ADR-1009-v1-api-role-hardening.md` — ADR-1009: v1 API role hardening — remove service-role shortcut, adopt `cs_api` as designed (~5564 tok)
@@ -1436,7 +1436,7 @@
 - `ADR-1025-customer-storage-auto-provisioning.md` — ADR-1025: Customer storage auto-provisioning — hybrid managed R2 default + BYOK escape hatch (~13370 tok)
 - `ADR-1026-drop-hyperdrive-direct-supavisor.md` — ADR-1026: Rewind ADR-1010 Phase 3 — Worker connects directly to Supavisor; drop Hyperdrive binding (~5467 tok)
 - `ADR-1027-admin-account-awareness.md` — ADR-1027: Admin Account-Awareness Pass (~8082 tok)
-- `ADR-index.md` — ADR Index (~7978 tok)
+- `ADR-index.md` — ADR Index (~8337 tok)
 - `ADR-template.md` — ADR-NNNN: Title (~423 tok)
 - `adr-workflow.md` — ADR Workflow Rules (~557 tok)
 
@@ -1460,7 +1460,7 @@
 
 ## docs/changelogs/
 
-- `CHANGELOG-api.md` — Changelog — API (~40034 tok)
+- `CHANGELOG-api.md` — Changelog — API (~41546 tok)
 - `CHANGELOG-dashboard.md` — Changelog — Dashboard (~29233 tok)
 - `CHANGELOG-docs.md` — Changelog — Documentation (~13701 tok)
 - `CHANGELOG-edge-functions.md` — Changelog — Edge Functions (~4251 tok)
@@ -1535,7 +1535,7 @@
 - `2026-04-18-comprehensive-project-review.md` — ConsentShield — Comprehensive Review as of 2026-04-18 (~3553 tok)
 - `2026-04-20-api-key-security-review.md` — Security Review — API Key Surface (ADR-1001 Sprint 3.1) (~1833 tok)
 - `2026-04-21-v1-api-gap-audit.md` — v1 API Gap Audit — 2026-04-21 (~2913 tok)
-- `2026-04-25-marketing-claims-vs-reality-review.md` — Marketing claims vs. reality review (~23092 tok)
+- `2026-04-25-marketing-claims-vs-reality-review.md` — Marketing claims vs. reality review (~26229 tok)
 
 ## docs/runbooks/
 

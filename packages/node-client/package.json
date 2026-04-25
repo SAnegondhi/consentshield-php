@@ -1,0 +1,49 @@
+{
+  "name": "@consentshield/node",
+  "version": "1.0.0-alpha.1",
+  "description": "Official Node.js client for the ConsentShield DPDP compliance API. Fail-closed by default; 2-second request timeout; trace-id correlated.",
+  "license": "SEE LICENSE IN LICENSE.md",
+  "author": "Sudhindra Anegondhi <a.d.sudhindra@gmail.com>",
+  "homepage": "https://consentshield.in/docs",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/aiSpirit-systems/consentshield.git",
+    "directory": "packages/node-client"
+  },
+  "bugs": {
+    "url": "https://github.com/aiSpirit-systems/consentshield/issues"
+  },
+  "keywords": [
+    "consentshield",
+    "dpdp",
+    "consent",
+    "compliance",
+    "india",
+    "data-privacy",
+    "audit"
+  ],
+  "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "default": "./src/index.ts"
+    }
+  },
+  "files": ["src", "README.md", "LICENSE.md"],
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "@types/node": "20.19.39",
+    "typescript": "5.9.3",
+    "vitest": "4.1.4"
+  }
+}

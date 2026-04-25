@@ -2,6 +2,38 @@
 
 API route changes.
 
+## [ADR-1006 Phase 1 Sprint 1.1 — `@consentshield/node` SDK scaffold] — 2026-04-25
+
+**ADR:** ADR-1006 — Developer Experience: Client Libraries + OpenAPI + CI Drift Check
+**Sprint:** Phase 1, Sprint 1.1 (foundation)
+
+### Added
+- `packages/node-client/` — new Bun workspace `@consentshield/node` (v`1.0.0-alpha.1`). ESM-only, Node ≥ 18, exact-pinned devDeps per Rule 17 (`@types/node` 20.19.39, `typescript` 5.9.3, `vitest` 4.1.4). Repo-internal consumption via TS source today; published-package layout (dual ESM+CJS via `tsup` + `.d.ts` emission) deferred to Sprint 1.4.
+- `packages/node-client/src/errors.ts` — five-class error hierarchy:
+  - `ConsentShieldError` base — `name` + optional `traceId` from response header.
+  - `ConsentShieldApiError` — server returned 4xx/5xx with RFC 7807 body. `status` + `problem` fields exposed; message composes `${status} ${detail}` (falls back to title when detail empty/absent, then to `HTTP {status}`).
+  - `ConsentShieldNetworkError` — transport failure (DNS/TCP/TLS); retried before surfacing.
+  - `ConsentShieldTimeoutError` — request exceeded `timeoutMs`; **never** retried (compounds latency past compliance budget).
+  - `ConsentVerifyError` — compliance-critical wrapper; raised when a `verify` call cannot be evaluated AND `failOpen` is false (the SDK default). Carries the underlying cause + propagates its `traceId`.
+- `packages/node-client/src/http.ts` — `HttpClient` transport. Builds `${baseUrl}/v1${path}?${query}`. **2-second default timeout** via `AbortController` composed with caller `signal`. **Exponential backoff** at 100 ms / 400 ms / 1 600 ms on 5xx + transport errors up to `maxRetries`. **Never** retries 4xx (caller bug — would just rate-limit). **Never** retries timeouts (second attempt would compound latency). Caller `AbortSignal` honoured + re-throws caller's `AbortError`. RFC 7807 problem-document parsing onto `error.problem`. `X-CS-Trace-Id` request + response round-trip per ADR-1014 Sprint 3.2.
+- `packages/node-client/src/client.ts` — `ConsentShieldClient` constructor. Validates `apiKey` starts with `cs_live_` (case-sensitive — defends against `CS_LIVE_` / `cs_test_` / opaque-key callers). Validates `timeoutMs > 0` (positive finite) + `maxRetries >= 0` (non-negative integer). Resolves `failOpen` from option OR `CONSENT_VERIFY_FAIL_OPEN=true|1` env (option wins when explicit). Trims trailing `/` off `baseUrl`. Exposes resolved config as readonly. `ping()` GET `/v1/_ping` shipped this sprint.
+- `packages/node-client/src/index.ts` — public re-exports: `ConsentShieldClient` + `ConsentShieldClientOptions` + the five error classes + `ProblemJson` + `FetchImpl` + `HttpRequest`.
+- `packages/node-client/tests/{errors,http,client}.test.ts` — 38 unit tests across 3 files. Cover the full surface: error hierarchy + name correctness + message composition + traceId propagation + cause chaining (errors.ts); URL composition + Bearer + Accept + Content-Type + JSON marshalling + traceId round-trip + query-string composition + 204 → null + timeout fires + timeout never retries + 5xx exponential backoff + 5xx exhaustion + transport-error retry + 4xx never retries (sweep across 400/401/403/404/410/422) + `maxRetries: 0` honoured + caller AbortSignal re-thrown + problem-body parsing + non-JSON error tolerance (http.ts); constructor validation across all bad-input cases + env override + `ping()` (client.ts).
+- `packages/node-client/README.md` — alpha-status banner, quickstart, compliance-posture defaults table (timeoutMs / maxRetries / failOpen rationale), error-model summary, full config reference.
+- `packages/node-client/{tsconfig.json,vitest.config.ts}` — Stryker-style scoping (extends `tsconfig.base.json` + ES2022 + node + vitest globals types).
+
+### Architecture Changes
+- **Spec amendment for ADR-1006 scope (3 languages, not 4).** Original ADR shipped Node + Python + Java + Go. Per the v2-Whitepaper-split memory + user-confirmed plan: Java is dropped from the immediate scope (Indian BFSI + healthcare ICP skews to Node/Python/Go; Java demand has not surfaced; can be added back as its own ADR if needed; OpenAPI-spec-driven generation makes a future Java client trivially scaffoldable). Documented in the ADR header §"Scope amendments (2026-04-25)".
+- **Endpoint surface refresh.** Original ADR's method list (verify, verifyBatch, recordConsent, revoke, triggerDeletion, artefact helpers) predated the surface growth to 21 routes. ADR-1006 header now carries the full route inventory grouped by concern (Health / Account / Property / Consent / Rights / Deletion / Audit & security / Connectors). Per-endpoint methods on the SDK ship in Sprint 1.2 + 1.3.
+- **OpenAPI spec status.** `marketing/public/openapi.yaml` already exists (2 211 lines, served at `https://consentshield.in/openapi.yaml`, linked from `/docs` nav). Phase 3 of this ADR (originally "spec completion + CI drift check") is partly de-scoped — what remains is the `scripts/regenerate-whitepaper-appendix.ts` generator + the CI drift check that fails the build when route handlers + the spec diverge.
+- **Compliance posture defaults are non-negotiable.** The 2-second default timeout, fail-CLOSED-by-default verify behaviour, and `CONSENT_VERIFY_FAIL_OPEN=true` audit-trail-recorded opt-out together encode the v2 whitepaper §5.4 contract. README documents the defaults + rationale; raising `timeoutMs` above 5 000 is flagged in source as requiring an audit-trail rationale.
+- **Retry-on-timeout is forbidden.** A second attempt after a 2-second timeout would compound user-visible latency past the consent-decision budget — exactly the failure mode the timeout exists to prevent. The HttpClient transport surfaces `ConsentShieldTimeoutError` immediately and never retries.
+
+### Tested
+- [x] `cd packages/node-client && bun run test` — 38 passed (3 files) — PASS
+- [x] `cd packages/node-client && bun run typecheck` — clean — PASS
+- [x] Bun workspace registration (`packages/*` glob in root `package.json` already covers it; `bun install` shows 0 changes — no new top-level deps).
+
 ## [ADR-1014 Sprint 4.2 follow-up — sigv4 mutation kill-set] — 2026-04-25
 
 **ADR:** ADR-1014 — End-to-end test harness + vertical demo sites

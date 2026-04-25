@@ -1,11 +1,39 @@
 # ADR-1006: Developer Experience — Client Libraries + OpenAPI Spec + CI Drift Check
 
-**Status:** Proposed
+**Status:** In Progress
 **Date proposed:** 2026-04-19
+**Date started:** 2026-04-25
 **Date completed:** —
 **Related plan:** `docs/plans/ConsentShield-V2-Whitepaper-Closure-Plan.md` Phase 6
-**Depends on:** ADR-1002 (every `/v1/*` endpoint must exist and be stable)
+**Depends on:** ADR-1002 (every `/v1/*` endpoint must exist and be stable), ADR-1009 (cs_api Bearer-token auth shape stable), ADR-1014 Phase 4 (v1 surface mutation-locked at 100% so the SDK can rely on regex/scope/rate-tier helpers being correct).
 **Related gaps:** G-002, G-003, G-024, G-045
+
+## Scope amendments (2026-04-25)
+
+The proposal listed four languages (Node, Python, Java, Go). This ADR ships **three** — Node, Python, Go — per the user-confirmed v2 split. Java is dropped from the immediate scope:
+
+- Indian BFSI + healthcare ICP skews to Node/Python/Go; Java demand has not surfaced in any partner conversation to date.
+- The original ADR text already positions Java as "lower-priority than Node + Python" — formalising the deferral rather than carrying a paper deliverable.
+- Java can be added back as its own ADR if an enterprise prospect requires it; the OpenAPI spec (Phase 3 deliverable, already shipped at `marketing/public/openapi.yaml`) means a Java client could be code-generated rather than hand-written.
+
+The endpoint surface has grown since this ADR was drafted. The current `/v1/*` set is 21 routes (per `find app/src/app/api/v1 -name route.ts`):
+
+| Group | Endpoints |
+|---|---|
+| Health | `/v1/_ping` |
+| Account | `/v1/keys/self`, `/v1/plans`, `/v1/usage` |
+| Property | `/v1/properties`, `/v1/purposes`, `/v1/score` |
+| Consent | `/v1/consent/record`, `/v1/consent/verify`, `/v1/consent/verify/batch`, `/v1/consent/events`, `/v1/consent/artefacts`, `/v1/consent/artefacts/[id]`, `/v1/consent/artefacts/[id]/revoke` |
+| Rights | `/v1/rights/requests` |
+| Deletion | `/v1/deletion/trigger`, `/v1/deletion/receipts`, `/v1/deletion-receipts/[id]` |
+| Audit & security | `/v1/audit`, `/v1/security/scans` |
+| Connectors | `/v1/integrations/[connector_id]/test_delete` |
+
+Each method on the SDK maps to one of these routes. The Phase 1/2/3 sprint deliverables below are amended in place to reference the actual route names.
+
+## OpenAPI status
+
+`marketing/public/openapi.yaml` already exists (2211 lines, served at `https://consentshield.in/openapi.yaml`, linked from `/docs` nav under Reference, listed in the Cmd-K palette). Phase 3 of this ADR (originally "spec completion + CI drift check") is partly de-scoped: the spec file is in tree; what remains is the `scripts/regenerate-whitepaper-appendix.ts` generator + the CI drift check that fails the build when `app/src/app/api/v1/**/route.ts` and `marketing/public/openapi.yaml` diverge.
 
 ---
 
@@ -42,20 +70,26 @@ Ship four languages and one specification:
 
 #### Sprint 1.1: Package scaffold
 
-**Estimated effort:** 2 days
-
 **Deliverables:**
-- [ ] New repo `consentshield-node` (or `packages/node-client/` if we choose monorepo)
-- [ ] Package scaffolding: tsconfig, eslint, prettier, vitest, exact-pinned deps per project norms
-- [ ] `ConsentShieldClient` class with constructor accepting `{ apiKey, baseUrl?, timeoutMs?, failOpen? }`
-- [ ] HTTP helper with 2-second default timeout; retry on 5xx + network error up to 3 times
-- [ ] Error types: `ConsentVerifyError`, `ConsentShieldApiError`, `ConsentShieldNetworkError`
+- [x] New Bun workspace at `packages/node-client/` (chose monorepo over standalone repo to keep the SDK in lockstep with the v1 API surface; the OpenAPI spec, the integration tests, and the Phase 4 mutation suites all live in this repo).
+- [x] Package scaffolding: `package.json` (`@consentshield/node` v`1.0.0-alpha.1`, ESM-only, `engines: ">=18"`, exact-pinned devDeps per Rule 17), `tsconfig.json` (extends `tsconfig.base.json` + ES2022 + node + vitest globals types), `vitest.config.ts`, `README.md` (alpha-status banner + quickstart + compliance-posture defaults table + error-model summary + config reference).
+- [x] **Source files:**
+  - `src/errors.ts` — `ConsentShieldError` base + `ConsentShieldApiError` (RFC 7807 `problem` field exposed) + `ConsentShieldNetworkError` (transport failures, retried before surfacing) + `ConsentShieldTimeoutError` (never retried — second attempt would compound past the consent-decision budget) + `ConsentVerifyError` (compliance-critical — wraps the underlying cause when a verify call fails closed). Every error carries an optional `traceId` lifted from the response's `X-CS-Trace-Id` header (ADR-1014 Sprint 3.2 contract).
+  - `src/http.ts` — `HttpClient` class. Builds `${baseUrl}/v1${path}?${query}`. Bearer auth + `Accept: application/json` + JSON-body marshalling + Content-Type stamping. **2-second default timeout** via `AbortController` composed with caller-supplied `signal`. **Exponential backoff** at 100 ms / 400 ms / 1 600 ms (bounded so even `maxRetries=3` stays within ~2 s of cumulative wait). **Retry policy:** 5xx + transport errors retried up to `maxRetries`; **never** retries on 4xx (caller bug) or timeouts (compounds latency past budget); **never** retries when caller-supplied `AbortSignal` aborts (re-throws caller's `AbortError`). Returns `{ status, body, traceId }`. 204 → null body; non-JSON 2xx → text body. Problem-document parsing is content-type-aware + tolerates non-JSON 5xx bodies (`problem: undefined`).
+  - `src/client.ts` — `ConsentShieldClient` constructor. Validates `apiKey` starts with `cs_live_` (case-sensitive, defends against `CS_LIVE_` / `cs_test_` / opaque-key callers). Validates `timeoutMs > 0` (positive finite) + `maxRetries >= 0` (non-negative integer). Resolves `failOpen` from option OR `CONSENT_VERIFY_FAIL_OPEN=true`/`1` env var (option wins when explicit). Trims trailing slashes off `baseUrl`. Exposes `baseUrl` / `timeoutMs` / `maxRetries` / `failOpen` as readonly so test asserts can read them. Ships one method this sprint: `ping()` against `/v1/_ping` — useful as a deploy-time health check of the Bearer key + base URL.
+  - `src/index.ts` — public re-exports. Sprint 1.1 surface: `ConsentShieldClient` + `ConsentShieldClientOptions` + the five error classes + `ProblemJson` + `FetchImpl` + `HttpRequest`.
+- [x] **Tests:** 38 cases across three test files.
+  - `tests/errors.test.ts` (7 cases) — instanceof hierarchy / `name` field correctness / message composition (status + detail / fallback to title when detail empty or absent / fallback to "HTTP {status}" when problem undefined) / `traceId` propagation through every subclass / `ConsentVerifyError.cause` chaining.
+  - `tests/http.test.ts` (24 cases) — happy-path GET (URL composition with `/v1` prefix + Bearer + Accept) / POST with JSON body + Content-Type / `X-CS-Trace-Id` request + response round-trip / query-string composition skipping undefined+null values / 204 → null body / **timeout fires + throws `ConsentShieldTimeoutError`** (with `vi.useFakeTimers` + `.rejects` attached BEFORE timer advance to avoid `PromiseRejectionHandledWarning`) / **timeout never retries** (single fetch call after 5 retries configured) / 5xx retry up to N + succeeds on Nth attempt / 5xx retry exhausted → `ConsentShieldApiError` with status + traceId / network error retry → `ConsentShieldNetworkError` after N attempts / 4xx never retries (sweep across 400/401/403/404/410/422) / `maxRetries: 0` honoured (single attempt) / caller `AbortSignal` re-throws caller's `AbortError` / RFC 7807 problem-body parsing onto `error.problem` / non-JSON error body tolerated.
+  - `tests/client.test.ts` (7 cases) — constructor accepts valid `apiKey` + applies SDK defaults / honours custom `baseUrl` (trims trailing slashes) / honours custom `timeoutMs` + `maxRetries` / rejects missing options / rejects non-string `apiKey` / rejects wrong prefix (`sk_live_`, `cs_test_`, `CS_LIVE_`) / rejects non-positive `timeoutMs` (0 / negative / Infinity) / rejects non-integer or negative `maxRetries` / honours explicit `failOpen=true` / reads `CONSENT_VERIFY_FAIL_OPEN=true|1` from env when option absent / explicit `failOpen=false` overrides env / treats env=falsy as `false` / `ping()` GETs the right URL with the Bearer header.
 
-**Testing plan:**
-- [ ] Constructor accepts valid config
-- [ ] HTTP helper respects timeout; mock server delays 3s → error after 2s
+**Architecture note — published-package layout deferred to Sprint 1.4.** The package currently exports TS source directly (`main: src/index.ts`). This works for internal monorepo consumption + Vitest. Sprint 1.4 adds the dual ESM+CJS build via `tsup` + `.d.ts` emission and flips `exports`/`main` to point at `dist/`. Holding off the build step now avoids paying for it on every sprint commit — the API surface is still in flux.
 
-**Status:** `[ ] planned`
+**Tested:**
+- [x] `cd packages/node-client && bun run test` — 38 passed (3 files) — PASS
+- [x] `cd packages/node-client && bun run typecheck` — clean — PASS
+
+**Status:** `[x] complete 2026-04-25 — Bun workspace + ConsentShieldClient + HttpClient + 5 error classes + ping(); 38 unit tests pass; typecheck clean. v1.0.0-alpha.1 in package.json. Ready for Sprint 1.2 (verify + verifyBatch).`
 
 #### Sprint 1.2: Verify + verifyBatch methods
 
