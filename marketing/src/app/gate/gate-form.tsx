@@ -5,7 +5,6 @@
 // Wireframe spec: docs/design/marketing-gate-otp-wireframe.md.
 
 import { useEffect, useRef, useState } from 'react'
-import { useRouter } from 'next/navigation'
 
 interface Props {
   from: string
@@ -14,7 +13,6 @@ interface Props {
 type Phase = 'email' | 'otp' | 'verifying' | 'sending'
 
 export function GateForm({ from }: Props) {
-  const router = useRouter()
   const [phase, setPhase] = useState<Phase>('email')
   const [email, setEmail] = useState('')
   const [otp, setOtp] = useState('')
@@ -64,7 +62,10 @@ export function GateForm({ from }: Props) {
       })
       const json = (await res.json()) as { ok: boolean; redirect?: string; reason?: string; attemptsRemaining?: number }
       if (json.ok && json.redirect) {
-        router.replace(json.redirect)
+        // Hard navigation rather than router.replace — the session cookie
+        // was just set, the target page is dynamic (cookie-aware footer),
+        // and a hard reload bypasses any RSC-prefetch hang.
+        window.location.assign(json.redirect)
         return
       }
       setOtp('')
