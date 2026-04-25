@@ -24,6 +24,12 @@ admin/.env.local
 .secrets
 .secrets*
 
+# Operator-only credentials, tokens, raw API responses, etc.
+# Never committable. Live outside the repo (1Password / Vault) when
+# possible; if a copy is needed locally for dev convenience, drop it
+# into docs/configs/ — git won't see it.
+docs/configs/
+
 # Debug
 npm-debug.log*
 yarn-debug.log*
