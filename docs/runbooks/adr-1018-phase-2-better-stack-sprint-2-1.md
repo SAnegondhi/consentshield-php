@@ -16,12 +16,12 @@ Sprints 2.2 → 2.6 (monitor matrix, incident-comms, DNS cutover, SLA alignment,
 - You have access to the `consentshield-marketing` Vercel project (env-var write rights).
 - DNS for `status.consentshield.in` currently points at Vercel's `cname.vercel-dns.com` (Phase 1) — leave it alone for now; Sprint 2.4 cuts it over to Better Stack.
 
-## Step 1 — Create the Better Stack workspace
+## Step 1 — Create the Better Stack account
 
 1. Open <https://betterstack.com/> in a new tab.
-2. **Sign up** with `a.d.sudhindra@gmail.com` (the founder identity that already owns Vercel + Cloudflare access).
-3. When prompted for a workspace / team name, use **`consentshield`** exactly (matches the existing Sentry org naming convention from `marketing/next.config.ts:81`).
-4. Skip any "invite teammates" prompt — you're solo right now.
+2. **Sign up** with **`info@consentshield.in`** (the canonical org-level identity, not the founder personal address — this account will outlive the founder's Gmail and is shared with `noreply@consentshield.in` via the Resend/MX setup).
+3. Better Stack doesn't surface a "workspace name" field at signup the way Slack or Linear do — the team / account identity is implicit from the signed-in user. If BS asks for a "team name" or "company" anywhere during onboarding, fill in **`ConsentShield`** for display purposes; otherwise no action.
+4. Skip any "invite teammates" prompt — solo for now.
 
 ## Step 2 — Pick the plan tier
 
@@ -113,13 +113,14 @@ After the token is seeded:
 
 1. Edit `docs/ADRs/ADR-1018-self-hosted-status-page.md` Sprint 2.1 deliverables — flip the four `[ ]` checkboxes to `[x]`. Record:
    - Selected tier name + monthly cost.
-   - Workspace slug (the URL-fragment Better Stack assigns, e.g. `consentshield.betterstack.com`).
+   - Account-level identity that owns the BS account (`info@consentshield.in`).
+   - Whatever URL BS assigns for the future status page (the public hostname BS will host the status page on — it shows in the BS dashboard once a status page is created in Sprint 2.4).
    - Confirmation that the token is on Vercel Production.
 2. Append a one-line entry to `docs/changelogs/CHANGELOG-infra.md` referencing ADR-1018 Sprint 2.1.
 
 ## Acceptance criteria
 
-- [ ] Better Stack account exists at workspace name `consentshield`.
+- [ ] Better Stack account exists, owned by `info@consentshield.in`.
 - [ ] Plan tier subscribed; tier name + cost recorded in the ADR.
 - [ ] API token generated and named `consentshield-marketing-prod`.
 - [ ] `BETTERSTACK_API_TOKEN` set on `consentshield-marketing` Vercel project Production scope (Preview optional).

@@ -156,11 +156,13 @@ Phase 1 shipped a working self-hosted status page but the Phase-1 wireframe does
 #### Sprint 2.1 — Charter, plan tier selection, account creation
 
 **Deliverables:**
-- [ ] Operator creates Better Stack account on `consentshield` org name.
-- [ ] Plan tier selected and recorded in this ADR (likely "Team" or whichever tier exposes status-page custom-domain + 30-second checks + multi-region from EU + US + APAC).
+- [ ] Operator creates Better Stack account, owned by `info@consentshield.in` (canonical org-level identity, not the founder personal Gmail).
+- [ ] Plan tier selected and recorded in this ADR — pick the lowest tier that exposes 30-second checks + multi-region (EU + US + APAC at minimum) + custom domain on the status page + Slack/webhook incident integration. Better Stack does not surface a separate "workspace" identity; the BS team is implicit from the owner email.
 - [ ] Cost recorded in the operator-pending runbook.
-- [ ] API token generated, scoped to the workspace.
+- [ ] API token generated, named `consentshield-marketing-prod`, with monitor + status-page scopes.
 - [ ] Token stored in `vercel env` for the `consentshield-marketing` project (env-var name: `BETTERSTACK_API_TOKEN`). Production scope only; preview not needed unless preview-deploy monitors are wanted later.
+
+**Operator runbook:** `docs/runbooks/adr-1018-phase-2-better-stack-sprint-2-1.md`.
 
 #### Sprint 2.2 — Monitor matrix configured
 
