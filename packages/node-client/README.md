@@ -124,4 +124,6 @@ new ConsentShieldClient({
 
 ## License
 
-(c) 2026 Sudhindra Anegondhi <a.d.sudhindra@gmail.com>. See `LICENSE.md`.
+Apache License 2.0. Copyright 2026 Sudhindra Anegondhi
+<a.d.sudhindra@gmail.com>. See `LICENSE` for the full text and
+`NOTICE` for the trademark carve-out.

@@ -2,16 +2,15 @@
   "name": "@consentshield/node",
   "version": "1.0.0",
   "description": "Official Node.js client for the ConsentShield DPDP compliance API. Fail-closed by default; 2-second request timeout; trace-id correlated.",
-  "license": "SEE LICENSE IN LICENSE.md",
+  "license": "Apache-2.0",
   "author": "Sudhindra Anegondhi <a.d.sudhindra@gmail.com>",
-  "homepage": "https://consentshield.in/docs",
+  "homepage": "https://consentshield.in/docs/sdks/node",
   "repository": {
     "type": "git",
-    "url": "https://github.com/aiSpirit-systems/consentshield.git",
-    "directory": "packages/node-client"
+    "url": "https://github.com/SAnegondhi/consentshield-node.git"
   },
   "bugs": {
-    "url": "https://github.com/aiSpirit-systems/consentshield/issues"
+    "url": "https://github.com/SAnegondhi/consentshield-node/issues"
   },
   "keywords": [
     "consentshield",
@@ -39,7 +38,7 @@
     }
   },
   "sideEffects": false,
-  "files": ["dist", "README.md", "LICENSE.md"],
+  "files": ["dist", "README.md", "LICENSE", "NOTICE"],
   "engines": {
     "node": ">=18"
   },

@@ -15,7 +15,7 @@ import (
 	"errors"
 	"net/http"
 
-	consentshield "github.com/consentshield-org/go-client"
+	consentshield "github.com/SAnegondhi/consentshield-go"
 )
 
 // Options configure the middleware per route.

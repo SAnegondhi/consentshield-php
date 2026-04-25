@@ -10,7 +10,7 @@ export const metadata = {
   { label: 'Go' },
 ]} />
 
-# `github.com/consentshield-org/go-client`
+# `github.com/SAnegondhi/consentshield-go`
 
 The official Go client. Idiomatic top-to-bottom: `context.Context`
 first, errors as second return, struct-options for every method,
@@ -20,7 +20,7 @@ library.
 ## Install
 
 ```bash
-go get github.com/consentshield-org/go-client@v1.0.0
+go get github.com/SAnegondhi/consentshield-go@v1.0.0
 ```
 
 - **Go 1.22+** required (uses `context.WithoutCancel` semantics +
@@ -38,7 +38,7 @@ import (
     "log"
     "os"
 
-    consentshield "github.com/consentshield-org/go-client"
+    consentshield "github.com/SAnegondhi/consentshield-go"
 )
 
 func main() {
@@ -209,10 +209,12 @@ your transport — your `Transport.Timeout` is honoured first, then
 the SDK's per-attempt timeout takes over via `context.WithTimeout`.
 </Callout>
 
-## Source
+## Source + licence
 
-The SDK lives at `packages/go-client/` in the
-[ConsentShield monorepo](https://github.com/consentshield-org). Issues
-go to [dev-support@consentshield.in](mailto:dev-support@consentshield.in).
+Source: [github.com/SAnegondhi/consentshield-go](https://github.com/SAnegondhi/consentshield-go).
+Issues go to [dev-support@consentshield.in](mailto:dev-support@consentshield.in).
+
+Licensed under **Apache 2.0**. The trademarks "ConsentShield" and the
+ConsentShield logo are reserved separately — see `NOTICE` in the repo.
 
 <FeedbackStrip pageId="sdks-go" />

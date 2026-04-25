@@ -2,6 +2,34 @@
 
 API route changes.
 
+## [ADR-1006 SDK relicence to Apache 2.0 + final repo paths under SAnegondhi/*] — 2026-04-25
+
+**ADR:** ADR-1006 — Developer Experience: Client Libraries + OpenAPI + CI Drift Check
+**Sprint:** Pre-publish operator follow-up to Phase 1 / 2 / 4
+
+### Changed
+- **All three SDKs relicensed from proprietary "viewing OK, redistribution forbidden" to Apache License, Version 2.0** — the standard for vendor SDKs. Each `packages/{node,python,go}-client/LICENSE.md` proprietary file removed and replaced with a canonical `LICENSE` file (full Apache 2.0 text, with the appendix `Copyright 2026 Sudhindra Anegondhi`) plus a sibling `NOTICE` file reserving the "ConsentShield" name + logo as trademarks (Apache 2.0 §6 trademark carve-out is explicit). The Apache 2.0 patent grant in §3 is what BFSI / Tier-1 procurement teams expect; redistribution is now compatible with `npm publish` / `pip install` / `go get`.
+- **Package metadata updates:**
+  - `packages/node-client/package.json` — `"license": "Apache-2.0"` (SPDX); `files` array now lists `LICENSE` + `NOTICE` instead of `LICENSE.md`.
+  - `packages/python-client/pyproject.toml` — `license = "Apache-2.0"` (PEP 639 SPDX form) + `license-files = ["LICENSE", "NOTICE"]` (replaces the old `license = { file = "LICENSE.md" }`).
+  - `packages/go-client/consentshield.go` — top-of-file SPDX header (`Copyright 2026 Sudhindra Anegondhi` + `SPDX-License-Identifier: Apache-2.0`).
+- **Final canonical repo paths** — the SDKs ship under the maintainer's personal GitHub account, not under `consentshield-org` (the bare `consentshield` org name was unavailable at registration time; `consentshield-org` was a stand-in that has now been retired):
+  - Node: `github.com/SAnegondhi/consentshield-node` (was: `consentshield-org/node-client`)
+  - Python: `github.com/SAnegondhi/consentshield-python` (was: `consentshield-org/python-client`)
+  - Go: `github.com/SAnegondhi/consentshield-go` (was: `consentshield-org/go-client`) — **this is the third Go module-path rename for ADR-1006**, and it's the final one. `go.mod` declares `module github.com/SAnegondhi/consentshield-go`; every Go import in `packages/go-client/` + the two `examples/*` middlewares is updated; the Go module proxy resolves `go get github.com/SAnegondhi/consentshield-go@vX.Y.Z` once the v1.0.0 tag pushes.
+- **Repository / Issues URLs updated** in `package.json` (Node), `pyproject.toml` (Python), and the marketing `/docs/sdks/{node,python,go}/page.mdx` "Source + licence" footer of each per-SDK page. Each footer now reads "Licensed under Apache 2.0. The trademarks 'ConsentShield' and the ConsentShield logo are reserved separately — see NOTICE in the repo."
+- **Marketing index page** (`/docs/sdks/page.mdx`) now leads with the Apache 2.0 stance: "fork, embed, ship in commercial products, no per-seat fees on the SDK itself."
+
+### Architecture changes
+- **The licence boundary now matches the moat.** The SDK is a thin HTTP client over the v1 API; the compliance value lives on the server (verify, audit, deletion fan-out, RLS, regulatory exemption engine, the Worker). Apache 2.0 on the client gives BFSI / healthcare procurement the licence-text they expect; the server-side code in this repo remains private + bookkeeping-licensed. The `NOTICE` file reserves the trademark separately so a fork can't ship as "ConsentShield" without permission.
+- **`PUBLISHING.md` runbook updated for Go** to describe the personal-account release pattern and the future migration to a vanity import path (`consentshield.in/go-client` via meta tags) which will let the module path move without a v2 break.
+
+### Tested
+- [x] `cd packages/go-client && go vet ./...` — PASS
+- [x] `cd packages/go-client && go test -count=1 -cover ./...` — PASS, **coverage 87.8%** (unchanged)
+- [x] `cd marketing && bun run build` — PASS, all `/docs/sdks/*` pages render with the new repo paths + licence footer
+- [x] `cd packages/python-client && python -m build --sdist` (scratch venv with `build` installed) — PASS, `consentshield-1.0.0.tar.gz` builds cleanly under the new PEP 639 license syntax
+
 ## [ADR-1006 Phase 4 Sprint 4.2 — Go SDK + marketing /docs/sdks pages (Phase 4 closes; Java abandoned)] — 2026-04-25
 
 **ADR:** ADR-1006 — Developer Experience: Client Libraries + OpenAPI + CI Drift Check
@@ -9,8 +37,8 @@ API route changes.
 
 ### Added
 
-#### Go SDK — `github.com/consentshield-org/go-client`
-- **`packages/go-client/go.mod`** — module `github.com/consentshield-org/go-client`, `go 1.22`. Zero runtime deps — pure standard library.
+#### Go SDK — `github.com/SAnegondhi/consentshield-go`
+- **`packages/go-client/go.mod`** — module `github.com/SAnegondhi/consentshield-go`, `go 1.22`. Zero runtime deps — pure standard library.
 - **`packages/go-client/consentshield.go`** — package documentation + `Version` constant. The compliance contract is captured in the package doc so `go doc` surfaces it on the package overview page.
 - **`packages/go-client/client.go`** — `Client` struct (concurrency-safe), `NewClient(cfg)` validating constructor, `Config.WithFailOpen(...)` builder for explicit fail-open control (always wins over env).
 - **`packages/go-client/errors.go`** — five-class hierarchy: `Error` interface (returns `TraceID()`), `*APIError` (status + RFC 7807 `*ProblemJSON`), `*NetworkError` (transport-level wrap, `Unwrap()`-able), `*TimeoutError` (per-attempt timeout, never retried), `*VerifyError` (compliance-critical wrap, `Unwrap()`-able). `IsAPIError(err)` + `IsVerifyError(err)` convenience predicates.
@@ -32,7 +60,7 @@ API route changes.
 
 ### Architecture Changes
 - **Phase 4 scope amendment 2026-04-25 — Java abandoned.** The original Phase 4 had two sprints: 4.1 Java (Maven Central) + 4.2 Go. Java was dropped because (a) BFSI customer demand has not surfaced yet, (b) the Java publish flow (Sonatype OSSRH onboarding + GPG signing + jakarta.* vs javax.* fork bookkeeping) is materially heavier than npm/PyPI/go-proxy, and (c) the OpenAPI spec at `marketing/public/openapi.yaml` is sufficient for Java callers to generate a client today. A native Java SDK can be picked up under a future ADR if Tier-1 BFSI adoption demands it.
-- **The Go SDK closes the SDK matrix for ADR-1006.** Three official SDKs ship at v1.0.0: Node (`@consentshield/node`), Python (`consentshield`), Go (`github.com/consentshield-org/go-client`). All three carry the same compliance contract (4xx ALWAYS errors, fail-CLOSED default, fail-OPEN env override, on-fail-open audit-trail callback in Node + Python, `errors.As`-discriminable in Go), the same trace-id round-trip (`X-CS-Trace-Id`), the same VerifyBatch boundary (10 000 identifiers, client-gated before network), and the same set of `OpenFailureCause` discriminators (`timeout` / `network` / `server_error`).
+- **The Go SDK closes the SDK matrix for ADR-1006.** Three official SDKs ship at v1.0.0: Node (`@consentshield/node`), Python (`consentshield`), Go (`github.com/SAnegondhi/consentshield-go`). All three carry the same compliance contract (4xx ALWAYS errors, fail-CLOSED default, fail-OPEN env override, on-fail-open audit-trail callback in Node + Python, `errors.As`-discriminable in Go), the same trace-id round-trip (`X-CS-Trace-Id`), the same VerifyBatch boundary (10 000 identifiers, client-gated before network), and the same set of `OpenFailureCause` discriminators (`timeout` / `network` / `server_error`).
 - **First Go module in the repo.** The SDK is the first Go production code in `packages/`. The repo's existing infrastructure (TypeScript + Python + Bun workspace) is unchanged; the Go module lives outside the Bun workspace and is built/tested via `go test ./...` from `packages/go-client/`.
 
 ### Tested

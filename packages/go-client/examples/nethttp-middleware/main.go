@@ -17,8 +17,8 @@ import (
 	"net/http"
 	"os"
 
-	consentshield "github.com/consentshield-org/go-client"
-	mw "github.com/consentshield-org/go-client/examples/nethttp-middleware"
+	consentshield "github.com/SAnegondhi/consentshield-go"
+	mw "github.com/SAnegondhi/consentshield-go/examples/nethttp-middleware"
 )
 
 func main() {

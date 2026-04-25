@@ -1,4 +1,4 @@
-# PUBLISHING — `github.com/consentshield-org/go-client`
+# PUBLISHING — `github.com/SAnegondhi/consentshield-go`
 
 Operator runbook for publishing the Go SDK. Go modules don't have a
 central registry — distribution is via Git tags on the public
@@ -8,15 +8,15 @@ GitHub repo, served through the Go module proxy
 ## Prerequisite — public Git repository
 
 The module path baked into `go.mod` is
-`github.com/consentshield-org/go-client`. The canonical Git repo MUST live
-at that path, public, with the SDK at the repo root or a sub-directory
-called `go-client/` (the path resolves to the repo's root by default;
-if the SDK lives in a sub-directory the module path becomes
-`github.com/consentshield-org/<repo>/go-client`).
+`github.com/SAnegondhi/consentshield-go`. The canonical Git repo lives
+at that path, public, with the SDK at the repo root.
 
-The org `consentshield-org` is reserved on GitHub (the bare
-`consentshield` name was unavailable at registration time). The
-canonical SDK repo lives at https://github.com/consentshield-org/go-client.
+For now the SDK ships under the maintainer's personal GitHub account
+(`SAnegondhi`); the bare `consentshield` org name was unavailable at
+registration time. Once a vanity import path is set up
+(`consentshield.in/go-client` via meta tags) the module path will
+migrate behind the scenes without a v2 bump — until then,
+`github.com/SAnegondhi/consentshield-go` is the canonical location.
 
 ## Per-release tag
 
@@ -57,19 +57,19 @@ Mismatches cause `go get` to fail with "ambiguous version".
 ```sh
 # Force-fetch through the proxy.
 GOPROXY=https://proxy.golang.org GOFLAGS=-mod=mod \
-  go list -m -versions github.com/consentshield-org/go-client
+  go list -m -versions github.com/SAnegondhi/consentshield-go
 
 # Smoke install in a scratch project:
 mkdir -p /tmp/cs-go-smoke && cd /tmp/cs-go-smoke
 go mod init smoke
-go get github.com/consentshield-org/go-client@vX.Y.Z
+go get github.com/SAnegondhi/consentshield-go@vX.Y.Z
 go build .
 ```
 
 ## v2 + breaking changes
 
 A `v2` API requires the module path to gain a `/v2` suffix:
-`github.com/consentshield-org/go-client/v2`. This is the official Go
+`github.com/SAnegondhi/consentshield-go/v2`. This is the official Go
 module convention. New `v2.0.0+` tags will not be picked up by
 existing `v1` callers — that's the point: we never break compatibility
 in-place.

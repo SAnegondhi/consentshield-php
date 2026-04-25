@@ -4,7 +4,7 @@ Official Go client for the [ConsentShield](https://www.consentshield.in)
 DPDP compliance API.
 
 ```sh
-go get github.com/consentshield-org/go-client@v1.0.0
+go get github.com/SAnegondhi/consentshield-go@v1.0.0
 ```
 
 ```go
@@ -13,7 +13,7 @@ import (
     "log"
     "os"
 
-    consentshield "github.com/consentshield-org/go-client"
+    consentshield "github.com/SAnegondhi/consentshield-go"
 )
 
 client, err := consentshield.NewClient(consentshield.Config{
@@ -164,4 +164,6 @@ boundary.
 
 ## License
 
-(c) 2026 Sudhindra Anegondhi. All rights reserved. See `LICENSE.md`.
+Apache License 2.0. Copyright 2026 Sudhindra Anegondhi
+<a.d.sudhindra@gmail.com>. See `LICENSE` for the full text and
+`NOTICE` for the trademark carve-out.

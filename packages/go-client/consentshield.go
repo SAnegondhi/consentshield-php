@@ -1,3 +1,6 @@
+// Copyright 2026 Sudhindra Anegondhi
+// SPDX-License-Identifier: Apache-2.0
+
 // Package consentshield is the official Go client library for the
 // ConsentShield DPDP compliance API.
 //
