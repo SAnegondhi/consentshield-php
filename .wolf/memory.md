@@ -5625,3 +5625,28 @@
 | 09:32 | Edited docs/ADRs/ADR-index.md | inline fix | ~295 |
 | 09:32 | Edited packages/node-client/src/index.ts | expanded (+15 lines) | ~158 |
 | 09:32 | Edited marketing/src/components/sections/story.tsx | "Real-time tracker monitor" → "Real-time tracker monitor" | ~116 |
+| 09:32 | Edited marketing/src/components/sections/story.tsx | 9→9 lines | ~111 |
+| 09:32 | Session end: 231 writes across 77 files (vitest.config.ts, hmac.test.ts, origin.test.ts, package.json, stryker.conf.mjs) | 87 reads | ~571886 tok |
+| 09:33 | Edited marketing/src/app/product/page.tsx | 4→4 lines | ~64 |
+| 09:33 | Edited marketing/src/app/product/page.tsx | 12→12 lines | ~284 |
+| 09:33 | Created packages/node-client/tests/verify.test.ts | — | ~2769 |
+| 09:33 | Edited marketing/src/app/product/page.tsx | 4→4 lines | ~92 |
+| 09:33 | Edited marketing/src/app/docs/cookbook/build-dpb-audit-export/page.mdx | expanded (+14 lines) | ~240 |
+| 09:33 | Edited marketing/src/app/docs/cookbook/build-dpb-audit-export/page.mdx | inline fix | ~11 |
+| 09:34 | Edited marketing/src/app/depa/page.tsx | CSS: extensions | ~95 |
+| 09:34 | Created packages/node-client/tests/verify-batch.test.ts | — | ~2450 |
+| 09:34 | Edited marketing/src/components/sections/depa-hero.tsx | CSS: written | ~229 |
+| 09:34 | Edited marketing/src/components/sections/depa-moat.tsx | CSS: written | ~180 |
+| 09:34 | Edited marketing/src/app/page.tsx | 2→2 lines | ~58 |
+| 09:34 | Edited marketing/src/components/sections/contrast.tsx | expanded (+6 lines) | ~176 |
+| 09:35 | Edited marketing/src/app/signup/page.tsx | "Start your 14-day free tr" → "Start your 30-day free tr" | ~36 |
+| 09:35 | Edited marketing/src/app/signup/page.tsx | 14 → 30 | ~22 |
+| 09:35 | Edited docs/ADRs/ADR-1006-developer-experience-and-openapi.md | 18→21 lines | ~1142 |
+| 09:35 | Edited marketing/src/components/sections/signup-form.tsx | 2→2 lines | ~27 |
+| 09:35 | Edited marketing/src/components/sections/solutions-tabs.tsx | 2→2 lines | ~78 |
+| 09:35 | Edited docs/ADRs/ADR-index.md | inline fix | ~358 |
+| 09:35 | Edited marketing/src/components/sections/solutions-tabs.tsx | 2→2 lines | ~74 |
+| 09:35 | Edited marketing/src/components/sections/solutions-tabs.tsx | "First" → "5+" | ~26 |
+| 09:36 | Edited marketing/src/components/sections/pricing-preview.tsx | 9→9 lines | ~74 |
+| 09:36 | Edited marketing/src/components/sections/price-table.tsx | 14→14 lines | ~96 |
+| 09:36 | Edited docs/changelogs/CHANGELOG-api.md | expanded (+31 lines) | ~1472 |

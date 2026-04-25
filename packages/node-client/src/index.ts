@@ -17,3 +17,18 @@ export {
 } from './errors'
 
 export type { FetchImpl, HttpRequest } from './http'
+
+export {
+  isOpenFailure,
+  type VerifyInput,
+  type VerifyBatchInput,
+} from './verify'
+
+export type {
+  IdentifierType,
+  OpenFailureEnvelope,
+  VerifyBatchEnvelope,
+  VerifyBatchResultRow,
+  VerifyEnvelope,
+  VerifyStatus,
+} from './types'

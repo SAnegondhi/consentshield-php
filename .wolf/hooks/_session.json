@@ -53,7 +53,7 @@
       "first_read": "2026-04-25T01:17:24.677Z"
     },
     "/Users/sudhindra/projects/aiSpirit/consent-sheild/marketing/src/app/page.tsx": {
-      "count": 1,
+      "count": 2,
       "tokens": 569,
       "first_read": "2026-04-25T01:17:32.630Z"
     },
@@ -183,8 +183,8 @@
       "first_read": "2026-04-25T01:41:45.053Z"
     },
     "/Users/sudhindra/projects/aiSpirit/consent-sheild/docs/changelogs/CHANGELOG-api.md": {
-      "count": 5,
-      "tokens": 41546,
+      "count": 6,
+      "tokens": 42191,
       "first_read": "2026-04-25T01:41:51.641Z"
     },
     "/Users/sudhindra/projects/aiSpirit/consent-sheild/docs/changelogs/CHANGELOG-dashboard.md": {
@@ -363,8 +363,8 @@
       "first_read": "2026-04-25T03:38:19.449Z"
     },
     "/Users/sudhindra/projects/aiSpirit/consent-sheild/docs/ADRs/ADR-1006-developer-experience-and-openapi.md": {
-      "count": 1,
-      "tokens": 2658,
+      "count": 2,
+      "tokens": 4481,
       "first_read": "2026-04-25T03:39:33.930Z"
     },
     "/Users/sudhindra/projects/aiSpirit/consent-sheild/supabase/migrations/20260429000001_rbac_memberships.sql": {
@@ -431,6 +431,61 @@
       "count": 1,
       "tokens": 1279,
       "first_read": "2026-04-25T04:02:09.680Z"
+    },
+    "/Users/sudhindra/projects/aiSpirit/consent-sheild/marketing/src/app/product/page.tsx": {
+      "count": 1,
+      "tokens": 2626,
+      "first_read": "2026-04-25T04:02:23.647Z"
+    },
+    "/Users/sudhindra/projects/aiSpirit/consent-sheild/marketing/src/app/docs/cookbook/build-dpb-audit-export/page.mdx": {
+      "count": 1,
+      "tokens": 4366,
+      "first_read": "2026-04-25T04:03:28.316Z"
+    },
+    "/Users/sudhindra/projects/aiSpirit/consent-sheild/marketing/src/app/depa/page.tsx": {
+      "count": 1,
+      "tokens": 736,
+      "first_read": "2026-04-25T04:03:55.196Z"
+    },
+    "/Users/sudhindra/projects/aiSpirit/consent-sheild/marketing/src/components/sections/depa-hero.tsx": {
+      "count": 1,
+      "tokens": 1266,
+      "first_read": "2026-04-25T04:04:04.539Z"
+    },
+    "/Users/sudhindra/projects/aiSpirit/consent-sheild/marketing/src/components/sections/depa-moat.tsx": {
+      "count": 1,
+      "tokens": 773,
+      "first_read": "2026-04-25T04:04:15.147Z"
+    },
+    "/Users/sudhindra/projects/aiSpirit/consent-sheild/marketing/src/components/sections/contrast.tsx": {
+      "count": 1,
+      "tokens": 567,
+      "first_read": "2026-04-25T04:04:33.347Z"
+    },
+    "/Users/sudhindra/projects/aiSpirit/consent-sheild/marketing/src/app/signup/page.tsx": {
+      "count": 1,
+      "tokens": 0,
+      "first_read": "2026-04-25T04:04:56.108Z"
+    },
+    "/Users/sudhindra/projects/aiSpirit/consent-sheild/marketing/src/components/sections/signup-form.tsx": {
+      "count": 1,
+      "tokens": 3746,
+      "first_read": "2026-04-25T04:05:10.151Z"
+    },
+    "/Users/sudhindra/projects/aiSpirit/consent-sheild/marketing/src/components/sections/solutions-tabs.tsx": {
+      "count": 1,
+      "tokens": 4024,
+      "first_read": "2026-04-25T04:05:19.491Z"
+    },
+    "/Users/sudhindra/projects/aiSpirit/consent-sheild/marketing/src/components/sections/pricing-preview.tsx": {
+      "count": 1,
+      "tokens": 1005,
+      "first_read": "2026-04-25T04:06:06.043Z"
+    },
+    "/Users/sudhindra/projects/aiSpirit/consent-sheild/marketing/src/components/sections/price-table.tsx": {
+      "count": 1,
+      "tokens": 1936,
+      "first_read": "2026-04-25T04:06:14.603Z"
     }
   },
   "files_written": [
@@ -1813,6 +1868,150 @@
       "action": "edit",
       "tokens": 116,
       "at": "2026-04-25T04:02:16.057Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/marketing/src/components/sections/story.tsx",
+      "action": "edit",
+      "tokens": 111,
+      "at": "2026-04-25T04:02:20.044Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/marketing/src/app/product/page.tsx",
+      "action": "edit",
+      "tokens": 64,
+      "at": "2026-04-25T04:03:04.689Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/marketing/src/app/product/page.tsx",
+      "action": "edit",
+      "tokens": 284,
+      "at": "2026-04-25T04:03:17.467Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/packages/node-client/tests/verify.test.ts",
+      "action": "create",
+      "tokens": 2769,
+      "at": "2026-04-25T04:03:22.144Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/marketing/src/app/product/page.tsx",
+      "action": "edit",
+      "tokens": 92,
+      "at": "2026-04-25T04:03:24.346Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/marketing/src/app/docs/cookbook/build-dpb-audit-export/page.mdx",
+      "action": "edit",
+      "tokens": 257,
+      "at": "2026-04-25T04:03:47.689Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/marketing/src/app/docs/cookbook/build-dpb-audit-export/page.mdx",
+      "action": "edit",
+      "tokens": 12,
+      "at": "2026-04-25T04:03:51.217Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/marketing/src/app/depa/page.tsx",
+      "action": "edit",
+      "tokens": 95,
+      "at": "2026-04-25T04:04:01.410Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/packages/node-client/tests/verify-batch.test.ts",
+      "action": "create",
+      "tokens": 2450,
+      "at": "2026-04-25T04:04:02.800Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/marketing/src/components/sections/depa-hero.tsx",
+      "action": "edit",
+      "tokens": 229,
+      "at": "2026-04-25T04:04:11.826Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/marketing/src/components/sections/depa-moat.tsx",
+      "action": "edit",
+      "tokens": 180,
+      "at": "2026-04-25T04:04:20.561Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/marketing/src/app/page.tsx",
+      "action": "edit",
+      "tokens": 58,
+      "at": "2026-04-25T04:04:30.263Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/marketing/src/components/sections/contrast.tsx",
+      "action": "edit",
+      "tokens": 176,
+      "at": "2026-04-25T04:04:39.460Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/marketing/src/app/signup/page.tsx",
+      "action": "edit",
+      "tokens": 36,
+      "at": "2026-04-25T04:05:04.356Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/marketing/src/app/signup/page.tsx",
+      "action": "edit",
+      "tokens": 22,
+      "at": "2026-04-25T04:05:07.336Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/docs/ADRs/ADR-1006-developer-experience-and-openapi.md",
+      "action": "edit",
+      "tokens": 1224,
+      "at": "2026-04-25T04:05:12.406Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/marketing/src/components/sections/signup-form.tsx",
+      "action": "edit",
+      "tokens": 27,
+      "at": "2026-04-25T04:05:14.050Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/marketing/src/components/sections/solutions-tabs.tsx",
+      "action": "edit",
+      "tokens": 78,
+      "at": "2026-04-25T04:05:24.882Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/docs/ADRs/ADR-index.md",
+      "action": "edit",
+      "tokens": 383,
+      "at": "2026-04-25T04:05:34.791Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/marketing/src/components/sections/solutions-tabs.tsx",
+      "action": "edit",
+      "tokens": 74,
+      "at": "2026-04-25T04:05:36.892Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/marketing/src/components/sections/solutions-tabs.tsx",
+      "action": "edit",
+      "tokens": 26,
+      "at": "2026-04-25T04:05:46.515Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/marketing/src/components/sections/pricing-preview.tsx",
+      "action": "edit",
+      "tokens": 74,
+      "at": "2026-04-25T04:06:10.789Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/marketing/src/components/sections/price-table.tsx",
+      "action": "edit",
+      "tokens": 96,
+      "at": "2026-04-25T04:06:20.133Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/docs/changelogs/CHANGELOG-api.md",
+      "action": "edit",
+      "tokens": 1577,
+      "at": "2026-04-25T04:06:23.497Z"
     }
   ],
   "edit_counts": {
@@ -1827,7 +2026,7 @@
     "docs/ADRs/ADR-1014-e2e-test-harness-and-vertical-demos.md": 18,
     "docs/customer-docs/healthcare-onboarding.md": 1,
     "admin/src/app/(operator)/templates/[templateId]/page.tsx": 5,
-    "docs/ADRs/ADR-index.md": 10,
+    "docs/ADRs/ADR-index.md": 11,
     "docs/changelogs/CHANGELOG-worker.md": 2,
     "tests/integration/healthcare-template.test.ts": 1,
     "docs/ADRs/ADR-1003-processor-posture-and-healthcare-unlock.md": 8,
@@ -1839,7 +2038,7 @@
     "docs/changelogs/CHANGELOG-docs.md": 2,
     ".claude/session-handoff-terminal-a.md": 1,
     "docs/changelogs/CHANGELOG-dashboard.md": 3,
-    "docs/changelogs/CHANGELOG-api.md": 5,
+    "docs/changelogs/CHANGELOG-api.md": 6,
     "docs/admin/architecture/consentshield-admin-schema.md": 1,
     "docs/V2-BACKLOG.md": 1,
     "app/tests/api/auth.test.ts": 2,
@@ -1874,7 +2073,7 @@
     "tests/e2e/utils/fixtures.ts": 1,
     "tests/e2e/utils/supabase-admin.ts": 1,
     "tests/e2e/worker-consent-event.spec.ts": 3,
-    "docs/ADRs/ADR-1006-developer-experience-and-openapi.md": 2,
+    "docs/ADRs/ADR-1006-developer-experience-and-openapi.md": 3,
     "packages/node-client/package.json": 1,
     "packages/node-client/tsconfig.json": 1,
     "packages/node-client/vitest.config.ts": 1,
@@ -1904,11 +2103,25 @@
     "marketing/src/app/pricing/page.tsx": 1,
     "marketing/src/app/docs/page.tsx": 3,
     "marketing/src/app/docs/status/page.mdx": 1,
-    "marketing/src/components/sections/story.tsx": 1
+    "marketing/src/components/sections/story.tsx": 2,
+    "marketing/src/app/product/page.tsx": 3,
+    "packages/node-client/tests/verify.test.ts": 1,
+    "marketing/src/app/docs/cookbook/build-dpb-audit-export/page.mdx": 2,
+    "marketing/src/app/depa/page.tsx": 1,
+    "packages/node-client/tests/verify-batch.test.ts": 1,
+    "marketing/src/components/sections/depa-hero.tsx": 1,
+    "marketing/src/components/sections/depa-moat.tsx": 1,
+    "marketing/src/app/page.tsx": 1,
+    "marketing/src/components/sections/contrast.tsx": 1,
+    "marketing/src/app/signup/page.tsx": 2,
+    "marketing/src/components/sections/signup-form.tsx": 1,
+    "marketing/src/components/sections/solutions-tabs.tsx": 3,
+    "marketing/src/components/sections/pricing-preview.tsx": 1,
+    "marketing/src/components/sections/price-table.tsx": 1
   },
-  "anatomy_hits": 80,
-  "anatomy_misses": 6,
-  "repeated_reads_warned": 55,
+  "anatomy_hits": 90,
+  "anatomy_misses": 7,
+  "repeated_reads_warned": 58,
   "cerebrum_warnings": 0,
-  "stop_count": 44
+  "stop_count": 45
 }

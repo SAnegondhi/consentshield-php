@@ -1,7 +1,7 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-04-25T04:02:16.049Z
-> Files: 1477 tracked | Anatomy hits: 0 | Misses: 0
+> Auto-maintained by OpenWolf. Last scanned: 2026-04-25T04:06:23.489Z
+> Files: 1480 tracked | Anatomy hits: 0 | Misses: 0
 
 ## ../../../../../tmp/
 
@@ -1423,7 +1423,7 @@
 - `ADR-1003-processor-posture-and-healthcare-unlock.md` — ADR-1003: Processor Posture + Healthcare Category Unlock (~10289 tok)
 - `ADR-1004-statutory-retention-material-change-silent-failure.md` — ADR-1004: Statutory Retention + Material-Change Re-consent + Silent-Failure Detection (~7531 tok)
 - `ADR-1005-operations-maturity.md` — ADR-1005: Operations Maturity — Webhook Reference, Support Model, Status Page, Multi-channel Alerts, (~7076 tok)
-- `ADR-1006-developer-experience-and-openapi.md` — ADR-1006: Developer Experience — Client Libraries + OpenAPI Spec + CI Drift Check (~4481 tok)
+- `ADR-1006-developer-experience-and-openapi.md` — ADR-1006: Developer Experience — Client Libraries + OpenAPI Spec + CI Drift Check (~5308 tok)
 - `ADR-1007-connector-ecosystem-expansion.md` — ADR-1007: Connector Ecosystem Expansion + Platform Plugins (~2738 tok)
 - `ADR-1008-scale-audit-polish-and-p3-hardening.md` — ADR-1008: Scale + Audit Polish + P3 Hardening (~3065 tok)
 - `ADR-1009-v1-api-role-hardening.md` — ADR-1009: v1 API role hardening — remove service-role shortcut, adopt `cs_api` as designed (~5564 tok)
@@ -1445,7 +1445,7 @@
 - `ADR-1025-customer-storage-auto-provisioning.md` — ADR-1025: Customer storage auto-provisioning — hybrid managed R2 default + BYOK escape hatch (~13370 tok)
 - `ADR-1026-drop-hyperdrive-direct-supavisor.md` — ADR-1026: Rewind ADR-1010 Phase 3 — Worker connects directly to Supavisor; drop Hyperdrive binding (~5467 tok)
 - `ADR-1027-admin-account-awareness.md` — ADR-1027: Admin Account-Awareness Pass (~8082 tok)
-- `ADR-index.md` — ADR Index (~8412 tok)
+- `ADR-index.md` — ADR Index (~8661 tok)
 - `ADR-template.md` — ADR-NNNN: Title (~423 tok)
 - `adr-workflow.md` — ADR Workflow Rules (~557 tok)
 
@@ -1469,7 +1469,7 @@
 
 ## docs/changelogs/
 
-- `CHANGELOG-api.md` — Changelog — API (~42191 tok)
+- `CHANGELOG-api.md` — Changelog — API (~43534 tok)
 - `CHANGELOG-dashboard.md` — Changelog — Dashboard (~29589 tok)
 - `CHANGELOG-docs.md` — Changelog — Documentation (~14155 tok)
 - `CHANGELOG-edge-functions.md` — Changelog — Edge Functions (~4251 tok)
@@ -1582,7 +1582,7 @@
 
 - `globals.css` — Styles: 92 rules, 27 vars (~15204 tok)
 - `layout.tsx` — dmSans (~513 tok)
-- `page.tsx` — metadata (~569 tok)
+- `page.tsx` — metadata (~571 tok)
 - `robots.ts` — Marketing site — fully crawlable. Contrast with admin/src/app/robots.ts, (~95 tok)
 
 ## marketing/src/app/api/contact/
@@ -1599,7 +1599,7 @@
 
 ## marketing/src/app/depa/
 
-- `page.tsx` — metadata (~736 tok)
+- `page.tsx` — metadata (~761 tok)
 
 ## marketing/src/app/docs/
 
@@ -1684,7 +1684,7 @@
 
 ## marketing/src/app/docs/cookbook/build-dpb-audit-export/
 
-- `page.mdx` — Build a DPB audit export (~4366 tok)
+- `page.mdx` — Build a DPB audit export (~4544 tok)
 
 ## marketing/src/app/docs/cookbook/handle-a-rights-request/
 
@@ -1748,7 +1748,11 @@
 
 ## marketing/src/app/product/
 
-- `page.tsx` — metadata (~2626 tok)
+- `page.tsx` — metadata (~2743 tok)
+
+## marketing/src/app/signup/
+
+- `page.tsx` — ADR-0058 Sprint 1.2 — marketing-site signup intake page. (~1060 tok)
 
 ## marketing/src/app/solutions/
 
@@ -1770,23 +1774,23 @@
 - `bfsi-callout.tsx` — BfsiCallout (~368 tok)
 - `capability-layer.tsx` — CapabilityLayer (~220 tok)
 - `contact-form.tsx` — TURNSTILE_SCRIPT — renders form (~2398 tok)
-- `contrast.tsx` — Contrast (~567 tok)
+- `contrast.tsx` — Contrast (~672 tok)
 - `cta-band.tsx` — Reusable CTA band section — used by home, product, depa, solutions pages. (~333 tok)
 - `demo-frames.tsx` — 7 frames of the How-It-Works demo — ported verbatim from the HTML (~9092 tok)
 - `depa-compare.tsx` — ROWS (~978 tok)
-- `depa-hero.tsx` — DepaHero (~1266 tok)
-- `depa-moat.tsx` — PRINCIPLES (~773 tok)
+- `depa-hero.tsx` — DepaHero (~1329 tok)
+- `depa-moat.tsx` — PRINCIPLES (~813 tok)
 - `dpa-signing-card.tsx` — DpaSigningCard — renders form (~1597 tok)
 - `home-hero.tsx` — HomeHero (~769 tok)
 - `how-it-works-demo.tsx` — FRAME_DURATION (~2363 tok)
 - `legal-document.tsx` — LegalDocumentView (~1935 tok)
 - `legal-layout.tsx` — LegalLayout (~953 tok)
-- `price-table.tsx` — GROUPS (~1936 tok)
+- `price-table.tsx` — GROUPS (~1948 tok)
 - `price-toggle.tsx` — PriceToggle (~262 tok)
-- `pricing-preview.tsx` — TIERS (~1005 tok)
+- `pricing-preview.tsx` — ADR-0058 Sprint 1.2: routing per tier. Starter / Growth / Pro (~1106 tok)
 - `signup-form.tsx` — TURNSTILE_SCRIPT — renders form (~3746 tok)
-- `solutions-tabs.tsx` — SECTORS (~4024 tok)
-- `story.tsx` — Story (~1328 tok)
+- `solutions-tabs.tsx` — SECTORS (~4066 tok)
+- `story.tsx` — Story (~1327 tok)
 - `timeline.tsx` — ENTRIES (~660 tok)
 
 ## marketing/src/content/legal/
@@ -1844,6 +1848,8 @@
 - `client.test.ts` — ADR-1006 Phase 1 Sprint 1.1 — ConsentShieldClient constructor + defaults. (~1506 tok)
 - `errors.test.ts` — ADR-1006 Phase 1 Sprint 1.1 — error class hierarchy. (~933 tok)
 - `http.test.ts` — ADR-1006 Phase 1 Sprint 1.1 — HTTP transport behaviour. (~3343 tok)
+- `verify-batch.test.ts` — ADR-1006 Phase 1 Sprint 1.2 — verifyBatch() compliance behaviour. (~2450 tok)
+- `verify.test.ts` — ADR-1006 Phase 1 Sprint 1.2 — verify() compliance behaviour. (~2769 tok)
 
 ## packages/shared-types/
 

@@ -6,6 +6,17 @@
 // (publication + integration examples).
 
 import { HttpClient, type FetchImpl } from './http'
+import {
+  verify as verifyImpl,
+  verifyBatch as verifyBatchImpl,
+  type VerifyInput,
+  type VerifyBatchInput,
+} from './verify'
+import type {
+  OpenFailureEnvelope,
+  VerifyBatchEnvelope,
+  VerifyEnvelope,
+} from './types'
 
 /**
  * Configuration for a `ConsentShieldClient` instance.
@@ -135,5 +146,57 @@ export class ConsentShieldClient {
   async ping(): Promise<true> {
     await this.http.request<unknown>({ method: 'GET', path: '/_ping' })
     return true
+  }
+
+  /**
+   * GET `/v1/consent/verify` — single-identifier consent check.
+   *
+   * Behaviour table:
+   * | Outcome | Default (failOpen=false) | Opt-in (failOpen=true) |
+   * | --- | --- | --- |
+   * | 200 | returns `VerifyEnvelope` | returns `VerifyEnvelope` |
+   * | timeout / network / 5xx | throws `ConsentVerifyError` | returns `OpenFailureEnvelope` |
+   * | 4xx (caller bug / scope / 422) | throws `ConsentShieldApiError` | throws `ConsentShieldApiError` |
+   *
+   * The 4xx-always-throws rule is non-negotiable per the v2 whitepaper
+   * §5.4 — a failOpen flag must NEVER mask a real validation / scope
+   * error. Use `isOpenFailure(result)` to ergonomically branch on the
+   * `failOpen=true` return shape.
+   *
+   * @example
+   * ```ts
+   * const result = await client.verify({
+   *   propertyId: 'PROP_UUID',
+   *   dataPrincipalIdentifier: 'user@example.com',
+   *   identifierType: 'email',
+   *   purposeCode: 'marketing',
+   * })
+   * if (isOpenFailure(result)) {
+   *   // failOpen=true mode — log the override to your audit trail.
+   * } else if (result.status === 'granted') {
+   *   // Proceed with the operation.
+   * }
+   * ```
+   */
+  verify(input: VerifyInput): Promise<VerifyEnvelope | OpenFailureEnvelope> {
+    return verifyImpl(this.http, input, this.failOpen)
+  }
+
+  /**
+   * POST `/v1/consent/verify/batch` — multi-identifier consent check.
+   *
+   * Same behaviour table as `verify`. Client-side validation BEFORE any
+   * network call: empty `identifiers` throws `RangeError` synchronously;
+   * more than 10 000 entries throws `RangeError` synchronously
+   * (mirrors the server's MAX_IDENTIFIERS cap; saves the round-trip);
+   * non-string entries throw `TypeError`.
+   *
+   * Result `results` array preserves input order — every input
+   * `identifiers[i]` corresponds to `result.results[i]`.
+   */
+  verifyBatch(
+    input: VerifyBatchInput,
+  ): Promise<VerifyBatchEnvelope | OpenFailureEnvelope> {
+    return verifyBatchImpl(this.http, input, this.failOpen)
   }
 }

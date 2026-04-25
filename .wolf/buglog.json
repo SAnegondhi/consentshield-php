@@ -14892,8 +14892,8 @@
         "tsx"
       ],
       "related_bugs": [],
-      "occurrences": 1,
-      "last_seen": "2026-04-25T04:01:37.460Z"
+      "occurrences": 3,
+      "last_seen": "2026-04-25T04:05:04.358Z"
     },
     {
       "id": "bug-928",
@@ -14924,8 +14924,8 @@
         "tsx"
       ],
       "related_bugs": [],
-      "occurrences": 1,
-      "last_seen": "2026-04-25T04:01:55.740Z"
+      "occurrences": 5,
+      "last_seen": "2026-04-25T04:04:01.413Z"
     },
     {
       "id": "bug-930",
@@ -14958,6 +14958,86 @@
       "related_bugs": [],
       "occurrences": 1,
       "last_seen": "2026-04-25T04:02:16.059Z"
+    },
+    {
+      "id": "bug-932",
+      "timestamp": "2026-04-25T04:04:11.829Z",
+      "error_message": "Significant refactor of ",
+      "file": "marketing/src/components/sections/depa-hero.tsx",
+      "root_cause": "6 lines replaced/restructured",
+      "fix": "Rewrote 11→14 lines (6 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "tsx"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-25T04:04:11.829Z"
+    },
+    {
+      "id": "bug-933",
+      "timestamp": "2026-04-25T04:04:39.463Z",
+      "error_message": "Type error",
+      "file": "marketing/src/components/sections/contrast.tsx",
+      "root_cause": "Missing or incorrect type annotation",
+      "fix": "Added type assertion/annotation",
+      "tags": [
+        "auto-detected",
+        "type-fix",
+        "tsx"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-25T04:04:39.463Z"
+    },
+    {
+      "id": "bug-934",
+      "timestamp": "2026-04-25T04:05:12.410Z",
+      "error_message": "Significant refactor of ",
+      "file": "docs/ADRs/ADR-1006-developer-experience-and-openapi.md",
+      "root_cause": "12 lines replaced/restructured",
+      "fix": "Rewrote 18→21 lines (12 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-25T04:05:12.410Z"
+    },
+    {
+      "id": "bug-935",
+      "timestamp": "2026-04-25T04:05:24.884Z",
+      "error_message": "Incorrect value in code",
+      "file": "marketing/src/components/sections/solutions-tabs.tsx",
+      "root_cause": "Had 'Resolves SEBI retention requirements vs DPDP eras",
+      "fix": "Changed to 'A queryable mapping of DPDP erasure rights agains",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "tsx"
+      ],
+      "related_bugs": [],
+      "occurrences": 3,
+      "last_seen": "2026-04-25T04:05:46.518Z"
+    },
+    {
+      "id": "bug-936",
+      "timestamp": "2026-04-25T04:06:20.136Z",
+      "error_message": "CSS fix: feature",
+      "file": "marketing/src/components/sections/price-table.tsx",
+      "root_cause": "feature: 'DPO matchmaking', → 'DPO matchmaking (Proposed · Q3/Q4 2026)',",
+      "fix": "Changed feature: 'DPO matchmaking', → 'DPO matchmaking (Proposed · Q3/Q4 2026)',",
+      "tags": [
+        "auto-detected",
+        "style-fix",
+        "tsx"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-25T04:06:20.136Z"
     }
   ]
 }

@@ -2,6 +2,37 @@
 
 API route changes.
 
+## [ADR-1006 Phase 1 Sprint 1.2 — `@consentshield/node` verify + verifyBatch] — 2026-04-25
+
+**ADR:** ADR-1006 — Developer Experience: Client Libraries + OpenAPI + CI Drift Check
+**Sprint:** Phase 1, Sprint 1.2 (verify + verifyBatch — the compliance-load-bearing methods)
+
+### Added
+- `packages/node-client/src/types.ts` — wire-format types mirroring `app/src/lib/consent/verify.ts` exactly. `VerifyStatus` (`granted | revoked | expired | never_consented`), `IdentifierType` literal union (`email | phone | pan | aadhaar | custom`), `VerifyEnvelope` (§5.1 single-identifier response), `VerifyBatchEnvelope` (results array preserves input order), `VerifyBatchResultRow`, **`OpenFailureEnvelope`** (`{ status: 'open_failure', reason, cause: 'timeout' | 'network' | 'server_error', traceId? }`). snake_case field names preserved on response shapes (server contract); SDK input shapes use camelCase per JS/TS convention.
+- `packages/node-client/src/verify.ts` — `verify()` + `verifyBatch()` core. Implements the **non-negotiable compliance contract** at the `decideFailureOutcome()` helper:
+  - **4xx ALWAYS throws** `ConsentShieldApiError` regardless of `failOpen` (caller bug / scope / 422 / 404 / 413 — failOpen MUST NEVER mask a real validation/scope error).
+  - **timeout / network / 5xx + `failOpen=false`** (default) → throws `ConsentVerifyError` wrapping the `ConsentShieldError` cause; calling code MUST treat the data principal as "consent NOT verified".
+  - **timeout / network / 5xx + `failOpen=true`** → returns `OpenFailureEnvelope` with `cause` discriminator + `traceId` from the failed-request response header. Sprint 1.3 wires the automatic POST to `/v1/audit` for the override; Sprint 1.2 ships the shape only.
+- `client.verify({ propertyId, dataPrincipalIdentifier, identifierType, purposeCode, traceId?, signal? })` — GET `/v1/consent/verify` with snake_case query string composition at the network boundary. Returns `VerifyEnvelope | OpenFailureEnvelope`.
+- `client.verifyBatch({ propertyId, identifierType, purposeCode, identifiers, traceId?, signal? })` — POST `/v1/consent/verify/batch` with snake_case body. Returns `VerifyBatchEnvelope | OpenFailureEnvelope`.
+- **Client-side gates BEFORE any network call** on `verifyBatch`: empty array → `RangeError` synchronously; > 10 000 → `RangeError` synchronously matching the server's `MAX_IDENTIFIERS` cap (saves the 413 round-trip + exact match at boundary 10 000); non-array `identifiers` → `TypeError`; non-string entry → `TypeError`; empty-string entry → `TypeError`; missing required scalar → `TypeError`. None of these gates trigger fetch.
+- `isOpenFailure(result)` — ergonomic type guard so callers can branch without a `.status === 'open_failure'` string check. Re-exported from `index.ts`.
+- `tests/verify.test.ts` (15 cases) — happy path returns envelope verbatim; camelCase → snake_case query; Authorization Bearer; traceId forward; synchronous validation rejects each missing/empty required field; **fail-closed default** throws `ConsentVerifyError` (not raw API error) on 5xx + transport error; **fail-open opt-in** returns `OpenFailureEnvelope` on 5xx + transport + timeout (with correct `cause` discriminator); **4xx ALWAYS throws** even when failOpen=true (sweep across 422 / 403 / 404).
+- `tests/verify-batch.test.ts` (15 cases) — POST shape (snake_case body, Content-Type) / input-order preserved in results; client-side gates trigger before fetch (empty / > 10 000 / non-array / non-string entry / empty entry / missing required); fail-closed/open + 4xx-never-opens (422 + 413).
+
+### Changed
+- `packages/node-client/src/client.ts` — `ConsentShieldClient` gains `verify()` + `verifyBatch()` methods. JSDoc on each spells out the behaviour table (200 / 4xx / 5xx-or-timeout-or-network × failOpen=true|false) so the contract is visible at the call site.
+- `packages/node-client/src/index.ts` — re-exports `isOpenFailure` + `VerifyInput` + `VerifyBatchInput` + the new `types.ts` shapes (`IdentifierType`, `OpenFailureEnvelope`, `VerifyBatchEnvelope`, `VerifyBatchResultRow`, `VerifyEnvelope`, `VerifyStatus`).
+
+### Architecture Changes
+- **The 4xx-always-throws rule is the non-negotiable load-bearing piece.** A failOpen flag must NEVER silence a real validation, scope, or auth error — those are caller bugs that need to surface. Tested via three sweep cases (422 / 403 / 404 — validation, scope, not-found) all under `failOpen=true`. Documented in the ADR §Sprint 1.2 + the JSDoc behaviour table on `client.verify()` / `client.verifyBatch()`.
+- **`OpenFailureEnvelope` carries a `cause` discriminator** (`'timeout' | 'network' | 'server_error'`) so the audit-trail entry in Sprint 1.3 can record WHY the override happened, not just THAT it happened. The `traceId` from the failed-request response header round-trips through too — server-side log correlation stays one grep away even on the failure path.
+- **Client-side `verifyBatch` cap matches the server's `MAX_IDENTIFIERS = 10000` exactly.** Boundary test confirms 10 000 is allowed; 10 001 throws synchronously. If the server cap ever changes, the SDK constant must move with it (a code-search grep for `MAX_BATCH_IDENTIFIERS` is the safety net).
+
+### Tested
+- [x] `cd packages/node-client && bun run test` — **64 passed** (5 files, +26 over Sprint 1.1's 38) — PASS
+- [x] `cd packages/node-client && bun run typecheck` — clean — PASS
+
 ## [ADR-1003 Sprint 5.1 R2 — sandbox test-principal endpoint + audit-export sandbox marker] — 2026-04-25
 
 **ADR:** ADR-1003 — Processor Posture + Healthcare Category Unlock
