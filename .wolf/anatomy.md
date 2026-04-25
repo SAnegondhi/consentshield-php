@@ -1,7 +1,7 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-04-24T16:36:17.886Z
-> Files: 1427 tracked | Anatomy hits: 0 | Misses: 0
+> Auto-maintained by OpenWolf. Last scanned: 2026-04-25T01:24:04.367Z
+> Files: 1434 tracked | Anatomy hits: 0 | Misses: 0
 
 ## ../../../../../tmp/
 
@@ -229,7 +229,7 @@
 
 ## ./
 
-- `.gitignore` — Git ignore rules (~284 tok)
+- `.gitignore` — Git ignore rules (~321 tok)
 - `.prettierrc` (~29 tok)
 - `.secrets` — Supabase (~972 tok)
 - `CLAUDE.md` — OpenWolf (~6199 tok)
@@ -243,8 +243,8 @@
 
 ## .claude/
 
-- `session-handoff-terminal-a.md` — Session handoff — 2026-04-25 (Terminal A — ADR-1003 Phase 1→3) (~5239 tok)
-- `session-handoff.md` — Session handoff — 2026-04-24 (Terminal B · evening) (~4886 tok)
+- `session-handoff-terminal-a.md` — Session handoff — 2026-04-25 (Terminal A — ADR-1003 Sprint 1.4) (~4096 tok)
+- `session-handoff.md` — Session handoff — 2026-04-25 (Terminal B — ADR-1014 Phase 5 closeout) (~5883 tok)
 
 ## .github/ISSUE_TEMPLATE/
 
@@ -494,7 +494,7 @@
 
 ## admin/src/app/(operator)/templates/[templateId]/
 
-- `page.tsx` — ADR-0030 Sprint 1.1 — Sectoral Template detail (read-only). (~3002 tok)
+- `page.tsx` — ADR-0030 Sprint 1.1 — Sectoral Template detail (read-only). (~3735 tok)
 
 ## admin/src/app/(operator)/templates/[templateId]/edit/
 
@@ -1401,7 +1401,7 @@
 - `ADR-1011-revoked-key-tombstone.md` — ADR-1011: Revoked-key tombstone — rotate+revoke plaintexts return 410 (~1088 tok)
 - `ADR-1012-v1-dx-gap-fixes.md` — ADR-1012: v1 API — day-1 DX gap fixes (~2561 tok)
 - `ADR-1013-cs-orchestrator-direct-postgres.md` — ADR-1013: `cs_orchestrator` direct-Postgres migration (Next.js runtime) (~2726 tok)
-- `ADR-1014-e2e-test-harness-and-vertical-demos.md` — ADR-1014: End-to-end test harness + vertical demo sites (partner-evidence grade) (~19037 tok)
+- `ADR-1014-e2e-test-harness-and-vertical-demos.md` — ADR-1014: End-to-end test harness + vertical demo sites (partner-evidence grade) (~20680 tok)
 - `ADR-1015-v1-api-integration-tests-and-developer-docs.md` — ADR-1015: v1 API integration tests + customer developer documentation (~7655 tok)
 - `ADR-1016-v1-orphan-scope-read-endpoints.md` — ADR-1016: v1 API — close the orphan `read:audit`, `read:security`, `read:score` scopes (~1836 tok)
 - `ADR-1017-admin-ops-readiness-flags.md` — ADR-1017: Admin ops-readiness flags — surface external blockers in the operator console (~1656 tok)
@@ -1415,7 +1415,7 @@
 - `ADR-1025-customer-storage-auto-provisioning.md` — ADR-1025: Customer storage auto-provisioning — hybrid managed R2 default + BYOK escape hatch (~13370 tok)
 - `ADR-1026-drop-hyperdrive-direct-supavisor.md` — ADR-1026: Rewind ADR-1010 Phase 3 — Worker connects directly to Supavisor; drop Hyperdrive binding (~5467 tok)
 - `ADR-1027-admin-account-awareness.md` — ADR-1027: Admin Account-Awareness Pass (~8082 tok)
-- `ADR-index.md` — ADR Index (~6349 tok)
+- `ADR-index.md` — ADR Index (~6490 tok)
 - `ADR-template.md` — ADR-NNNN: Title (~423 tok)
 - `adr-workflow.md` — ADR Workflow Rules (~557 tok)
 
@@ -1446,12 +1446,13 @@
 - `CHANGELOG-infra.md` — Changelog — Infrastructure (~23450 tok)
 - `CHANGELOG-marketing.md` — Changelog — Marketing (~14515 tok)
 - `CHANGELOG-schema.md` — Changelog — Schema (~52508 tok)
-- `CHANGELOG-worker.md` — Changelog — Worker (~6025 tok)
+- `CHANGELOG-worker.md` — Changelog — Worker (~7257 tok)
 
 ## docs/customer-docs/
 
 - `byos-aws-s3.md` — BYOS on AWS S3 (~2074 tok)
 - `byos-cloudflare-r2.md` — BYOS on Cloudflare R2 (~1898 tok)
+- `healthcare-onboarding.md` — Healthcare onboarding (~3075 tok)
 
 ## docs/design/
 
@@ -1516,6 +1517,7 @@
 
 ## docs/runbooks/
 
+- `adr-1003-phase-1-operator-actions.md` — ADR-1003 Phase 1 — operator actions (~1437 tok)
 - `ai-provider-setup.md` — Runbook — AI Translation Provider Setup (Sarvam + Vercel AI Gateway) (~2210 tok)
 - `notification-channel-accounts.md` — Notification channel account setup — Slack / Teams / Discord / PagerDuty (~1889 tok)
 - `ops-readiness-flags.md` — Ops Readiness Flags — operator runbook (~1594 tok)
@@ -2334,6 +2336,7 @@
 - `20260804000052_adr1003_s13_zero_storage_artefact_index.sql` — ADR-1003 Sprint 1.3 — zero-storage consent_artefact_index TTL writes. (~603 tok)
 - `20260804000053_adr1003_s31_hot_row_refresh.sql` — ADR-1003 Sprint 3.1 — zero-storage hot-row TTL refresh. (~4012 tok)
 - `20260804000054_adr1003_s14_rpc_consent_record_mode_fence.sql` — ADR-1003 Sprint 1.4 — rpc_consent_record storage_mode fence + Mode B (~5214 tok)
+- `20260804000056_adr1003_s41_healthcare_template_seed.sql` — ADR-1003 Sprint 4.1 — Healthcare sectoral template seed (G-042). (~4764 tok)
 
 ## supabase/seed/
 
@@ -2640,8 +2643,10 @@
 ## worker/
 
 - `.dev.vars` (~117 tok)
-- `package.json` — Node.js package manifest (~67 tok)
+- `package.json` — Node.js package manifest (~153 tok)
+- `stryker.conf.mjs` — + RPC wrappers. (~528 tok)
 - `tsconfig.json` — TypeScript configuration (~105 tok)
+- `vitest.config.ts` — /*.test.ts'], (~57 tok)
 - `wrangler.toml` (~396 tok)
 
 ## worker/src/
@@ -2668,3 +2673,8 @@
 - `probe-rest.ts` — ADR-1010 Phase 1 Sprint 1.1 — Mechanism B: REST with SUPABASE_WORKER_KEY. (~647 tok)
 - `README.md` — Project documentation (~899 tok)
 - `types.ts` — ADR-1010 Phase 1 Sprint 1.1 — probe envelope shared by all three (~140 tok)
+
+## worker/tests/
+
+- `hmac.test.ts` — ORG: sign (~2338 tok)
+- `origin.test.ts` — API routes: GET (1 endpoints) (~1788 tok)

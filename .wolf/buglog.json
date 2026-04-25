@@ -14062,6 +14062,86 @@
       "related_bugs": [],
       "occurrences": 1,
       "last_seen": "2026-04-24T16:35:13.553Z"
+    },
+    {
+      "id": "bug-876",
+      "timestamp": "2026-04-25T01:19:28.980Z",
+      "error_message": "Missing error handling in unknown",
+      "file": "worker/tests/origin.test.ts",
+      "root_cause": "Code path had no error handling — exceptions would propagate uncaught",
+      "fix": "Added try/catch block",
+      "tags": [
+        "auto-detected",
+        "error-handling",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-25T01:19:28.980Z"
+    },
+    {
+      "id": "bug-877",
+      "timestamp": "2026-04-25T01:22:02.232Z",
+      "error_message": "Missing error handling in under",
+      "file": "docs/ADRs/ADR-1014-e2e-test-harness-and-vertical-demos.md",
+      "root_cause": "Code path had no error handling — exceptions would propagate uncaught",
+      "fix": "Added try/catch block",
+      "tags": [
+        "auto-detected",
+        "error-handling",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-25T01:22:02.232Z"
+    },
+    {
+      "id": "bug-878",
+      "timestamp": "2026-04-25T01:22:02.675Z",
+      "error_message": "Incorrect value in code",
+      "file": "admin/src/app/(operator)/templates/[templateId]/page.tsx",
+      "root_cause": "Had 'id, template_code, display_name, description, sec",
+      "fix": "Changed to 'id, template_code, display_name, description, sec",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "tsx"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-25T01:22:02.675Z"
+    },
+    {
+      "id": "bug-879",
+      "timestamp": "2026-04-25T01:22:17.384Z",
+      "error_message": "Null/undefined access in ",
+      "file": "admin/src/app/(operator)/templates/[templateId]/page.tsx",
+      "root_cause": "Property access on potentially null/undefined value",
+      "fix": "Added null safety (optional chaining or null check)",
+      "tags": [
+        "auto-detected",
+        "null-safety",
+        "tsx"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-25T01:22:17.384Z"
+    },
+    {
+      "id": "bug-880",
+      "timestamp": "2026-04-25T01:24:04.378Z",
+      "error_message": "Missing guard clause",
+      "file": "docs/changelogs/CHANGELOG-worker.md",
+      "root_cause": "No early return/throw for edge case: a.length !== b.length",
+      "fix": "Added guard clause: if (a.length !== b.length)",
+      "tags": [
+        "auto-detected",
+        "guard-clause",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-25T01:24:04.378Z"
     }
   ]
 }

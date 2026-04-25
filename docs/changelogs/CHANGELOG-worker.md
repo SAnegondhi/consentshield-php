@@ -2,6 +2,32 @@
 
 Cloudflare Worker changes.
 
+## [ADR-1014 Sprint 4.1 — Stryker mutation testing baseline (Worker)] — 2026-04-25
+
+**ADR:** ADR-1014 — End-to-end test harness + vertical demo sites
+**Sprint:** Phase 4, Sprint 4.1
+
+### Added
+- `worker/vitest.config.ts` — first unit-test runner config in the Worker workspace. Pure-Node environment, `tests/**/*.test.ts` discovery, 10 s per-test timeout. The Worker had no unit suite before this sprint; existing `tests/integration/worker-*.ts` files exercise Hyperdrive against a live DB and aren't a Stryker-runnable target.
+- `worker/tests/hmac.test.ts` (~25 cases) — RFC 4231 HMAC-SHA256 vector, deterministic-digest invariants, tampered-byte detection at low + high nibbles, single-byte org/property/timestamp/secret swaps, **oversized-signature length-bypass** (kills the dangerous `timingSafeEqual` mutant — see Architecture Changes), timestamp-window boundaries at exactly ±5 min ± 1 ms, NaN/empty-string handling, custom-window argument honour.
+- `worker/tests/origin.test.ts` (~20 cases) — exact-origin match, multi-allowed match, Referer fallback when Origin missing, normalisation of Referer to its origin component, unverified-vs-rejected branches, scheme-mismatch rejection, subdomain-mismatch rejection, port-mismatch rejection, "null" Origin handling, substring-attack rejection (`shop.example.com.attacker.com`), prefix-attack rejection, Origin-wins-over-Referer ordering, URL-parse fallback for non-URL-shaped allowed entries.
+- `worker/stryker.conf.mjs` — Stryker 9.6.1 with `vitest-runner` + `typescript-checker` plugins; `coverageAnalysis: 'perTest'`; threshold gate `low: 80 / high: 90 / break: 80`; HTML + JSON reporters under `worker/reports/mutation/`. Mutate scope deliberately narrowed to `src/hmac.ts` (whole file) + `src/origin.ts:85-128` (the pure `validateOrigin` + `rejectOrigin` functions only).
+- `worker/package.json` — devDeps `@stryker-mutator/core@9.6.1`, `@stryker-mutator/typescript-checker@9.6.1`, `@stryker-mutator/vitest-runner@9.6.1`, `vitest@4.1.4` (all exact-pinned per Rule 17). Scripts `test`, `test:watch`, `test:mutation`.
+
+### Changed
+- `.gitignore` — extended Cloudflare section with `worker/reports/`, `worker/.stryker-tmp/`, `.stryker-tmp/`, `reports/mutation/` so per-run mutation HTML/JSON doesn't accumulate in the repo.
+
+### Architecture Changes
+- **Mutation-scope policy for the Worker.** The upper half of `origin.ts` (`getPropertyConfig` / `getPropertyConfigSql` / `getPropertyConfigRest` / `getPreviousSigningSecret`) is I/O against KV / Hyperdrive / REST and needs Cloudflare runtime bindings. Sprint 4.1 explicitly excludes these from the mutation scope — they're covered by the Phase 3 E2E suites + Miniflare harness, not by the Node-runner unit-layer Stryker scope. Future Worker mutation work follows the same rule: only mutate code paths a pure-Node test can reach.
+- **Equivalent-mutant policy.** Five mutants survived the final run, all confirmed equivalent (no behaviour change observable from outside the function): `hmac.ts:10` `extractable: false → true` (HMAC digest is identical regardless of key extractability); `hmac.ts:32` removing the `isNaN` early-return guard (downstream `Math.abs(NaN) <= n` is `false` for any `n` — same outcome); `hmac.ts:52` loop boundary `i < a.length → i <= a.length` (NaN coerces to 0 in bitwise context — no accumulated bit changes); two equivalent-pair mutants in `origin.ts:103` for the empty-`allowedOrigins` early-return (fall-through to the for-loop over zero elements lands on the same `rejected` outcome at line 120). These are NOT silenced via `// Stryker disable` comments — Rule 13 (don't modify production code for tooling artefacts) takes precedence; the ADR Test Results section is the audit trail.
+
+### Tested
+- [x] `cd worker && bun run test` — 49 passed (2 files) — PASS
+- [x] `cd worker && bunx tsc --noEmit` — clean — PASS
+- [x] `cd worker && bun run test:mutation` — **91.07% overall mutation score** (hmac.ts 91.43%, origin.ts 90.48%); 50 killed, 1 timeout (equivalent), 5 survived (all documented equivalent), 26 typecheck-rejected mutants. Above the `break: 80` threshold gate.
+- [x] **Dangerous-mutant kill verified.** Baseline run produced a `Survived` `BlockStatement` mutation at `hmac.ts:50` (`if (a.length !== b.length) return false`). Removing this guard turns the timing-safe equality into a prefix-comparison: an attacker who learns a valid signature could append arbitrary bytes and still verify, because the loop iterates only up to `a.length`. New test `rejects an oversized signature even when its 64-char prefix matches the expected digest` kills this mutant on the second run. Confirmed by diffing baseline (61.84%, hmac.ts 30 killed / 4 survived) against final (91.07%, hmac.ts 31 killed / 3 survived).
+- [x] Root vitest config does NOT pick up worker tests — `cd .. && bunx vitest list | grep -c worker/tests` returns 0. Worker mutation suite stays in its own workspace boundary.
+
 ## [ADR-1003 Sprint 1.2 — zero-storage bypass + bridge client] — 2026-04-24
 
 **ADR:** ADR-1003 — Processor Posture + Healthcare Category Unlock
