@@ -2,6 +2,27 @@
 
 Next.js UI changes.
 
+## [ADR-1003 Sprint 4.1 — Healthcare template storage-mode + connector-defaults on admin detail] — 2026-04-25
+
+**ADR:** ADR-1003 — Processor Posture + Healthcare Category Unlock
+**Sprint:** Phase 4, Sprint 4.1
+
+### Admin console
+- `admin/src/app/(operator)/templates/[templateId]/page.tsx` — SELECT extended to fetch the two new `admin.sectoral_templates` columns (`default_storage_mode`, `connector_defaults`). Header gains a new `StorageModePill` component (colour-coded: purple for `zero_storage`, blue for `insulated`, grey for `standard`) rendered next to the existing `StatusPill` when the template declares a mode. New "Connector defaults" section below the purposes table iterates the `connector_defaults` jsonb and renders each slot as `{category, examples, rationale}` so operators see at a glance which vendor-class connectors a customer will need to wire after applying the template. Section is hidden when `connector_defaults` is null (BFSI Starter, DPDP Minimum).
+
+### Not changed
+- Template list page (`/templates`) — unchanged. The existing `order by sector, template_code, version desc` and status-pill rendering pick up the new `healthcare_starter` published row automatically.
+- Template new / edit pages — **deferred**. The form inputs for `default_storage_mode` and `connector_defaults` aren't in the Sprint 4.1 scope; operators can seed via migration for now. Tracked in `docs/V2-BACKLOG.md` (origin ADR-1003 Sprint 4.1).
+- Customer dashboard `applyTemplate` Server Action (`app/src/app/(dashboard)/dashboard/template/actions.ts`) and the onboarding-wizard variant (`app/src/app/(public)/onboarding/actions.ts`) — **unchanged**. Both surface the RPC's `error.message` directly; the new P0004 ("storage_mode=zero_storage required but org is standard — ask your admin to switch mode first") reads correctly as-is. A prettier P0004-specific UX card is a Sprint 4.2 follow-up.
+
+### Rationale
+Operators inspecting the Healthcare Starter row need to see at a glance that it is gated to zero-storage orgs and that two connector categories are expected to be wired. Without the pill and the section, the storage-mode gate is invisible until an operator tries to apply the template and hits P0004 — confusing, especially when supporting a customer over the phone.
+
+### Tested
+- `cd admin && bun run lint` — PASS.
+- `cd admin && bun run build` — PASS (both admin routes `/templates` and `/templates/[templateId]` compile with the new types).
+- Manual click-through deferred to operator validation once the `healthcare_starter` row lands (migration 56 pushed 2026-04-25).
+
 ## [ADR-1003 Sprint 2.1 — BYOK scope-down probe UX] — 2026-04-24
 
 **ADR:** ADR-1003 — Processor Posture + Healthcare Category Unlock

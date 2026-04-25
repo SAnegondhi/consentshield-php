@@ -307,15 +307,19 @@ Also closes the secondary gap flagged in Terminal A's handoff: the Sprint 1.3 br
 ## Architecture Changes
 
 - `docs/architecture/consentshield-definitive-architecture.md`:
-  - Add a "Processing modes — data-plane enforcement" section documenting Worker / Edge Function / delivery_buffer branches
-  - Document the `consent_artefact_index` TTL behaviour under Zero-Storage
-  - Add sandbox orgs as a first-class concept
+  - Add a "Processing modes — data-plane enforcement" section documenting Worker / Edge Function / delivery_buffer branches *(outstanding — scheduled alongside Sprint 3.2 or the Phase 1 operator close-out)*
+  - Document the `consent_artefact_index` TTL behaviour under Zero-Storage *(outstanding — deferred alongside the above)*
+  - Add sandbox orgs as a first-class concept *(Sprint 5.1)*
 - `docs/architecture/consentshield-complete-schema-design.md`:
-  - Document `accounts.sandbox`
-  - Document Healthcare template rows
-  - Document any TTL column additions on `consent_artefact_index`
+  - Document `accounts.sandbox` *(Sprint 5.1)*
+  - Document Healthcare template rows — **scope-amended 2026-04-25.** Admin-schema DDL belongs in `docs/admin/architecture/consentshield-admin-schema.md`; the customer-side schema-design doc carries only public-schema tables. The `admin.sectoral_templates` DDL (including the new `default_storage_mode` + `connector_defaults` columns) is documented in `docs/admin/architecture/consentshield-admin-schema.md §3.4`.
+  - Document any TTL column additions on `consent_artefact_index` *(Sprint 3.1 — already shipped; schema-design doc update outstanding)*
 
-_None yet._
+### Completed updates — Sprint 4.1 (2026-04-25)
+
+- `docs/admin/architecture/consentshield-admin-schema.md §3.4` — DDL snapshot for `admin.sectoral_templates` now carries the two new columns (`default_storage_mode text check(...)`, `connector_defaults jsonb`) with inline comments explaining the Sprint 4.1 gate behaviour and the "informational metadata" scope of `connector_defaults`.
+- `docs/V2-BACKLOG.md` — two deferred follow-ups logged under "Open — blocked on downstream ADR": template-editor form inputs for the new columns (Sprint 4.2 candidate) + P0004-specific customer-side UX card (Sprint 4.2 candidate).
+- `docs/ADRs/ADR-index.md` — ADR-1003 status flipped from `Proposed` to `In Progress`; inline sprint-shipped summary matches the convention from ADR-1004/1005.
 
 ---
 

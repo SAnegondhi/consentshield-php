@@ -1,6 +1,6 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-04-25T01:42:47.242Z
+> Auto-maintained by OpenWolf. Last scanned: 2026-04-25T01:45:50.290Z
 > Files: 1438 tracked | Anatomy hits: 0 | Misses: 0
 
 ## ../../../../../tmp/
@@ -1327,7 +1327,7 @@
 - `FEATURE-INVENTORY.md` — ConsentShield — Complete Feature Inventory (~9665 tok)
 - `ROADMAP-phase2.md` — ConsentShield — Phase 2 Roadmap (~3150 tok)
 - `STATUS.md` — ConsentShield Status (~3762 tok)
-- `V2-BACKLOG.md` — V2 Backlog — Deferred Items (~1249 tok)
+- `V2-BACKLOG.md` — V2 Backlog — Deferred Items (~1680 tok)
 - `WHITEPAPER-AUDIT.md` — ConsentShield Integration Whitepaper — Critical Audit vs. Implementation (~4878 tok)
 
 ## docs/ADRs/
@@ -1392,7 +1392,7 @@
 - `ADR-0501-marketing-site-scaffold.md` — ADR-0501 — ConsentShield marketing site (`marketing/`) (~6079 tok)
 - `ADR-1001-truth-in-marketing-and-public-api-foundation.md` — ADR-1001: Truth-in-Marketing + Public API Foundation (~5650 tok)
 - `ADR-1002-dpdp-section6-runtime-enforcement.md` — ADR-1002: DPDP §6 Runtime Enforcement — Verify, Record, Artefact Ops, Deletion API (~7030 tok)
-- `ADR-1003-processor-posture-and-healthcare-unlock.md` — ADR-1003: Processor Posture + Healthcare Category Unlock (~8766 tok)
+- `ADR-1003-processor-posture-and-healthcare-unlock.md` — ADR-1003: Processor Posture + Healthcare Category Unlock (~9109 tok)
 - `ADR-1004-statutory-retention-material-change-silent-failure.md` — ADR-1004: Statutory Retention + Material-Change Re-consent + Silent-Failure Detection (~7531 tok)
 - `ADR-1005-operations-maturity.md` — ADR-1005: Operations Maturity — Webhook Reference, Support Model, Status Page, Multi-channel Alerts, (~7076 tok)
 - `ADR-1006-developer-experience-and-openapi.md` — ADR-1006: Developer Experience — Client Libraries + OpenAPI Spec + CI Drift Check (~2658 tok)
@@ -1417,7 +1417,7 @@
 - `ADR-1025-customer-storage-auto-provisioning.md` — ADR-1025: Customer storage auto-provisioning — hybrid managed R2 default + BYOK escape hatch (~13370 tok)
 - `ADR-1026-drop-hyperdrive-direct-supavisor.md` — ADR-1026: Rewind ADR-1010 Phase 3 — Worker connects directly to Supavisor; drop Hyperdrive binding (~5467 tok)
 - `ADR-1027-admin-account-awareness.md` — ADR-1027: Admin Account-Awareness Pass (~8082 tok)
-- `ADR-index.md` — ADR Index (~6700 tok)
+- `ADR-index.md` — ADR Index (~6860 tok)
 - `ADR-template.md` — ADR-NNNN: Title (~423 tok)
 - `adr-workflow.md` — ADR Workflow Rules (~557 tok)
 
@@ -1516,7 +1516,7 @@
 - `2026-04-18-comprehensive-project-review.md` — ConsentShield — Comprehensive Review as of 2026-04-18 (~3553 tok)
 - `2026-04-20-api-key-security-review.md` — Security Review — API Key Surface (ADR-1001 Sprint 3.1) (~1833 tok)
 - `2026-04-21-v1-api-gap-audit.md` — v1 API Gap Audit — 2026-04-21 (~2913 tok)
-- `2026-04-25-marketing-claims-vs-reality-review.md` — Marketing claims vs. reality review (~3133 tok)
+- `2026-04-25-marketing-claims-vs-reality-review.md` — Marketing claims vs. reality review (~3658 tok)
 
 ## docs/runbooks/
 

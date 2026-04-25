@@ -208,21 +208,23 @@ Sector-specific purpose-definition seed packs.
 
 ```sql
 create table admin.sectoral_templates (
-  id                  uuid        primary key default gen_random_uuid(),
-  template_code       text        not null,                       -- 'dpdp_minimum', 'dpdp_extended', 'bfsi_starter', 'healthcare_clinic'
-  display_name        text        not null,
-  description         text        not null,
-  sector              text        not null,                       -- 'general', 'bfsi', 'healthcare', 'edtech'
-  version             int         not null default 1,
-  status              text        not null default 'draft' check (status in ('draft','published','deprecated')),
-  purpose_definitions jsonb       not null,                       -- array of { purpose_code, display_name, description, framework, data_scope[], default_expiry_days, auto_delete_on_expiry }
-  notes               text,
-  created_at          timestamptz not null default now(),
-  created_by          uuid        not null references admin.admin_users(id),
-  published_at        timestamptz,
-  published_by        uuid        references admin.admin_users(id),
-  deprecated_at       timestamptz,
-  superseded_by_id    uuid        references admin.sectoral_templates(id),
+  id                   uuid        primary key default gen_random_uuid(),
+  template_code        text        not null,                       -- 'dpdp_minimum', 'dpdp_extended', 'bfsi_starter', 'healthcare_starter'
+  display_name         text        not null,
+  description          text        not null,
+  sector               text        not null,                       -- 'general', 'bfsi', 'healthcare', 'edtech'
+  version              int         not null default 1,
+  status               text        not null default 'draft' check (status in ('draft','published','deprecated')),
+  purpose_definitions  jsonb       not null,                       -- array of { purpose_code, display_name, description, framework, data_scope[], default_expiry_days, auto_delete_on_expiry }
+  notes                text,
+  default_storage_mode text        check (default_storage_mode in ('standard','insulated','zero_storage')), -- ADR-1003 Sprint 4.1. Nullable. When set, public.apply_sectoral_template refuses to apply unless the org's storage_mode already matches (errcode P0004). NULL = mode-agnostic (BFSI Starter, DPDP Minimum).
+  connector_defaults   jsonb,                                      -- ADR-1003 Sprint 4.1. Nullable. Vendor-category placeholders surfaced by the admin templates detail page — informational metadata of the shape { <slot>: { category, examples[], rationale } }. Not referenced by purpose_connector_mappings; actual deletion-connector wiring stays per-org.
+  created_at           timestamptz not null default now(),
+  created_by           uuid        not null references admin.admin_users(id),
+  published_at         timestamptz,
+  published_by         uuid        references admin.admin_users(id),
+  deprecated_at        timestamptz,
+  superseded_by_id     uuid        references admin.sectoral_templates(id),
   unique (template_code, version)
 );
 

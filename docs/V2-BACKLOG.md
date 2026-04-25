@@ -74,6 +74,18 @@ Every Worker source file (`banner.ts`, `origin.ts`, `signatures.ts`, `events.ts`
 
 **Shape of fix.** Either (a) wire Miniflare's `hyperdrives` config to a local Postgres so the Hyperdrive path runs in the test harness too, or (b) migrate those 20 tests to `tests/integration/` where they can hit dev Supabase directly. Both are real work; neither is Phase-4-blocking — promote only when the fallback's drift becomes a maintenance burden.
 
+### ADR-1003 Sprint 4.2. Admin template editor for `default_storage_mode` + `connector_defaults`  *(origin: ADR-1003 Sprint 4.1)*
+
+Sprint 4.1 added two columns to `admin.sectoral_templates` and surfaced them on the **detail** page (`admin/src/app/(operator)/templates/[templateId]/page.tsx`). The **new** / **edit** pages (`/templates/new`, `/templates/[templateId]/edit`) don't yet let an operator set `default_storage_mode` (enum radio) or `connector_defaults` (key-value-ish jsonb editor). Current workaround: seed-migration or direct `admin.sectoral_templates` UPDATE with service role.
+
+**Shape of fix.** Form inputs on both pages + corresponding RPC signature extension (`admin.create_sectoral_template_draft`, `admin.update_sectoral_template_draft`). ~1 day. Promote when the next sector pack (edtech / fintech / defence) needs these columns without a migration round-trip.
+
+### ADR-1003 Sprint 4.2. P0004-specific UX card on customer-side apply  *(origin: ADR-1003 Sprint 4.1)*
+
+`applyTemplate` server actions in `app/src/app/(dashboard)/dashboard/template/actions.ts` and `app/src/app/(public)/onboarding/actions.ts` surface the RPC's `error.message` raw. The Sprint 4.1 P0004 message reads correctly as-is, but a typed `error.code === 'P0004'` branch could render a dedicated "your admin needs to flip storage mode first" card with a mail-to link and the org ID copy-button, instead of a generic red error panel.
+
+**Shape of fix.** Detect `P0004` in both actions, return `{ok: false, code: 'admin_action_required', requiredMode, currentMode}`; client renders a bespoke card. Small (<1 day). Promote when the first healthcare customer hits the error in real onboarding — until then the raw message is acceptable.
+
 ---
 
 ## How to maintain this file

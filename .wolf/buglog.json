@@ -14206,6 +14206,22 @@
       "related_bugs": [],
       "occurrences": 1,
       "last_seen": "2026-04-25T01:42:47.252Z"
+    },
+    {
+      "id": "bug-885",
+      "timestamp": "2026-04-25T01:45:50.300Z",
+      "error_message": "Significant refactor of ",
+      "file": "docs/ADRs/ADR-1003-processor-posture-and-healthcare-unlock.md",
+      "root_cause": "7 lines replaced/restructured",
+      "fix": "Rewrote 12→16 lines (7 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-25T01:45:50.300Z"
     }
   ]
 }
