@@ -2,6 +2,49 @@
 
 Vercel, Cloudflare, Supabase config changes.
 
+## [ADR-1018 Phase 2 Sprint 2.2 path-A + Sprint 2.4 reconnaissance — Better Stack monitors + status-page resource] — 2026-04-25
+
+**ADR:** ADR-1018 — Status page (Phase 1 self-hosted superseded; Phase 2 Better Stack)
+**Sprints:** Phase 2, Sprint 2.2 (path-A) + Sprint 2.4 (status page resource creation; cutover deferred)
+
+### Added
+
+**Sprint 2.2 path-A — four BS HTTP monitors (free tier; 3 / 5 min cadence; single region; created via `POST /api/v2/monitors`):**
+
+| BS ID | Name | URL | Cadence |
+|---|---|---|---|
+| 4326425 | Customer App — `/api/health` | `https://app.consentshield.in/api/health` | 180s |
+| 4326426 | Supabase Edge — `/functions/v1/health` | `https://xlqiakmkdjycfiioslgs.supabase.co/functions/v1/health` | 180s |
+| 4326427 | Marketing gate — `/gate` | `https://consentshield.in/gate` | 300s |
+| 4326428 | Customer App — `/login` | `https://app.consentshield.in/login` | 180s |
+
+These cover four of the seven wireframe-spec surfaces partially. The remaining three wireframe surfaces (REST API v1 unauthenticated probe, rights portal, Worker / admin / deletion-connector / notification-dispatch heartbeats, Dashboard auth'd Playwright probe) are split into seven sub-sprints **2.2.1 → 2.2.7** in the ADR with explicit unblock triggers.
+
+**Sprint 2.4 reconnaissance — BS status page resource created via `POST /api/v2/status-pages`:**
+
+| Field | Value |
+|---|---|
+| BS resource id | `245019` |
+| Subdomain | `consentshield` |
+| BS-assigned URL | `https://consentshield.betteruptime.com` (live; returns 200) |
+| Custom domain | not set — paid-tier feature, silently dropped on free-tier create |
+| Subscribable | not set — paid-tier feature |
+| Password protection | not set — paid-tier feature |
+| History window | 90 days |
+| Timezone | Asia/Kolkata (BS displays as "New Delhi") |
+
+### Decision noted
+
+- `status.consentshield.in` DNS **stays** at the Phase-1 CNAME (`cname.vercel-dns.com` → app Vercel project → `/status`) until the launch-time tier upgrade. Repointing today would break the working self-hosted page in exchange for an unbranded `consentshield.betteruptime.com` URL.
+- Custom domain mapping for `status.consentshield.in` → BS happens in Sprint 2.4's cutover step **after** the Sprint 2.5 tier upgrade.
+- The seven monitors split into 2.2.1 → 2.2.7 each carry a single explicit unblock trigger. 2.2.1 (REST API v1) is the cheapest unblock — needs an unauthenticated `/v1/_ping` or `/v1/health` route on the customer app (Terminal A's territory).
+
+### Tested
+
+- [x] `curl -s https://uptime.betterstack.com/api/v2/monitors -H "Authorization: Bearer …"` returns the four new monitor IDs alongside the operator-created paused monitor (4325807). All four in `pending` initial state.
+- [x] `curl -I https://consentshield.betteruptime.com` → `200`. BS-hosted status page accessible at the BS subdomain on free tier.
+- [ ] First-pass smoke after BS runs the initial probe round (~5 min after creation) — operator verification.
+
 ## [ADR-1018 Phase 2 Sprint 2.1 — Better Stack account + token (free tier)] — 2026-04-25
 
 **ADR:** ADR-1018 — Status page (Phase 1 self-hosted superseded; Phase 2 Better Stack)

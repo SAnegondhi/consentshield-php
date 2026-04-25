@@ -174,14 +174,68 @@ The marketing copy stays untouched in the meantime because:
 
 #### Sprint 2.2 — Monitor matrix configured
 
+Path-A scope (free tier, no code changes required) — **landed 2026-04-25**. The seven wireframe-driven monitors are split into a path-A "create today" subset that probes already-live unauthenticated surfaces, and seven follow-up sub-sprints (2.2.1 → 2.2.7) that bring the wireframe monitors online as the underlying surfaces / heartbeat instrumentation / tier upgrades unblock them.
+
+**Path-A monitors created via BS API (curl POST to `https://uptime.betterstack.com/api/v2/monitors`):**
+
+| BS ID | pronounceable_name | URL | Cadence | Maps to wireframe |
+|---|---|---|---|---|
+| 4326425 | Customer App — `/api/health` | `https://app.consentshield.in/api/health` | 180s | partial cover for Dashboard + REST API v1 |
+| 4326426 | Supabase Edge — `/functions/v1/health` | `https://xlqiakmkdjycfiioslgs.supabase.co/functions/v1/health` | 180s | partial cover for Edge Functions surface |
+| 4326427 | Marketing gate — `/gate` | `https://consentshield.in/gate` | 300s | new — covers the marketing surface itself |
+| 4326428 | Customer App — `/login` | `https://app.consentshield.in/login` | 180s | partial cover for Dashboard surface |
+
+Free-tier observations: `check_frequency=180` accepted (3-min); `regions: null` (single region, presumably US); `email: true` enabled at create time. The pre-existing operator-created paused monitor on `https://consentshield.in` (BS id 4325807) is left in place untouched.
+
 **Deliverables:**
-- [ ] **REST API v1** — 7 group-level synthetic checks (one per `/v1/*` group: `health`, `consent`, `deletion`, `rights`, `security`, `account`, plus a `_ping`-style global liveness). 30-second cadence; latency p50 / p95 / p99 thresholds.
-- [ ] **Worker event ingestion** — synthetic POST to `/v1/events` and `/v1/observations` with valid HMAC signature; 30-second cadence; verify signed-200 round-trip end-to-end so a green check actually proves the ingest path.
-- [ ] **Rights-request portal** — synthetic GET on `/rights` + Turnstile presence check; 5-minute cadence; OTP synthetic-delivery covered separately under (7).
-- [ ] **Dashboard** — auth'd synthetic login probe (test account, MFA-aware) + DEPA-panel render check + billing-page read; per-minute cadence.
-- [ ] **Admin console** — Better Stack heartbeat from inside the admin proxy (no external probe — leaks subsystem names otherwise); surfaces a binary up/down only.
-- [ ] **Deletion-connector dispatch** — heartbeat URL from `process-artefact-revocation` Edge Function on each successful sweep; surfaces "no successful dispatch in N minutes" as a fail.
-- [ ] **Notification dispatch** — Resend delivery health + custom-webhook adapter health; tracks per-org delivery-success rate.
+- [x] Path-A four monitors created and listed in the table above.
+- [x] BS monitor IDs recorded in this ADR; ChangeLog entry appended.
+
+**Path-A acceptance:**
+- [ ] All four monitors transition from `pending` → `up` within ~5 minutes of creation. (Verifiable by the operator hitting the BS dashboard or `curl https://uptime.betterstack.com/api/v2/monitors -H 'Authorization: Bearer …'`.)
+
+**Seven follow-up sub-sprints — each one unblocks a wireframe-true monitor:**
+
+##### Sprint 2.2.1 — REST API v1 monitor
+
+- **Unblock trigger:** customer app exposes an unauthenticated liveness endpoint on the `/v1/*` URL space — either `/v1/_ping` patched to short-circuit before the Bearer middleware, or a sibling `/v1/health` route added. The api.consentshield.in DNS + host-conditional rewrite already landed; only the auth-on-`_ping` posture remains. Customer-app code change (Terminal A's territory).
+- **BS monitor to add when unblocked:** GET `https://api.consentshield.in/v1/_ping` (or `/v1/health`), 180s cadence, expect 200.
+- **Cadence note:** 30-second multi-region cadence per the marketing wireframe is paid-tier only; deliverable bumps cadence accordingly post-launch upgrade.
+
+##### Sprint 2.2.2 — Worker event ingestion monitor
+
+- **Unblock trigger:** Worker code wires a heartbeat ping to BS on each successful HMAC-verified write (cheaper + safer than asking BS to construct an HMAC-signed POST).
+- **Implementation:** create a BS heartbeat resource via `POST /api/v2/heartbeats`; capture the heartbeat URL; Worker pings it from `worker/src/events.ts` + `worker/src/observations.ts` after the buffer write succeeds. Worker dependency surface unchanged (single `fetch` call to a BS-supplied URL — Rule 16 carve-out not triggered).
+- **BS monitor to add:** heartbeat with expected interval matching the natural Worker traffic; alert on missing pings for N minutes.
+
+##### Sprint 2.2.3 — Rights-request portal monitor
+
+- **Unblock trigger:** the public rights-request portal goes live at `app.consentshield.in/rights` (or its actual route once shipped) and returns 200 with the Turnstile widget. Today the path returns 404.
+- **BS monitor to add when unblocked:** GET on the rights-portal URL with `keyword` match on a Turnstile-presence string; 5-min cadence.
+
+##### Sprint 2.2.4 — Dashboard auth'd probe
+
+- **Unblock trigger:** Better Stack tier upgrade (Playwright synthetic-monitor type is paid-tier only). The Sprint 2.5 launch-time upgrade is the natural trigger.
+- **BS monitor to add when unblocked:** Playwright script that signs in with a test-account + AAL2 OTP fixture, navigates to `/dashboard`, asserts DEPA-panel render, asserts billing-page read; 1-min cadence.
+
+##### Sprint 2.2.5 — Admin console monitor
+
+- **Unblock trigger:** Admin-proxy code adds a heartbeat ping to a BS heartbeat URL on every authed admin request (or on a per-minute internal cron — whichever is cheaper). Admin code change (Terminal A's or future operator-platform sprint).
+- **BS monitor to add:** heartbeat resource via `POST /api/v2/heartbeats`; surfaces binary up/down only — no admin-route names leaked into BS config.
+
+##### Sprint 2.2.6 — Deletion-connector dispatch monitor
+
+- **Unblock trigger:** `supabase/functions/process-artefact-revocation/index.ts` adds a heartbeat ping to a BS heartbeat URL on each successful sweep that produced ≥ 1 receipt. Edge Function code change (Terminal A's territory).
+- **BS monitor to add:** heartbeat resource; alert when no ping received for 30 min (covers the natural cadence of the safety-net pg_cron).
+
+##### Sprint 2.2.7 — Notification dispatch monitor
+
+- **Unblock trigger:** Resend delivery health + custom-webhook adapter health both ping a BS heartbeat URL on successful dispatch. Customer-app or Edge Function code change.
+- **BS monitor to add:** heartbeat resource; alert when no ping received within the configured threshold.
+
+##### Sub-sprint sequencing note
+
+2.2.1 is the cheapest (single unauthenticated route on the customer app). 2.2.2 / 2.2.5 / 2.2.6 / 2.2.7 are all "add a heartbeat ping from N" — minimal Worker / Edge / app-code changes; can run in parallel as their owning code surfaces are touched. 2.2.3 waits on a route that hasn't been authored yet. 2.2.4 waits on the launch-time tier upgrade.
 
 #### Sprint 2.3 — Incident-comms templates + post-mortem flow
 
@@ -193,10 +247,13 @@ The marketing copy stays untouched in the meantime because:
 
 #### Sprint 2.4 — DNS cutover from Phase-1 self-hosted to Better Stack
 
-**Deliverables:**
-- [ ] Better Stack hosted status page resource created (slug chosen at creation time — a per-status-page identifier, not an account-level slug); smoke-tested at whatever `status.betterstack.com/<slug>` URL BS assigns.
-- [ ] Custom domain configured in Better Stack: `status.consentshield.in`. ConsentShield logo + brand palette uploaded.
-- [ ] DNS CNAME `status.consentshield.in` flipped from `cname.vercel-dns.com` (Phase 1) to Better Stack's status-page CNAME target.
+**Reconnaissance landed 2026-04-25:**
+- [x] Better Stack status page resource created via `POST /api/v2/status-pages`. Resource id **`245019`**, subdomain `consentshield`. Live at **`https://consentshield.betteruptime.com`** (the BS-assigned URL on free tier).
+- [x] Free-tier blocker confirmed: `custom_domain` cannot be set on free tier — the field is silently dropped when included in the create payload. `subscribable` and `password_enabled` are blocked the same way (both required for the wireframe-spec subscriber notifications + private incident posts). Tier upgrade is the gate for all three.
+
+**Cutover deliverables (gated on tier upgrade in Sprint 2.5):**
+- [ ] Tier upgraded; custom domain configured in BS — `custom_domain: "status.consentshield.in"` patched onto status page resource `245019`. ConsentShield logo + brand palette uploaded (paid feature).
+- [ ] DNS CNAME `status.consentshield.in` flipped from `cname.vercel-dns.com` (Phase 1) to Better Stack's status-page CNAME target (BS provides the target after `custom_domain` patch).
 - [ ] Vercel domain alias removed from the `app` project: `bunx vercel domains rm status.consentshield.in --scope sanegondhis-projects`.
 - [ ] Host-based redirect in `app/src/app/page.tsx` (Phase 1 Sprint 1.5) left in place but now unreachable — Sprint 2.7 cleanup will remove it.
 - [ ] TLS verified: `curl -I https://status.consentshield.in` → `200` from Better Stack's CDN; ConsentShield-branded page renders.
