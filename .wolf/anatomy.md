@@ -1,7 +1,7 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-04-25T08:35:23.898Z
-> Files: 1584 tracked | Anatomy hits: 0 | Misses: 0
+> Auto-maintained by OpenWolf. Last scanned: 2026-04-26T01:13:15.673Z
+> Files: 1589 tracked | Anatomy hits: 0 | Misses: 0
 
 ## ../../../../../tmp/
 
@@ -658,7 +658,7 @@
 
 ## app/
 
-- `next.config.ts` — Declares NOINDEX_VALUE (~148 tok)
+- `next.config.ts` — Declares NOINDEX_VALUE (~247 tok)
 - `package.json` — Node.js package manifest (~459 tok)
 - `stryker.delivery.conf.mjs` — ADR-1014 Phase 4 Sprint 4.2 — Stryker mutation testing for the (~1078 tok)
 - `stryker.sigv4.conf.mjs` — ADR-1014 Phase-4 follow-up — Stryker mutation testing for the (~1150 tok)
@@ -685,7 +685,7 @@
 
 ## app/src/
 
-- `proxy.ts` — Customer-app proxy. (~1632 tok)
+- `proxy.ts` — Customer-app proxy. (~2462 tok)
 
 ## app/src/app/
 
@@ -828,7 +828,7 @@
 
 ## app/src/app/(dashboard)/dashboard/settings/api-keys/[id]/usage/
 
-- `page.tsx` — dynamic — renders table (~1906 tok)
+- `page.tsx` — dynamic — renders table (~1905 tok)
 
 ## app/src/app/(dashboard)/dashboard/settings/billing/
 
@@ -1421,7 +1421,7 @@
 - `ADR-0502-marketing-gate-otp.md` — ADR-0502: Marketing-site invite gate via email OTP (~3526 tok)
 - `ADR-1001-truth-in-marketing-and-public-api-foundation.md` — ADR-1001: Truth-in-Marketing + Public API Foundation (~5650 tok)
 - `ADR-1002-dpdp-section6-runtime-enforcement.md` — ADR-1002: DPDP §6 Runtime Enforcement — Verify, Record, Artefact Ops, Deletion API (~7030 tok)
-- `ADR-1003-processor-posture-and-healthcare-unlock.md` — ADR-1003: Processor Posture + Healthcare Category Unlock (~10912 tok)
+- `ADR-1003-processor-posture-and-healthcare-unlock.md` — ADR-1003: Processor Posture + Healthcare Category Unlock (~11148 tok)
 - `ADR-1004-statutory-retention-material-change-silent-failure.md` — ADR-1004: Statutory Retention + Material-Change Re-consent + Silent-Failure Detection (~7531 tok)
 - `ADR-1005-operations-maturity.md` — ADR-1005: Operations Maturity — Webhook Reference, Support Model, Status Page, Multi-channel Alerts, (~7076 tok)
 - `ADR-1006-developer-experience-and-openapi.md` — ADR-1006: Developer Experience — Client Libraries + OpenAPI Spec + CI Drift Check (~11372 tok)
@@ -1436,7 +1436,7 @@
 - `ADR-1015-v1-api-integration-tests-and-developer-docs.md` — ADR-1015: v1 API integration tests + customer developer documentation (~7655 tok)
 - `ADR-1016-v1-orphan-scope-read-endpoints.md` — ADR-1016: v1 API — close the orphan `read:audit`, `read:security`, `read:score` scopes (~1836 tok)
 - `ADR-1017-admin-ops-readiness-flags.md` — ADR-1017: Admin ops-readiness flags — surface external blockers in the operator console (~1656 tok)
-- `ADR-1018-self-hosted-status-page.md` — ADR-1018: Status page — Phase 1 self-hosted (superseded), Phase 2 Better Stack integration (~6795 tok)
+- `ADR-1018-self-hosted-status-page.md` — ADR-1018: Status page — Phase 1 in-app (superseded), Phase 2 self-hosted Uptime Kuma at status.conse (~9614 tok)
 - `ADR-1019-deliver-consent-events-edge-function.md` — ADR-1019: `deliver-consent-events` — the missing R2 export path (~8296 tok)
 - `ADR-1020-multilingual-support-per-meity-brd.md` — ADR-1020: Multilingual support per MeitY BRD §4.1.1 (umbrella) — 7 langs Phase 1, 15 Phase 4 (Q+1) (~3200 tok)
 - `ADR-1020-multilingual-support-per-meity-brd.md` — ADR-1020: Multilingual support per MeitY BRD §4.1.1 (umbrella) (~4269 tok)
@@ -1463,22 +1463,22 @@
 
 ## docs/architecture/
 
-- `consentshield-complete-schema-design.md` — ConsentShield — Complete Schema Design (~35544 tok)
-- `consentshield-definitive-architecture.md` — ConsentShield — Definitive Architecture Reference (~21899 tok)
+- `consentshield-complete-schema-design.md` — ConsentShield — Complete Schema Design (~37399 tok)
+- `consentshield-definitive-architecture.md` — ConsentShield — Definitive Architecture Reference (~23307 tok)
 - `consentshield-testing-strategy.md` — ConsentShield — The Testing Question (~8766 tok)
 - `nextjs-16-reference.md` — Next.js 16 — Project Reference (~1408 tok)
 
 ## docs/benchmarks/
 
-- `zero-storage-100k.md` — Zero-Storage 100K-event benchmark (~968 tok)
+- `zero-storage-100k.md` — Zero-Storage benchmark — first live run (~1937 tok)
 
 ## docs/changelogs/
 
-- `CHANGELOG-api.md` — Changelog — API (~52436 tok)
+- `CHANGELOG-api.md` — Changelog — API (~53457 tok)
 - `CHANGELOG-dashboard.md` — Changelog — Dashboard (~29589 tok)
 - `CHANGELOG-docs.md` — Changelog — Documentation (~15707 tok)
 - `CHANGELOG-edge-functions.md` — Changelog — Edge Functions (~4251 tok)
-- `CHANGELOG-infra.md` — Changelog — Infrastructure (~25637 tok)
+- `CHANGELOG-infra.md` — Changelog — Infrastructure (~27818 tok)
 - `CHANGELOG-marketing.md` — Changelog — Marketing (~17784 tok)
 - `CHANGELOG-schema.md` — Changelog — Schema (~56127 tok)
 - `CHANGELOG-worker.md` — Changelog — Worker (~8343 tok)
@@ -1556,12 +1556,13 @@
 - `2026-04-18-comprehensive-project-review.md` — ConsentShield — Comprehensive Review as of 2026-04-18 (~3553 tok)
 - `2026-04-20-api-key-security-review.md` — Security Review — API Key Surface (ADR-1001 Sprint 3.1) (~1833 tok)
 - `2026-04-21-v1-api-gap-audit.md` — v1 API Gap Audit — 2026-04-21 (~2913 tok)
+- `2026-04-25-architecture-status-page-backfill.md` — Architecture-doc backfill — Status page (ADR-1018 Phase 1 + Phase 2) (~1576 tok)
 - `2026-04-25-marketing-claims-vs-reality-review.md` — Marketing claims vs. reality review (~29473 tok)
 
 ## docs/runbooks/
 
 - `adr-1003-phase-1-operator-actions.md` — ADR-1003 Phase 1 — operator actions (~1794 tok)
-- `adr-1018-phase-2-better-stack-sprint-2-1.md` — Runbook — ADR-1018 Phase 2 Sprint 2.1: Better Stack account + token (~1777 tok)
+- `adr-1018-phase-2-better-stack-sprint-2-1.md` — Runbook — ADR-1018 Phase 2 Sprint 2.1: Better Stack account + token (~1959 tok)
 - `ai-provider-setup.md` — Runbook — AI Translation Provider Setup (Sarvam + Vercel AI Gateway) (~2210 tok)
 - `notification-channel-accounts.md` — Notification channel account setup — Slack / Teams / Discord / PagerDuty (~1889 tok)
 - `ops-readiness-flags.md` — Ops Readiness Flags — operator runbook (~1594 tok)
@@ -1651,7 +1652,7 @@
 ## marketing/src/app/docs/_data/
 
 - `nav.ts` — HTTP method pill for API-reference entries; undefined elsewhere. (~1569 tok)
-- `search-index.ts` — Group label (appears as a muted header in the palette). (~2557 tok)
+- `search-index.ts` — Group label (appears as a muted header in the palette). (~2558 tok)
 
 ## marketing/src/app/docs/_styles/
 
@@ -1744,19 +1745,19 @@
 
 ## marketing/src/app/docs/sdks/
 
-- `page.mdx` — SDK availability (~1477 tok)
+- `page.mdx` — SDK availability (~1541 tok)
 
 ## marketing/src/app/docs/sdks/go/
 
-- `page.mdx` — `github.com/consentshield/go-client` (~1848 tok)
+- `page.mdx` — `github.com/consentshield-org/go-client` (~1890 tok)
 
 ## marketing/src/app/docs/sdks/node/
 
-- `page.mdx` — `@consentshield/node` (~1676 tok)
+- `page.mdx` — `@consentshield/node` (~1715 tok)
 
 ## marketing/src/app/docs/sdks/python/
 
-- `page.mdx` — `consentshield` (~1821 tok)
+- `page.mdx` — `consentshield` (~1860 tok)
 
 ## marketing/src/app/docs/status/
 
@@ -1894,7 +1895,7 @@
 - `client_test.go` — TestNewClient_RequiresLivePrefix, TestNewClient_DefaultsApplied, TestNewClient_BaseURLTrailingSlashT (~4867 tok)
 - `client.go` — Struct: Client (~302 tok)
 - `consent.go` — Struct: PingEnvelope (~1306 tok)
-- `consentshield.go` — is the official Go client library for the (~404 tok)
+- `consentshield.go` — is the official Go client library for the (~424 tok)
 - `coverage_test.go` — TestErrorStringSurfaces, TestVerifyOutcome_IsOpenZeroValue, TestPaginatorErrorOnHTTPFailure, TestLis (~3712 tok)
 - `deletion.go` — Struct: TriggerDeletionParams (~1286 tok)
 - `errors.go` — Interface: Error (~845 tok)
@@ -1902,8 +1903,9 @@
 - `go.mod` — Go module definition (~14 tok)
 - `http.go` — Struct: Config (~1826 tok)
 - `LICENSE.md` — ConsentShield Go Client — License (~349 tok)
-- `PUBLISHING.md` — PUBLISHING — `github.com/consentshield/go-client` (~711 tok)
-- `README.md` — Project documentation (~1364 tok)
+- `NOTICE` (~250 tok)
+- `PUBLISHING.md` — PUBLISHING — `github.com/SAnegondhi/consentshield-go` (~726 tok)
+- `README.md` — Project documentation (~1388 tok)
 - `rights.go` — Struct: CreateRightsRequestParams (~1190 tok)
 - `types.go` — Struct: VerifyEnvelope (~2544 tok)
 - `verify.go` — Struct: VerifyParams (~1590 tok)
@@ -1921,9 +1923,11 @@
 
 ## packages/node-client/
 
+- `LICENSE` — Declares name (~3011 tok)
 - `LICENSE.md` — ConsentShield Node Client — License (~349 tok)
-- `package.json` — Node.js package manifest (~479 tok)
-- `README.md` — Project documentation (~1425 tok)
+- `NOTICE` (~246 tok)
+- `package.json` — Node.js package manifest (~467 tok)
+- `README.md` — Project documentation (~1445 tok)
 - `tsconfig.json` — TypeScript configuration (~105 tok)
 - `tsup.config.ts` — ADR-1006 Phase 1 Sprint 1.4 — dual ESM+CJS build for npm publication. (~276 tok)
 - `vitest.config.ts` — /*.test.ts'], (~227 tok)
@@ -1974,9 +1978,10 @@
 ## packages/python-client/
 
 - `LICENSE.md` — ConsentShield Python Client — License (~348 tok)
+- `NOTICE` (~244 tok)
 - `PUBLISHING.md` — PUBLISHING — `consentshield` (PyPI) (~1338 tok)
-- `pyproject.toml` — Official Python client for the ConsentShield DPDP compliance API. Fail-closed by default; 2-second r (~586 tok)
-- `README.md` — Project documentation (~1245 tok)
+- `pyproject.toml` — Official Python client for the ConsentShield DPDP compliance API. Fail-closed by default; 2-second r (~596 tok)
+- `README.md` — Project documentation (~1265 tok)
 
 ## packages/python-client/examples/django-middleware/
 
@@ -2811,7 +2816,7 @@
 
 ## tests/integration/
 
-- `api-keys.e2e.test.ts` — Declares TestOrg (~2515 tok)
+- `api-keys.e2e.test.ts` — Declares TestOrg (~2514 tok)
 - `api-middleware.test.ts` — Declares TestOrg (~946 tok)
 - `artefact-event-read.test.ts` — ADR-1002 Sprint 3.1 — integration tests for the three read endpoints. (~3691 tok)
 - `audit-api.test.ts` — ADR-1016 Sprint 1.1 — /v1/audit integration tests. (~1684 tok)
@@ -2825,7 +2830,7 @@
 - `deletion-receipt-confirm.test.ts` — ADR-1014 Phase 3 Sprint 3.4 — deletion-receipt callback RPC + overdue test. (~3720 tok)
 - `discovery.test.ts` — ADR-1012 Sprint 1.2 — /v1/purposes and /v1/properties integration tests. (~1743 tok)
 - `healthcare-template.test.ts` — ADR-1003 Sprint 4.1 — Healthcare Starter sectoral template. (~1561 tok)
-- `introspection.test.ts` — ADR-1012 Sprint 1.1 — /v1/keys/self and /v1/usage integration tests. (~1137 tok)
+- `introspection.test.ts` — ADR-1012 Sprint 1.1 — /v1/keys/self and /v1/usage integration tests. (~1136 tok)
 - `mrs-sharma.e2e.test.ts` — ADR-1002 Sprint 5.1 — Mrs. Sharma end-to-end scenario. (~3488 tok)
 - `notices-replaced-by.test.ts` — Declares TestOrg (~2319 tok)
 - `notices-schema.test.ts` — TestOrg: seedProperty (~2106 tok)
@@ -2847,14 +2852,14 @@
 
 ## tests/load/
 
-- `invariant-probe.ts` — ADR-1003 Sprint 3.2 — buffer-row invariant probe. (~1275 tok)
+- `invariant-probe.ts` — ADR-1003 Sprint 3.2 — buffer-row invariant probe. (~1359 tok)
 - `README.md` — Project documentation (~1582 tok)
 - `run.sh` — ADR-1003 Sprint 3.2 — orchestrator: starts the invariant probe, runs (~866 tok)
 
 ## tests/load/k6/
 
 - `zero-storage-mode-a.js` — ADR-1003 Sprint 3.2 — Mode A (Worker /v1/events) load scenario. (~1643 tok)
-- `zero-storage-mode-b.js` — ADR-1003 Sprint 3.2 — Mode B (POST /api/v1/consent/record) load scenario. (~1582 tok)
+- `zero-storage-mode-b.js` — ADR-1003 Sprint 3.2 — Mode B (POST /api/v1/consent/record) load scenario. (~1670 tok)
 
 ## tests/rbac/
 

@@ -87,9 +87,11 @@ export default function () {
   const timestamp = String(Date.now())
   const signature = sign(ORG_ID, PROPERTY_ID, timestamp, EVENT_SIGNING_SECRET)
 
-  // Mix of accept/reject events so we exercise both code paths.
-  // 80% accept / 20% reject — production-realistic.
-  const eventType = Math.random() < 0.8 ? 'accept' : 'reject'
+  // Mix of grants and withdrawals so we exercise both code paths.
+  // 80% consent_given / 20% consent_withdrawn — production-realistic.
+  // Worker accepts: consent_given, consent_withdrawn, purpose_updated, banner_dismissed.
+  const isGrant = Math.random() < 0.8
+  const eventType = isGrant ? 'consent_given' : 'consent_withdrawn'
 
   const payload = JSON.stringify({
     org_id: ORG_ID,
@@ -98,12 +100,10 @@ export default function () {
     event_type: eventType,
     timestamp,
     signature,
-    purposes_accepted: eventType === 'accept' ? ['analytics', 'marketing'] : [],
-    purposes_rejected: eventType === 'reject' ? ['analytics', 'marketing'] : [],
+    purposes_accepted: isGrant ? ['analytics', 'marketing'] : [],
+    purposes_rejected: isGrant ? [] : ['analytics', 'marketing'],
     user_agent: 'k6-load/zero-storage-mode-a',
     metadata: {
-      // Stable trace id per VU+iter so a partial failure can be
-      // grepped out of the worker_errors table.
       trace_id: `k6-a-${__VU}-${__ITER}`,
     },
   })

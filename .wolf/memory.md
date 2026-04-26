@@ -5812,3 +5812,187 @@
 | 12:18 | Edited docs/ADRs/ADR-index.md | inline fix | ~379 |
 | 12:19 | Edited docs/changelogs/CHANGELOG-api.md | modified suite() | ~2412 |
 | 12:20 | Edited .gitignore | expanded (+12 lines) | ~106 |
+| 12:21 | Session end: 383 writes across 141 files (vitest.config.ts, hmac.test.ts, origin.test.ts, package.json, stryker.conf.mjs) | 115 reads | ~763274 tok |
+| 12:24 | Created .claude/session-handoff.md | — | ~5014 |
+| 12:24 | Session end: 384 writes across 141 files (vitest.config.ts, hmac.test.ts, origin.test.ts, package.json, stryker.conf.mjs) | 115 reads | ~768646 tok |
+
+## Session: 2026-04-25 13:13
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+
+## Session: 2026-04-25 13:13
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+| 13:15 | Created packages/python-client/examples/django-middleware/consent_middleware.py | — | ~1516 |
+| 13:15 | Created packages/python-client/examples/django-middleware/urls.py | — | ~230 |
+| 13:16 | Created packages/python-client/examples/django-middleware/settings_demo.py | — | ~288 |
+| 13:16 | Created packages/python-client/examples/django-middleware/README.md | — | ~538 |
+| 13:16 | Created packages/python-client/examples/flask-decorator/consent_required.py | — | ~1211 |
+| 13:16 | Created packages/python-client/examples/flask-decorator/app.py | — | ~374 |
+| 13:17 | Created packages/python-client/examples/flask-decorator/README.md | — | ~389 |
+| 13:17 | Created packages/python-client/examples/fastapi-dependency/consent_dependency.py | — | ~1405 |
+| 13:17 | Created packages/python-client/examples/fastapi-dependency/app.py | — | ~434 |
+| 13:18 | Session end: 9 writes across 7 files (consent_middleware.py, urls.py, settings_demo.py, README.md, consent_required.py) | 8 reads | ~24835 tok |
+| 13:18 | Created packages/python-client/examples/fastapi-dependency/README.md | — | ~616 |
+| 13:20 | Session end: 10 writes across 7 files (consent_middleware.py, urls.py, settings_demo.py, README.md, consent_required.py) | 8 reads | ~25495 tok |
+| 13:20 | Created packages/python-client/PUBLISHING.md | — | ~1427 |
+| 13:21 | Edited docs/ADRs/ADR-1006-developer-experience-and-openapi.md | expanded (+10 lines) | ~1054 |
+| 13:22 | Edited docs/ADRs/ADR-index.md | inline fix | ~489 |
+| 13:22 | Edited docs/ADRs/ADR-index.md | inline fix | ~58 |
+| 13:23 | Session end: 14 writes across 10 files (consent_middleware.py, urls.py, settings_demo.py, README.md, consent_required.py) | 12 reads | ~99069 tok |
+| 13:23 | Edited docs/changelogs/CHANGELOG-api.md | modified 9() | ~1684 |
+| 13:24 | Session end: 15 writes across 11 files (consent_middleware.py, urls.py, settings_demo.py, README.md, consent_required.py) | 12 reads | ~100874 tok |
+| 13:24 | Session end: 15 writes across 11 files (consent_middleware.py, urls.py, settings_demo.py, README.md, consent_required.py) | 12 reads | ~100874 tok |
+| 13:25 | Session end: 15 writes across 11 files (consent_middleware.py, urls.py, settings_demo.py, README.md, consent_required.py) | 12 reads | ~100874 tok |
+| 13:25 | Session end: 15 writes across 11 files (consent_middleware.py, urls.py, settings_demo.py, README.md, consent_required.py) | 12 reads | ~100874 tok |
+| 13:26 | Session end: 15 writes across 11 files (consent_middleware.py, urls.py, settings_demo.py, README.md, consent_required.py) | 12 reads | ~100874 tok |
+| 13:27 | Session end: 15 writes across 11 files (consent_middleware.py, urls.py, settings_demo.py, README.md, consent_required.py) | 12 reads | ~100874 tok |
+| 13:28 | Session end: 15 writes across 11 files (consent_middleware.py, urls.py, settings_demo.py, README.md, consent_required.py) | 12 reads | ~100874 tok |
+| 13:29 | Session end: 15 writes across 11 files (consent_middleware.py, urls.py, settings_demo.py, README.md, consent_required.py) | 12 reads | ~100874 tok |
+| 13:30 | Session end: 15 writes across 11 files (consent_middleware.py, urls.py, settings_demo.py, README.md, consent_required.py) | 12 reads | ~100874 tok |
+| 13:34 | Session end: 15 writes across 11 files (consent_middleware.py, urls.py, settings_demo.py, README.md, consent_required.py) | 12 reads | ~100874 tok |
+| 13:35 | Edited tests/load/run.sh | 7→10 lines | ~90 |
+| 13:37 | Edited tests/load/run.sh | 10→12 lines | ~110 |
+| 13:38 | Session end: 17 writes across 12 files (consent_middleware.py, urls.py, settings_demo.py, README.md, consent_required.py) | 12 reads | ~101089 tok |
+| 13:43 | Edited tests/load/k6/zero-storage-mode-a.js | 20→20 lines | ~215 |
+| 13:43 | Edited docs/ADRs/ADR-1018-self-hosted-status-page.md | modified Supersedes() | ~1246 |
+| 13:44 | Created tests/load/invariant-probe.ts | — | ~1275 |
+| 13:44 | Edited docs/ADRs/ADR-1018-self-hosted-status-page.md | 14→16 lines | ~481 |
+| 13:45 | Edited docs/ADRs/ADR-1018-self-hosted-status-page.md | modified Deferred() | ~3464 |
+| 13:46 | Edited docs/ADRs/ADR-index.md | "public.status_subsystems" → "ADR-1300" | ~117 |
+| 13:46 | Created packages/go-client/go.mod | — | ~14 |
+| 13:46 | Created packages/go-client/LICENSE.md | — | ~372 |
+| 13:46 | Edited docs/reviews/2026-04-25-marketing-claims-vs-reality-review.md | modified Resolution() | ~1059 |
+| 13:46 | Created packages/go-client/consentshield.go | — | ~404 |
+| 13:47 | Created packages/go-client/errors.go | — | ~845 |
+| 13:47 | Session end: 28 writes across 20 files (consent_middleware.py, urls.py, settings_demo.py, README.md, consent_required.py) | 16 reads | ~121419 tok |
+| 13:47 | Created packages/go-client/types.go | — | ~2544 |
+| 13:48 | Created packages/go-client/http.go | — | ~1938 |
+| 13:48 | Edited packages/go-client/http.go | 13→12 lines | ~30 |
+| 13:48 | Edited packages/go-client/http.go | — | ~0 |
+| 13:48 | Created packages/go-client/client.go | — | ~302 |
+| 13:49 | Created packages/go-client/verify.go | — | ~1590 |
+| 13:49 | Created packages/go-client/consent.go | — | ~1306 |
+| 13:50 | Created packages/go-client/artefacts.go | — | ~1030 |
+| 13:50 | Created packages/go-client/events.go | — | ~583 |
+| 13:50 | Created packages/go-client/deletion.go | — | ~1286 |
+| 13:50 | Created packages/go-client/rights.go | — | ~1190 |
+| 13:51 | Created packages/go-client/audit.go | — | ~519 |
+| 13:52 | Created packages/go-client/client_test.go | — | ~4849 |
+| 13:52 | Created docs/runbooks/adr-1018-phase-2-better-stack-sprint-2-1.md | — | ~1896 |
+| 13:53 | Edited packages/go-client/client_test.go | modified TestRevokeArtefact_PathEncoding() | ~192 |
+| 13:53 | Session end: 43 writes across 32 files (consent_middleware.py, urls.py, settings_demo.py, README.md, consent_required.py) | 16 reads | ~142046 tok |
+| 13:54 | Created packages/go-client/coverage_test.go | — | ~3712 |
+| 13:55 | Created packages/go-client/examples/nethttp-middleware/middleware.go | — | ~1060 |
+| 13:55 | Created packages/go-client/examples/nethttp-middleware/main.go | — | ~373 |
+| 13:56 | Created packages/go-client/examples/nethttp-middleware/README.md | — | ~323 |
+| 13:56 | Created packages/go-client/examples/gin-middleware/middleware.go | — | ~778 |
+| 13:56 | Created packages/go-client/examples/gin-middleware/README.md | — | ~435 |
+| 13:57 | Created packages/go-client/README.md | — | ~1455 |
+| 13:57 | Created packages/go-client/PUBLISHING.md | — | ~758 |
+| 13:58 | Edited marketing/src/app/docs/_data/nav.ts | 1→4 lines | ~94 |
+| 13:58 | Edited marketing/src/app/docs/_data/search-index.ts | 1→4 lines | ~240 |
+| 13:59 | Created marketing/src/app/docs/sdks/page.mdx | — | ~1477 |
+| 13:59 | Created marketing/src/app/docs/sdks/node/page.mdx | — | ~1676 |
+| 14:00 | Created marketing/src/app/docs/sdks/python/page.mdx | — | ~1821 |
+| 14:01 | Created marketing/src/app/docs/sdks/go/page.mdx | — | ~1848 |
+| 14:02 | Edited docs/ADRs/ADR-1006-developer-experience-and-openapi.md | 36→40 lines | ~1516 |
+| 14:03 | Edited docs/ADRs/ADR-index.md | inline fix | ~584 |
+| 14:04 | Edited docs/changelogs/CHANGELOG-api.md | modified Tests() | ~2511 |
+| 14:05 | Edited docs/changelogs/CHANGELOG-docs.md | expanded (+24 lines) | ~1198 |
+| 14:05 | Edited .gitignore | expanded (+6 lines) | ~51 |
+| 14:06 | Session end: 62 writes across 40 files (consent_middleware.py, urls.py, settings_demo.py, README.md, consent_required.py) | 22 reads | ~185142 tok |
+| 15:53 | Session end: 62 writes across 40 files (consent_middleware.py, urls.py, settings_demo.py, README.md, consent_required.py) | 23 reads | ~186208 tok |
+| 15:55 | Session end: 62 writes across 40 files (consent_middleware.py, urls.py, settings_demo.py, README.md, consent_required.py) | 23 reads | ~186208 tok |
+| 16:03 | Edited marketing/src/app/docs/_data/search-index.ts | inline fix | ~62 |
+| 16:04 | Edited packages/go-client/PUBLISHING.md | "github.com/consentshield/" → "github.com/consentshield-" | ~14 |
+| 16:04 | Edited packages/go-client/PUBLISHING.md | 3→3 lines | ~54 |
+| 16:05 | Session end: 65 writes across 40 files (consent_middleware.py, urls.py, settings_demo.py, README.md, consent_required.py) | 23 reads | ~186341 tok |
+| 16:17 | Session end: 65 writes across 40 files (consent_middleware.py, urls.py, settings_demo.py, README.md, consent_required.py) | 23 reads | ~186341 tok |
+| 17:05 | Edited docs/runbooks/adr-1018-phase-2-better-stack-sprint-2-1.md | 6→6 lines | ~183 |
+| 17:05 | Edited docs/runbooks/adr-1018-phase-2-better-stack-sprint-2-1.md | 7→8 lines | ~166 |
+| 17:05 | Edited docs/runbooks/adr-1018-phase-2-better-stack-sprint-2-1.md | 8→8 lines | ~117 |
+| 17:05 | Edited docs/ADRs/ADR-1018-self-hosted-status-page.md | ADR() → region() | ~249 |
+| 17:06 | Session end: 69 writes across 40 files (consent_middleware.py, urls.py, settings_demo.py, README.md, consent_required.py) | 23 reads | ~187107 tok |
+| 17:10 | Session end: 69 writes across 40 files (consent_middleware.py, urls.py, settings_demo.py, README.md, consent_required.py) | 23 reads | ~187107 tok |
+| 17:14 | Session end: 69 writes across 40 files (consent_middleware.py, urls.py, settings_demo.py, README.md, consent_required.py) | 23 reads | ~187107 tok |
+| 17:15 | Session end: 69 writes across 40 files (consent_middleware.py, urls.py, settings_demo.py, README.md, consent_required.py) | 23 reads | ~187107 tok |
+| 17:17 | Session end: 69 writes across 40 files (consent_middleware.py, urls.py, settings_demo.py, README.md, consent_required.py) | 23 reads | ~187107 tok |
+| 17:19 | Session end: 69 writes across 40 files (consent_middleware.py, urls.py, settings_demo.py, README.md, consent_required.py) | 23 reads | ~187107 tok |
+| 17:20 | Session end: 69 writes across 40 files (consent_middleware.py, urls.py, settings_demo.py, README.md, consent_required.py) | 23 reads | ~187107 tok |
+| 17:21 | Edited docs/runbooks/adr-1018-phase-2-better-stack-sprint-2-1.md | 1→3 lines | ~191 |
+| 17:21 | Edited docs/runbooks/adr-1018-phase-2-better-stack-sprint-2-1.md | 6→6 lines | ~178 |
+| 17:21 | Edited docs/runbooks/adr-1018-phase-2-better-stack-sprint-2-1.md | wide() → level() | ~139 |
+| 17:21 | Edited docs/ADRs/ADR-1018-self-hosted-status-page.md | 5→5 lines | ~231 |
+| 17:21 | Edited docs/ADRs/ADR-1018-self-hosted-status-page.md | "status.betterstack.com/<w" → "status.betterstack.com/<s" | ~58 |
+| 17:22 | Session end: 74 writes across 40 files (consent_middleware.py, urls.py, settings_demo.py, README.md, consent_required.py) | 24 reads | ~189841 tok |
+| 17:23 | Session end: 74 writes across 40 files (consent_middleware.py, urls.py, settings_demo.py, README.md, consent_required.py) | 24 reads | ~189841 tok |
+| 17:25 | Session end: 74 writes across 40 files (consent_middleware.py, urls.py, settings_demo.py, README.md, consent_required.py) | 24 reads | ~189841 tok |
+| 17:26 | Session end: 74 writes across 40 files (consent_middleware.py, urls.py, settings_demo.py, README.md, consent_required.py) | 24 reads | ~189841 tok |
+| 17:30 | Session end: 74 writes across 40 files (consent_middleware.py, urls.py, settings_demo.py, README.md, consent_required.py) | 24 reads | ~189841 tok |
+| 17:32 | Edited docs/ADRs/ADR-1018-self-hosted-status-page.md | modified direction() | ~546 |
+| 17:33 | Edited docs/changelogs/CHANGELOG-infra.md | modified direction() | ~523 |
+| 17:34 | Session end: 76 writes across 41 files (consent_middleware.py, urls.py, settings_demo.py, README.md, consent_required.py) | 25 reads | ~216624 tok |
+| 17:49 | Edited docs/architecture/consentshield-definitive-architecture.md | 2→3 lines | ~105 |
+| 17:50 | Edited docs/architecture/consentshield-definitive-architecture.md | expanded (+37 lines) | ~1465 |
+| 17:58 | Edited docs/architecture/consentshield-definitive-architecture.md | expanded (+10 lines) | ~343 |
+| 17:58 | Edited docs/architecture/consentshield-definitive-architecture.md | reduced (-10 lines) | ~62 |
+| 17:59 | Session end: 80 writes across 42 files (consent_middleware.py, urls.py, settings_demo.py, README.md, consent_required.py) | 26 reads | ~242048 tok |
+| 18:00 | Edited docs/architecture/consentshield-complete-schema-design.md | modified schedules() | ~2037 |
+| 18:00 | Created docs/reviews/2026-04-25-architecture-status-page-backfill.md | — | ~1681 |
+| 18:01 | Session end: 82 writes across 44 files (consent_middleware.py, urls.py, settings_demo.py, README.md, consent_required.py) | 27 reads | ~281575 tok |
+| 18:02 | Session end: 82 writes across 44 files (consent_middleware.py, urls.py, settings_demo.py, README.md, consent_required.py) | 27 reads | ~281575 tok |
+| 18:03 | Created packages/node-client/LICENSE | — | ~3011 |
+| 18:03 | Created packages/node-client/NOTICE | — | ~246 |
+| 18:03 | Created packages/python-client/NOTICE | — | ~244 |
+| 18:03 | Created packages/go-client/NOTICE | — | ~250 |
+| 18:03 | Edited packages/node-client/package.json | 11→10 lines | ~97 |
+| 18:03 | Edited packages/node-client/package.json | inline fix | ~16 |
+| 18:04 | Edited packages/python-client/pyproject.toml | 26→27 lines | ~206 |
+| 18:04 | Edited packages/python-client/pyproject.toml | 4→4 lines | ~55 |
+| 18:04 | Edited packages/go-client/consentshield.go | 2→5 lines | ~49 |
+| 18:04 | Edited packages/node-client/README.md | 1→3 lines | ~42 |
+| 18:04 | Edited packages/python-client/README.md | 1→3 lines | ~42 |
+| 18:04 | Edited packages/go-client/README.md | 1→3 lines | ~42 |
+| 18:05 | Edited marketing/src/app/docs/sdks/node/page.mdx | 5→7 lines | ~93 |
+| 18:05 | Edited marketing/src/app/docs/sdks/python/page.mdx | 5→7 lines | ~94 |
+| 18:05 | Edited marketing/src/app/docs/sdks/go/page.mdx | 5→7 lines | ~92 |
+| 18:05 | Edited marketing/src/app/docs/sdks/page.mdx | 3→6 lines | ~99 |
+| 18:07 | Edited packages/go-client/PUBLISHING.md | GitHub() → account() | ~147 |
+| 18:09 | Edited docs/changelogs/CHANGELOG-api.md | expanded (+28 lines) | ~1128 |
+| 18:14 | Session end: 100 writes across 48 files (consent_middleware.py, urls.py, settings_demo.py, README.md, consent_required.py) | 34 reads | ~300676 tok |
+| 21:07 | Edited tests/load/k6/zero-storage-mode-b.js | 9→9 lines | ~88 |
+| 21:09 | Session end: 101 writes across 49 files (consent_middleware.py, urls.py, settings_demo.py, README.md, consent_required.py) | 36 reads | ~304841 tok |
+| 21:12 | Session end: 101 writes across 49 files (consent_middleware.py, urls.py, settings_demo.py, README.md, consent_required.py) | 36 reads | ~304841 tok |
+| 21:15 | Session end: 101 writes across 49 files (consent_middleware.py, urls.py, settings_demo.py, README.md, consent_required.py) | 38 reads | ~306621 tok |
+| 21:15 | Created app/next.config.ts | — | ~405 |
+| 21:15 | Edited app/src/proxy.ts | added nullish coalescing | ~305 |
+| 21:15 | Edited app/src/proxy.ts | expanded (+7 lines) | ~128 |
+| 21:16 | Session end: 104 writes across 51 files (consent_middleware.py, urls.py, settings_demo.py, README.md, consent_required.py) | 38 reads | ~307459 tok |
+| 21:22 | Edited docs/ADRs/ADR-1018-self-hosted-status-page.md | modified API() | ~1529 |
+| 21:23 | Edited docs/ADRs/ADR-1018-self-hosted-status-page.md | modified deliverables() | ~410 |
+| 21:24 | Edited docs/changelogs/CHANGELOG-infra.md | modified monitors() | ~812 |
+| 21:24 | Session end: 107 writes across 51 files (consent_middleware.py, urls.py, settings_demo.py, README.md, consent_required.py) | 38 reads | ~310406 tok |
+| 06:20 | Edited app/next.config.ts | rewrites() → practice() | ~246 |
+| 06:21 | Edited app/src/proxy.ts | added 4 condition(s) | ~436 |
+| 06:21 | Edited app/src/proxy.ts | added 1 condition(s) | ~110 |
+| 06:22 | Session end: 110 writes across 51 files (consent_middleware.py, urls.py, settings_demo.py, README.md, consent_required.py) | 38 reads | ~311198 tok |
+| 06:25 | Edited docs/ADRs/ADR-1018-self-hosted-status-page.md | modified Supersedes() | ~1373 |
+| 06:27 | Edited tests/load/invariant-probe.ts | 1→5 lines | ~105 |
+| 06:27 | Edited docs/ADRs/ADR-1018-self-hosted-status-page.md | 25→30 lines | ~1566 |
+| 06:28 | Edited tests/load/k6/zero-storage-mode-b.js | 5→9 lines | ~122 |
+| 06:28 | Edited docs/ADRs/ADR-1018-self-hosted-status-page.md | modified Deliverables() | ~380 |
+| 06:29 | Edited docs/ADRs/ADR-1018-self-hosted-status-page.md | modified monitors() | ~1869 |
+| 06:30 | Session end: 116 writes across 51 files (consent_middleware.py, urls.py, settings_demo.py, README.md, consent_required.py) | 38 reads | ~322857 tok |
+| 06:31 | Edited docs/ADRs/ADR-1018-self-hosted-status-page.md | 57→57 lines | ~1832 |
+| 06:32 | Session end: 117 writes across 51 files (consent_middleware.py, urls.py, settings_demo.py, README.md, consent_required.py) | 38 reads | ~324820 tok |
+| 06:36 | Session end: 117 writes across 51 files (consent_middleware.py, urls.py, settings_demo.py, README.md, consent_required.py) | 38 reads | ~324820 tok |
+| 06:41 | Created docs/benchmarks/zero-storage-100k.md | — | ~2066 |
+| 06:42 | Edited app/src/proxy.ts | modified if() | ~316 |
+| 06:42 | Edited tests/integration/introspection.test.ts | "/api/v1/_ping" → "/api/v1/ping" | ~10 |
+| 06:42 | Edited docs/ADRs/ADR-1003-processor-posture-and-healthcare-unlock.md | 9→12 lines | ~540 |
+| 06:42 | Edited tests/integration/api-keys.e2e.test.ts | 5→5 lines | ~34 |
+| 06:42 | Edited app/src/app/(dashboard)/dashboard/settings/api-keys/[id]/usage/page.tsx | inline fix | ~28 |
+| 06:43 | Edited docs/changelogs/CHANGELOG-infra.md | expanded (+35 lines) | ~1073 |

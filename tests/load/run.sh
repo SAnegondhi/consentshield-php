@@ -32,13 +32,18 @@ if [[ "$MODE" != "mode-a" && "$MODE" != "mode-b" ]]; then
   exit 64
 fi
 
-# Load .env.local — same convention as the rest of the repo.
-if [[ -f .env.local ]]; then
-  set -a
-  # shellcheck disable=SC1091
-  source <(grep -v '^[[:space:]]*#' .env.local | grep -v '^[[:space:]]*$')
-  set +a
-fi
+# Load .env.local first, then overlay .env.load if present (load-specific
+# fixture vars — bearer, signing secret, target org/property/banner).
+# Direct dot-source under `set -a` so the assignments are exported into
+# the script's environment without process substitution shenanigans.
+set -a
+for f in .env.local .env.load; do
+  if [[ -f "$f" ]]; then
+    # shellcheck disable=SC1091
+    . "$f"
+  fi
+done
+set +a
 
 if [[ -z "${ORG_ID:-}" ]]; then
   echo "ORG_ID env var is required (target sandbox / zero_storage org uuid)" >&2

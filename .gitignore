@@ -121,3 +121,6 @@ session-context/
 # sed -i.bak leftovers
 *.bak
 .env.load
+
+# ADR-1003 Sprint 3.2 — load-test run artefacts (k6 logs + probe samples)
+tests/load/output/
