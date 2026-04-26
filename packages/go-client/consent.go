@@ -12,9 +12,14 @@ import (
 // Ping
 // ─────────────────────────────────────────────────────────────────────
 
-// PingEnvelope is the GET /v1/_ping response.
+// PingEnvelope is the GET /v1/_ping response — the API key context
+// that the Bearer middleware resolved for the calling key.
 type PingEnvelope struct {
-	Status string `json:"status"`
+	OK         bool     `json:"ok"`
+	OrgID      *string  `json:"org_id"`
+	AccountID  string   `json:"account_id"`
+	Scopes     []string `json:"scopes"`
+	RateTier   string   `json:"rate_tier"`
 }
 
 // Ping is the cheapest call against the API — useful as a smoke

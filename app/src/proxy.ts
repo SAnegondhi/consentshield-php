@@ -128,10 +128,18 @@ export async function proxy(request: NextRequest) {
     // Inject verified context + request start time for route-level logging.
     const injected = buildApiContextHeaders(request.headers, result.context)
     injected.set('x-cs-t', String(Date.now()))
-    if (rewriteToApi) {
-      return NextResponse.rewrite(rewriteToApi, { request: { headers: injected } })
-    }
-    return NextResponse.next({ request: { headers: injected } })
+    const res = rewriteToApi
+      ? NextResponse.rewrite(rewriteToApi, { request: { headers: injected } })
+      : NextResponse.next({ request: { headers: injected } })
+
+    // Echo X-CS-Trace-Id on the response (ADR-1014 Sprint 3.2 closeout)
+    // so SDK callers can correlate end-to-end across every /v1/* route,
+    // not just /v1/_ping. The header is propagated as-is when the
+    // caller sent one; per-route handlers may still override.
+    const traceId = request.headers.get('x-cs-trace-id')
+    if (traceId) res.headers.set('x-cs-trace-id', traceId)
+
+    return res
   }
 
   let supabaseResponse = NextResponse.next({ request })

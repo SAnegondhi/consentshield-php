@@ -2,6 +2,29 @@
 
 API route changes.
 
+## [ADR-1006 / ADR-1014 — v1.0.1 SDK patch round + generic trace-id echo] — 2026-04-26
+
+**ADR:** ADR-1006 (Tier-1 SDK gaps) + ADR-1014 (Sprint 3.2 closeout — server-side echo)
+**Sprint:** Patch round (post-9/9 closure of ADR-1006); ADR-1014 Sprint 3.2 follow-through.
+
+### Added
+- **`app/src/proxy.ts`** — generic `X-CS-Trace-Id` echo on every Bearer-gated `/api/v1/*` response. The `_ping` route already echoed per-route; this lifts the behaviour to the proxy layer so verify / record / revoke / list / deletion / rights / audit responses also round-trip the inbound trace id. Per-route handlers may still override.
+- **`packages/node-client/package.json`** — `prepare` script (`bun run build`) so `bun add github:SAnegondhi/consentshield-node#v1.0.1` builds `dist/` at install time. Closes the "git-install yields unimportable package" gap from the prior session handoff. `npm publish` flow unaffected (`prepublishOnly` still runs the full pre-flight).
+
+### Changed
+- **`packages/go-client/consent.go`** — `PingEnvelope` shape now matches the server's actual `/v1/_ping` response: `{ ok bool, org_id *string, account_id string, scopes []string, rate_tier string }`. Was incorrectly declared as `{ status string }` at v1.0.0 — calls succeeded but the unmarshal yielded an empty struct. `*string` org_id allows for the null-org account-key case.
+- **`packages/go-client/consentshield.go`** — `Version` constant bumped `1.0.0` → `1.0.1`.
+- **`packages/node-client/package.json`** — version bumped `1.0.0` → `1.0.1`.
+
+### Tested
+- [x] `go test -cover ./...` against `packages/go-client` — coverage held at 87.8%; `TestPing_OK` updated to assert against the new envelope (org_id pointer, account_id, scopes slice, rate_tier).
+- [x] `bun run build` against `packages/node-client` — ESM 31.31 KB / CJS 31.53 KB / DTS 27.68 KB; build success.
+- [x] `bun run test` against `packages/node-client` — 103/103 tests pass.
+- [x] `bunx tsc --noEmit` against `app/` — zero errors in `src/`; pre-existing test errors in `tests/storage/*` unchanged and unrelated.
+
+### Outstanding
+- v1.0.1 tag pushes to `github.com/SAnegondhi/consentshield-{node,go}` — operator action; module-proxy / git-install consumers see the fix once tagged.
+
 ## [ADR-1028 Phase 3 Sprint 3.1 — PHP SDK Laravel + Symfony integration] — 2026-04-26
 
 **ADR:** ADR-1028 — Generated server-side SDKs (Java + .NET + PHP)

@@ -101,7 +101,7 @@ func TestPing_OK(t *testing.T) {
 		}
 		w.Header().Set("Content-Type", "application/json")
 		w.Header().Set("X-CS-Trace-Id", "trace-123")
-		_, _ = w.Write([]byte(`{"status":"ok"}`))
+		_, _ = w.Write([]byte(`{"ok":true,"org_id":"ORG_UUID","account_id":"ACC_UUID","scopes":["consent:write","consent:read"],"rate_tier":"starter"}`))
 	}))
 	defer srv.Close()
 
@@ -110,8 +110,20 @@ func TestPing_OK(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Ping: %v", err)
 	}
-	if out.Status != "ok" {
-		t.Errorf("status = %q", out.Status)
+	if !out.OK {
+		t.Errorf("ok = %v, want true", out.OK)
+	}
+	if out.OrgID == nil || *out.OrgID != "ORG_UUID" {
+		t.Errorf("org_id = %v, want ORG_UUID", out.OrgID)
+	}
+	if out.AccountID != "ACC_UUID" {
+		t.Errorf("account_id = %q", out.AccountID)
+	}
+	if len(out.Scopes) != 2 || out.Scopes[0] != "consent:write" {
+		t.Errorf("scopes = %v", out.Scopes)
+	}
+	if out.RateTier != "starter" {
+		t.Errorf("rate_tier = %q", out.RateTier)
 	}
 }
 
