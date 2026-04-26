@@ -136,3 +136,8 @@ packages/dotnet-client/**/bin/
 packages/dotnet-client/**/obj/
 packages/dotnet-client/artifacts/
 packages/dotnet-client/**/TestResults/
+
+# ADR-1028 Sprint 3.1 — PHP build artefacts
+packages/php-client/**/vendor/
+packages/php-client/**/composer.lock
+packages/php-client/**/.phpunit.cache/

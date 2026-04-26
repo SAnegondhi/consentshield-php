@@ -2,6 +2,27 @@
 
 API route changes.
 
+## [ADR-1028 Phase 3 Sprint 3.1 — PHP SDK Laravel + Symfony integration] — 2026-04-26
+
+**ADR:** ADR-1028 — Generated server-side SDKs (Java + .NET + PHP)
+**Sprint:** Phase 3, Sprint 3.1
+
+### Added
+- **`packages/php-client/wrapper/composer.json`** — Composer package `consentshield/sdk` v1.0.0 (separate from the generated `consentshield/consentshield`), PHP 8.1+ baseline, depends on `guzzlehttp/guzzle:^7.0` + `psr/http-client:^1.0` + `psr/http-factory:^1.0` + `psr/log:^1.0||^2.0||^3.0`. `path` repository at `../generated` so the wrapper resolves the local generated package without requiring it to be published.
+- **`wrapper/src/ConsentShieldClient.php`** — factory wrapping a Guzzle 7 PSR-18 client. Bearer auth on `Authorization` header, per-attempt timeout on connect + read, `RetryMiddleware` on the HandlerStack. Reads `CONSENT_VERIFY_FAIL_OPEN` env var with explicit-option precedence. Static `create($apiKey, [options])` factory + `->utility()` returns the generated `UtilityApi`.
+- **`wrapper/src/Exception/`** — three-class hierarchy on `ConsentShieldException`: `ConsentShieldApiException` (4xx surface; status / type / title / detail / instance / traceId / extensions), `ConsentShieldTimeoutException` (never retried), `ConsentVerifyException` with `VerifyFailureCause` PHP 8.1 backed enum (`server_error` / `timeout` / `network`).
+- **`wrapper/src/Http/RetryMiddleware.php`** — Guzzle middleware factory `RetryMiddleware::create($maxRetries)`. Promise-then chain: 5xx retry on resolved branch, transport retry on rejected branch. NEVER retries 4xx (resolved 4xx surfaces as-is). NEVER retries timeouts: cURL `errno=28` (or message containing "timed out") detected on the rejected branch and rethrown as `ConsentShieldTimeoutException` without consuming retry budget. `RequestException` carrying a response (e.g. wrapped 4xx) surfaces immediately.
+- **`examples/laravel-middleware/`** — three drop-in files for a Laravel 11 app: `ConsentShieldGate.php` middleware (constructor-injected `ConsentShieldClient`), `AppServiceProvider.php` registration, `config/consentshield.php` config. README documents alias registration in `bootstrap/app.php`.
+- **`examples/symfony-controller/`** — Symfony 7 controller + `services.yaml` factory snippet.
+- **`packages/php-client/PUBLISHING.md`** — Packagist operator runbook: account creation, package submission, GitHub webhook for tag-driven auto-ingest, smoke install, abandoned-package recovery for a bad release, v2+ release model with `require.php` constraint as the runtime range.
+- **`packages/php-client/LICENSE`** (Apache-2.0) + **`NOTICE`** (trademark carve-out) + **`README.md`**.
+
+### Tested
+- [x] `composer install && vendor/bin/phpunit` on PHP 8.3 + PHPUnit 10.5 — 28/28 tests pass, 52 assertions, 0 failures, 0 risky.
+- [x] Compliance-contract sweep (13 RetryMiddlewareTests): 4xx never retries (`@dataProvider` across 400/401/403/404/410/422); 5xx retries until success; 5xx exhausts retries then surfaces; transport `ConnectException` retries then succeeds; transport exhausts retries then throws; cURL `errno=28` → `ConsentShieldTimeoutException`; timeout detected by message even without errno; `RequestException` carrying a 4xx response surfaces immediately; max-retries=0 means one attempt; invalid `maxRetries` (-1, 99) → `InvalidArgumentException`.
+- [x] `ConsentShieldClient` factory (6 tests): defaults sensible; rejects keys without `cs_live_` prefix; trims trailing slash; explicit `failOpen` wins both directions; non-positive `timeoutSeconds` rejected; negative `maxRetries` rejected.
+- [x] Exception hierarchy (5 tests): all fields round-trip; null extensions tolerated; previous (cause) preserved; enum values exposed (`server_error` / `timeout` / `network`).
+
 ## [ADR-1028 Phase 2 Sprint 2.1 — .NET SDK ASP.NET Core integration] — 2026-04-26
 
 **ADR:** ADR-1028 — Generated server-side SDKs (Java + .NET + PHP)
