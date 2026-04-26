@@ -2,7 +2,7 @@
 
 **Date:** 2026-04-26
 **ADR:** ADR-1028 (Phase 1 Sprint 1.1)
-**Decision:** Stay on OpenAPI Generator for v1.0.0; revisit at $50k MRR or first BFSI Tier-1 procurement comment on code quality.
+**Decision:** Stay on OpenAPI Generator for v1.0.0. Speakeasy bake-off **explicitly deferred** to Q3/Q4 2026 unless marketing escalates a procurement-blocking demand sooner. The original review trigger ("$50k MRR OR first BFSI Tier-1 procurement comment") still stands as a separate escalation lever.
 
 ---
 
@@ -46,22 +46,26 @@ Sample artefacts inspected for each target:
 
 ### Speakeasy output
 
-> **OPERATOR ACTION REQUIRED to complete this section.** ADR-1028 Sprint 1.1 ships the OpenAPI-Generator pipeline + drift gate; the Speakeasy comparison capture is an operator step (sign-up + one-time CLI invocation) that doesn't gate code merge.
->
-> Steps to complete:
->
-> 1. Sign up at <https://www.speakeasy.com/> with the GitHub account that owns the public Tier-1 SDK repos. Confirm the OSS free tier applies (public OpenAPI spec, public output repo).
-> 2. Install the Speakeasy CLI: `brew install speakeasy-api/homebrew-tap/speakeasy`.
-> 3. Run against `app/public/openapi.yaml`:
->    ```
->    speakeasy generate sdk --schema app/public/openapi.yaml --lang java   --out /tmp/speakeasy-java
->    speakeasy generate sdk --schema app/public/openapi.yaml --lang csharp --out /tmp/speakeasy-csharp
->    speakeasy generate sdk --schema app/public/openapi.yaml --lang php    --out /tmp/speakeasy-php
->    ```
-> 4. Drop the three `/tmp/speakeasy-*` trees into `docs/reviews/2026-04-26-tier2-bakeoff/{java,csharp,php}/` (gitignored — these are scratch outputs, not committed source).
-> 5. Re-run the diff sections below by inspecting the actual files.
+**Deferred to Q3/Q4 2026.** No measured comparison is captured at Sprint 1.1 close. The Speakeasy capture (sign-up + CLI invocation against `app/public/openapi.yaml` for java/csharp/php targets) is held in reserve as a marketing-driven follow-up, not a Phase 1 obligation.
 
-Until that operator action lands, the Speakeasy column carries vendor-published claims rather than measured comparisons.
+**Reopen triggers** (any ONE fires the bake-off):
+1. **Marketing escalation in Q3/Q4 2026** — landing page A/B tests, BFSI sales-deck reviews, or partner GTM conversations surface "the SDK is fine but feels generated" feedback that hurts conversion.
+2. **$50k MRR sustained** for 3 consecutive months (original gate; preserved).
+3. **First BFSI Tier-1 procurement comment** specifically on generated-client code quality during a real RFP (not "would be nicer if" — actual procurement-blocking comment).
+4. **Maintenance pain** — OpenAPI Generator output starts fighting the hand-written wrapper layer across multiple sprints.
+
+If/when triggered, the capture procedure is:
+
+```
+brew install speakeasy-api/homebrew-tap/speakeasy
+speakeasy generate sdk --schema app/public/openapi.yaml --lang java   --out /tmp/speakeasy-java
+speakeasy generate sdk --schema app/public/openapi.yaml --lang csharp --out /tmp/speakeasy-csharp
+speakeasy generate sdk --schema app/public/openapi.yaml --lang php    --out /tmp/speakeasy-php
+```
+
+Drop output into `docs/reviews/<reopen-date>-tier2-bakeoff/{java,csharp,php}/`, re-open this review, fill in the side-by-side findings below with measured (not claimed) comparisons, and either ratify the OpenAPI Generator decision or amend ADR-1028 §Architecture Changes with a generator switch.
+
+Until then, the Speakeasy column below carries vendor-published claims for context only.
 
 ---
 
@@ -103,16 +107,19 @@ Until that operator action lands, the Speakeasy column carries vendor-published 
 
 ## Decision
 
-**Stay on OpenAPI Generator for v1.0.0** across all three Tier-2 targets. Re-evaluation gate:
+**Stay on OpenAPI Generator for v1.0.0** across all three Tier-2 targets. **Speakeasy bake-off deferred to Q3/Q4 2026** unless marketing escalates a procurement-blocking demand sooner.
 
-1. **MRR threshold:** $50k MRR sustained for 3 consecutive months. Indicates customer base capable of expressing preferences via revenue.
-2. **Procurement signal:** any BFSI Tier-1 enterprise prospect explicitly comments on generated-client code quality during a real RFP (not "would be nicer if" feedback — actual procurement-blocking comment).
-3. **Maintenance pain:** if the OpenAPI Generator output starts breaking compliance-contract tests in non-trivial ways across multiple sprints — i.e. the generator output is fighting the wrapper layer rather than complementing it.
+Re-evaluation triggers (any ONE reopens this review):
 
-If any of those triggers fires, reopen this review and switch generators. The switch is a one-CI-step change; the input is the same OpenAPI spec; the hand-written wrappers (Spring Boot / ASP.NET DI / PSR-18) survive the swap.
+1. **Marketing escalation in Q3/Q4 2026** (newly added at user direction) — sales / partner / landing-page conversion feedback specifically attributing friction to generated-SDK polish.
+2. **MRR threshold:** $50k MRR sustained for 3 consecutive months.
+3. **Procurement signal:** any BFSI Tier-1 enterprise prospect explicitly comments on generated-client code quality during a real RFP.
+4. **Maintenance pain:** OpenAPI Generator output starts fighting the hand-written wrapper layer across multiple sprints.
+
+The switch, if and when triggered, is a one-CI-step change; the input is the same OpenAPI spec; the hand-written wrappers (Spring Boot / ASP.NET DI / PSR-18) survive the swap.
 
 ---
 
 ## Outcome
 
-ADR-1028 §Architecture Changes amended with this decision. Sprint 1.1 closes with the OpenAPI Generator pipeline + CI drift gate landed. Sprint 1.2 (Java SDK package + Spring Boot wrapper) proceeds against the OAG output.
+ADR-1028 §Architecture Changes amended with this decision. Sprint 1.1 closes with the OpenAPI Generator pipeline + CI drift gate landed. Sprint 1.2 (Java SDK package + Spring Boot wrapper) proceeds against the OAG output. Speakeasy capture is **not** in the Phase 1 critical path; revisit Q3/Q4 2026 unless escalated.
