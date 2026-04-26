@@ -127,3 +127,6 @@ tests/load/output/
 
 # ADR-1028 Sprint 1.1 — Tier-2 SDK drift-check scratch tempdir
 .tmp-tier2-check/
+
+# ADR-1028 Sprint 1.2 — Maven build artefacts (Java SDK)
+packages/java-client/**/target/
