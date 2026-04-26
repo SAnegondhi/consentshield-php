@@ -1,0 +1,46 @@
+{
+  "groups": [
+    {
+      "name": "consentshield",
+      "type": "com.consentshield.sdk.spring.ConsentShieldProperties",
+      "sourceType": "com.consentshield.sdk.spring.ConsentShieldProperties"
+    }
+  ],
+  "properties": [
+    {
+      "name": "consentshield.api-key",
+      "type": "java.lang.String",
+      "description": "API key prefixed with {@code cs_live_}. Required.",
+      "sourceType": "com.consentshield.sdk.spring.ConsentShieldProperties"
+    },
+    {
+      "name": "consentshield.base-url",
+      "type": "java.lang.String",
+      "description": "API base URL. Defaults to https:\/\/api.consentshield.in\/v1.",
+      "sourceType": "com.consentshield.sdk.spring.ConsentShieldProperties",
+      "defaultValue": "https:\/\/api.consentshield.in\/v1"
+    },
+    {
+      "name": "consentshield.fail-open",
+      "type": "java.lang.Boolean",
+      "description": "If true, verify failures (5xx \/ network \/ timeout) return an open outcome rather than throwing {@code ConsentVerifyException}. Defaults to false (fail-CLOSED), matching the Tier-1 SDKs.",
+      "sourceType": "com.consentshield.sdk.spring.ConsentShieldProperties",
+      "defaultValue": false
+    },
+    {
+      "name": "consentshield.max-retries",
+      "type": "java.lang.Integer",
+      "description": "Max retries on 5xx + transport. Defaults to 3 (so 4 total attempts).",
+      "sourceType": "com.consentshield.sdk.spring.ConsentShieldProperties",
+      "defaultValue": 3
+    },
+    {
+      "name": "consentshield.timeout",
+      "type": "java.time.Duration",
+      "description": "Per-attempt timeout. Defaults to 2 s.",
+      "sourceType": "com.consentshield.sdk.spring.ConsentShieldProperties",
+      "defaultValue": "2s"
+    }
+  ],
+  "hints": []
+}

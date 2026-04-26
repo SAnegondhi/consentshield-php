@@ -2,6 +2,30 @@
 
 API route changes.
 
+## [ADR-1028 Phase 1 Sprint 1.2 — Java SDK Spring Boot starter] — 2026-04-26
+
+**ADR:** ADR-1028 — Generated server-side SDKs (Java + .NET + PHP)
+**Sprint:** Phase 1, Sprint 1.2
+
+### Added
+- **`packages/java-client/pom.xml`** — top-level aggregator (packaging=pom) with two modules: `generated/` (regenerator-managed; produces `com.consentshield:consentshield-java:1.0.0`) and `wrapper/` (produces `com.consentshield:consentshield-java-spring-boot-starter:1.0.0`).
+- **`packages/java-client/wrapper/`** — hand-written Spring Boot starter:
+  - `ConsentShieldClient` (with `Builder`) — factory wrapping the generated `ApiClient`. Sets per-attempt `connect/read/write` timeouts (NOT `callTimeout`, which would cap the whole call including retry sleeps); installs the `RetryInterceptor`; reads `CONSENT_VERIFY_FAIL_OPEN` env var with explicit-setter precedence.
+  - Three-class exception hierarchy on a shared `ConsentShieldException` base: `ConsentShieldApiException` (4xx; carries `status`/`type`/`title`/`detail`/`instance`/`traceId`/`extensions`), `ConsentShieldTimeoutException` (never retried), `ConsentVerifyException` with `FailureCause` discriminator (SERVER_ERROR / TIMEOUT / NETWORK). `ConsentVerifyOutcome` discriminated result for fail-OPEN return shape.
+  - `internal/RetryInterceptor` — OkHttp `Interceptor`, 100/400/1600 ms exponential backoff, never retries 4xx, never retries timeouts. Surfaces 5xx as the final response after the retry budget is exhausted.
+  - `spring/ConsentShieldAutoConfiguration` — `@AutoConfiguration` + `@ConditionalOnProperty(prefix="consentshield", name="api-key")` + `@EnableConfigurationProperties(ConsentShieldProperties.class)`. Registered via `META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports`.
+  - `spring/ConsentShieldProperties` — `@ConfigurationProperties("consentshield")` for `apiKey` / `baseUrl` / `timeout` / `maxRetries` / `failOpen`.
+- **`packages/java-client/examples/spring-boot-marketing-gate/`** — runnable Spring Boot 3.3 app showing auto-configured `ConsentShieldClient` injected into a `@RestController` and demonstrating the marketing-gate outcome contract (202 / 451 / 502 / 503).
+- **`packages/java-client/PUBLISHING.md`** — Sonatype Central operator runbook: account creation, `com.consentshield` namespace TXT verification, GPG key generation + key-server publish, `~/.m2/settings.xml` shape, `mvn -P release deploy`, staging promotion, smoke install in scratch project, recovery from a bad release (Maven Central is immutable; bump + re-deploy), v2+ release model.
+- **`packages/java-client/LICENSE`** (Apache-2.0 canonical text) + **`NOTICE`** (trademark carve-out matching Tier-1 SDKs) + **`README.md`**.
+
+### Tested
+- [x] `docker run … maven:3.9-eclipse-temurin-21 mvn -B -pl wrapper -am clean verify` — BUILD SUCCESS. 22 wrapper tests pass (RetryInterceptor: 8, ConsentShieldClientBuilder: 5, ConsentShieldException: 5, AutoConfiguration: 4). 0 failures, 0 errors.
+- [x] JaCoCo BUNDLE-level line-coverage gate at 80% — clears.
+- [x] Compliance-contract sweep: 4xx never retries across 400/401/403/404/410/422; 5xx retries until success; 5xx exhausts retries then surfaces as 503; transport IOException retries then succeeds on attempt #3; per-attempt timeout NEVER retried; max-retries=0 means one attempt.
+- [x] Builder validation: rejects keys without `cs_live_` prefix; null key → NPE; trailing-slash trim; explicit `failOpen(true)` wins over env.
+- [x] Spring auto-config: silent without `consentshield.api-key`; wires single `ConsentShieldClient` bean when key present; binds all five properties.
+
 ## [ADR-1028 Phase 1 Sprint 1.1 — Tier-2 SDK generator pipeline + CI drift gate] — 2026-04-26
 
 **ADR:** ADR-1028 — Generated server-side SDKs (Java + .NET + PHP)

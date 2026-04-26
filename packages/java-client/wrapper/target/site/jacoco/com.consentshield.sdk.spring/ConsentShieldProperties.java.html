@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ConsentShieldProperties.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ConsentShield Java SDK — Spring Boot starter</a> &gt; <a href="index.source.html" class="el_package">com.consentshield.sdk.spring</a> &gt; <span class="el_source">ConsentShieldProperties.java</span></div><h1>ConsentShieldProperties.java</h1><pre class="source lang-java linenums">package com.consentshield.sdk.spring;
+
+import java.time.Duration;
+
+import org.springframework.boot.context.properties.ConfigurationProperties;
+
+/**
+ * Properties bound under {@code consentshield.*} via Spring Boot's
+ * {@code @ConfigurationProperties}. Values can also be set via
+ * {@code application.properties} / {@code application.yml} / environment
+ * (e.g. {@code CONSENTSHIELD_API_KEY}).
+ */
+@ConfigurationProperties(prefix = &quot;consentshield&quot;)
+<span class="fc" id="L14">public class ConsentShieldProperties {</span>
+    /** API key prefixed with {@code cs_live_}. Required. */
+    private String apiKey;
+
+    /** API base URL. Defaults to https://api.consentshield.in/v1. */
+<span class="fc" id="L19">    private String baseUrl = &quot;https://api.consentshield.in/v1&quot;;</span>
+
+    /** Per-attempt timeout. Defaults to 2 s. */
+<span class="fc" id="L22">    private Duration timeout = Duration.ofSeconds(2);</span>
+
+    /** Max retries on 5xx + transport. Defaults to 3 (so 4 total attempts). */
+<span class="fc" id="L25">    private int maxRetries = 3;</span>
+
+    /**
+     * If true, verify failures (5xx / network / timeout) return an open
+     * outcome rather than throwing {@code ConsentVerifyException}. Defaults to
+     * false (fail-CLOSED), matching the Tier-1 SDKs.
+     */
+<span class="fc" id="L32">    private boolean failOpen = false;</span>
+
+    public String getApiKey() {
+<span class="fc" id="L35">        return apiKey;</span>
+    }
+
+    public void setApiKey(String apiKey) {
+<span class="fc" id="L39">        this.apiKey = apiKey;</span>
+<span class="fc" id="L40">    }</span>
+
+    public String getBaseUrl() {
+<span class="fc" id="L43">        return baseUrl;</span>
+    }
+
+    public void setBaseUrl(String baseUrl) {
+<span class="fc" id="L47">        this.baseUrl = baseUrl;</span>
+<span class="fc" id="L48">    }</span>
+
+    public Duration getTimeout() {
+<span class="fc" id="L51">        return timeout;</span>
+    }
+
+    public void setTimeout(Duration timeout) {
+<span class="fc" id="L55">        this.timeout = timeout;</span>
+<span class="fc" id="L56">    }</span>
+
+    public int getMaxRetries() {
+<span class="fc" id="L59">        return maxRetries;</span>
+    }
+
+    public void setMaxRetries(int maxRetries) {
+<span class="fc" id="L63">        this.maxRetries = maxRetries;</span>
+<span class="fc" id="L64">    }</span>
+
+    public boolean isFailOpen() {
+<span class="fc" id="L67">        return failOpen;</span>
+    }
+
+    public void setFailOpen(boolean failOpen) {
+<span class="fc" id="L71">        this.failOpen = failOpen;</span>
+<span class="fc" id="L72">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

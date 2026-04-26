@@ -1,0 +1,10 @@
+consentshield:
+  # API key — read from CONSENTSHIELD_API_KEY env var.
+  api-key: ${CONSENTSHIELD_API_KEY}
+  base-url: https://api.consentshield.in/v1
+  timeout: 2s
+  max-retries: 3
+  fail-open: false
+
+server:
+  port: 8080

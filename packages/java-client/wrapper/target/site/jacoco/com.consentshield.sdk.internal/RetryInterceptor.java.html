@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>RetryInterceptor.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ConsentShield Java SDK — Spring Boot starter</a> &gt; <a href="index.source.html" class="el_package">com.consentshield.sdk.internal</a> &gt; <span class="el_source">RetryInterceptor.java</span></div><h1>RetryInterceptor.java</h1><pre class="source lang-java linenums">package com.consentshield.sdk.internal;
+
+import java.io.IOException;
+import java.io.InterruptedIOException;
+import java.net.SocketTimeoutException;
+
+import okhttp3.Interceptor;
+import okhttp3.Request;
+import okhttp3.Response;
+
+/**
+ * OkHttp interceptor implementing the ConsentShield retry contract:
+ *
+ * &lt;ul&gt;
+ *   &lt;li&gt;Up to {@code maxRetries} retries on 5xx and on transport IOException
+ *       (connection refused, DNS, TLS, broken pipe).&lt;/li&gt;
+ *   &lt;li&gt;Backoff: 100 ms, 400 ms, 1600 ms (exponential, base 4).&lt;/li&gt;
+ *   &lt;li&gt;NEVER retries 4xx — those surface as the FIRST attempt's response.&lt;/li&gt;
+ *   &lt;li&gt;NEVER retries per-attempt timeout ({@link SocketTimeoutException} or
+ *       {@link InterruptedIOException} with the {@code &quot;timeout&quot;} hint).&lt;/li&gt;
+ * &lt;/ul&gt;
+ *
+ * &lt;p&gt;The OkHttp client this interceptor lives on must already have its
+ * {@code callTimeout} / {@code readTimeout} set to the desired per-attempt
+ * timeout.
+ */
+public final class RetryInterceptor implements Interceptor {
+<span class="fc" id="L28">    private static final long[] BACKOFF_MS = {100L, 400L, 1600L};</span>
+
+    private final int maxRetries;
+
+<span class="fc" id="L32">    public RetryInterceptor(int maxRetries) {</span>
+<span class="fc bfc" id="L33" title="All 4 branches covered.">        if (maxRetries &lt; 0 || maxRetries &gt; BACKOFF_MS.length) {</span>
+<span class="fc" id="L34">            throw new IllegalArgumentException(</span>
+                    &quot;maxRetries must be 0..&quot; + BACKOFF_MS.length + &quot;, got &quot; + maxRetries);
+        }
+<span class="fc" id="L37">        this.maxRetries = maxRetries;</span>
+<span class="fc" id="L38">    }</span>
+
+    @Override
+    public Response intercept(Chain chain) throws IOException {
+<span class="fc" id="L42">        Request request = chain.request();</span>
+<span class="fc" id="L43">        IOException lastTransport = null;</span>
+<span class="fc" id="L44">        Response lastResponse = null;</span>
+
+<span class="pc bpc" id="L46" title="1 of 2 branches missed.">        for (int attempt = 0; attempt &lt;= maxRetries; attempt++) {</span>
+<span class="fc bfc" id="L47" title="All 2 branches covered.">            if (attempt &gt; 0) {</span>
+<span class="fc" id="L48">                sleep(BACKOFF_MS[attempt - 1]);</span>
+            }
+
+            // Close the previous response body if we're retrying after a 5xx.
+<span class="fc bfc" id="L52" title="All 2 branches covered.">            if (lastResponse != null) {</span>
+<span class="fc" id="L53">                lastResponse.close();</span>
+<span class="fc" id="L54">                lastResponse = null;</span>
+            }
+
+            try {
+<span class="fc" id="L58">                Response response = chain.proceed(request);</span>
+<span class="fc" id="L59">                int code = response.code();</span>
+
+<span class="fc bfc" id="L61" title="All 2 branches covered.">                if (code &lt; 500) {</span>
+                    // 2xx, 3xx, 4xx — return as-is. Never retry 4xx.
+<span class="fc" id="L63">                    return response;</span>
+                }
+
+                // 5xx — retry if we have budget, else surface as the final response.
+<span class="fc bfc" id="L67" title="All 2 branches covered.">                if (attempt == maxRetries) {</span>
+<span class="fc" id="L68">                    return response;</span>
+                }
+<span class="fc" id="L70">                lastResponse = response;</span>
+<span class="fc" id="L71">            } catch (SocketTimeoutException timeout) {</span>
+                // Per-attempt timeout — NEVER retried.
+<span class="fc" id="L73">                throw timeout;</span>
+<span class="nc" id="L74">            } catch (InterruptedIOException ioe) {</span>
+                // OkHttp signals callTimeout via InterruptedIOException(&quot;timeout&quot;).
+<span class="nc bnc" id="L76" title="All 4 branches missed.">                if (ioe.getMessage() != null &amp;&amp; ioe.getMessage().toLowerCase().contains(&quot;timeout&quot;)) {</span>
+<span class="nc" id="L77">                    throw ioe;</span>
+                }
+<span class="nc" id="L79">                lastTransport = ioe;</span>
+<span class="nc bnc" id="L80" title="All 2 branches missed.">                if (attempt == maxRetries) {</span>
+<span class="nc" id="L81">                    throw ioe;</span>
+                }
+<span class="fc" id="L83">            } catch (IOException ioe) {</span>
+                // Transport failure — retry if we have budget.
+<span class="fc" id="L85">                lastTransport = ioe;</span>
+<span class="pc bpc" id="L86" title="1 of 2 branches missed.">                if (attempt == maxRetries) {</span>
+<span class="nc" id="L87">                    throw ioe;</span>
+                }
+<span class="pc" id="L89">            }</span>
+        }
+
+<span class="nc bnc" id="L92" title="All 2 branches missed.">        if (lastResponse != null) return lastResponse;</span>
+<span class="nc bnc" id="L93" title="All 2 branches missed.">        if (lastTransport != null) throw lastTransport;</span>
+<span class="nc" id="L94">        throw new IllegalStateException(&quot;RetryInterceptor: unreachable&quot;);</span>
+    }
+
+    private static void sleep(long millis) throws InterruptedIOException {
+        try {
+<span class="fc" id="L99">            Thread.sleep(millis);</span>
+<span class="nc" id="L100">        } catch (InterruptedException ie) {</span>
+<span class="nc" id="L101">            Thread.currentThread().interrupt();</span>
+<span class="nc" id="L102">            throw new InterruptedIOException(&quot;retry sleep interrupted&quot;);</span>
+<span class="fc" id="L103">        }</span>
+<span class="fc" id="L104">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

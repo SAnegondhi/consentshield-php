@@ -1,0 +1,4 @@
+com/consentshield/sdk/internal/RetryInterceptorTest.class
+com/consentshield/sdk/ConsentShieldExceptionTest.class
+com/consentshield/sdk/ConsentShieldClientBuilderTest.class
+com/consentshield/sdk/spring/ConsentShieldAutoConfigurationTest.class

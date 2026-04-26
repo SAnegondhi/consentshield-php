@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ConsentShieldApiException.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ConsentShield Java SDK — Spring Boot starter</a> &gt; <a href="index.source.html" class="el_package">com.consentshield.sdk</a> &gt; <span class="el_source">ConsentShieldApiException.java</span></div><h1>ConsentShieldApiException.java</h1><pre class="source lang-java linenums">package com.consentshield.sdk;
+
+import java.util.Map;
+
+/**
+ * Thrown when the ConsentShield API returns a 4xx response.
+ *
+ * &lt;p&gt;4xx responses ALWAYS surface — they are never retried, never folded into
+ * fail-OPEN handling. The compliance contract requires the caller to see the
+ * problem+json detail (RFC 7807) so they can correct the request.
+ */
+public final class ConsentShieldApiException extends ConsentShieldException {
+    private final int status;
+    private final String type;
+    private final String title;
+    private final String detail;
+    private final String instance;
+    private final String traceId;
+    private final Map&lt;String, Object&gt; extensions;
+
+    public ConsentShieldApiException(
+            int status,
+            String type,
+            String title,
+            String detail,
+            String instance,
+            String traceId,
+            Map&lt;String, Object&gt; extensions) {
+<span class="fc" id="L29">        super(buildMessage(status, title, detail));</span>
+<span class="fc" id="L30">        this.status = status;</span>
+<span class="fc" id="L31">        this.type = type;</span>
+<span class="fc" id="L32">        this.title = title;</span>
+<span class="fc" id="L33">        this.detail = detail;</span>
+<span class="fc" id="L34">        this.instance = instance;</span>
+<span class="fc" id="L35">        this.traceId = traceId;</span>
+<span class="fc bfc" id="L36" title="All 2 branches covered.">        this.extensions = extensions == null ? Map.of() : Map.copyOf(extensions);</span>
+<span class="fc" id="L37">    }</span>
+
+    public int getStatus() {
+<span class="fc" id="L40">        return status;</span>
+    }
+
+    public String getType() {
+<span class="nc" id="L44">        return type;</span>
+    }
+
+    public String getTitle() {
+<span class="fc" id="L48">        return title;</span>
+    }
+
+    public String getDetail() {
+<span class="fc" id="L52">        return detail;</span>
+    }
+
+    public String getInstance() {
+<span class="fc" id="L56">        return instance;</span>
+    }
+
+    @Override
+    public String getTraceId() {
+<span class="fc" id="L61">        return traceId;</span>
+    }
+
+    public Map&lt;String, Object&gt; getExtensions() {
+<span class="fc" id="L65">        return extensions;</span>
+    }
+
+    private static String buildMessage(int status, String title, String detail) {
+<span class="fc" id="L69">        StringBuilder sb = new StringBuilder(&quot;ConsentShield API error: status=&quot;).append(status);</span>
+<span class="pc bpc" id="L70" title="1 of 4 branches missed.">        if (title != null &amp;&amp; !title.isEmpty()) sb.append(&quot; title=&quot;).append(title);</span>
+<span class="pc bpc" id="L71" title="1 of 4 branches missed.">        if (detail != null &amp;&amp; !detail.isEmpty()) sb.append(&quot; detail=&quot;).append(detail);</span>
+<span class="fc" id="L72">        return sb.toString();</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

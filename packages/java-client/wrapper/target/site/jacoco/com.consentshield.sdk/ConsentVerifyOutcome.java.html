@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ConsentVerifyOutcome.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ConsentShield Java SDK — Spring Boot starter</a> &gt; <a href="index.source.html" class="el_package">com.consentshield.sdk</a> &gt; <span class="el_source">ConsentVerifyOutcome.java</span></div><h1>ConsentVerifyOutcome.java</h1><pre class="source lang-java linenums">package com.consentshield.sdk;
+
+import java.util.Optional;
+
+/**
+ * Discriminated result of a verify call: either a server-decided envelope
+ * (granted / denied) or a fail-OPEN escape hatch with the cause recorded.
+ *
+ * &lt;p&gt;Callers that opt into fail-OPEN see this type even on transport
+ * failures; the {@code openCause} is set so the caller can record the
+ * override in their own audit log.
+ */
+public final class ConsentVerifyOutcome {
+    private final Object envelope;
+    private final ConsentVerifyException.FailureCause openCause;
+    private final String traceId;
+
+<span class="fc" id="L18">    private ConsentVerifyOutcome(Object envelope, ConsentVerifyException.FailureCause openCause, String traceId) {</span>
+<span class="fc" id="L19">        this.envelope = envelope;</span>
+<span class="fc" id="L20">        this.openCause = openCause;</span>
+<span class="fc" id="L21">        this.traceId = traceId;</span>
+<span class="fc" id="L22">    }</span>
+
+    public static ConsentVerifyOutcome ofEnvelope(Object envelope, String traceId) {
+<span class="fc" id="L25">        return new ConsentVerifyOutcome(envelope, null, traceId);</span>
+    }
+
+    public static ConsentVerifyOutcome ofOpen(ConsentVerifyException.FailureCause cause, String traceId) {
+<span class="fc" id="L29">        return new ConsentVerifyOutcome(null, cause, traceId);</span>
+    }
+
+    public boolean isOpen() {
+<span class="fc bfc" id="L33" title="All 2 branches covered.">        return openCause != null;</span>
+    }
+
+    public Optional&lt;Object&gt; getEnvelope() {
+<span class="nc" id="L37">        return Optional.ofNullable(envelope);</span>
+    }
+
+    public Optional&lt;ConsentVerifyException.FailureCause&gt; getOpenCause() {
+<span class="fc" id="L41">        return Optional.ofNullable(openCause);</span>
+    }
+
+    public String getTraceId() {
+<span class="fc" id="L45">        return traceId;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

@@ -1,0 +1,9 @@
+/work/packages/java-client/wrapper/src/main/java/com/consentshield/sdk/ConsentShieldApiException.java
+/work/packages/java-client/wrapper/src/main/java/com/consentshield/sdk/ConsentShieldClient.java
+/work/packages/java-client/wrapper/src/main/java/com/consentshield/sdk/ConsentShieldException.java
+/work/packages/java-client/wrapper/src/main/java/com/consentshield/sdk/ConsentShieldTimeoutException.java
+/work/packages/java-client/wrapper/src/main/java/com/consentshield/sdk/ConsentVerifyException.java
+/work/packages/java-client/wrapper/src/main/java/com/consentshield/sdk/ConsentVerifyOutcome.java
+/work/packages/java-client/wrapper/src/main/java/com/consentshield/sdk/internal/RetryInterceptor.java
+/work/packages/java-client/wrapper/src/main/java/com/consentshield/sdk/spring/ConsentShieldAutoConfiguration.java
+/work/packages/java-client/wrapper/src/main/java/com/consentshield/sdk/spring/ConsentShieldProperties.java
