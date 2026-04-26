@@ -15758,6 +15758,54 @@
       "related_bugs": [],
       "occurrences": 1,
       "last_seen": "2026-04-26T01:12:18.163Z"
+    },
+    {
+      "id": "bug-982",
+      "timestamp": "2026-04-26T01:14:55.438Z",
+      "error_message": "Significant refactor of ",
+      "file": "docs/architecture/consentshield-definitive-architecture.md",
+      "root_cause": "11 lines replaced/restructured",
+      "fix": "Rewrote 16→17 lines (11 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-26T01:14:55.438Z"
+    },
+    {
+      "id": "bug-983",
+      "timestamp": "2026-04-26T01:16:19.849Z",
+      "error_message": "Incorrect value in code",
+      "file": "docs/ADRs/ADR-index.md",
+      "root_cause": "Had `ADR-1300`",
+      "fix": "Changed to `docs/runbooks/adr-1018-phase-2-uptime-kuma.md`",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-26T01:16:19.849Z"
+    },
+    {
+      "id": "bug-984",
+      "timestamp": "2026-04-26T01:19:25.269Z",
+      "error_message": "Wrong return value",
+      "file": "app/src/app/api/v1/ping/route.ts",
+      "root_cause": "Was returning: NextResponse.json(body)",
+      "fix": "Now returns: res",
+      "tags": [
+        "auto-detected",
+        "return-value",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-26T01:19:25.269Z"
     }
   ]
 }

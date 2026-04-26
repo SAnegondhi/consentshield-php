@@ -48,8 +48,8 @@
       "first_read": "2026-04-25T07:50:54.970Z"
     },
     "/Users/sudhindra/projects/aiSpirit/consent-sheild/docs/ADRs/ADR-index.md": {
-      "count": 1,
-      "tokens": 9827,
+      "count": 2,
+      "tokens": 10653,
       "first_read": "2026-04-25T07:51:56.886Z"
     },
     "/Users/sudhindra/projects/aiSpirit/consent-sheild/supabase/migrations/20260804000036_provision_storage_dispatch.sql": {
@@ -103,8 +103,8 @@
       "first_read": "2026-04-25T08:28:10.631Z"
     },
     "/Users/sudhindra/projects/aiSpirit/consent-sheild/docs/changelogs/CHANGELOG-docs.md": {
-      "count": 1,
-      "tokens": 14619,
+      "count": 2,
+      "tokens": 15707,
       "first_read": "2026-04-25T08:34:25.110Z"
     },
     "/Users/sudhindra/projects/aiSpirit/consent-sheild/.gitignore": {
@@ -123,8 +123,8 @@
       "first_read": "2026-04-25T11:51:01.081Z"
     },
     "/Users/sudhindra/projects/aiSpirit/consent-sheild/docs/changelogs/CHANGELOG-infra.md": {
-      "count": 2,
-      "tokens": 26830,
+      "count": 3,
+      "tokens": 27818,
       "first_read": "2026-04-25T12:02:43.525Z"
     },
     "/Users/sudhindra/projects/aiSpirit/consent-sheild/docs/architecture/consentshield-definitive-architecture.md": {
@@ -957,6 +957,54 @@
       "action": "edit",
       "tokens": 1150,
       "at": "2026-04-26T01:13:15.683Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/docs/runbooks/adr-1018-phase-2-uptime-kuma.md",
+      "action": "create",
+      "tokens": 3420,
+      "at": "2026-04-26T01:14:06.712Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/docs/architecture/consentshield-definitive-architecture.md",
+      "action": "edit",
+      "tokens": 1043,
+      "at": "2026-04-26T01:14:55.434Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/docs/changelogs/CHANGELOG-infra.md",
+      "action": "edit",
+      "tokens": 1246,
+      "at": "2026-04-26T01:16:08.446Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/docs/ADRs/ADR-index.md",
+      "action": "edit",
+      "tokens": 138,
+      "at": "2026-04-26T01:16:19.846Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/docs/ADRs/ADR-index.md",
+      "action": "edit",
+      "tokens": 256,
+      "at": "2026-04-26T01:18:52.772Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/app/src/app/api/v1/ping/route.ts",
+      "action": "edit",
+      "tokens": 134,
+      "at": "2026-04-26T01:19:25.263Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/docs/V2-BACKLOG.md",
+      "action": "edit",
+      "tokens": 883,
+      "at": "2026-04-26T01:19:25.293Z"
+    },
+    {
+      "file": "/Users/sudhindra/projects/aiSpirit/consent-sheild/docs/changelogs/CHANGELOG-docs.md",
+      "action": "edit",
+      "tokens": 657,
+      "at": "2026-04-26T01:20:19.274Z"
     }
   ],
   "edit_counts": {
@@ -972,7 +1020,7 @@
     "packages/python-client/examples/fastapi-dependency/README.md": 1,
     "packages/python-client/PUBLISHING.md": 1,
     "docs/ADRs/ADR-1006-developer-experience-and-openapi.md": 2,
-    "docs/ADRs/ADR-index.md": 4,
+    "docs/ADRs/ADR-index.md": 6,
     "docs/changelogs/CHANGELOG-api.md": 3,
     "tests/load/run.sh": 2,
     "tests/load/k6/zero-storage-mode-a.js": 1,
@@ -1009,10 +1057,10 @@
     "marketing/src/app/docs/sdks/node/page.mdx": 2,
     "marketing/src/app/docs/sdks/python/page.mdx": 2,
     "marketing/src/app/docs/sdks/go/page.mdx": 2,
-    "docs/changelogs/CHANGELOG-docs.md": 1,
+    "docs/changelogs/CHANGELOG-docs.md": 2,
     ".gitignore": 1,
-    "docs/changelogs/CHANGELOG-infra.md": 3,
-    "docs/architecture/consentshield-definitive-architecture.md": 4,
+    "docs/changelogs/CHANGELOG-infra.md": 4,
+    "docs/architecture/consentshield-definitive-architecture.md": 5,
     "docs/architecture/consentshield-complete-schema-design.md": 1,
     "docs/reviews/2026-04-25-architecture-status-page-backfill.md": 1,
     "packages/node-client/LICENSE": 1,
@@ -1030,11 +1078,14 @@
     "tests/integration/introspection.test.ts": 1,
     "docs/ADRs/ADR-1003-processor-posture-and-healthcare-unlock.md": 1,
     "tests/integration/api-keys.e2e.test.ts": 1,
-    "app/src/app/(dashboard)/dashboard/settings/api-keys/[id]/usage/page.tsx": 1
+    "app/src/app/(dashboard)/dashboard/settings/api-keys/[id]/usage/page.tsx": 1,
+    "docs/runbooks/adr-1018-phase-2-uptime-kuma.md": 1,
+    "app/src/app/api/v1/ping/route.ts": 1,
+    "docs/V2-BACKLOG.md": 1
   },
   "anatomy_hits": 42,
   "anatomy_misses": 0,
-  "repeated_reads_warned": 10,
+  "repeated_reads_warned": 13,
   "cerebrum_warnings": 0,
-  "stop_count": 48
+  "stop_count": 49
 }

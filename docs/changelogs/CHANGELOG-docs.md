@@ -2,6 +2,25 @@
 
 Documentation changes.
 
+## [ADR-1003 Sprint 3.2 — benchmark report populated from first live run] — 2026-04-26
+
+**ADR:** ADR-1003 — Processor Posture + Healthcare Category Unlock
+**Sprint:** Phase 3, Sprint 3.2 (calibration round)
+
+### Updated
+- `docs/benchmarks/zero-storage-100k.md` — populated from the 2026-04-26 calibration run against the Acme dev fixture. Replaces the TBD-laden skeleton with: full Mode B 500-iter results table (latency breakdowns, throughput, buffer-row probe verdict), Mode A "BLOCKED on Hyperdrive" section with recovery procedure, latency-decomposition estimate (R2 PUT 2-4s dominant), resource-impact + cost roll-up, observations + V2 follow-ups, re-run cadence, verdict line, and a cleanup-notes section with the SQL to rotate the property's `event_signing_secret` + revoke the load-test API key after the full 100K run lands.
+
+### Added (other docs in the calibration commit)
+- `docs/V2-BACKLOG.md` — two new entries: **Hyperdrive auto-rotate kill-switch** (recurring CF half-open-pool bug — manual binding recreation today; Worker-side health-check + Cloudflare API auto-rotate is the V2 candidate) and **R2 PUT latency optimisation** (regional pinning, parallel PUTs across purposes, sigv4 signing-key cache — three independent optimisations totalling ~3 days, to promote when procurement asks for tighter SLA).
+- `docs/ADRs/ADR-index.md` — ADR-1003 entry extended with the Sprint 3.2 calibration milestone (Mode B 500/500 PASS, Mode A blocked, partial Sprint 3.2 status).
+
+### Rationale
+The harness commit (`45f5d79`) shipped the testing infrastructure; this commit captures the empirical findings. Two of those findings — Hyperdrive recurrence and R2 PUT dominance — are durable enough to graduate to V2-BACKLOG entries rather than leave only as inline notes in a benchmark file, so they survive the next time someone runs the harness and sees similar numbers.
+
+### Tested
+- Static review: every metric in the benchmark traces to a specific log file under `tests/load/output/` from the 2026-04-26 run.
+- The cleanup SQL block is verified against the actual Acme fixture column names (`web_properties.event_signing_secret`, `api_keys.revoked_at`).
+
 ## [ADR-1006 Phase 4 Sprint 4.2 — marketing /docs/sdks pages (fix 404)] — 2026-04-25
 
 **ADR:** ADR-1006 — Developer Experience: Client Libraries + OpenAPI + CI Drift Check

@@ -86,6 +86,21 @@ Sprint 4.1 added two columns to `admin.sectoral_templates` and surfaced them on 
 
 **Shape of fix.** Detect `P0004` in both actions, return `{ok: false, code: 'admin_action_required', requiredMode, currentMode}`; client renders a bespoke card. Small (<1 day). Promote when the first healthcare customer hits the error in real onboarding — until then the raw message is acceptable.
 
+### Hyperdrive auto-rotate kill-switch  *(origin: ADR-1003 Sprint 3.2 calibration; recurrence of ADR-1010 Sprint 4.2 incident)*
+
+Cloudflare Hyperdrive's pool gets stuck in a half-open state under specific upstream conditions — already documented in `worker/wrangler.toml:21–27` from the 2026-04-23 incident, and recurred during the Sprint 3.2 Mode A load test on 2026-04-26 (every Worker request 15s timeout → 404 "Unknown property" while direct cs_worker SQL via Supavisor returned <100ms). Recovery is a manual operator action: recreate the binding via `wrangler hyperdrive create` + `wrangler.toml` update + redeploy.
+
+**Shape of fix.** A health-check Worker that pings `getPropertyConfig` against a known fixture every N seconds; if p95 > 5s for K consecutive ticks, calls the Cloudflare API to recreate the Hyperdrive binding and pushes the new id into Worker secret `HYPERDRIVE_ID`. Worker startup reads the secret instead of the wrangler.toml-pinned id. Promote when the recurrence pattern is verified across a third incident — two so far isn't yet load-bearing enough to justify the auto-rotate complexity.
+
+### ADR-1003 R2 PUT latency optimisation  *(origin: ADR-1003 Sprint 3.2 calibration)*
+
+The 2026-04-26 calibration run found R2 PUT (sigv4-signed) is the dominant cold-path cost at 2-4s per artefact, putting Mode B p95 at 9.6s vs the original speculative budget of 1.5s. Three optimisation candidates:
+- **Regional R2 routing** — pin the Worker / customer-app regions to the same R2 region (today: `auto`); saves 100-300ms per PUT on bad-route days.
+- **Parallel PUTs across purposes** — the bridge currently writes one object per accepted purpose serially. With 2-5 purposes per event, parallel `Promise.all` would cut wall-clock proportionally.
+- **Sigv4 signing-key caching** — the sigv4 signing chain recomputes the daily key + region key + service key per request. Caching at the per-org-key level shaves ~50ms per PUT.
+
+**Shape of fix.** All three are independent; total ~3 days of work. Promote when (a) 100K-event Mode B run completes at current latency and procurement asks for tighter SLA, or (b) a customer-onboarded R2 region differs from our customer-app region and observed p95 spikes confirm the routing penalty.
+
 ---
 
 ## How to maintain this file

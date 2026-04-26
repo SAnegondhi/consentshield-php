@@ -1,7 +1,7 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-04-26T01:13:15.673Z
-> Files: 1589 tracked | Anatomy hits: 0 | Misses: 0
+> Auto-maintained by OpenWolf. Last scanned: 2026-04-26T01:20:19.265Z
+> Files: 1591 tracked | Anatomy hits: 0 | Misses: 0
 
 ## ../../../../../tmp/
 
@@ -1100,6 +1100,10 @@
 
 - `route.ts` — ADR-1012 Sprint 1.1 — GET /v1/keys/self (~326 tok)
 
+## app/src/app/api/v1/ping/
+
+- `route.ts` — ADR-1001 Sprint 2.2 — Canary endpoint to exercise the Bearer middleware. (~418 tok)
+
 ## app/src/app/api/v1/plans/
 
 - `route.ts` — ADR-1012 Sprint 1.3 — GET /v1/plans (~238 tok)
@@ -1355,7 +1359,7 @@
 - `FEATURE-INVENTORY.md` — ConsentShield — Complete Feature Inventory (~9665 tok)
 - `ROADMAP-phase2.md` — ConsentShield — Phase 2 Roadmap (~3150 tok)
 - `STATUS.md` — ConsentShield Status (~3762 tok)
-- `V2-BACKLOG.md` — V2 Backlog — Deferred Items (~1680 tok)
+- `V2-BACKLOG.md` — V2 Backlog — Deferred Items (~2241 tok)
 - `WHITEPAPER-AUDIT.md` — ConsentShield Integration Whitepaper — Critical Audit vs. Implementation (~4878 tok)
 
 ## docs/ADRs/
@@ -1446,7 +1450,7 @@
 - `ADR-1025-customer-storage-auto-provisioning.md` — ADR-1025: Customer storage auto-provisioning — hybrid managed R2 default + BYOK escape hatch (~13370 tok)
 - `ADR-1026-drop-hyperdrive-direct-supavisor.md` — ADR-1026: Rewind ADR-1010 Phase 3 — Worker connects directly to Supavisor; drop Hyperdrive binding (~5467 tok)
 - `ADR-1027-admin-account-awareness.md` — ADR-1027: Admin Account-Awareness Pass (~8082 tok)
-- `ADR-index.md` — ADR Index (~10641 tok)
+- `ADR-index.md` — ADR Index (~10767 tok)
 - `ADR-template.md` — ADR-NNNN: Title (~423 tok)
 - `adr-workflow.md` — ADR Workflow Rules (~557 tok)
 
@@ -1464,7 +1468,7 @@
 ## docs/architecture/
 
 - `consentshield-complete-schema-design.md` — ConsentShield — Complete Schema Design (~37399 tok)
-- `consentshield-definitive-architecture.md` — ConsentShield — Definitive Architecture Reference (~23307 tok)
+- `consentshield-definitive-architecture.md` — ConsentShield — Definitive Architecture Reference (~23552 tok)
 - `consentshield-testing-strategy.md` — ConsentShield — The Testing Question (~8766 tok)
 - `nextjs-16-reference.md` — Next.js 16 — Project Reference (~1408 tok)
 
@@ -1476,9 +1480,9 @@
 
 - `CHANGELOG-api.md` — Changelog — API (~53457 tok)
 - `CHANGELOG-dashboard.md` — Changelog — Dashboard (~29589 tok)
-- `CHANGELOG-docs.md` — Changelog — Documentation (~15707 tok)
+- `CHANGELOG-docs.md` — Changelog — Documentation (~16248 tok)
 - `CHANGELOG-edge-functions.md` — Changelog — Edge Functions (~4251 tok)
-- `CHANGELOG-infra.md` — Changelog — Infrastructure (~27818 tok)
+- `CHANGELOG-infra.md` — Changelog — Infrastructure (~28857 tok)
 - `CHANGELOG-marketing.md` — Changelog — Marketing (~17784 tok)
 - `CHANGELOG-schema.md` — Changelog — Schema (~56127 tok)
 - `CHANGELOG-worker.md` — Changelog — Worker (~8343 tok)
@@ -1563,6 +1567,7 @@
 
 - `adr-1003-phase-1-operator-actions.md` — ADR-1003 Phase 1 — operator actions (~1794 tok)
 - `adr-1018-phase-2-better-stack-sprint-2-1.md` — Runbook — ADR-1018 Phase 2 Sprint 2.1: Better Stack account + token (~1959 tok)
+- `adr-1018-phase-2-uptime-kuma.md` — Runbook — ADR-1018 Phase 2: Self-hosted Uptime Kuma at `status.consentshield.in` (~2993 tok)
 - `ai-provider-setup.md` — Runbook — AI Translation Provider Setup (Sarvam + Vercel AI Gateway) (~2210 tok)
 - `notification-channel-accounts.md` — Notification channel account setup — Slack / Teams / Discord / PagerDuty (~1889 tok)
 - `ops-readiness-flags.md` — Ops Readiness Flags — operator runbook (~1594 tok)
