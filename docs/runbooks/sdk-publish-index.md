@@ -6,9 +6,9 @@ Operator runbooks for publishing the official ConsentShield SDKs to their respec
 
 | Language | Registry | Runbook | Source |
 |---|---|---|---|
+| Node.js | npm | [sdk-publish-node.md](sdk-publish-node.md) | [`packages/node-client/PUBLISHING.md`](../../packages/node-client/PUBLISHING.md) |
 | Python | PyPI | [sdk-publish-python.md](sdk-publish-python.md) | [`packages/python-client/PUBLISHING.md`](../../packages/python-client/PUBLISHING.md) |
 | Go | module proxy | [sdk-publish-go.md](sdk-publish-go.md) | [`packages/go-client/PUBLISHING.md`](../../packages/go-client/PUBLISHING.md) |
-| Node.js | npm | — (no PUBLISHING.md yet — `npm publish @consentshield/node@1.0.0` is operator-side carry-over from the prior session) | — |
 
 ## Tier 2 — OpenAPI-generated (ADR-1028)
 
