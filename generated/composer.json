@@ -1,0 +1,40 @@
+{
+    "name": "consentshield/consentshield",
+    "version": "1.0.0",
+    "description": "Bearer-authenticated compliance API for DPDP consent events, rights requests, audit logs, and data deletion. All endpoints require a `cs_live_*` API key issued from the ConsentShield dashboard.",
+    "keywords": [
+        "openapitools",
+        "openapi-generator",
+        "openapi",
+        "php",
+        "sdk",
+        "rest",
+        "api"
+    ],
+    "homepage": "https://openapi-generator.tech",
+    "license": "Apache-2.0",
+    "authors": [
+        {
+            "name": "ConsentShield",
+            "homepage": "https://consentshield.in"
+        }
+    ],
+    "require": {
+        "php": "^7.4 || ^8.0",
+        "ext-curl": "*",
+        "ext-json": "*",
+        "ext-mbstring": "*",
+        "guzzlehttp/guzzle": "^7.3",
+        "guzzlehttp/psr7": "^1.7 || ^2.0"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^8.0 || ^9.0",
+        "friendsofphp/php-cs-fixer": "^3.5"
+    },
+    "autoload": {
+        "psr-4": { "ConsentShield\\Client\\" : "lib/" }
+    },
+    "autoload-dev": {
+        "psr-4": { "ConsentShield\\Client\\Test\\" : "test/" }
+    }
+}
