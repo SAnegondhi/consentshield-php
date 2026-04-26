@@ -27,21 +27,37 @@ export async function proxy(request: NextRequest) {
   const host = request.headers.get('host') ?? ''
   const isApiHost = host === API_HOST
 
-  const { pathname } = request.nextUrl
+  const originalPath = request.nextUrl.pathname
 
-  // api.consentshield.in is the public API hostname only. The
-  // beforeFiles rewrite in `next.config.ts` has already normalised
-  // /v1/* and /_ping to /api/v1/* by the time middleware runs, so
-  // anything we see here that isn't already prefixed `/api/v1/` is a
-  // dashboard/login/marketing path that must NOT be reachable on the
-  // API origin. Return 404 with the problem+json shape every other
-  // unauthenticated /api/v1/* error uses, so SDK callers see a
-  // consistent error surface.
-  if (isApiHost && !pathname.startsWith('/api/v1/')) {
-    return NextResponse.json(
-      problemJson(404, 'Not Found', 'Path is not part of the public API surface'),
-      { status: 404, headers: PROBLEM_JSON_HEADERS },
-    )
+  // api.consentshield.in is the public API hostname only. SDKs and
+  // OpenAPI callers reach it via /v1/* and /_ping; we map those to the
+  // App Router routes that live at /api/v1/* on disk. Anything else
+  // on this host is a dashboard / login / marketing path that must NOT
+  // resolve — return 404 problem+json so the SDK error surface stays
+  // consistent.
+  //
+  // The rewrite happens here in middleware, not in `next.config.ts`,
+  // because on Vercel middleware runs BEFORE next.config rewrites in
+  // practice. Doing the path normalisation here lets the existing
+  // Bearer-gate logic below run against the canonical /api/v1/* shape.
+  let pathname = originalPath
+  let rewriteToApi: URL | null = null
+  if (isApiHost) {
+    if (originalPath === '/_ping' || originalPath === '/v1/_ping') {
+      pathname = '/api/v1/_ping'
+    } else if (originalPath.startsWith('/v1/')) {
+      pathname = '/api' + originalPath // /v1/foo → /api/v1/foo
+    } else if (!originalPath.startsWith('/api/v1/')) {
+      return NextResponse.json(
+        problemJson(404, 'Not Found', 'Path is not part of the public API surface'),
+        { status: 404, headers: PROBLEM_JSON_HEADERS },
+      )
+    }
+    if (pathname !== originalPath) {
+      const target = request.nextUrl.clone()
+      target.pathname = pathname
+      rewriteToApi = target
+    }
   }
 
   // /api/v1/* — Bearer token gate.
@@ -101,6 +117,9 @@ export async function proxy(request: NextRequest) {
     // Inject verified context + request start time for route-level logging.
     const injected = buildApiContextHeaders(request.headers, result.context)
     injected.set('x-cs-t', String(Date.now()))
+    if (rewriteToApi) {
+      return NextResponse.rewrite(rewriteToApi, { request: { headers: injected } })
+    }
     return NextResponse.next({ request: { headers: injected } })
   }
 
