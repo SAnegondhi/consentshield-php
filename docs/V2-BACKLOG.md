@@ -27,6 +27,7 @@ One-line pointers to completed work. Originally had prose bodies; collapsed afte
 - **ADR-1001 C-1** rotate+revoke 401-vs-410 → ADR-1011 (tombstone; landed 2026-04-21)
 - **ADR-1001 C-2** rate-tier static map drift check → `tests/integration/rate-tier-drift.test.ts` (landed 2026-04-21)
 - **ADR-1009 follow-up** Cloudflare Worker HS256 migration → ADR-1010 (scoped 2026-04-21)
+- **ADR-1003 Sprint 4.2** Admin template editor for `default_storage_mode` + `connector_defaults` → ADR-1003 Sprint 4.2 (shipped 2026-04-26; migrations 61 + 62, admin form + actions + new/edit pages + 6/6 integration tests)
 
 ---
 
@@ -73,12 +74,6 @@ Still deferred. Retention-rule enforcement is the Regulatory Exemption Engine su
 Every Worker source file (`banner.ts`, `origin.ts`, `signatures.ts`, `events.ts`, `observations.ts`, `worker-errors.ts`) still carries a dual-path branch: Hyperdrive SQL when `env.HYPERDRIVE` is bound, REST against Supabase PostgREST otherwise. Production uses only the Hyperdrive path (ADR-1010 Phase 4 closed); the REST fallback exists solely to keep the 20 Miniflare tests in `app/tests/worker/` passing against a mock Supabase.
 
 **Shape of fix.** Either (a) wire Miniflare's `hyperdrives` config to a local Postgres so the Hyperdrive path runs in the test harness too, or (b) migrate those 20 tests to `tests/integration/` where they can hit dev Supabase directly. Both are real work; neither is Phase-4-blocking — promote only when the fallback's drift becomes a maintenance burden.
-
-### ADR-1003 Sprint 4.2. Admin template editor for `default_storage_mode` + `connector_defaults`  *(origin: ADR-1003 Sprint 4.1)*
-
-Sprint 4.1 added two columns to `admin.sectoral_templates` and surfaced them on the **detail** page (`admin/src/app/(operator)/templates/[templateId]/page.tsx`). The **new** / **edit** pages (`/templates/new`, `/templates/[templateId]/edit`) don't yet let an operator set `default_storage_mode` (enum radio) or `connector_defaults` (key-value-ish jsonb editor). Current workaround: seed-migration or direct `admin.sectoral_templates` UPDATE with service role.
-
-**Shape of fix.** Form inputs on both pages + corresponding RPC signature extension (`admin.create_sectoral_template_draft`, `admin.update_sectoral_template_draft`). ~1 day. Promote when the next sector pack (edtech / fintech / defence) needs these columns without a migration round-trip.
 
 ### ADR-1003 Sprint 4.2. P0004-specific UX card on customer-side apply  *(origin: ADR-1003 Sprint 4.1)*
 

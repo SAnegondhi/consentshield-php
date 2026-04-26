@@ -1,7 +1,7 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-04-26T01:20:19.265Z
-> Files: 1591 tracked | Anatomy hits: 0 | Misses: 0
+> Auto-maintained by OpenWolf. Last scanned: 2026-04-26T01:34:21.573Z
+> Files: 1598 tracked | Anatomy hits: 0 | Misses: 0
 
 ## ../../../../../tmp/
 
@@ -13,6 +13,18 @@
 - `depa_verify.sql` — §11.11 DEPA verification queries — ADR-0020 Sprint 1.1 (~643 tok)
 - `svg2png.ts` — Declares src (~164 tok)
 - `verify_shape.ts` — Declares main (~210 tok)
+
+## ../../../../../tmp/cs-sdk-smoke/go/
+
+- `smoke.go` — End-to-end smoke for the consentshield-go SDK against the live API. (~523 tok)
+
+## ../../../../../tmp/cs-sdk-smoke/node/
+
+- `smoke.ts` — Declares apiKey (~477 tok)
+
+## ../../../../../tmp/cs-sdk-smoke/python/
+
+- `smoke.py` — End-to-end smoke for the consentshield Python SDK against the live API. (~480 tok)
 
 ## ../../../.claude/plans/
 
@@ -492,7 +504,7 @@
 
 ## admin/src/app/(operator)/templates/
 
-- `actions.ts` — Exports PurposeRow, createDraft, updateDraft, publishTemplate + 2 more (~1652 tok)
+- `actions.ts` — Exports PurposeRow, StorageMode, ConnectorDefaults, createDraft + 4 more (~2445 tok)
 - `page.tsx` — ADR-0030 Sprint 1.1 — Sectoral Templates list. (~1841 tok)
 
 ## admin/src/app/(operator)/templates/[templateId]/
@@ -501,11 +513,11 @@
 
 ## admin/src/app/(operator)/templates/[templateId]/edit/
 
-- `page.tsx` — ADR-0030 Sprint 2.1 — Draft editor (drafts only). (~973 tok)
+- `page.tsx` — dynamic (~1065 tok)
 
 ## admin/src/app/(operator)/templates/new/
 
-- `page.tsx` — ADR-0030 Sprint 2.1 — New-draft form. (~952 tok)
+- `page.tsx` — dynamic (~1067 tok)
 
 ## admin/src/app/api/admin/billing/invoices/[invoiceId]/download/
 
@@ -611,7 +623,7 @@
 
 - `detail-actions.tsx` — TemplateDetailActions — renders form, modal (~1780 tok)
 - `filter-bar.tsx` — TemplatesFilterBar (~586 tok)
-- `template-form.tsx` — FRAMEWORKS — renders form (~3740 tok)
+- `template-form.tsx` — FRAMEWORKS — renders form (~5220 tok)
 
 ## admin/src/lib/admin-users/
 
@@ -659,7 +671,7 @@
 ## app/
 
 - `next.config.ts` — Declares NOINDEX_VALUE (~247 tok)
-- `package.json` — Node.js package manifest (~459 tok)
+- `package.json` — Node.js package manifest (~478 tok)
 - `stryker.delivery.conf.mjs` — ADR-1014 Phase 4 Sprint 4.2 — Stryker mutation testing for the (~1078 tok)
 - `stryker.sigv4.conf.mjs` — ADR-1014 Phase-4 follow-up — Stryker mutation testing for the (~1150 tok)
 - `stryker.v1.conf.mjs` — /route.ts) (~943 tok)
@@ -671,7 +683,7 @@
 
 ## app/public/
 
-- `openapi.yaml` (~23845 tok)
+- `openapi.yaml` (~23877 tok)
 
 ## app/sandbox-scripts/
 
@@ -685,7 +697,7 @@
 
 ## app/src/
 
-- `proxy.ts` — Customer-app proxy. (~2462 tok)
+- `proxy.ts` — Customer-app proxy. (~2555 tok)
 
 ## app/src/app/
 
@@ -1359,7 +1371,7 @@
 - `FEATURE-INVENTORY.md` — ConsentShield — Complete Feature Inventory (~9665 tok)
 - `ROADMAP-phase2.md` — ConsentShield — Phase 2 Roadmap (~3150 tok)
 - `STATUS.md` — ConsentShield Status (~3762 tok)
-- `V2-BACKLOG.md` — V2 Backlog — Deferred Items (~2241 tok)
+- `V2-BACKLOG.md` — V2 Backlog — Deferred Items (~2076 tok)
 - `WHITEPAPER-AUDIT.md` — ConsentShield Integration Whitepaper — Critical Audit vs. Implementation (~4878 tok)
 
 ## docs/ADRs/
@@ -1425,7 +1437,7 @@
 - `ADR-0502-marketing-gate-otp.md` — ADR-0502: Marketing-site invite gate via email OTP (~3526 tok)
 - `ADR-1001-truth-in-marketing-and-public-api-foundation.md` — ADR-1001: Truth-in-Marketing + Public API Foundation (~5650 tok)
 - `ADR-1002-dpdp-section6-runtime-enforcement.md` — ADR-1002: DPDP §6 Runtime Enforcement — Verify, Record, Artefact Ops, Deletion API (~7030 tok)
-- `ADR-1003-processor-posture-and-healthcare-unlock.md` — ADR-1003: Processor Posture + Healthcare Category Unlock (~11148 tok)
+- `ADR-1003-processor-posture-and-healthcare-unlock.md` — ADR-1003: Processor Posture + Healthcare Category Unlock (~11823 tok)
 - `ADR-1004-statutory-retention-material-change-silent-failure.md` — ADR-1004: Statutory Retention + Material-Change Re-consent + Silent-Failure Detection (~7531 tok)
 - `ADR-1005-operations-maturity.md` — ADR-1005: Operations Maturity — Webhook Reference, Support Model, Status Page, Multi-channel Alerts, (~7076 tok)
 - `ADR-1006-developer-experience-and-openapi.md` — ADR-1006: Developer Experience — Client Libraries + OpenAPI Spec + CI Drift Check (~11372 tok)
@@ -1450,7 +1462,7 @@
 - `ADR-1025-customer-storage-auto-provisioning.md` — ADR-1025: Customer storage auto-provisioning — hybrid managed R2 default + BYOK escape hatch (~13370 tok)
 - `ADR-1026-drop-hyperdrive-direct-supavisor.md` — ADR-1026: Rewind ADR-1010 Phase 3 — Worker connects directly to Supavisor; drop Hyperdrive binding (~5467 tok)
 - `ADR-1027-admin-account-awareness.md` — ADR-1027: Admin Account-Awareness Pass (~8082 tok)
-- `ADR-index.md` — ADR Index (~10767 tok)
+- `ADR-index.md` — ADR Index (~10818 tok)
 - `ADR-template.md` — ADR-NNNN: Title (~423 tok)
 - `adr-workflow.md` — ADR Workflow Rules (~557 tok)
 
@@ -1479,12 +1491,12 @@
 ## docs/changelogs/
 
 - `CHANGELOG-api.md` — Changelog — API (~53457 tok)
-- `CHANGELOG-dashboard.md` — Changelog — Dashboard (~29589 tok)
+- `CHANGELOG-dashboard.md` — Changelog — Dashboard (~30197 tok)
 - `CHANGELOG-docs.md` — Changelog — Documentation (~16248 tok)
 - `CHANGELOG-edge-functions.md` — Changelog — Edge Functions (~4251 tok)
 - `CHANGELOG-infra.md` — Changelog — Infrastructure (~28857 tok)
 - `CHANGELOG-marketing.md` — Changelog — Marketing (~17784 tok)
-- `CHANGELOG-schema.md` — Changelog — Schema (~56127 tok)
+- `CHANGELOG-schema.md` — Changelog — Schema (~56829 tok)
 - `CHANGELOG-worker.md` — Changelog — Worker (~8343 tok)
 
 ## docs/competition/
@@ -2061,6 +2073,7 @@
 - `e2e-verify-evidence.ts` — ADR-1014 Sprint 1.4 — Partner-facing evidence-seal verifier. (~941 tok)
 - `mint-role-jwt.ts` — ADR-1009 Phase 2 — mint an HS256 JWT for a scoped Postgres role so Supabase (~832 tok)
 - `partner-bootstrap.ts` — ADR-1014 Sprint 5.1 — interactive partner reproduction bootstrap. Prompts for Supabase URL + service-role key (hidden) + anon key + optional CF account ID; wraps e2e-bootstrap.ts with env overrides; produces .env.partner (0600, gitignored). Idempotent via --force. Unblocks ADR-1015 Phase 3. (~3723 tok)
+- `regenerate-whitepaper-appendix.ts` — ADR-1006 Phase 3 Sprint 3.1 — regenerate Appendix A of the v2 whitepaper (~2367 tok)
 - `run-mutation-suite.ts` — ADR-1014 Phase 4 Sprint 4.4 — Aggregate Stryker driver + threshold gate. (~2714 tok)
 - `smoke-test-rate-limit.ts` — Declares main (~242 tok)
 - `verify-adr-1025-sprint-11.ts` — ADR-1025 Phase 1 Sprint 1.1 end-to-end verification. (~2997 tok)
@@ -2588,6 +2601,8 @@
 - `20260804000058_adr1003_s51_sandbox_orgs.sql` — ADR-1003 Sprint 5.1 — sandbox org provisioning (G-046), round 1 of 3. (~5049 tok)
 - `20260804000058_adr1014_s32_consent_events_trace_id.sql` — ADR-1014 Sprint 3.2 closeout — consent_events.trace_id column. (~748 tok)
 - `20260804000060_adr1003_s51_sandbox_test_principals.sql` — ADR-1003 Sprint 5.1 — sandbox test-principal generator (round 2 of 3). (~1744 tok)
+- `20260804000061_adr1003_s42_template_draft_rpcs_storage_mode.sql` — ADR-1003 Sprint 4.2 — admin template-draft RPCs accept (~2068 tok)
+- `20260804000062_adr1003_s42_drop_old_template_draft_overloads.sql` — ADR-1003 Sprint 4.2 — drop the old template-draft RPC overloads. (~441 tok)
 
 ## supabase/seed/
 
@@ -2723,6 +2738,7 @@
 - `rls.test.ts` — Declares adminOnlyTables (~1952 tok)
 - `rpcs.test.ts` — service: rpc (~4104 tok)
 - `sdf-rpcs.test.ts` — service: countAuditRows (~1560 tok)
+- `sectoral-template-storage-mode-rpcs.test.ts` — ADR-1003 Sprint 4.2 — admin draft RPCs with default_storage_mode + connector_defaults. (~2230 tok)
 - `sentry-events-rpcs.test.ts` — Declares service (~1111 tok)
 - `status-page-rpcs.test.ts` — service: countAuditRows (~2524 tok)
 

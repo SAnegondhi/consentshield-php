@@ -6,9 +6,15 @@ import {
   createDraft,
   updateDraft,
   type PurposeRow,
+  type StorageMode,
+  type ConnectorDefaults,
 } from '@/app/(operator)/templates/actions'
 
 // ADR-0030 Sprint 2.1 — Template form shared by /new and /[id]/edit.
+// ADR-1003 Sprint 4.2 — adds default_storage_mode + connector_defaults
+// inputs so operators can draft sector packs that gate on storage_mode
+// (Healthcare-style) or carry connector slot recommendations
+// (vendor-class hints) without a migration round-trip.
 
 interface BaseProps {
   initialValues: {
@@ -17,6 +23,8 @@ interface BaseProps {
     description: string
     sector: string
     purposes: PurposeRow[]
+    defaultStorageMode: StorageMode | null
+    connectorDefaultsJson: string // free-form JSON; '' means no value set
   }
   knownSectors: string[]
 }
@@ -43,9 +51,30 @@ export function TemplateForm(props: Props) {
   const [description, setDescription] = useState(props.initialValues.description)
   const [sector, setSector] = useState(props.initialValues.sector)
   const [purposes, setPurposes] = useState<PurposeRow[]>(props.initialValues.purposes)
+  const [defaultStorageMode, setDefaultStorageMode] = useState<'' | StorageMode>(
+    props.initialValues.defaultStorageMode ?? '',
+  )
+  const [connectorDefaultsJson, setConnectorDefaultsJson] = useState(
+    props.initialValues.connectorDefaultsJson,
+  )
   const [reason, setReason] = useState('')
   const [pending, setPending] = useState(false)
   const [error, setError] = useState<string | null>(null)
+
+  // Live-parse connector_defaults so we can surface JSON syntax errors
+  // before the operator clicks save. Empty string = NULL (allowed).
+  const connectorDefaultsParsed: { ok: true; value: ConnectorDefaults | null } | { ok: false; error: string } =
+    connectorDefaultsJson.trim() === ''
+      ? { ok: true, value: null }
+      : (() => {
+          try {
+            const parsed = JSON.parse(connectorDefaultsJson)
+            return { ok: true, value: parsed as ConnectorDefaults }
+          } catch (e) {
+            const msg = e instanceof Error ? e.message : String(e)
+            return { ok: false, error: msg }
+          }
+        })()
 
   const reasonOk = reason.trim().length >= 10
   const saveOk =
@@ -54,7 +83,8 @@ export function TemplateForm(props: Props) {
     sector.trim() &&
     purposes.length > 0 &&
     purposes.every((p) => p.purpose_code.trim() && p.display_name.trim()) &&
-    reasonOk
+    reasonOk &&
+    connectorDefaultsParsed.ok
 
   function addPurpose() {
     setPurposes((prev) => [
@@ -85,6 +115,15 @@ export function TemplateForm(props: Props) {
     setPending(true)
     setError(null)
 
+    if (!connectorDefaultsParsed.ok) {
+      setError(`connector_defaults JSON: ${connectorDefaultsParsed.error}`)
+      setPending(false)
+      return
+    }
+
+    const modeForRpc: StorageMode | null = defaultStorageMode === '' ? null : defaultStorageMode
+    const connectorsForRpc = connectorDefaultsParsed.value
+
     if (props.mode === 'new') {
       const r = await createDraft({
         templateCode,
@@ -93,6 +132,8 @@ export function TemplateForm(props: Props) {
         sector,
         purposes,
         reason,
+        defaultStorageMode: modeForRpc,
+        connectorDefaults: connectorsForRpc,
       })
       setPending(false)
       if (!r.ok) {
@@ -108,6 +149,8 @@ export function TemplateForm(props: Props) {
         description,
         purposes,
         reason,
+        defaultStorageMode: modeForRpc,
+        connectorDefaults: connectorsForRpc,
       })
       setPending(false)
       if (!r.ok) {
@@ -168,6 +211,68 @@ export function TemplateForm(props: Props) {
             />
           </div>
         </div>
+      </section>
+
+      <section className="rounded-md border border-[color:var(--border)] bg-white p-4 shadow-sm">
+        <h2 className="text-sm font-semibold">Storage-mode gate</h2>
+        <p className="mt-1 text-xs text-text-2">
+          When set, customer-side <code className="font-mono">apply_sectoral_template</code> refuses to apply this template
+          unless the org&apos;s <code className="font-mono">storage_mode</code> already matches. Healthcare Starter ships{' '}
+          <code className="font-mono">zero_storage</code>; BFSI Starter is mode-agnostic (leave blank).
+        </p>
+        <div className="mt-3 flex flex-wrap gap-3 text-sm">
+          {(['', 'standard', 'insulated', 'zero_storage'] as const).map((opt) => (
+            <label key={opt || 'none'} className="flex items-center gap-2">
+              <input
+                type="radio"
+                name="default_storage_mode"
+                value={opt}
+                checked={defaultStorageMode === opt}
+                onChange={() => setDefaultStorageMode(opt)}
+              />
+              <span className="font-mono text-xs">{opt === '' ? '— None / mode-agnostic —' : opt}</span>
+            </label>
+          ))}
+        </div>
+      </section>
+
+      <section className="rounded-md border border-[color:var(--border)] bg-white p-4 shadow-sm">
+        <h2 className="text-sm font-semibold">Connector defaults (optional)</h2>
+        <p className="mt-1 text-xs text-text-2">
+          Free-form JSON object keyed by slot name (snake_case). Each slot value is{' '}
+          <code className="font-mono">{`{ category, examples?, rationale? }`}</code>. Surfaced on the customer-app and
+          admin templates panels as &quot;you&apos;ll need to wire these connectors&quot;. Not referenced by{' '}
+          <code className="font-mono">purpose_connector_mappings</code> &mdash; informational only.
+        </p>
+        <textarea
+          value={connectorDefaultsJson}
+          onChange={(e) => setConnectorDefaultsJson(e.target.value)}
+          rows={connectorDefaultsJson.split('\n').length > 6 ? 12 : 6}
+          spellCheck={false}
+          className="mt-2 w-full rounded border border-[color:var(--border-mid)] px-3 py-2 font-mono text-xs"
+          placeholder={`{
+  "appointment_reminder_vendor": {
+    "category": "messaging",
+    "examples": ["MSG91", "Twilio"],
+    "rationale": "Reminders fan-out under appointment_reminders."
+  }
+}`}
+        />
+        {!connectorDefaultsParsed.ok ? (
+          <p className="mt-2 text-xs text-red-700">
+            Invalid JSON: <span className="font-mono">{connectorDefaultsParsed.error}</span>
+          </p>
+        ) : connectorDefaultsParsed.value === null ? (
+          <p className="mt-2 text-xs text-text-3">
+            Empty &mdash; the seed migration does not populate{' '}
+            <code className="font-mono">connector_defaults</code>.
+          </p>
+        ) : (
+          <p className="mt-2 text-xs text-text-2">
+            {Object.keys(connectorDefaultsParsed.value).length} slot
+            {Object.keys(connectorDefaultsParsed.value).length === 1 ? '' : 's'}.
+          </p>
+        )}
       </section>
 
       <section className="rounded-md border border-[color:var(--border)] bg-white shadow-sm">

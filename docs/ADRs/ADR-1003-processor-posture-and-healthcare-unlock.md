@@ -291,6 +291,24 @@ Also closes the secondary gap flagged in Terminal A's handoff: the Sprint 1.3 br
 - `public.apply_sectoral_template(p_template_code text)` signature unchanged. Body adds the storage_mode pre-flight check; return payload gains `storage_mode` (nullable string).
 - Customer-side template apply cannot flip storage_mode. The single write surface for `organisations.storage_mode` remains `admin.set_organisation_storage_mode` (ADR-1003 Sprint 1.1). Healthcare onboarding is therefore a two-step admin/customer dance: admin flips mode → customer applies template.
 
+#### Sprint 4.2: Admin template editor for `default_storage_mode` + `connector_defaults`
+
+**Estimated effort:** 1 day. Shipped 2026-04-26.
+
+**Deliverables:**
+- [x] Migration `20260804000061_adr1003_s42_template_draft_rpcs_storage_mode.sql` — re-publishes `admin.create_sectoral_template_draft` and `admin.update_sectoral_template_draft` with two new optional parameters (`p_default_storage_mode text default null`, `p_connector_defaults jsonb default null`). Validation: storage_mode must be one of `('standard','insulated','zero_storage')` or NULL (errcode 22023 otherwise); connector_defaults must be a jsonb object (not array, not scalar) or NULL. Audit-log `new_value` widens to carry both fields.
+- [x] Migration `20260804000062_adr1003_s42_drop_old_template_draft_overloads.sql` — drops the original 6-arg / 5-arg signatures so PostgREST stops reporting `PGRST203 "Could not choose the best candidate function"`. Required because `CREATE OR REPLACE FUNCTION` with new default-bearing parameters creates a *new overload* alongside the old signature instead of replacing it.
+- [x] `admin/src/app/(operator)/templates/actions.ts` — `createDraft` + `updateDraft` server actions accept `defaultStorageMode: StorageMode | null` and `connectorDefaults: ConnectorDefaults | null`, validate before forwarding, pass `p_default_storage_mode` + `p_connector_defaults` to the RPC. New exported types `StorageMode` + `ConnectorDefaults` so the form + pages share the contract.
+- [x] `admin/src/components/templates/template-form.tsx` — new "Storage-mode gate" radio section (`— None / mode-agnostic —` / `standard` / `insulated` / `zero_storage`) and "Connector defaults (optional)" JSON textarea section with live-parse + slot-name validation feedback. Both new + edit modes route through the same form.
+- [x] `admin/src/app/(operator)/templates/new/page.tsx` and `[templateId]/edit/page.tsx` — pages now SELECT the two new columns and feed them into the form's `initialValues` (clone-as-new-version path also pre-fills from the source template).
+
+**Testing plan:**
+- [x] `tests/admin/sectoral-template-storage-mode-rpcs.test.ts` — 6 cases covering: backward-compat (omit both new params), full create with both fields populated (audit-log payload verified), invalid `default_storage_mode` value rejected with errcode 22023, connector_defaults as a JSON array rejected with errcode 22023, update flips both fields, update clears both back to NULL.
+- [x] Existing `tests/admin/rpcs.test.ts` cascade test still PASS with the new signatures.
+- [x] `cd admin && bun run lint && bun run build` — clean (route registered as `ƒ /templates/new` and `ƒ /templates/[templateId]/edit`).
+
+**Status:** `[x] complete`
+
 ### Phase 5: Sandbox org provisioning (G-046)
 
 #### Sprint 5.1: Sandbox self-serve flow

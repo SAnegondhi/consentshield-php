@@ -6005,3 +6005,43 @@
 | 06:49 | Edited app/src/app/api/v1/ping/route.ts | added 1 condition(s) | ~134 |
 | 06:49 | Edited docs/V2-BACKLOG.md | expanded (+15 lines) | ~824 |
 | 06:50 | Edited docs/changelogs/CHANGELOG-docs.md | expanded (+19 lines) | ~613 |
+| 06:50 | Session end: 132 writes across 59 files (consent_middleware.py, urls.py, settings_demo.py, README.md, consent_required.py) | 42 reads | ~347548 tok |
+| 06:51 | Session end: 132 writes across 59 files (consent_middleware.py, urls.py, settings_demo.py, README.md, consent_required.py) | 42 reads | ~347548 tok |
+| 06:51 | Session end: 132 writes across 59 files (consent_middleware.py, urls.py, settings_demo.py, README.md, consent_required.py) | 42 reads | ~347548 tok |
+| 06:54 | Created supabase/migrations/20260804000061_adr1003_s42_template_draft_rpcs_storage_mode.sql | — | ~1898 |
+| 06:54 | Created ../../../../../tmp/cs-sdk-smoke/node/smoke.ts | — | ~458 |
+| 06:54 | Edited admin/src/app/(operator)/templates/actions.ts | added 6 condition(s) | ~621 |
+| 06:55 | Edited admin/src/app/(operator)/templates/actions.ts | added 2 condition(s) | ~534 |
+| 06:55 | Edited ../../../../../tmp/cs-sdk-smoke/node/smoke.ts | 4→5 lines | ~47 |
+| 06:55 | Edited admin/src/app/(operator)/templates/actions.ts | added 2 condition(s) | ~450 |
+| 06:55 | Edited admin/src/components/templates/template-form.tsx | CSS: defaultStorageMode, connectorDefaultsJson | ~252 |
+| 06:55 | Edited admin/src/components/templates/template-form.tsx | added error handling | ~426 |
+| 06:55 | Edited admin/src/components/templates/template-form.tsx | 8→9 lines | ~82 |
+| 06:56 | Edited admin/src/components/templates/template-form.tsx | added 1 condition(s) | ~374 |
+| 06:56 | Created ../../../../../tmp/cs-sdk-smoke/python/smoke.py | — | ~480 |
+| 06:56 | Edited admin/src/components/templates/template-form.tsx | CSS: 12, JSON | ~1033 |
+| 06:56 | Edited admin/src/app/(operator)/templates/new/page.tsx | 4→8 lines | ~76 |
+| 06:56 | Edited admin/src/app/(operator)/templates/new/page.tsx | CSS: defaultStorageMode, connectorDefaultsJson | ~62 |
+| 06:56 | Edited admin/src/app/(operator)/templates/new/page.tsx | CSS: defaultStorageMode, connectorDefaultsJson | ~433 |
+| 06:57 | Edited admin/src/app/(operator)/templates/[templateId]/edit/page.tsx | 5→9 lines | ~88 |
+| 06:57 | Created ../../../../../tmp/cs-sdk-smoke/go/smoke.go | — | ~523 |
+| 06:57 | Edited admin/src/app/(operator)/templates/[templateId]/edit/page.tsx | 8→8 lines | ~84 |
+| 06:57 | Edited admin/src/app/(operator)/templates/[templateId]/edit/page.tsx | added nullish coalescing | ~166 |
+| 07:00 | Created tests/admin/sectoral-template-storage-mode-rpcs.test.ts | — | ~2230 |
+| 07:00 | Edited supabase/migrations/20260804000061_adr1003_s42_template_draft_rpcs_storage_mode.sql | modified if() | ~294 |
+| 07:00 | Edited supabase/migrations/20260804000061_adr1003_s42_template_draft_rpcs_storage_mode.sql | modified if() | ~168 |
+| 07:01 | Created scripts/regenerate-whitepaper-appendix.ts | — | ~2367 |
+| 07:01 | Created supabase/migrations/20260804000062_adr1003_s42_drop_old_template_draft_overloads.sql | — | ~441 |
+| 07:01 | Edited app/public/openapi.yaml | 9→10 lines | ~111 |
+| 07:02 | Edited app/public/openapi.yaml | 9→10 lines | ~107 |
+| 07:02 | Edited app/public/openapi.yaml | 8→9 lines | ~105 |
+| 07:02 | Edited app/public/openapi.yaml | 7→8 lines | ~88 |
+| 07:02 | Edited docs/ADRs/ADR-1003-processor-posture-and-healthcare-unlock.md | expanded (+18 lines) | ~1003 |
+| 07:02 | Edited app/public/openapi.yaml | 8→9 lines | ~96 |
+| 07:02 | Edited docs/V2-BACKLOG.md | — | ~0 |
+| 07:03 | Edited docs/V2-BACKLOG.md | 1→2 lines | ~84 |
+| 07:03 | Edited docs/changelogs/CHANGELOG-schema.md | expanded (+23 lines) | ~766 |
+| 07:03 | Edited app/package.json | inline fix | ~52 |
+| 07:03 | Edited docs/changelogs/CHANGELOG-dashboard.md | expanded (+18 lines) | ~661 |
+| 07:04 | Edited docs/ADRs/ADR-index.md | inline fix | ~108 |
+| 07:04 | Edited app/src/proxy.ts | added 1 condition(s) | ~408 |

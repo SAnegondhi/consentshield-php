@@ -2,6 +2,24 @@
 
 Next.js UI changes.
 
+## [ADR-1003 Sprint 4.2 — admin template editor surfaces storage-mode gate + connector defaults] — 2026-04-26
+
+**ADR:** ADR-1003 — Processor Posture + Healthcare Category Unlock
+**Sprint:** Phase 4, Sprint 4.2
+
+### Admin console
+- `admin/src/app/(operator)/templates/actions.ts` — `createDraft` and `updateDraft` server actions accept `defaultStorageMode: StorageMode | null` and `connectorDefaults: ConnectorDefaults | null`. New exported types `StorageMode = 'standard' | 'insulated' | 'zero_storage'` and `ConnectorDefaults = Record<string, {category?, examples?[], rationale?}>` shared with the form + page components. Pre-RPC validation: storage_mode is enum-checked, connector_defaults is object-keyed snake_case-validated (matches the migration's runtime check).
+- `admin/src/components/templates/template-form.tsx` — two new sections between the metadata block and the purposes block: (a) **Storage-mode gate** — radio with `— None / mode-agnostic —` / `standard` / `insulated` / `zero_storage` plus a one-line explanation that ties to the customer-side P0004 behaviour (Sprint 4.1); (b) **Connector defaults (optional)** — JSON textarea with live-parse, slot-count summary, and inline syntax-error feedback. Placeholder shows the canonical Healthcare-Starter shape (`appointment_reminder_vendor` + `emr_vendor`). The submit button is disabled while the connector-defaults JSON is invalid.
+- `admin/src/app/(operator)/templates/new/page.tsx` and `[templateId]/edit/page.tsx` — pages now SELECT `default_storage_mode` and `connector_defaults` from `admin.sectoral_templates` and feed them into the form's `initialValues`. The `/new?from=<id>` clone path also pre-fills both fields from the source template.
+
+### Rationale
+Sprint 4.1 (2026-04-25) added the columns + the customer-side gate but only the seed-migration path could populate them. Sprint 4.2 closes the loop so the next sector pack (edtech / fintech / defence) can be drafted entirely in-UI. Closes the V2-BACKLOG entry "ADR-1003 Sprint 4.2. Admin template editor".
+
+### Tested
+- Integration `tests/admin/sectoral-template-storage-mode-rpcs.test.ts` — 6 cases against the underlying RPCs, **6/6 PASS**. Form-level UI is exercised by the same RPC contract.
+- `cd admin && bun run lint && bun run build` — clean. `/templates/new` and `/templates/[templateId]/edit` both build with the new types.
+- Manual click-through deferred to operator validation post-deploy.
+
 ## [ADR-1003 Sprint 5.1 R3 — sandbox-mode banner] — 2026-04-25
 
 **ADR:** ADR-1003 — Processor Posture + Healthcare Category Unlock

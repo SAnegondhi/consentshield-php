@@ -2,7 +2,11 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { createServerClient } from '@/lib/supabase/server'
 import { TemplateForm } from '@/components/templates/template-form'
-import type { PurposeRow } from '@/app/(operator)/templates/actions'
+import type {
+  PurposeRow,
+  StorageMode,
+  ConnectorDefaults,
+} from '@/app/(operator)/templates/actions'
 
 // ADR-0030 Sprint 2.1 — Draft editor (drafts only).
 //
@@ -23,7 +27,7 @@ export default async function EditTemplatePage({ params }: PageProps) {
     .schema('admin')
     .from('sectoral_templates')
     .select(
-      'id, template_code, display_name, description, sector, status, purpose_definitions, version',
+      'id, template_code, display_name, description, sector, status, purpose_definitions, version, default_storage_mode, connector_defaults',
     )
     .eq('id', templateId)
     .maybeSingle()
@@ -101,6 +105,10 @@ export default async function EditTemplatePage({ params }: PageProps) {
           description: data.description,
           sector: data.sector,
           purposes,
+          defaultStorageMode: (data.default_storage_mode as StorageMode | null) ?? null,
+          connectorDefaultsJson: data.connector_defaults
+            ? JSON.stringify(data.connector_defaults as ConnectorDefaults, null, 2)
+            : '',
         }}
         knownSectors={knownSectors}
       />

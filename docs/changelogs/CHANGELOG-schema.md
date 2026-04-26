@@ -2,6 +2,29 @@
 
 Database migrations, RLS policies, roles.
 
+## [ADR-1003 Sprint 4.2 — admin template-draft RPCs accept default_storage_mode + connector_defaults] — 2026-04-26
+
+**ADR:** ADR-1003 — Processor Posture + Healthcare Category Unlock
+**Sprint:** Phase 4, Sprint 4.2
+**Migrations:** `20260804000061_adr1003_s42_template_draft_rpcs_storage_mode.sql` + `20260804000062_adr1003_s42_drop_old_template_draft_overloads.sql`
+
+### Changed
+- `admin.create_sectoral_template_draft(text, text, text, text, jsonb, text)` re-published with two new optional parameters: `p_default_storage_mode text default null` (validated against `('standard','insulated','zero_storage')` with errcode 22023 on mismatch) and `p_connector_defaults jsonb default null` (must be a JSON object — array / scalar rejected with errcode 22023). Audit-log `new_value` payload widens to carry both fields.
+- `admin.update_sectoral_template_draft(uuid, text, text, jsonb, text)` re-published with the same two new parameters. UPDATE statement at the bottom now writes `default_storage_mode` and `connector_defaults` alongside `display_name`, `description`, `purpose_definitions`. Audit `new_value` widens accordingly.
+
+### Removed
+- The original 6-arg `create_sectoral_template_draft` and 5-arg `update_sectoral_template_draft` overloads (migration 62). Required because `CREATE OR REPLACE FUNCTION` with new default-bearing parameters creates a *new overload* alongside the old signature instead of replacing it; PostgREST then refuses with `PGRST203 "Could not choose the best candidate function"` on any callsite that omits the new params. Drop-then-keep-only-new is the cleanest path; the only in-repo callers are the admin server actions, which are updated in the same commit.
+
+### Consequences
+- Operators can now draft sector packs that gate on `storage_mode` (Healthcare-style) or carry connector slot recommendations (vendor-class hints) directly from the admin templates panel — no migration round-trip required. Closes the V2-BACKLOG entry "ADR-1003 Sprint 4.2. Admin template editor".
+- Backwards compat: existing callers that omit both new params still work (defaults flow through); existing seeded rows with NULL fields are unaffected.
+
+### Tested
+- Integration `tests/admin/sectoral-template-storage-mode-rpcs.test.ts` — 6 cases: backward-compat (omit both new params), full create with both populated (audit-log payload verified), invalid storage_mode rejected with errcode 22023, connector_defaults as array rejected with errcode 22023, update flips both, update clears both back to NULL. **6/6 PASS.**
+- Existing `tests/admin/rpcs.test.ts` sectoral-template publish-cascade test — **PASS** (signature widening doesn't break the original 6-arg call shape).
+- Local `cd admin && bun run lint && bun run build` — clean.
+- Live: migrations 61 + 62 pushed via `bunx supabase db push`.
+
 ## [ADR-1003 Sprint 5.1 R2 — sandbox test-principal generator + cross-customer view] — 2026-04-25
 
 **ADR:** ADR-1003 — Processor Posture + Healthcare Category Unlock

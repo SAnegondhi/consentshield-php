@@ -21,9 +21,56 @@ export interface PurposeRow {
   auto_delete: boolean
 }
 
+// ADR-1003 Sprint 4.1 (col) + Sprint 4.2 (RPC params).
+// Possible values for the gate; null means "no opinion / template is mode-agnostic"
+// (BFSI Starter, DPDP Minimum). Keep this enum-style typing in sync with the
+// public.organisations.storage_mode + admin.sectoral_templates.default_storage_mode
+// CHECK constraint values.
+export type StorageMode = 'standard' | 'insulated' | 'zero_storage'
+
+// ADR-1003 Sprint 4.1 — connector_defaults is a free-form jsonb object
+// keyed by slot (e.g. emr_vendor / appointment_reminder_vendor). Each
+// value carries category + examples + rationale. Typed loosely here
+// because the admin form takes a JSON textarea — we only validate
+// shape, not slot-specific schema.
+export type ConnectorDefaults = Record<
+  string,
+  { category?: string; examples?: string[]; rationale?: string }
+>
+
 type ActionResult<T = undefined> =
   | { ok: true; data?: T }
   | { ok: false; error: string }
+
+const VALID_STORAGE_MODES: ReadonlyArray<StorageMode> = [
+  'standard',
+  'insulated',
+  'zero_storage',
+] as const
+
+function validateStorageMode(value: string | null): string | null {
+  if (value === null || value === '') return null
+  if (!(VALID_STORAGE_MODES as readonly string[]).includes(value)) {
+    return `default_storage_mode must be one of ${VALID_STORAGE_MODES.join(', ')} or empty.`
+  }
+  return null
+}
+
+function validateConnectorDefaults(value: unknown): string | null {
+  if (value === null || value === undefined) return null
+  if (typeof value !== 'object' || Array.isArray(value)) {
+    return 'connector_defaults must be a JSON object (key → {category, examples, rationale}) or empty.'
+  }
+  for (const [slot, entry] of Object.entries(value as Record<string, unknown>)) {
+    if (!/^[a-z0-9_]+$/.test(slot)) {
+      return `connector_defaults slot "${slot}" must be snake_case.`
+    }
+    if (entry === null || typeof entry !== 'object' || Array.isArray(entry)) {
+      return `connector_defaults["${slot}"] must be an object.`
+    }
+  }
+  return null
+}
 
 function validateTemplateCode(code: string): string | null {
   if (!/^[a-z0-9_]+$/.test(code)) {
@@ -57,6 +104,8 @@ export async function createDraft(input: {
   sector: string
   purposes: PurposeRow[]
   reason: string
+  defaultStorageMode: StorageMode | null
+  connectorDefaults: ConnectorDefaults | null
 }): Promise<ActionResult<{ templateId: string }>> {
   const codeErr = validateTemplateCode(input.templateCode)
   if (codeErr) return { ok: false, error: codeErr }
@@ -74,6 +123,10 @@ export async function createDraft(input: {
   if (input.reason.trim().length < 10) {
     return { ok: false, error: 'Reason must be at least 10 characters.' }
   }
+  const modeErr = validateStorageMode(input.defaultStorageMode)
+  if (modeErr) return { ok: false, error: modeErr }
+  const connErr = validateConnectorDefaults(input.connectorDefaults)
+  if (connErr) return { ok: false, error: connErr }
 
   const supabase = await createServerClient()
   const { data, error } = await supabase
@@ -85,6 +138,8 @@ export async function createDraft(input: {
       p_sector: input.sector.trim(),
       p_purpose_definitions: input.purposes,
       p_reason: input.reason.trim(),
+      p_default_storage_mode: input.defaultStorageMode,
+      p_connector_defaults: input.connectorDefaults,
     })
   if (error) return { ok: false, error: error.message }
 
@@ -98,6 +153,8 @@ export async function updateDraft(input: {
   description: string
   purposes: PurposeRow[]
   reason: string
+  defaultStorageMode: StorageMode | null
+  connectorDefaults: ConnectorDefaults | null
 }): Promise<ActionResult> {
   if (input.displayName.trim().length === 0) {
     return { ok: false, error: 'Display name required.' }
@@ -110,6 +167,10 @@ export async function updateDraft(input: {
   if (input.reason.trim().length < 10) {
     return { ok: false, error: 'Reason must be at least 10 characters.' }
   }
+  const modeErr = validateStorageMode(input.defaultStorageMode)
+  if (modeErr) return { ok: false, error: modeErr }
+  const connErr = validateConnectorDefaults(input.connectorDefaults)
+  if (connErr) return { ok: false, error: connErr }
 
   const supabase = await createServerClient()
   const { error } = await supabase
@@ -120,6 +181,8 @@ export async function updateDraft(input: {
       p_description: input.description.trim(),
       p_purpose_definitions: input.purposes,
       p_reason: input.reason.trim(),
+      p_default_storage_mode: input.defaultStorageMode,
+      p_connector_defaults: input.connectorDefaults,
     })
   if (error) return { ok: false, error: error.message }
 

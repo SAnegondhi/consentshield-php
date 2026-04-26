@@ -15806,6 +15806,86 @@
       "related_bugs": [],
       "occurrences": 1,
       "last_seen": "2026-04-26T01:19:25.269Z"
+    },
+    {
+      "id": "bug-985",
+      "timestamp": "2026-04-26T01:24:58.626Z",
+      "error_message": "Missing guard clause",
+      "file": "admin/src/app/(operator)/templates/actions.ts",
+      "root_cause": "No early return/throw for edge case: value === null || value === ''",
+      "fix": "Added guard clause: if (value === null || value === '')",
+      "tags": [
+        "auto-detected",
+        "guard-clause",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-26T01:24:58.626Z"
+    },
+    {
+      "id": "bug-986",
+      "timestamp": "2026-04-26T01:25:47.288Z",
+      "error_message": "Missing error handling in unknown",
+      "file": "admin/src/components/templates/template-form.tsx",
+      "root_cause": "Code path had no error handling — exceptions would propagate uncaught",
+      "fix": "Added try/catch block",
+      "tags": [
+        "auto-detected",
+        "error-handling",
+        "tsx"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-26T01:25:47.288Z"
+    },
+    {
+      "id": "bug-987",
+      "timestamp": "2026-04-26T01:26:32.622Z",
+      "error_message": "Type error",
+      "file": "admin/src/components/templates/template-form.tsx",
+      "root_cause": "Missing or incorrect type annotation",
+      "fix": "Added type assertion/annotation",
+      "tags": [
+        "auto-detected",
+        "type-fix",
+        "tsx"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-26T01:26:32.622Z"
+    },
+    {
+      "id": "bug-988",
+      "timestamp": "2026-04-26T01:27:22.848Z",
+      "error_message": "Null/undefined access in ",
+      "file": "admin/src/app/(operator)/templates/[templateId]/edit/page.tsx",
+      "root_cause": "Property access on potentially null/undefined value",
+      "fix": "Added null safety (optional chaining or null check)",
+      "tags": [
+        "auto-detected",
+        "null-safety",
+        "tsx"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-26T01:27:22.848Z"
+    },
+    {
+      "id": "bug-989",
+      "timestamp": "2026-04-26T01:33:31.659Z",
+      "error_message": "Incorrect value in code",
+      "file": "app/package.json",
+      "root_cause": "Had \"bun ../scripts/check-env-isolation.ts && bun ../s",
+      "fix": "Changed to \"bun ../scripts/check-env-isolation.ts && bun ../s",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "json"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-26T01:33:31.659Z"
     }
   ]
 }

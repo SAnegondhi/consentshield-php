@@ -1,7 +1,11 @@
 import Link from 'next/link'
 import { createServerClient } from '@/lib/supabase/server'
 import { TemplateForm } from '@/components/templates/template-form'
-import type { PurposeRow } from '@/app/(operator)/templates/actions'
+import type {
+  PurposeRow,
+  StorageMode,
+  ConnectorDefaults,
+} from '@/app/(operator)/templates/actions'
 
 // ADR-0030 Sprint 2.1 — New-draft form.
 //
@@ -23,6 +27,8 @@ const EMPTY_INITIAL = {
   description: '',
   sector: 'general',
   purposes: [] as PurposeRow[],
+  defaultStorageMode: null as StorageMode | null,
+  connectorDefaultsJson: '',
 }
 
 export default async function NewTemplatePage({ searchParams }: PageProps) {
@@ -43,7 +49,9 @@ export default async function NewTemplatePage({ searchParams }: PageProps) {
     const { data: source } = await supabase
       .schema('admin')
       .from('sectoral_templates')
-      .select('template_code, display_name, description, sector, purpose_definitions')
+      .select(
+        'template_code, display_name, description, sector, purpose_definitions, default_storage_mode, connector_defaults',
+      )
       .eq('id', params.from)
       .maybeSingle()
 
@@ -51,6 +59,7 @@ export default async function NewTemplatePage({ searchParams }: PageProps) {
       const purposes = Array.isArray(source.purpose_definitions)
         ? (source.purpose_definitions as PurposeRow[])
         : []
+      const cd = source.connector_defaults as ConnectorDefaults | null
       initial = {
         templateCode: source.template_code,
         displayName: source.display_name,
@@ -73,6 +82,8 @@ export default async function NewTemplatePage({ searchParams }: PageProps) {
                 : '',
           auto_delete: p.auto_delete === true,
         })),
+        defaultStorageMode: (source.default_storage_mode as StorageMode | null) ?? null,
+        connectorDefaultsJson: cd ? JSON.stringify(cd, null, 2) : '',
       }
     }
   }
