@@ -9,10 +9,15 @@ info:
   contact:
     name: ConsentShield Support
     email: support@consentshield.in
+  license:
+    name: Apache-2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0
 
 servers:
-  - url: https://app.consentshield.in/api/v1
+  - url: https://api.consentshield.in/v1
     description: Production
+  - url: https://app.consentshield.in/api/v1
+    description: Production (legacy app-host path)
 
 security:
   - bearerAuth: []
@@ -1577,6 +1582,7 @@ paths:
         Returns the public metadata of the API key presented as the Bearer
         token. Useful for SDK setup wizards (confirm scopes) and health
         checks. No scope gate — any valid Bearer can introspect itself.
+      tags: [Account]
       responses:
         "200":
           description: Key metadata.
@@ -1611,6 +1617,7 @@ paths:
         Returns a day-by-day usage series for the presenting API key over the
         last `days` days (default 7, min 1, max 30). Zero-filled for days
         with no activity. Most recent day first.
+      tags: [Account]
       parameters:
         - name: days
           in: query
@@ -1666,6 +1673,7 @@ paths:
         `purpose_code` or `purpose_definition_id` from this list.
 
         Requires an org-scoped API key; account-scoped keys get 400.
+      tags: [Account]
       responses:
         "200":
           description: Purposes for the caller's org.
@@ -1731,6 +1739,7 @@ paths:
         events.
 
         Requires an org-scoped API key; account-scoped keys get 400.
+      tags: [Account]
       responses:
         "200":
           description: Web properties for the caller's org.
@@ -1780,6 +1789,7 @@ paths:
 
         The `razorpay_plan_id` field is deliberately NOT in the response — it's
         an internal integration key for the Razorpay subscription service.
+      tags: [Account]
       responses:
         "200":
           description: Active plans, cheapest first.

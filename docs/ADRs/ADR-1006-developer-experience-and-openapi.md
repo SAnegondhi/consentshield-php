@@ -241,29 +241,37 @@ User-confirmed before Sprint 2.1 work started.
 **Estimated effort:** 2 days
 
 **Deliverables:**
-- [ ] `app/public/openapi.yaml` covers every `/v1/*` endpoint shipped in ADRs 1001–1005 with full request/response schemas, scopes, error shapes
-- [ ] Spec published at `https://api.consentshield.in/openapi.yaml`
-- [ ] `scripts/regenerate-whitepaper-appendix.ts` reads OpenAPI and emits the Markdown table that replaces Appendix A in the whitepaper
+- [x] `app/public/openapi.yaml` covers every public `/v1/*` endpoint — 21 operations across 20 paths (Utility / Consent / Deletion / Rights / Audit / Account / Score / Security tags). The two on-disk routes excluded from the spec are intentionally internal: `/api/v1/deletion-receipts/[id]` is the HMAC-signed inbound webhook target ConsentShield POSTs to, NOT a customer-facing route; `/api/v1/sandbox/test-principals` is a QA helper. Five operations under the new `Account` tag (`/keys/self`, `/usage`, `/purposes`, `/properties`, `/plans`) gained their tag annotation in this sprint.
+- [x] Spec published at `https://api.consentshield.in/openapi.yaml` — `proxy.ts` now allows `/openapi.yaml` through the API-host gate (falls through to the standard Next.js static-asset handler for `app/public/`). SDK code-generators that default to fetching `<api-host>/openapi.yaml` work out of the box.
+- [x] `scripts/regenerate-whitepaper-appendix.ts` reads `app/public/openapi.yaml` (the source of truth — `marketing/public/openapi.yaml` is a copy synced by `marketing/scripts/copy-openapi.ts` at prebuild) and emits a Markdown table grouped by tag. The output is spliced into `docs/design/ConsentShield-Customer-Integration-Whitepaper-v2.md` between `<!-- BEGIN AUTO-GENERATED APPENDIX-A-COMPLIANCE-API -->` / `<!-- END … -->` markers; first-run finds the `### Compliance API …` heading inside Appendix A and replaces the hand-written table with the marker block. Subsequent runs splice between markers (idempotent). Hand-rolled YAML parser scoped to the OpenAPI shape (paths / methods / `tags` / `security: bearerAuth`) — no new npm dep. Two modes: default writes; `--check` exits non-zero on drift with an actionable hint to run the regenerator. Wired into `app/package.json` `prebuild` so any deploy fails on drift between spec and whitepaper.
+- [x] **Spec licence + servers list amendments** — `info.license` now declares Apache-2.0 (matches the SDKs); `servers` array now lists `https://api.consentshield.in/v1` as the canonical production server (the original entry `https://app.consentshield.in/api/v1` is retained as the legacy app-host path so any older code-generator output still resolves).
 
 **Testing plan:**
-- [ ] `redocly lint` passes
-- [ ] Generated Appendix A matches current whitepaper (diff is empty at time of merge)
+- [x] `bunx --bun @redocly/cli@latest lint app/public/openapi.yaml` — PASS, "Your API description is valid 🎉" with **zero warnings** after the `info.license` addition. The `redocly lint` step is wired into `app/package.json` `prebuild`, so any spec edit that breaks the contract fails the build before deploy.
+- [x] Generated Appendix A matches the whitepaper (diff is empty at time of merge) — `regenerate-whitepaper-appendix.ts --check` exits 0 against the current whitepaper after the initial regeneration.
+- [x] **Drift-detection regression** — flipping a tag in `openapi.yaml` (`[Account]` → `[Bogus]`) → `--check` exits 1 with the expected error message; restoring → `--check` exits 0.
+- [x] **Ping rewrite still works after the openapi.yaml allow-listing in proxy.ts** — `curl https://api.consentshield.in/v1/_ping` continues to return 200 with the key context envelope.
 
-**Status:** `[ ] planned`
+**Architecture changes:**
+- The OpenAPI spec graduates from "marketing artefact" to "build-gated source of truth". Any `/v1/*` route shape change must (a) edit `app/public/openapi.yaml`, (b) re-run the regenerator (or the prebuild will fail in CI), and (c) commit the updated whitepaper alongside the code change. This closes G-045: the whitepaper Appendix A can no longer drift away from code in a future PR without the prebuild catching it.
+- `app/public/openapi.yaml` is now a hard build artefact in two senses: served as a static asset from the API host, and gated by `redocly lint` + `--check` in the customer-app prebuild. Any structural break in the spec (or in its alignment with the whitepaper) blocks deploy.
+- The hand-rolled YAML parser in `regenerate-whitepaper-appendix.ts` is intentionally scoped to the OpenAPI shape we already control — adding `js-yaml` for one read isn't worth the supply-chain cost (Rule 15). If the OpenAPI structure ever needs deeper introspection (e.g., schema reference resolution), that will be the moment to swap in a real YAML library.
+
+**Status:** `[x] complete 2026-04-26 — 21 ops covered, redocly lint clean, Appendix A regenerator + drift-check wired into the customer-app prebuild, openapi.yaml served from api.consentshield.in/openapi.yaml. Sprint 3.2 (the dedicated CI workflow step) is now subsumed: the prebuild already runs `--check` on every Vercel build, which is the same gate Sprint 3.2 specified. Sprint 3.2 status updated below.`
 
 #### Sprint 3.2: CI drift check
 
 **Estimated effort:** 1 day
 
 **Deliverables:**
-- [ ] CI workflow step: run the generator; diff against `docs/design/ConsentShield-Customer-Integration-Whitepaper-v2.md` Appendix A section; fail build on any difference
-- [ ] Developer ergonomics: a `bun run sync:whitepaper-appendix` command updates the whitepaper in place from the spec
+- [x] CI workflow step: subsumed by Sprint 3.1. `app/package.json` `prebuild` runs `bunx tsx ../scripts/regenerate-whitepaper-appendix.ts --check` on every Vercel deploy and on every local `bun run build`; drift fails the build with the actionable "run the regenerator and commit" hint.
+- [x] Developer ergonomics: `bunx tsx scripts/regenerate-whitepaper-appendix.ts` (no flags) updates the whitepaper in place. The script is self-explanatory on bare invocation; the `--check` mode is what CI / the prebuild use.
 
 **Testing plan:**
-- [ ] Introduce a fake drift (add an endpoint in code but not in spec) → CI fails
-- [ ] Remove the drift → CI passes
+- [x] Introduce a fake drift (`tags: [Account]` → `tags: [Bogus]` in openapi.yaml) → `--check` exits 1.
+- [x] Remove the drift → `--check` exits 0.
 
-**Status:** `[ ] planned`
+**Status:** `[x] complete 2026-04-26 — subsumed by Sprint 3.1's prebuild hook. ADR-1006 Phase 3 closes at 2/2 sprints.`
 
 ### Phase 4: Go library (G-024) — Java dropped per scope amendment
 

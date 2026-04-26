@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "prebuild": "bun ../scripts/check-env-isolation.ts && bun ../scripts/check-no-service-role-in-customer-app.ts",
+    "prebuild": "bun ../scripts/check-env-isolation.ts && bun ../scripts/check-no-service-role-in-customer-app.ts && bunx --bun @redocly/cli@latest lint public/openapi.yaml && bunx tsx ../scripts/regenerate-whitepaper-appendix.ts --check",
     "build": "next build",
     "start": "next start",
     "prelint": "bun ../scripts/check-no-service-role-in-customer-app.ts",

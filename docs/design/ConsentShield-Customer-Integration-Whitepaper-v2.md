@@ -1008,25 +1008,35 @@ For a technical buyer who has read this far, the recommended next steps are:
 
 `Authorization: Bearer cs_live_xxxxxxxxxxxxxxxxxxxxxxxx`
 
-| Route | Method | Scope |
-|---|---|---|
-| `/v1/consent/record` | POST | `write:consent` |
-| `/v1/consent/verify` | GET | `read:consent` |
-| `/v1/consent/verify/batch` | POST | `read:consent` |
-| `/v1/consent/events` | GET | `read:consent` |
-| `/v1/consent/score` | GET | `read:score` |
-| `/v1/consent/artefacts` | GET | `read:artefacts` |
-| `/v1/consent/artefacts/{id}` | GET | `read:artefacts` |
-| `/v1/consent/artefacts/{id}/revoke` | POST | `write:artefacts` |
-| `/v1/expiry/upcoming` | GET | `read:artefacts` |
-| `/v1/purpose-definitions` | GET | `read:consent` |
-| `/v1/rights/requests` | GET, POST | `read:rights`, `write:rights` |
-| `/v1/deletion/trigger` | POST | `write:deletion` |
-| `/v1/deletion/receipts` | GET | `read:deletion` |
-| `/v1/tracker/violations` | GET | `read:tracker` |
-| `/v1/audit/export` | GET | `read:audit` |
-| `/v1/security/scans` | GET | `read:security` |
-| `/v1/probes/results` | GET | `read:probes` |
+<!-- BEGIN AUTO-GENERATED APPENDIX-A-COMPLIANCE-API -->
+<!-- Generated 2026-04-26 by scripts/regenerate-whitepaper-appendix.ts from app/public/openapi.yaml -->
+<!-- Do not hand-edit this section; the next regeneration will overwrite it. -->
+
+| Route | Method | Tag | Scope |
+|---|---|---|---|
+| `/v1/_ping` | GET | Utility | _(any valid key)_ |
+| `/v1/consent/artefacts` | GET | Consent | `read:artefacts` |
+| `/v1/consent/artefacts/{id}` | GET | Consent | `read:artefacts` |
+| `/v1/consent/artefacts/{id}/revoke` | POST | Consent | `write:artefacts` |
+| `/v1/consent/events` | GET | Consent | `read:consent` |
+| `/v1/consent/record` | POST | Consent | `write:consent` |
+| `/v1/consent/verify` | GET | Consent | `read:consent` |
+| `/v1/consent/verify/batch` | POST | Consent | `read:consent` |
+| `/v1/deletion/receipts` | GET | Deletion | `read:deletion` |
+| `/v1/deletion/trigger` | POST | Deletion | `write:deletion` |
+| `/v1/integrations/{connector_id}/test_delete` | POST | Deletion | `write:deletion` |
+| `/v1/rights/requests` | GET | Rights | `read:rights` |
+| `/v1/rights/requests` | POST | Rights | `write:rights` |
+| `/v1/audit` | GET | Audit | `read:audit` |
+| `/v1/keys/self` | GET | Account | _(any valid key)_ |
+| `/v1/plans` | GET | Account | _(any valid key)_ |
+| `/v1/properties` | GET | Account | _(any valid key)_ |
+| `/v1/purposes` | GET | Account | _(any valid key)_ |
+| `/v1/usage` | GET | Account | _(any valid key)_ |
+| `/v1/score` | GET | Score | `read:score` |
+| `/v1/security/scans` | GET | Security | `read:security` |
+
+<!-- END AUTO-GENERATED APPENDIX-A-COMPLIANCE-API -->
 
 **Rate limits:** Starter 100/hr · Growth 1,000/hr · Pro 10,000/hr · Enterprise custom
 

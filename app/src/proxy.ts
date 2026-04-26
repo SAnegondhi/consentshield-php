@@ -53,6 +53,11 @@ export async function proxy(request: NextRequest) {
       pathname = '/api/v1/ping'
     } else if (originalPath.startsWith('/v1/')) {
       pathname = '/api' + originalPath // /v1/foo → /api/v1/foo
+    } else if (originalPath === '/openapi.yaml') {
+      // Allow the OpenAPI spec to be served from the API host so SDK
+      // code-generators that default to `<api-host>/openapi.yaml` work
+      // out of the box. The file is a static asset under `app/public/`.
+      // Falls through to normal Next.js static handling.
     } else if (!originalPath.startsWith('/api/v1/')) {
       return NextResponse.json(
         problemJson(404, 'Not Found', 'Path is not part of the public API surface'),

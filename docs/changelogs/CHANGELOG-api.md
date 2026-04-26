@@ -2,6 +2,35 @@
 
 API route changes.
 
+## [ADR-1006 Phase 3 Sprints 3.1 + 3.2 — OpenAPI source of truth + Appendix A regenerator + drift-check (Phase 3 closes; ADR-1006 closes at 9/9)] — 2026-04-26
+
+**ADR:** ADR-1006 — Developer Experience: Client Libraries + OpenAPI + CI Drift Check
+**Sprint:** Phase 3, Sprints 3.1 + 3.2 (3.2 subsumed by 3.1's prebuild hook)
+
+### Added
+- **`scripts/regenerate-whitepaper-appendix.ts`** — reads `app/public/openapi.yaml`, emits a Markdown table of all 21 public `/v1/*` operations grouped by tag (Utility / Consent / Deletion / Rights / Audit / Account / Score / Security), and splices the result into the v2 whitepaper's Appendix A between `<!-- BEGIN AUTO-GENERATED APPENDIX-A-COMPLIANCE-API -->` / `<!-- END … -->` markers. First-run finds the existing `### Compliance API …` heading and replaces the hand-written table with the marker block; subsequent runs are idempotent. `--check` mode exits non-zero on drift with an actionable hint to run the regenerator. Hand-rolled YAML parser scoped to the OpenAPI shape (paths / methods / `tags` / `security: bearerAuth`) — no new npm dep (Rule 15).
+- **Marker block in `docs/design/ConsentShield-Customer-Integration-Whitepaper-v2.md`** — replaces the previously hand-written `### Compliance API (API key authentication — Pro and Enterprise tiers)` table inside Appendix A. The table is now a build artefact; future spec edits regenerate it automatically.
+
+### Changed
+- **`app/public/openapi.yaml`** — `info.license` field added (`Apache-2.0` + canonical URL) so `redocly lint` reports zero warnings. `servers` array now leads with `https://api.consentshield.in/v1` (canonical) and retains `https://app.consentshield.in/api/v1` as the legacy app-host path. Five operations under the new `Account` tag (`/keys/self`, `/usage`, `/purposes`, `/properties`, `/plans`) gained tag annotations (previously untagged in the spec, surfaced as empty cells in early appendix-generator runs).
+- **`marketing/public/openapi.yaml`** — synced from the SOT (it's a copy, written by `marketing/scripts/copy-openapi.ts` at marketing's prebuild).
+- **`app/src/proxy.ts`** — host-conditional path gate now allows `/openapi.yaml` through on `api.consentshield.in`. The spec falls through to standard Next.js static-asset handling under `app/public/`. SDK code-generators that default to fetching `<api-host>/openapi.yaml` work out of the box. Verified live: `curl https://api.consentshield.in/openapi.yaml` returns the spec; `/v1/_ping` and `/dashboard` gates are unchanged.
+- **`app/package.json` `prebuild`** — extended with two new gates: `bunx --bun @redocly/cli@latest lint public/openapi.yaml` (catches structural breakage in the spec) and `bunx tsx ../scripts/regenerate-whitepaper-appendix.ts --check` (catches drift between the spec and the whitepaper's Appendix A). Either failure blocks deploy.
+
+### Architecture changes
+- **The OpenAPI spec graduates from "marketing artefact" to "build-gated source of truth".** Any `/v1/*` route shape change must (a) edit `app/public/openapi.yaml`, (b) re-run the regenerator (or the prebuild fails in CI), and (c) commit the updated whitepaper alongside the code change. This closes G-045: the whitepaper Appendix A can no longer drift from code in a future PR without the prebuild catching it.
+- **Sprint 3.2's CI workflow step is subsumed by the Sprint 3.1 prebuild hook.** Same gate, same drift detection, fires on every Vercel deploy + every local `bun run build`. No separate CI YAML needed.
+- **`/openapi.yaml` is now a customer-discoverable artefact at the API host** (not just at `app.consentshield.in/openapi.yaml`). This matters for SDK code-generators (Postman, Stoplight, OpenAPI Generator, Speakeasy, Stainless) that default to fetching the spec from the API host.
+
+### Tested
+- [x] `bunx --bun @redocly/cli@latest lint app/public/openapi.yaml` — PASS, "Your API description is valid 🎉" with **zero warnings** after the `info.license` addition.
+- [x] `bunx tsx scripts/regenerate-whitepaper-appendix.ts` — wrote 21 operations to the whitepaper.
+- [x] Idempotency: a second run with no input changes — exits 0 with `regenerate-appendix: no change (21 operations).`
+- [x] Drift detection: tampering with `tags: [Account]` → `tags: [Bogus]` → `--check` exits 1 with the expected error message; restoring the spec → `--check` exits 0.
+- [x] `cd app && bun run build` — PASS, prebuild fires `redocly lint` + `--check` cleanly.
+- [x] `curl https://api.consentshield.in/openapi.yaml` — returns 200 with the spec body (after deploy).
+- [x] `curl https://api.consentshield.in/v1/_ping` (with Bearer) — still 200 + key context envelope (gate didn't regress).
+
 ## [ADR-1006 SDK relicence to Apache 2.0 + final repo paths under SAnegondhi/*] — 2026-04-25
 
 **ADR:** ADR-1006 — Developer Experience: Client Libraries + OpenAPI + CI Drift Check
