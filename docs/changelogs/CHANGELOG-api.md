@@ -2,6 +2,32 @@
 
 API route changes.
 
+## [ADR-1028 Phase 1 Sprint 1.1 — Tier-2 SDK generator pipeline + CI drift gate] — 2026-04-26
+
+**ADR:** ADR-1028 — Generated server-side SDKs (Java + .NET + PHP)
+**Sprint:** Phase 1, Sprint 1.1
+
+### Added
+- **`scripts/generate-tier2-sdks.ts`** — Bun TS script that runs `openapitools/openapi-generator-cli:v7.10.0` (Docker; image tag exact-pinned per Rule 17) against `app/public/openapi.yaml` for `java`, `csharp`, `php` targets. Output to `packages/{java,dotnet,php}-client/generated/`. Two modes: default writes the three trees; `--check` regenerates each target to a tempdir, byte-for-byte diffs against the committed tree, exits 1 on drift with the first 10 differing files printed. `--target=<name>` flag for one-target runs.
+- **`scripts/openapi-config/{java,csharp,php}.json`** — per-target generator configs:
+  - Java → `com.consentshield:consentshield-java:1.0.0`, `okhttp-gson` library, `dateLibrary: java8`, `disallowAdditionalPropertiesIfNotPresent: true`.
+  - C# → `ConsentShield.Client` 1.0.0, .NET 8.0 LTS, `httpclient` library, `nullableReferenceTypes: true`.
+  - PHP → `consentshield/consentshield` 1.0.0, default Guzzle wrapper, `disallowAdditionalPropertiesIfNotPresent: true`.
+  - All three set `hideGenerationTimestamp: true` so `--check` is deterministic.
+- **`.github/workflows/tier2-sdk-drift.yml`** — CI gate. Runs on every PR + push to main touching the spec, configs, generator script, generated trees, or the workflow file itself. Pulls the pinned generator image, runs `bun run check:tier2-sdks`, fails the build on drift.
+- **Root `package.json` scripts** — `generate:tier2-sdks` (write) + `check:tier2-sdks` (drift gate). Documented for local-dev use; CI calls the latter.
+- **`docs/reviews/2026-04-26-tier2-generator-evaluation.md`** — comparison-review skeleton: OpenAPI Generator vs Speakeasy vs Stainless. Decision recorded as "stay on OpenAPI Generator until $50k MRR or first BFSI Tier-1 RFP commenting on code quality"; Speakeasy capture documented as a non-blocking operator follow-up.
+
+### Architecture changes
+- **Drift gate moved from `app/package.json` prebuild to GitHub Actions** because Vercel build hosts have no Docker. The functional intent — block any merge that changes the spec without a corresponding regen of the three generated trees — is satisfied identically by CI. Recorded as ADR-1028 §Architecture Changes amendment. The customer-app prebuild continues to run the whitepaper-appendix `--check` (pure-Node, works on Vercel).
+- **OpenAPI spec at `app/public/openapi.yaml` is now the input to two regeneration pipelines** — Appendix A (customer-app prebuild) and Tier-2 SDKs (CI). Both fail closed.
+- **Three-tier SDK model codified.** Tier 1 = hand-rolled Node/Python/Go (ADR-1006); Tier 2 = OpenAPI-generated Java/.NET/PHP (this ADR); Tier 3 = mobile Swift/Kotlin (deferred until ABDM trigger).
+
+### Tested
+- [x] `bun run generate:tier2-sdks` — produces three populated `packages/*-client/generated/` trees against the live spec; method count parity with the 21 `/v1/*` operations.
+- [x] `bun run check:tier2-sdks` — exits 0 on a clean tree (`all targets in sync`); exits 1 with `DRIFT in <target>: N files differ` after a spec mutation; exits 0 again after restore.
+- [x] CI workflow file syntax — `.github/workflows/tier2-sdk-drift.yml` parses; path filter scoped to spec + configs + generator script + generated trees + workflow itself.
+
 ## [ADR-1006 Phase 3 Sprints 3.1 + 3.2 — OpenAPI source of truth + Appendix A regenerator + drift-check (Phase 3 closes; ADR-1006 closes at 9/9)] — 2026-04-26
 
 **ADR:** ADR-1006 — Developer Experience: Client Libraries + OpenAPI + CI Drift Check

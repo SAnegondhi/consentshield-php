@@ -1,0 +1,59 @@
+# ADR-1028 Phase 1 Sprint 1.1 — Tier-2 SDK drift gate.
+#
+# Any change to app/public/openapi.yaml must be accompanied by a
+# regenerated commit of packages/{java,dotnet,php}-client/generated/.
+# The customer-app prebuild can't enforce this on Vercel (no Docker on
+# the build host), so the authoritative gate is here in CI.
+#
+# Local dev: `bun run generate:tier2-sdks` from repo root regenerates;
+# CI runs `bun run check:tier2-sdks` and fails on drift.
+
+name: tier2-sdk-drift
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'app/public/openapi.yaml'
+      - 'scripts/generate-tier2-sdks.ts'
+      - 'scripts/openapi-config/**'
+      - 'packages/java-client/generated/**'
+      - 'packages/dotnet-client/generated/**'
+      - 'packages/php-client/generated/**'
+      - '.github/workflows/tier2-sdk-drift.yml'
+  push:
+    branches:
+      - main
+    paths:
+      - 'app/public/openapi.yaml'
+      - 'scripts/generate-tier2-sdks.ts'
+      - 'scripts/openapi-config/**'
+      - 'packages/java-client/generated/**'
+      - 'packages/dotnet-client/generated/**'
+      - 'packages/php-client/generated/**'
+      - '.github/workflows/tier2-sdk-drift.yml'
+
+jobs:
+  check-drift:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install tsx
+        run: bun add -g tsx
+
+      # Docker is preinstalled on ubuntu-latest GitHub-hosted runners.
+      - name: Verify Docker daemon
+        run: docker info
+
+      - name: Pull openapi-generator-cli image
+        run: docker pull openapitools/openapi-generator-cli:v7.10.0
+
+      - name: Check Tier-2 SDK drift
+        run: bun run check:tier2-sdks

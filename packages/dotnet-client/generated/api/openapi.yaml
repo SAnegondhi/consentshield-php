@@ -1,0 +1,3463 @@
+openapi: 3.1.0
+info:
+  contact:
+    email: support@consentshield.in
+    name: ConsentShield Support
+  description: |
+    Bearer-authenticated compliance API for DPDP consent events, rights requests, audit logs, and data deletion. All endpoints require a `cs_live_*` API key issued from the ConsentShield dashboard.
+  license:
+    name: Apache-2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0
+  title: ConsentShield Compliance API
+  version: 1.0.0
+servers:
+- description: Production
+  url: https://api.consentshield.in/v1
+- description: Production (legacy app-host path)
+  url: https://app.consentshield.in/api/v1
+security:
+- bearerAuth: []
+paths:
+  /_ping:
+    get:
+      description: |
+        Returns the resolved context for the authenticated key. Use this to verify your API key is valid, confirm scopes, and check the rate tier before calling data endpoints.
+      operationId: ping
+      responses:
+        "200":
+          content:
+            application/json:
+              example:
+                ok: true
+                org_id: 11111111-2222-3333-4444-555555555555
+                account_id: 3a4b8b21-5a11-4f37-9b7c-6f2e0d5c8b1a
+                scopes:
+                - read:consent
+                - write:consent
+                - read:artefacts
+                rate_tier: starter
+              schema:
+                $ref: '#/components/schemas/PingResponse'
+          description: Key is valid and active.
+        "401":
+          $ref: '#/components/responses/Unauthorized'
+        "410":
+          $ref: '#/components/responses/Gone'
+        "429":
+          $ref: '#/components/responses/TooManyRequests'
+      summary: Canary health-check
+      tags:
+      - Utility
+  /consent/verify:
+    get:
+      description: |
+        DPDP §6 runtime check. Given a data principal identifier, property, and purpose code, returns whether consent is currently granted, revoked, expired, or never recorded. Identifier is hashed server-side with the org's per-org salt — plaintext is never stored.
+      operationId: consentVerify
+      parameters:
+      - explode: true
+        in: query
+        name: property_id
+        required: true
+        schema:
+          format: uuid
+          type: string
+        style: form
+      - description: "Caller's identifier for the data principal (email, phone, PAN,\
+          \ etc.). Hashed server-side; never stored."
+        explode: true
+        in: query
+        name: data_principal_identifier
+        required: true
+        schema:
+          type: string
+        style: form
+      - description: "Determines normalisation rule: email=trim+lowercase; phone/aadhaar=digits\
+          \ only; pan=trim+uppercase; custom=trim. Callers MUST use the same type\
+          \ at record-time and verify-time."
+        explode: true
+        in: query
+        name: identifier_type
+        required: true
+        schema:
+          enum:
+          - email
+          - phone
+          - pan
+          - aadhaar
+          - custom
+          type: string
+        style: form
+      - explode: true
+        in: query
+        name: purpose_code
+        required: true
+        schema:
+          type: string
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              example:
+                property_id: 3a4b8b21-5a11-4f37-9b7c-6f2e0d5c8b1a
+                identifier_type: email
+                purpose_code: marketing
+                status: granted
+                active_artefact_id: art_01J5TZ8XQKVPKPYH7PZCTMFMH8
+                revoked_at: null
+                revocation_record_id: null
+                expires_at: 2027-03-14T08:12:00Z
+                evaluated_at: 2026-04-21T10:15:33Z
+              schema:
+                $ref: '#/components/schemas/VerifyResponse'
+          description: Verification envelope.
+        "401":
+          $ref: '#/components/responses/Unauthorized'
+        "403":
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: Key is valid but lacks the read:consent scope.
+        "404":
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: property_id does not belong to the key's org.
+        "410":
+          $ref: '#/components/responses/Gone'
+        "422":
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: Missing query param / empty identifier / unknown identifier_type.
+        "429":
+          $ref: '#/components/responses/TooManyRequests'
+      security:
+      - bearerAuth:
+        - read:consent
+      summary: Single-identifier consent verification
+      tags:
+      - Consent
+  /consent/artefacts:
+    get:
+      description: |
+        Returns artefacts for the key's org with keyset pagination and optional filters. `data_principal_identifier` + `identifier_type` must be supplied together to filter by identity.
+      operationId: consentArtefactsList
+      parameters:
+      - explode: true
+        in: query
+        name: property_id
+        required: false
+        schema:
+          format: uuid
+          type: string
+        style: form
+      - explode: true
+        in: query
+        name: data_principal_identifier
+        required: false
+        schema:
+          type: string
+        style: form
+      - explode: true
+        in: query
+        name: identifier_type
+        required: false
+        schema:
+          enum:
+          - email
+          - phone
+          - pan
+          - aadhaar
+          - custom
+          type: string
+        style: form
+      - explode: true
+        in: query
+        name: status
+        required: false
+        schema:
+          enum:
+          - active
+          - revoked
+          - expired
+          - replaced
+          type: string
+        style: form
+      - explode: true
+        in: query
+        name: purpose_code
+        required: false
+        schema:
+          type: string
+        style: form
+      - explode: true
+        in: query
+        name: expires_before
+        required: false
+        schema:
+          format: date-time
+          type: string
+        style: form
+      - explode: true
+        in: query
+        name: expires_after
+        required: false
+        schema:
+          format: date-time
+          type: string
+        style: form
+      - explode: true
+        in: query
+        name: cursor
+        required: false
+        schema:
+          type: string
+        style: form
+      - explode: true
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 50
+          maximum: 200
+          minimum: 1
+          type: integer
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              example:
+                items:
+                - artefact_id: art_01J5TZ8XQKVPKPYH7PZCTMFMH8
+                  property_id: 3a4b8b21-5a11-4f37-9b7c-6f2e0d5c8b1a
+                  purpose_code: marketing
+                  purpose_definition_id: 7f4b3b21-5a11-4f37-9b7c-6f2e0d5c8b1a
+                  data_scope:
+                  - email_address
+                  - phone_number
+                  framework: dpdp
+                  status: active
+                  expires_at: 2027-03-14T08:12:00Z
+                  revoked_at: null
+                  revocation_record_id: null
+                  replaced_by: null
+                  identifier_type: email
+                  created_at: 2026-04-21T10:15:03Z
+                next_cursor: null
+              schema:
+                $ref: '#/components/schemas/ArtefactListResponse'
+          description: Paged list envelope.
+        "401":
+          $ref: '#/components/responses/Unauthorized'
+        "403":
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: Key is valid but lacks read:artefacts scope.
+        "410":
+          $ref: '#/components/responses/Gone'
+        "422":
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: "Invalid filter combination, bad cursor, malformed identifier,\
+            \ or bad limit/date."
+        "429":
+          $ref: '#/components/responses/TooManyRequests'
+      security:
+      - bearerAuth:
+        - read:artefacts
+      summary: List consent artefacts (cursor-paginated)
+      tags:
+      - Consent
+  /consent/artefacts/{id}:
+    get:
+      description: |
+        Returns the artefact envelope + revocation record (if any) + full replacement chain in chronological order.
+      operationId: consentArtefactGet
+      parameters:
+      - explode: false
+        in: path
+        name: id
+        required: true
+        schema:
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              example:
+                artefact_id: art_01J5TZ8XQKVPKPYH7PZCTMFMH8
+                property_id: 3a4b8b21-5a11-4f37-9b7c-6f2e0d5c8b1a
+                purpose_code: marketing
+                purpose_definition_id: 7f4b3b21-5a11-4f37-9b7c-6f2e0d5c8b1a
+                data_scope:
+                - email_address
+                - phone_number
+                framework: dpdp
+                status: active
+                expires_at: 2027-03-14T08:12:00Z
+                revoked_at: null
+                revocation_record_id: null
+                replaced_by: null
+                identifier_type: email
+                created_at: 2026-04-21T10:15:03Z
+                revocation: null
+                replacement_chain:
+                - art_01J5TZ8XQKVPKPYH7PZCTMFMH8
+              schema:
+                $ref: '#/components/schemas/ArtefactDetail'
+          description: Artefact detail.
+        "401":
+          $ref: '#/components/responses/Unauthorized'
+        "403":
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: Key is valid but lacks read:artefacts scope.
+        "404":
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: No artefact with that id belongs to the key's org.
+        "410":
+          $ref: '#/components/responses/Gone'
+        "429":
+          $ref: '#/components/responses/TooManyRequests'
+      security:
+      - bearerAuth:
+        - read:artefacts
+      summary: Get a single consent artefact
+      tags:
+      - Consent
+  /consent/artefacts/{id}/revoke:
+    post:
+      description: |
+        Records a revocation event for the artefact. The ADR-0022 cascade trigger flips consent_artefacts.status to `revoked` and updates the consent_artefact_index. Idempotent — calling revoke on an already- revoked artefact returns 200 with the existing revocation_record_id. Terminal states (`expired`, `replaced`) cannot be revoked and return 409.
+      operationId: consentArtefactRevoke
+      parameters:
+      - explode: false
+        in: path
+        name: id
+        required: true
+        schema:
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            example:
+              reason_code: user_withdrawal
+              reason_notes: User requested unsubscribe via email
+              actor_type: user
+              actor_ref: alice@example.com
+            schema:
+              $ref: '#/components/schemas/RevokeRequest'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              example:
+                artefact_id: art_01J5TZ8XQKVPKPYH7PZCTMFMH8
+                status: revoked
+                revocation_record_id: 6c9d0e1f-2a3b-4c5d-6e7f-8a9b0c1d2e3f
+                idempotent_replay: false
+              schema:
+                $ref: '#/components/schemas/RevokeResponse'
+          description: Revoked (new or idempotent replay).
+        "401":
+          $ref: '#/components/responses/Unauthorized'
+        "403":
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: Key is valid but lacks write:artefacts scope.
+        "404":
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: No artefact with that id belongs to the key's org.
+        "409":
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: Artefact is in a terminal state (expired or replaced) and cannot
+            be revoked.
+        "410":
+          $ref: '#/components/responses/Gone'
+        "422":
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: "Missing reason_code, malformed body, or unknown actor_type."
+        "429":
+          $ref: '#/components/responses/TooManyRequests'
+      security:
+      - bearerAuth:
+        - write:artefacts
+      summary: Revoke a consent artefact
+      tags:
+      - Consent
+  /consent/events:
+    get:
+      description: |
+        Returns paginated summaries (counts, not full payloads) of consent_events rows. Use for §11 audit timelines.
+      operationId: consentEventsList
+      parameters:
+      - explode: true
+        in: query
+        name: property_id
+        required: false
+        schema:
+          format: uuid
+          type: string
+        style: form
+      - explode: true
+        in: query
+        name: created_after
+        required: false
+        schema:
+          format: date-time
+          type: string
+        style: form
+      - explode: true
+        in: query
+        name: created_before
+        required: false
+        schema:
+          format: date-time
+          type: string
+        style: form
+      - explode: true
+        in: query
+        name: source
+        required: false
+        schema:
+          enum:
+          - web
+          - api
+          - sdk
+          type: string
+        style: form
+      - explode: true
+        in: query
+        name: cursor
+        required: false
+        schema:
+          type: string
+        style: form
+      - explode: true
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 50
+          maximum: 200
+          minimum: 1
+          type: integer
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              example:
+                items:
+                - id: 5b8c9d0e-1f2a-3b4c-5d6e-7f8a9b0c1d2e
+                  property_id: 3a4b8b21-5a11-4f37-9b7c-6f2e0d5c8b1a
+                  source: api
+                  event_type: consent_granted
+                  purposes_accepted_count: 2
+                  purposes_rejected_count: 0
+                  identifier_type: email
+                  artefact_count: 2
+                  created_at: 2026-04-21T10:15:03Z
+                next_cursor: eyJjcmVhdGVkX2F0IjoiMjAyNi0wNC0yMVQxMDoxNTowM1oifQ
+              schema:
+                $ref: '#/components/schemas/EventListResponse'
+          description: Paged event list envelope.
+        "401":
+          $ref: '#/components/responses/Unauthorized'
+        "403":
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: Key is valid but lacks read:consent scope.
+        "410":
+          $ref: '#/components/responses/Gone'
+        "422":
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: "Bad cursor, limit, date, or source."
+        "429":
+          $ref: '#/components/responses/TooManyRequests'
+      security:
+      - bearerAuth:
+        - read:consent
+      summary: "List consent events (summary only, cursor-paginated)"
+      tags:
+      - Consent
+  /deletion/trigger:
+    post:
+      description: |
+        Inserts `artefact_revocations` rows for every active artefact matching the scope. The ADR-0022 cascade + process-artefact-revocation Edge Function then create `deletion_receipts` asynchronously. `retention_expired` mode is not yet implemented (returns 501).
+      operationId: deletionTrigger
+      requestBody:
+        content:
+          application/json:
+            example:
+              property_id: 3a4b8b21-5a11-4f37-9b7c-6f2e0d5c8b1a
+              data_principal_identifier: alice@example.com
+              identifier_type: email
+              reason: erasure_request
+              actor_type: user
+              actor_ref: alice@example.com
+            schema:
+              $ref: '#/components/schemas/DeletionTriggerRequest'
+        required: true
+      responses:
+        "202":
+          content:
+            application/json:
+              example:
+                reason: erasure_request
+                revoked_artefact_ids:
+                - art_01J5TZ8XQKVPKPYH7PZCTMFMH8
+                - art_01J5TZ9AKVPKPYH7PZCTMFMH8
+                revoked_count: 2
+                initial_status: pending
+                note: Deletion receipts will be generated asynchronously by the orchestrator.
+              schema:
+                $ref: '#/components/schemas/DeletionTriggerResponse'
+          description: Revocations inserted; deletion_receipts are being created asynchronously.
+        "401":
+          $ref: '#/components/responses/Unauthorized'
+        "403":
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: Key is valid but lacks write:deletion scope.
+        "404":
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: property_id does not belong to the key's org.
+        "410":
+          $ref: '#/components/responses/Gone'
+        "422":
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: "Invalid body, missing purpose_codes for consent_revoked, or\
+            \ unknown reason/actor_type/identifier."
+        "429":
+          $ref: '#/components/responses/TooManyRequests'
+        "501":
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: retention_expired mode is not yet implemented.
+      security:
+      - bearerAuth:
+        - write:deletion
+      summary: Trigger deletion orchestration for a data principal
+      tags:
+      - Deletion
+  /integrations/{connector_id}/test_delete:
+    post:
+      description: |
+        Creates a synthetic deletion request against the named connector. Generates a random `cs_test_principal_<uuid>` data_principal and writes a `deletion_receipts` row with `trigger_type='test_delete'` and `request_payload.is_test=true`. Customer handlers should inspect `request_payload.reason=='test'` and short-circuit without deleting real data.
+        Rate-limited to 10 calls per connector per hour. Test rows have `artefact_id=null` so compliance aggregations exclude them.
+      operationId: integrationsTestDelete
+      parameters:
+      - explode: false
+        in: path
+        name: connector_id
+        required: true
+        schema:
+          format: uuid
+          type: string
+        style: simple
+      responses:
+        "202":
+          content:
+            application/json:
+              example:
+                receipt_id: 9d8e7f6a-5b4c-3d2e-1f0a-9b8c7d6e5f4a
+                data_principal_identifier: cs_test_principal_5fa8c1b2-3d4e-4a7b-9c0d-ef1234567890
+                reason: test
+                connector_id: 8e9f0a1b-2c3d-4e5f-6a7b-8c9d0e1f2a3b
+                connector_type: hubspot
+                status: pending
+                note: Customer webhook handler should inspect request_payload->>'reason'='test'
+                  and short-circuit without deleting real data.
+              schema:
+                $ref: '#/components/schemas/TestDeleteResponse'
+          description: Test deletion receipt created; delivery is async.
+        "401":
+          $ref: '#/components/responses/Unauthorized'
+        "403":
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: Key is valid but lacks write:deletion scope or does not authorise
+            the org.
+        "404":
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: connector_id does not belong to the key's org.
+        "410":
+          $ref: '#/components/responses/Gone'
+        "422":
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: connector_id malformed or connector is not active.
+        "429":
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: Rate limit — 10 test_delete calls per connector per hour.
+      security:
+      - bearerAuth:
+        - write:deletion
+      summary: Exercise a customer deletion-webhook handler without real data
+      tags:
+      - Deletion
+  /deletion/receipts:
+    get:
+      description: |
+        Cursor-paginated list with filters on status, connector, source artefact_id, and issue date range.
+      operationId: deletionReceiptsList
+      parameters:
+      - explode: true
+        in: query
+        name: status
+        required: false
+        schema:
+          type: string
+        style: form
+      - explode: true
+        in: query
+        name: connector_id
+        required: false
+        schema:
+          format: uuid
+          type: string
+        style: form
+      - explode: true
+        in: query
+        name: artefact_id
+        required: false
+        schema:
+          type: string
+        style: form
+      - explode: true
+        in: query
+        name: issued_after
+        required: false
+        schema:
+          format: date-time
+          type: string
+        style: form
+      - explode: true
+        in: query
+        name: issued_before
+        required: false
+        schema:
+          format: date-time
+          type: string
+        style: form
+      - explode: true
+        in: query
+        name: cursor
+        required: false
+        schema:
+          type: string
+        style: form
+      - explode: true
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 50
+          maximum: 200
+          minimum: 1
+          type: integer
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              example:
+                items:
+                - id: 7d8e9f0a-1b2c-3d4e-5f6a-7b8c9d0e1f2a
+                  trigger_type: erasure_request
+                  trigger_id: 5b8c9d0e-1f2a-3b4c-5d6e-7f8a9b0c1d2e
+                  artefact_id: art_01J5TZ8XQKVPKPYH7PZCTMFMH8
+                  connector_id: 8e9f0a1b-2c3d-4e5f-6a7b-8c9d0e1f2a3b
+                  target_system: hubspot
+                  status: confirmed
+                  retry_count: 0
+                  failure_reason: null
+                  requested_at: 2026-04-21T10:15:05Z
+                  confirmed_at: 2026-04-21T10:15:42Z
+                  created_at: 2026-04-21T10:15:03Z
+                next_cursor: null
+              schema:
+                $ref: '#/components/schemas/DeletionReceiptsResponse'
+          description: Paged list envelope.
+        "401":
+          $ref: '#/components/responses/Unauthorized'
+        "403":
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: Key is valid but lacks read:deletion scope.
+        "410":
+          $ref: '#/components/responses/Gone'
+        "422":
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: "Bad cursor, limit, or date."
+        "429":
+          $ref: '#/components/responses/TooManyRequests'
+      security:
+      - bearerAuth:
+        - read:deletion
+      summary: List deletion receipts
+      tags:
+      - Deletion
+  /consent/record:
+    post:
+      description: |
+        Records a consent event captured outside the browser (mobile app, call-centre, branch, kiosk, in-person) and issues one artefact per granted purpose. Use client_request_id for safe retries.
+      operationId: consentRecord
+      requestBody:
+        content:
+          application/json:
+            example:
+              property_id: 3a4b8b21-5a11-4f37-9b7c-6f2e0d5c8b1a
+              data_principal_identifier: alice@example.com
+              identifier_type: email
+              purpose_definition_ids:
+              - 7f4b3b21-5a11-4f37-9b7c-6f2e0d5c8b1a
+              - 9e2c8a0c-1d8a-4a2c-a4bf-2b0e6b1f3c9d
+              captured_at: 2026-04-21T10:14:55Z
+              client_request_id: req_01J5TZ8XQKVPKPYH7PZCTMFMH8
+            schema:
+              $ref: '#/components/schemas/RecordRequest'
+        required: true
+      responses:
+        "201":
+          content:
+            application/json:
+              example:
+                event_id: 5b8c9d0e-1f2a-3b4c-5d6e-7f8a9b0c1d2e
+                created_at: 2026-04-21T10:15:03Z
+                artefact_ids:
+                - purpose_definition_id: 7f4b3b21-5a11-4f37-9b7c-6f2e0d5c8b1a
+                  purpose_code: marketing
+                  artefact_id: art_01J5TZ8XQKVPKPYH7PZCTMFMH8
+                  status: active
+                - purpose_definition_id: 9e2c8a0c-1d8a-4a2c-a4bf-2b0e6b1f3c9d
+                  purpose_code: analytics
+                  artefact_id: art_01J5TZ9AKVPKPYH7PZCTMFMH8
+                  status: active
+                idempotent_replay: false
+              schema:
+                $ref: '#/components/schemas/RecordResponse'
+          description: Consent recorded; artefacts created.
+        "200":
+          content:
+            application/json:
+              example:
+                event_id: 5b8c9d0e-1f2a-3b4c-5d6e-7f8a9b0c1d2e
+                created_at: 2026-04-21T10:15:03Z
+                artefact_ids:
+                - purpose_definition_id: 7f4b3b21-5a11-4f37-9b7c-6f2e0d5c8b1a
+                  purpose_code: marketing
+                  artefact_id: art_01J5TZ8XQKVPKPYH7PZCTMFMH8
+                  status: active
+                - purpose_definition_id: 9e2c8a0c-1d8a-4a2c-a4bf-2b0e6b1f3c9d
+                  purpose_code: analytics
+                  artefact_id: art_01J5TZ9AKVPKPYH7PZCTMFMH8
+                  status: active
+                idempotent_replay: true
+              schema:
+                $ref: '#/components/schemas/RecordResponse'
+          description: Idempotent replay — a prior call with the same client_request_id
+            returned this envelope.
+        "401":
+          $ref: '#/components/responses/Unauthorized'
+        "403":
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: Key is valid but lacks the write:consent scope.
+        "404":
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: property_id does not belong to the key's org.
+        "410":
+          $ref: '#/components/responses/Gone'
+        "422":
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: "Missing/invalid field, stale captured_at, empty purposes,\
+            \ purpose id from another org, or unknown identifier_type."
+        "429":
+          $ref: '#/components/responses/TooManyRequests'
+      security:
+      - bearerAuth:
+        - write:consent
+      summary: Mode B server-to-server consent capture
+      tags:
+      - Consent
+  /consent/verify/batch:
+    post:
+      description: |
+        Same semantics as GET /consent/verify but accepts up to 10,000 identifiers in a single call, all sharing the same property_id, identifier_type, and purpose_code. Response preserves input order. All-or-nothing: if any identifier fails normalisation (empty / unknown type), the entire call returns 422.
+      operationId: consentVerifyBatch
+      requestBody:
+        content:
+          application/json:
+            example:
+              property_id: 3a4b8b21-5a11-4f37-9b7c-6f2e0d5c8b1a
+              identifier_type: email
+              purpose_code: marketing
+              identifiers:
+              - alice@example.com
+              - bob@example.com
+              - carol@example.com
+            schema:
+              $ref: '#/components/schemas/VerifyBatchRequest'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              example:
+                property_id: 3a4b8b21-5a11-4f37-9b7c-6f2e0d5c8b1a
+                identifier_type: email
+                purpose_code: marketing
+                evaluated_at: 2026-04-21T10:15:33Z
+                results:
+                - identifier: alice@example.com
+                  status: granted
+                  active_artefact_id: art_01J5TZ8XQKVPKPYH7PZCTMFMH8
+                  expires_at: 2027-03-14T08:12:00Z
+                - identifier: bob@example.com
+                  status: never_consented
+                - identifier: carol@example.com
+                  status: revoked
+                  revoked_at: 2026-04-10T14:32:11Z
+                  revocation_record_id: 6c9d0e1f-2a3b-4c5d-6e7f-8a9b0c1d2e3f
+              schema:
+                $ref: '#/components/schemas/VerifyBatchResponse'
+          description: Batch verification envelope.
+        "401":
+          $ref: '#/components/responses/Unauthorized'
+        "403":
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: Key is valid but lacks the read:consent scope.
+        "404":
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: property_id does not belong to the key's org.
+        "410":
+          $ref: '#/components/responses/Gone'
+        "413":
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: identifiers array exceeds 10000 elements.
+        "422":
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: Missing body field / empty identifiers / malformed individual
+            identifier / unknown identifier_type.
+        "429":
+          $ref: '#/components/responses/TooManyRequests'
+      security:
+      - bearerAuth:
+        - read:consent
+      summary: Batched consent verification
+      tags:
+      - Consent
+  /keys/self:
+    get:
+      description: |
+        Returns the public metadata of the API key presented as the Bearer token. Useful for SDK setup wizards (confirm scopes) and health checks. No scope gate — any valid Bearer can introspect itself.
+      operationId: keySelf
+      responses:
+        "200":
+          content:
+            application/json:
+              example:
+                key_id: 9b2f6e1a-2e5c-4c4f-90df-8d0a9b7f1e1c
+                account_id: 3a4b8b21-5a11-4f37-9b7c-6f2e0d5c8b1a
+                org_id: 11111111-2222-3333-4444-555555555555
+                name: My production key
+                key_prefix: cs_live_ABC1234
+                scopes:
+                - read:consent
+                - write:consent
+                - read:artefacts
+                rate_tier: starter
+                created_at: 2026-04-10T09:30:00Z
+                last_rotated_at: null
+                expires_at: null
+                revoked_at: null
+              schema:
+                $ref: '#/components/schemas/KeySelfResponse'
+          description: Key metadata.
+        "401":
+          $ref: '#/components/responses/Unauthorized'
+        "410":
+          $ref: '#/components/responses/Gone'
+        "429":
+          $ref: '#/components/responses/TooManyRequests'
+      summary: Introspect the Bearer token's own metadata
+      tags:
+      - Account
+  /usage:
+    get:
+      description: |
+        Returns a day-by-day usage series for the presenting API key over the last `days` days (default 7, min 1, max 30). Zero-filled for days with no activity. Most recent day first.
+      operationId: usage
+      parameters:
+      - explode: true
+        in: query
+        name: days
+        required: false
+        schema:
+          default: 7
+          maximum: 30
+          minimum: 1
+          type: integer
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              example:
+                key_id: 9b2f6e1a-2e5c-4c4f-90df-8d0a9b7f1e1c
+                days: 7
+                series:
+                - day: 2026-04-21
+                  request_count: 1423
+                  p50_ms: 18.4
+                  p95_ms: 47.2
+                - day: 2026-04-20
+                  request_count: 892
+                  p50_ms: 17.1
+                  p95_ms: 42.0
+                - day: 2026-04-19
+                  request_count: 0
+                  p50_ms: 0
+                  p95_ms: 0
+              schema:
+                $ref: '#/components/schemas/UsageResponse'
+          description: Usage series.
+        "401":
+          $ref: '#/components/responses/Unauthorized'
+        "410":
+          $ref: '#/components/responses/Gone'
+        "422":
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: days out of range (must be 1..30).
+        "429":
+          $ref: '#/components/responses/TooManyRequests'
+      summary: Per-day request count + latency for the Bearer token
+      tags:
+      - Account
+  /purposes:
+    get:
+      description: |
+        Returns every `purpose_definitions` row for the caller's org. `/v1/consent/verify` and `/v1/consent/record` both require a valid `purpose_code` or `purpose_definition_id` from this list.
+        Requires an org-scoped API key; account-scoped keys get 400.
+      operationId: purposeList
+      responses:
+        "200":
+          content:
+            application/json:
+              example:
+                items:
+                - id: 7f4b3b21-5a11-4f37-9b7c-6f2e0d5c8b1a
+                  purpose_code: marketing
+                  display_name: Marketing communications
+                  description: "Email, SMS, and in-app campaigns"
+                  data_scope:
+                  - email_address
+                  - phone_number
+                  default_expiry_days: 365
+                  auto_delete_on_expiry: true
+                  is_required: false
+                  framework: dpdp
+                  is_active: true
+                  created_at: 2026-03-14T08:12:00Z
+                  updated_at: 2026-03-14T08:12:00Z
+                - id: 9e2c8a0c-1d8a-4a2c-a4bf-2b0e6b1f3c9d
+                  purpose_code: analytics
+                  display_name: Product analytics
+                  description: null
+                  data_scope:
+                  - page_views
+                  - session_duration
+                  default_expiry_days: 180
+                  auto_delete_on_expiry: true
+                  is_required: false
+                  framework: dpdp
+                  is_active: true
+                  created_at: 2026-03-14T08:12:10Z
+                  updated_at: 2026-03-14T08:12:10Z
+              schema:
+                $ref: '#/components/schemas/PurposeListResponse'
+          description: Purposes for the caller's org.
+        "400":
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: API key is account-scoped; this endpoint requires an org-scoped
+            key.
+        "401":
+          $ref: '#/components/responses/Unauthorized'
+        "403":
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: "Missing `read:consent` scope, or API key is not authorised\
+            \ for this organisation."
+        "410":
+          $ref: '#/components/responses/Gone'
+        "429":
+          $ref: '#/components/responses/TooManyRequests'
+      summary: List purposes configured for the caller's org
+      tags:
+      - Account
+  /properties:
+    get:
+      description: |
+        Returns every `web_properties` row for the caller's org. `property_id` values used throughout `/v1/consent/*` come from here.
+        The HMAC `event_signing_secret` is **not** in the response — it's a server-only key used by the Cloudflare Worker to verify inbound events.
+        Requires an org-scoped API key; account-scoped keys get 400.
+      operationId: propertyList
+      responses:
+        "200":
+          content:
+            application/json:
+              example:
+                items:
+                - id: 3a4b8b21-5a11-4f37-9b7c-6f2e0d5c8b1a
+                  name: ACME production
+                  url: https://acme.example.com
+                  allowed_origins:
+                  - https://acme.example.com
+                  - https://www.acme.example.com
+                  snippet_verified_at: 2026-03-15T10:00:00Z
+                  snippet_last_seen_at: 2026-04-21T09:11:23Z
+                  created_at: 2026-03-14T09:00:00Z
+                  updated_at: 2026-03-15T10:00:00Z
+              schema:
+                $ref: '#/components/schemas/PropertyListResponse'
+          description: Web properties for the caller's org.
+        "400":
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: API key is account-scoped; this endpoint requires an org-scoped
+            key.
+        "401":
+          $ref: '#/components/responses/Unauthorized'
+        "403":
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: "Missing `read:consent` scope, or API key is not authorised\
+            \ for this organisation."
+        "410":
+          $ref: '#/components/responses/Gone'
+        "429":
+          $ref: '#/components/responses/TooManyRequests'
+      summary: List web properties configured for the caller's org
+      tags:
+      - Account
+  /plans:
+    get:
+      description: |
+        Public tier table. Useful for SDK setup wizards ("which plan am I on?"), checkout flows, and per-tier feature lists. No scope gate — any valid Bearer can call.
+        The `razorpay_plan_id` field is deliberately NOT in the response — it's an internal integration key for the Razorpay subscription service.
+      operationId: planList
+      responses:
+        "200":
+          content:
+            application/json:
+              example:
+                items:
+                - plan_code: trial_starter
+                  display_name: Trial (Starter limits)
+                  max_organisations: 1
+                  max_web_properties_per_org: 1
+                  base_price_inr: 0
+                  trial_days: 30
+                  api_rate_limit_per_hour: 100
+                  api_burst: 20
+                - plan_code: starter
+                  display_name: Starter
+                  max_organisations: 1
+                  max_web_properties_per_org: 2
+                  base_price_inr: 999
+                  trial_days: 0
+                  api_rate_limit_per_hour: 100
+                  api_burst: 20
+                - plan_code: growth
+                  display_name: Growth
+                  max_organisations: 3
+                  max_web_properties_per_org: 5
+                  base_price_inr: 2999
+                  trial_days: 0
+                  api_rate_limit_per_hour: 1000
+                  api_burst: 100
+                - plan_code: pro
+                  display_name: Pro
+                  max_organisations: 10
+                  max_web_properties_per_org: 10
+                  base_price_inr: 7999
+                  trial_days: 0
+                  api_rate_limit_per_hour: 10000
+                  api_burst: 500
+                - plan_code: enterprise
+                  display_name: Enterprise
+                  max_organisations: 50
+                  max_web_properties_per_org: 25
+                  base_price_inr: null
+                  trial_days: 0
+                  api_rate_limit_per_hour: 100000
+                  api_burst: 2000
+              schema:
+                $ref: '#/components/schemas/PlanListResponse'
+          description: "Active plans, cheapest first."
+        "401":
+          $ref: '#/components/responses/Unauthorized'
+        "410":
+          $ref: '#/components/responses/Gone'
+        "429":
+          $ref: '#/components/responses/TooManyRequests'
+      summary: List active plans with tier limits + pricing
+      tags:
+      - Account
+  /rights/requests:
+    get:
+      description: |
+        Returns a keyset-paginated list of rights requests for the caller's org. Includes both portal-initiated and API-initiated requests; filter on `captured_via` to distinguish. `created_by_api_key_id` on each item names the specific API key that created the request (null for portal-initiated).
+        Requires an org-scoped API key; account-scoped keys get 400.
+      operationId: rightsRequestList
+      parameters:
+      - explode: true
+        in: query
+        name: status
+        required: false
+        schema:
+          enum:
+          - new
+          - in_progress
+          - completed
+          - rejected
+          type: string
+        style: form
+      - explode: true
+        in: query
+        name: request_type
+        required: false
+        schema:
+          enum:
+          - erasure
+          - access
+          - correction
+          - nomination
+          type: string
+        style: form
+      - explode: true
+        in: query
+        name: captured_via
+        required: false
+        schema:
+          enum:
+          - portal
+          - api
+          - kiosk
+          - branch
+          - call_center
+          - mobile_app
+          - email
+          - other
+          type: string
+        style: form
+      - explode: true
+        in: query
+        name: created_after
+        required: false
+        schema:
+          format: date-time
+          type: string
+        style: form
+      - explode: true
+        in: query
+        name: created_before
+        required: false
+        schema:
+          format: date-time
+          type: string
+        style: form
+      - explode: true
+        in: query
+        name: cursor
+        required: false
+        schema:
+          type: string
+        style: form
+      - explode: true
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 50
+          maximum: 200
+          minimum: 1
+          type: integer
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              example:
+                items:
+                - id: 9c8f6e1a-3e5c-4c4f-90df-8d0a9b7f1e1c
+                  request_type: erasure
+                  requestor_name: Alice Customer
+                  requestor_email: alice@example.com
+                  status: new
+                  captured_via: api
+                  identity_verified: true
+                  identity_verified_at: 2026-04-22T10:15:03Z
+                  identity_method: internal_kyc_check
+                  sla_deadline: 2026-05-22T10:15:03Z
+                  response_sent_at: null
+                  created_by_api_key_id: 7f4b3b21-5a11-4f37-9b7c-6f2e0d5c8b1a
+                  created_at: 2026-04-22T10:15:03Z
+                  updated_at: 2026-04-22T10:15:03Z
+                next_cursor: null
+              schema:
+                $ref: '#/components/schemas/RightsRequestListResponse'
+          description: Paged list envelope.
+        "400":
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: API key is account-scoped; this endpoint requires an org-scoped
+            key.
+        "401":
+          $ref: '#/components/responses/Unauthorized'
+        "403":
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: "Missing `read:rights` scope, or API key is not authorised\
+            \ for this organisation."
+        "410":
+          $ref: '#/components/responses/Gone'
+        "422":
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: "Bad cursor, limit, date, or enum value."
+        "429":
+          $ref: '#/components/responses/TooManyRequests'
+      security:
+      - bearerAuth:
+        - read:rights
+      summary: List rights requests for the caller's org (cursor-paginated)
+      tags:
+      - Rights
+    post:
+      description: |
+        Records a DPDP §11 rights request captured outside the public portal (mobile app, call-centre, branch, kiosk, CRM/helpdesk integration, in-person). Bypasses the portal's Cloudflare Turnstile and email-OTP gate because the API-key holder attests identity via `identity_verified_by` — a free-text attestation describing how identity was verified (e.g. `internal_kyc_check`, `branch_officer_id_42`). The attestation is stored on the row and echoed in a dedicated `created_via_api` audit event for DPB audit filtering.
+        Requires an org-scoped API key; account-scoped keys get 400. The created request starts in `new` status with a 30-day SLA deadline.
+      operationId: rightsRequestCreate
+      requestBody:
+        content:
+          application/json:
+            example:
+              type: erasure
+              requestor_name: Alice Customer
+              requestor_email: alice@example.com
+              request_details: Please erase all data associated with my account.
+              identity_verified_by: internal_kyc_check
+              captured_via: api
+            schema:
+              $ref: '#/components/schemas/RightsRequestCreateRequest'
+        required: true
+      responses:
+        "201":
+          content:
+            application/json:
+              example:
+                id: 9c8f6e1a-3e5c-4c4f-90df-8d0a9b7f1e1c
+                status: new
+                request_type: erasure
+                captured_via: api
+                identity_verified: true
+                identity_verified_by: internal_kyc_check
+                sla_deadline: 2026-05-22T10:15:03Z
+                created_at: 2026-04-22T10:15:03Z
+              schema:
+                $ref: '#/components/schemas/RightsRequestCreatedResponse'
+          description: Rights request created.
+        "400":
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: API key is account-scoped; this endpoint requires an org-scoped
+            key.
+        "401":
+          $ref: '#/components/responses/Unauthorized'
+        "403":
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: "Missing `write:rights` scope, or API key is not authorised\
+            \ for this organisation."
+        "410":
+          $ref: '#/components/responses/Gone'
+        "422":
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: "Missing/invalid field, malformed email, or unknown type/captured_via."
+        "429":
+          $ref: '#/components/responses/TooManyRequests'
+      security:
+      - bearerAuth:
+        - write:rights
+      summary: Create a rights request on behalf of a verified data principal
+      tags:
+      - Rights
+  /audit:
+    get:
+      description: |
+        Keyset-paginated view of `public.audit_log`. **The table is a transient buffer** — rows are delivered to the customer's R2/S3 and deleted within ~5 minutes. This endpoint therefore serves only the undelivered + recently-delivered window (useful for real-time ops dashboards and SIEM polling). The canonical historical audit lives in the customer's own storage.
+        `ip_address` is deliberately excluded from the response envelope (PII). Correlate via `actor_email` if per-person attribution is needed.
+        Requires an org-scoped API key; account-scoped keys get 400.
+      operationId: auditList
+      parameters:
+      - description: "Filter by exact event_type (e.g. `banner_published`, `purpose_created`)."
+        explode: true
+        in: query
+        name: event_type
+        required: false
+        schema:
+          type: string
+        style: form
+      - description: "Filter by exact entity_type (e.g. `banner`, `purpose`, `property`)."
+        explode: true
+        in: query
+        name: entity_type
+        required: false
+        schema:
+          type: string
+        style: form
+      - explode: true
+        in: query
+        name: created_after
+        required: false
+        schema:
+          format: date-time
+          type: string
+        style: form
+      - explode: true
+        in: query
+        name: created_before
+        required: false
+        schema:
+          format: date-time
+          type: string
+        style: form
+      - explode: true
+        in: query
+        name: cursor
+        required: false
+        schema:
+          type: string
+        style: form
+      - explode: true
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 50
+          maximum: 200
+          minimum: 1
+          type: integer
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              example:
+                items:
+                - id: 5b8c9d0e-1f2a-3b4c-5d6e-7f8a9b0c1d2e
+                  actor_id: null
+                  actor_email: operator@acme.example.com
+                  event_type: banner_published
+                  entity_type: banner
+                  entity_id: 3a4b8b21-5a11-4f37-9b7c-6f2e0d5c8b1a
+                  payload:
+                    version: 4
+                  created_at: 2026-04-22T09:10:00Z
+                next_cursor: null
+              schema:
+                $ref: '#/components/schemas/AuditLogListResponse'
+          description: Paged audit list.
+        "400":
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: API key is account-scoped; this endpoint requires an org-scoped
+            key.
+        "401":
+          $ref: '#/components/responses/Unauthorized'
+        "403":
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: "Missing `read:audit` scope, or API key is not authorised for\
+            \ this organisation."
+        "410":
+          $ref: '#/components/responses/Gone'
+        "422":
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: "Bad cursor, limit, or date."
+        "429":
+          $ref: '#/components/responses/TooManyRequests'
+      security:
+      - bearerAuth:
+        - read:audit
+      summary: List recent audit_log events for the caller's org
+      tags:
+      - Audit
+  /security/scans:
+    get:
+      description: |
+        Keyset-paginated view of `public.security_scans`. **The table is a transient buffer** — rows are delivered to the customer's R2/S3 and deleted within ~5 minutes. This endpoint serves only the recent window. Populated nightly by the `run-security-scans` Edge Function (ADR-0015); one row per finding per property, plus an `all_clean` row with `severity=info` for trend tracking.
+        Requires an org-scoped API key; account-scoped keys get 400.
+      operationId: securityScansList
+      parameters:
+      - explode: true
+        in: query
+        name: property_id
+        required: false
+        schema:
+          format: uuid
+          type: string
+        style: form
+      - explode: true
+        in: query
+        name: severity
+        required: false
+        schema:
+          enum:
+          - critical
+          - high
+          - medium
+          - low
+          - info
+          type: string
+        style: form
+      - description: "e.g. `missing_csp`, `missing_hsts`, `tls_invalid`, `all_clean`."
+        explode: true
+        in: query
+        name: signal_key
+        required: false
+        schema:
+          type: string
+        style: form
+      - explode: true
+        in: query
+        name: scanned_after
+        required: false
+        schema:
+          format: date-time
+          type: string
+        style: form
+      - explode: true
+        in: query
+        name: scanned_before
+        required: false
+        schema:
+          format: date-time
+          type: string
+        style: form
+      - explode: true
+        in: query
+        name: cursor
+        required: false
+        schema:
+          type: string
+        style: form
+      - explode: true
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 50
+          maximum: 200
+          minimum: 1
+          type: integer
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              example:
+                items:
+                - id: 7d8e9f0a-1b2c-3d4e-5f6a-7b8c9d0e1f2a
+                  property_id: 3a4b8b21-5a11-4f37-9b7c-6f2e0d5c8b1a
+                  scan_type: header_audit
+                  severity: medium
+                  signal_key: missing_csp
+                  details:
+                    url: https://acme.example.com
+                    observed_headers:
+                    - strict-transport-security
+                  remediation: Add a Content-Security-Policy header. Start with `default-src
+                    'self'` and tighten per your tag inventory.
+                  scanned_at: 2026-04-22T02:00:12Z
+                  created_at: 2026-04-22T02:00:12Z
+                next_cursor: null
+              schema:
+                $ref: '#/components/schemas/SecurityScanListResponse'
+          description: Paged security-scan list.
+        "400":
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: API key is account-scoped; this endpoint requires an org-scoped
+            key.
+        "401":
+          $ref: '#/components/responses/Unauthorized'
+        "403":
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: "Missing `read:security` scope, or API key is not authorised\
+            \ for this organisation."
+        "410":
+          $ref: '#/components/responses/Gone'
+        "422":
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: "Bad cursor, limit, date, or severity."
+        "429":
+          $ref: '#/components/responses/TooManyRequests'
+      security:
+      - bearerAuth:
+        - read:security
+      summary: List recent security-posture scan findings
+      tags:
+      - Security
+  /score:
+    get:
+      description: |
+        Reads the cached DEPA score from `public.depa_compliance_metrics` (ADR-0025). Refreshed nightly by pg_cron; `computed_at` shows freshness. All four dimension scores are on a 0..5 scale; `total_score` = sum on a 0..20 scale. `max_score` is a fixed constant (20) to make ratio arithmetic easy.
+        If the nightly refresh has not yet run for this org, every score field is `null`, `computed_at` is `null`, and `max_score` is still `20`. Clients should treat a null `total_score` as "no data yet" rather than 0.
+        Requires an org-scoped API key; account-scoped keys get 400.
+      operationId: scoreSelf
+      responses:
+        "200":
+          content:
+            application/json:
+              example:
+                total_score: 16.5
+                coverage_score: 5.0
+                expiry_score: 4.0
+                freshness_score: 4.5
+                revocation_score: 3.0
+                computed_at: 2026-04-22T19:30:04Z
+                max_score: 20
+              schema:
+                $ref: '#/components/schemas/DepaScoreResponse'
+          description: Current score envelope.
+        "400":
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: API key is account-scoped; this endpoint requires an org-scoped
+            key.
+        "401":
+          $ref: '#/components/responses/Unauthorized'
+        "403":
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: "Missing `read:score` scope, or API key is not authorised for\
+            \ this organisation."
+        "410":
+          $ref: '#/components/responses/Gone'
+        "429":
+          $ref: '#/components/responses/TooManyRequests'
+      security:
+      - bearerAuth:
+        - read:score
+      summary: Current DEPA compliance score for the caller's org
+      tags:
+      - Score
+components:
+  responses:
+    Unauthorized:
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+      description: "Missing, malformed, or invalid API key."
+    Gone:
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+      description: API key has been revoked.
+    TooManyRequests:
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+      description: Rate limit exceeded.
+      headers:
+        Retry-After:
+          description: Seconds until the rate-limit window resets.
+          explode: false
+          schema:
+            type: integer
+          style: simple
+        X-RateLimit-Limit:
+          description: Requests allowed per hour for this key's tier.
+          explode: false
+          schema:
+            type: integer
+          style: simple
+  schemas:
+    Problem:
+      properties:
+        type:
+          format: uri
+          type: string
+        title:
+          type: string
+        status:
+          type: integer
+        detail:
+          type: string
+      required:
+      - detail
+      - status
+      - title
+      - type
+    PingResponse:
+      example:
+        account_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        org_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        rate_tier: starter
+        scopes:
+        - read:consent
+        - write:consent
+        ok: true
+      properties:
+        ok:
+          example: true
+          type: boolean
+        org_id:
+          format: uuid
+          nullable: true
+          type: string
+        account_id:
+          format: uuid
+          type: string
+        scopes:
+          example:
+          - read:consent
+          - write:consent
+          items:
+            type: string
+          type: array
+        rate_tier:
+          example: starter
+          type: string
+      required:
+      - account_id
+      - ok
+      - org_id
+      - rate_tier
+      - scopes
+    VerifyResponse:
+      example:
+        revoked_at: 2000-01-23T04:56:07.000+00:00
+        expires_at: 2000-01-23T04:56:07.000+00:00
+        active_artefact_id: active_artefact_id
+        revocation_record_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        identifier_type: email
+        purpose_code: marketing
+        property_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        evaluated_at: 2000-01-23T04:56:07.000+00:00
+        status: granted
+      properties:
+        property_id:
+          format: uuid
+          type: string
+        identifier_type:
+          enum:
+          - email
+          - phone
+          - pan
+          - aadhaar
+          - custom
+          type: string
+        purpose_code:
+          example: marketing
+          type: string
+        status:
+          enum:
+          - granted
+          - revoked
+          - expired
+          - never_consented
+          type: string
+        active_artefact_id:
+          description: Present only when status=granted. Opaque identifier.
+          nullable: true
+          type: string
+        revoked_at:
+          description: Present only when status=revoked.
+          format: date-time
+          nullable: true
+          type: string
+        revocation_record_id:
+          description: Pointer to artefact_revocations row. Present only when status=revoked.
+          format: uuid
+          nullable: true
+          type: string
+        expires_at:
+          description: Artefact expiry timestamp. Null for never_consented.
+          format: date-time
+          nullable: true
+          type: string
+        evaluated_at:
+          description: Server-side ISO 8601 timestamp at which this verification was
+            computed.
+          format: date-time
+          type: string
+      required:
+      - evaluated_at
+      - identifier_type
+      - property_id
+      - purpose_code
+      - status
+    VerifyBatchRequest:
+      example:
+        identifiers:
+        - identifiers
+        - identifiers
+        - identifiers
+        - identifiers
+        - identifiers
+        identifier_type: email
+        purpose_code: marketing
+        property_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+      properties:
+        property_id:
+          format: uuid
+          type: string
+        identifier_type:
+          enum:
+          - email
+          - phone
+          - pan
+          - aadhaar
+          - custom
+          type: string
+        purpose_code:
+          example: marketing
+          type: string
+        identifiers:
+          items:
+            description: Non-empty string. Will be normalised per identifier_type.
+            type: string
+          maxItems: 10000
+          minItems: 1
+          type: array
+      required:
+      - identifier_type
+      - identifiers
+      - property_id
+      - purpose_code
+    VerifyBatchResultRow:
+      example:
+        identifier: identifier
+        revoked_at: 2000-01-23T04:56:07.000+00:00
+        expires_at: 2000-01-23T04:56:07.000+00:00
+        active_artefact_id: active_artefact_id
+        revocation_record_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        status: granted
+      properties:
+        identifier:
+          description: Echoed verbatim from input in the same position.
+          type: string
+        status:
+          enum:
+          - granted
+          - revoked
+          - expired
+          - never_consented
+          type: string
+        active_artefact_id:
+          nullable: true
+          type: string
+        revoked_at:
+          format: date-time
+          nullable: true
+          type: string
+        revocation_record_id:
+          format: uuid
+          nullable: true
+          type: string
+        expires_at:
+          format: date-time
+          nullable: true
+          type: string
+      required:
+      - identifier
+      - status
+    VerifyBatchResponse:
+      example:
+        identifier_type: identifier_type
+        purpose_code: purpose_code
+        results:
+        - identifier: identifier
+          revoked_at: 2000-01-23T04:56:07.000+00:00
+          expires_at: 2000-01-23T04:56:07.000+00:00
+          active_artefact_id: active_artefact_id
+          revocation_record_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          status: granted
+        - identifier: identifier
+          revoked_at: 2000-01-23T04:56:07.000+00:00
+          expires_at: 2000-01-23T04:56:07.000+00:00
+          active_artefact_id: active_artefact_id
+          revocation_record_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          status: granted
+        property_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        evaluated_at: 2000-01-23T04:56:07.000+00:00
+      properties:
+        property_id:
+          format: uuid
+          type: string
+        identifier_type:
+          type: string
+        purpose_code:
+          type: string
+        evaluated_at:
+          format: date-time
+          type: string
+        results:
+          items:
+            $ref: '#/components/schemas/VerifyBatchResultRow'
+          type: array
+      required:
+      - evaluated_at
+      - identifier_type
+      - property_id
+      - purpose_code
+      - results
+    RecordRequest:
+      example:
+        rejected_purpose_definition_ids:
+        - 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        - 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        data_principal_identifier: data_principal_identifier
+        client_request_id: client_request_id
+        identifier_type: email
+        captured_at: 2000-01-23T04:56:07.000+00:00
+        property_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        purpose_definition_ids:
+        - 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        - 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+      properties:
+        property_id:
+          format: uuid
+          type: string
+        data_principal_identifier:
+          description: Customer-supplied identifier; hashed server-side and never
+            stored in plaintext.
+          type: string
+        identifier_type:
+          enum:
+          - email
+          - phone
+          - pan
+          - aadhaar
+          - custom
+          type: string
+        purpose_definition_ids:
+          description: Purposes the data principal granted consent for. Each produces
+            an artefact.
+          items:
+            format: uuid
+            type: string
+          minItems: 1
+          type: array
+        rejected_purpose_definition_ids:
+          description: Optional. Purposes presented but rejected by the data principal.
+            Recorded in consent_events audit row for §11 audit; no artefact is created.
+          items:
+            format: uuid
+            type: string
+          type: array
+        captured_at:
+          description: When the consent was actually captured (kiosk / call-centre
+            / branch / app). Must be within ±15 minutes of the server's clock.
+          format: date-time
+          type: string
+        client_request_id:
+          description: Optional caller-supplied idempotency key. Reuse returns the
+            same envelope instead of creating new rows.
+          type: string
+      required:
+      - captured_at
+      - data_principal_identifier
+      - identifier_type
+      - property_id
+      - purpose_definition_ids
+    RecordedArtefact:
+      example:
+        purpose_definition_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        purpose_code: purpose_code
+        artefact_id: artefact_id
+        status: active
+      properties:
+        purpose_definition_id:
+          format: uuid
+          type: string
+        purpose_code:
+          type: string
+        artefact_id:
+          description: "Opaque artefact identifier. Keep it — the caller will need\
+            \ it for revocation via /consent/artefacts/{id}/revoke."
+          type: string
+        status:
+          example: active
+          type: string
+      required:
+      - artefact_id
+      - purpose_code
+      - purpose_definition_id
+      - status
+    RecordResponse:
+      example:
+        event_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        artefact_ids:
+        - purpose_definition_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          purpose_code: purpose_code
+          artefact_id: artefact_id
+          status: active
+        - purpose_definition_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          purpose_code: purpose_code
+          artefact_id: artefact_id
+          status: active
+        created_at: 2000-01-23T04:56:07.000+00:00
+        idempotent_replay: true
+      properties:
+        event_id:
+          format: uuid
+          type: string
+        created_at:
+          format: date-time
+          type: string
+        artefact_ids:
+          items:
+            $ref: '#/components/schemas/RecordedArtefact'
+          type: array
+        idempotent_replay:
+          description: true when this response is a replay of an earlier call made
+            with the same client_request_id.
+          type: boolean
+      required:
+      - artefact_ids
+      - created_at
+      - event_id
+      - idempotent_replay
+    ArtefactListItem:
+      example:
+        identifier_type: email
+        created_at: 2000-01-23T04:56:07.000+00:00
+        artefact_id: artefact_id
+        replaced_by: replaced_by
+        property_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        purpose_definition_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        framework: dpdp
+        expires_at: 2000-01-23T04:56:07.000+00:00
+        revoked_at: 2000-01-23T04:56:07.000+00:00
+        revocation_record_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        purpose_code: purpose_code
+        data_scope:
+        - data_scope
+        - data_scope
+        status: active
+      properties:
+        artefact_id:
+          type: string
+        property_id:
+          format: uuid
+          type: string
+        purpose_code:
+          type: string
+        purpose_definition_id:
+          format: uuid
+          type: string
+        data_scope:
+          items:
+            type: string
+          type: array
+        framework:
+          enum:
+          - dpdp
+          - abdm
+          - gdpr
+          type: string
+        status:
+          enum:
+          - active
+          - revoked
+          - expired
+          - replaced
+          type: string
+        expires_at:
+          format: date-time
+          nullable: true
+          type: string
+        revoked_at:
+          format: date-time
+          nullable: true
+          type: string
+        revocation_record_id:
+          format: uuid
+          nullable: true
+          type: string
+        replaced_by:
+          nullable: true
+          type: string
+        identifier_type:
+          enum:
+          - email
+          - phone
+          - pan
+          - aadhaar
+          - custom
+          - null
+          nullable: true
+          type: string
+        created_at:
+          format: date-time
+          type: string
+      required:
+      - artefact_id
+      - created_at
+      - property_id
+      - purpose_code
+      - status
+    ArtefactListResponse:
+      example:
+        next_cursor: next_cursor
+        items:
+        - identifier_type: email
+          created_at: 2000-01-23T04:56:07.000+00:00
+          artefact_id: artefact_id
+          replaced_by: replaced_by
+          property_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          purpose_definition_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          framework: dpdp
+          expires_at: 2000-01-23T04:56:07.000+00:00
+          revoked_at: 2000-01-23T04:56:07.000+00:00
+          revocation_record_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          purpose_code: purpose_code
+          data_scope:
+          - data_scope
+          - data_scope
+          status: active
+        - identifier_type: email
+          created_at: 2000-01-23T04:56:07.000+00:00
+          artefact_id: artefact_id
+          replaced_by: replaced_by
+          property_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          purpose_definition_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          framework: dpdp
+          expires_at: 2000-01-23T04:56:07.000+00:00
+          revoked_at: 2000-01-23T04:56:07.000+00:00
+          revocation_record_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          purpose_code: purpose_code
+          data_scope:
+          - data_scope
+          - data_scope
+          status: active
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/ArtefactListItem'
+          type: array
+        next_cursor:
+          description: Opaque keyset cursor. Echo back in the next request's `cursor`
+            query param to fetch the next page. Null when this is the last page.
+          nullable: true
+          type: string
+      required:
+      - items
+      - next_cursor
+    ArtefactRevocation:
+      example:
+        reason: reason
+        revoked_by_ref: revoked_by_ref
+        created_at: 2000-01-23T04:56:07.000+00:00
+        revoked_by_type: revoked_by_type
+        id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+      properties:
+        id:
+          format: uuid
+          type: string
+        reason:
+          nullable: true
+          type: string
+        revoked_by_type:
+          type: string
+        revoked_by_ref:
+          nullable: true
+          type: string
+        created_at:
+          format: date-time
+          type: string
+      required:
+      - created_at
+      - id
+      - revoked_by_type
+    ArtefactDetail:
+      allOf:
+      - $ref: '#/components/schemas/ArtefactListItem'
+      - properties:
+          revocation:
+            $ref: '#/components/schemas/ArtefactRevocation'
+          replacement_chain:
+            description: All artefact_ids in this replacement chain in chronological
+              order (earliest to latest). Single-element array when the artefact has
+              no predecessors or successors.
+            items:
+              type: string
+            type: array
+        required:
+        - replacement_chain
+        - revocation
+      example:
+        identifier_type: email
+        created_at: 2000-01-23T04:56:07.000+00:00
+        artefact_id: artefact_id
+        replaced_by: replaced_by
+        property_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        purpose_definition_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        revocation:
+          reason: reason
+          revoked_by_ref: revoked_by_ref
+          created_at: 2000-01-23T04:56:07.000+00:00
+          revoked_by_type: revoked_by_type
+          id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        framework: dpdp
+        expires_at: 2000-01-23T04:56:07.000+00:00
+        revoked_at: 2000-01-23T04:56:07.000+00:00
+        revocation_record_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        replacement_chain:
+        - replacement_chain
+        - replacement_chain
+        purpose_code: purpose_code
+        data_scope:
+        - data_scope
+        - data_scope
+        status: active
+    EventListItem:
+      example:
+        event_type: event_type
+        purposes_rejected_count: 6
+        identifier_type: identifier_type
+        artefact_count: 1
+        created_at: 2000-01-23T04:56:07.000+00:00
+        id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        source: web
+        purposes_accepted_count: 0
+        property_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+      properties:
+        id:
+          format: uuid
+          type: string
+        property_id:
+          format: uuid
+          type: string
+        source:
+          enum:
+          - web
+          - api
+          - sdk
+          type: string
+        event_type:
+          type: string
+        purposes_accepted_count:
+          type: integer
+        purposes_rejected_count:
+          type: integer
+        identifier_type:
+          nullable: true
+          type: string
+        artefact_count:
+          type: integer
+        created_at:
+          format: date-time
+          type: string
+      required:
+      - created_at
+      - event_type
+      - id
+      - property_id
+      - source
+    EventListResponse:
+      example:
+        next_cursor: next_cursor
+        items:
+        - event_type: event_type
+          purposes_rejected_count: 6
+          identifier_type: identifier_type
+          artefact_count: 1
+          created_at: 2000-01-23T04:56:07.000+00:00
+          id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          source: web
+          purposes_accepted_count: 0
+          property_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        - event_type: event_type
+          purposes_rejected_count: 6
+          identifier_type: identifier_type
+          artefact_count: 1
+          created_at: 2000-01-23T04:56:07.000+00:00
+          id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          source: web
+          purposes_accepted_count: 0
+          property_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/EventListItem'
+          type: array
+        next_cursor:
+          nullable: true
+          type: string
+      required:
+      - items
+      - next_cursor
+    RevokeRequest:
+      example:
+        reason_code: reason_code
+        reason_notes: reason_notes
+        actor_type: user
+        actor_ref: actor_ref
+      properties:
+        reason_code:
+          description: "Machine-readable reason tag, e.g. user_withdrawal, user_preference_change,\
+            \ business_withdrawal, data_breach, regulatory_instruction."
+          type: string
+        reason_notes:
+          description: Optional free-text notes preserved on the revocation row.
+          type: string
+        actor_type:
+          enum:
+          - user
+          - operator
+          - system
+          type: string
+        actor_ref:
+          description: "Optional caller-supplied reference (user_id, operator_email,\
+            \ system task id). Stored on the revocation row for §11 audit."
+          type: string
+      required:
+      - actor_type
+      - reason_code
+    RevokeResponse:
+      example:
+        revocation_record_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        idempotent_replay: true
+        artefact_id: artefact_id
+        status: revoked
+      properties:
+        artefact_id:
+          type: string
+        status:
+          enum:
+          - revoked
+          type: string
+        revocation_record_id:
+          format: uuid
+          type: string
+        idempotent_replay:
+          description: true when the artefact was already revoked and this response
+            is a replay of the original revocation.
+          type: boolean
+      required:
+      - artefact_id
+      - idempotent_replay
+      - revocation_record_id
+      - status
+    DeletionTriggerRequest:
+      example:
+        scope_override:
+        - scope_override
+        - scope_override
+        reason: consent_revoked
+        data_principal_identifier: data_principal_identifier
+        actor_type: user
+        identifier_type: email
+        actor_ref: actor_ref
+        purpose_codes:
+        - purpose_codes
+        - purpose_codes
+        property_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+      properties:
+        property_id:
+          format: uuid
+          type: string
+        data_principal_identifier:
+          type: string
+        identifier_type:
+          enum:
+          - email
+          - phone
+          - pan
+          - aadhaar
+          - custom
+          type: string
+        reason:
+          description: '`consent_revoked` requires purpose_codes; `erasure_request`
+            sweeps all active artefacts for the principal; `retention_expired` is
+            not yet implemented (returns 501).'
+          enum:
+          - consent_revoked
+          - erasure_request
+          - retention_expired
+          type: string
+        purpose_codes:
+          description: Required when reason=consent_revoked.
+          items:
+            type: string
+          type: array
+        scope_override:
+          description: Optional data-scope override for retention_expired (future).
+          items:
+            type: string
+          type: array
+        actor_type:
+          enum:
+          - user
+          - operator
+          - system
+          type: string
+        actor_ref:
+          type: string
+      required:
+      - data_principal_identifier
+      - identifier_type
+      - property_id
+      - reason
+    DeletionTriggerResponse:
+      example:
+        reason: consent_revoked
+        initial_status: pending
+        note: note
+        revoked_artefact_ids:
+        - revoked_artefact_ids
+        - revoked_artefact_ids
+        revoked_count: 0
+      properties:
+        reason:
+          enum:
+          - consent_revoked
+          - erasure_request
+          - retention_expired
+          type: string
+        revoked_artefact_ids:
+          items:
+            type: string
+          type: array
+        revoked_count:
+          nullable: true
+          type: integer
+        initial_status:
+          example: pending
+          type: string
+        note:
+          type: string
+      required:
+      - initial_status
+      - reason
+      - revoked_artefact_ids
+    TestDeleteResponse:
+      example:
+        reason: test
+        note: note
+        data_principal_identifier: cs_test_principal_5fa8c1b2-3d4e-4a7b-9c0d-ef1234567890
+        connector_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        connector_type: connector_type
+        receipt_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        status: pending
+      properties:
+        receipt_id:
+          format: uuid
+          type: string
+        data_principal_identifier:
+          example: cs_test_principal_5fa8c1b2-3d4e-4a7b-9c0d-ef1234567890
+          type: string
+        reason:
+          enum:
+          - test
+          type: string
+        connector_id:
+          format: uuid
+          type: string
+        connector_type:
+          type: string
+        status:
+          example: pending
+          type: string
+        note:
+          type: string
+      required:
+      - connector_id
+      - data_principal_identifier
+      - reason
+      - receipt_id
+      - status
+    DeletionReceiptRow:
+      example:
+        trigger_type: trigger_type
+        trigger_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        retry_count: 0
+        connector_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        created_at: 2000-01-23T04:56:07.000+00:00
+        target_system: target_system
+        id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        failure_reason: failure_reason
+        artefact_id: artefact_id
+        confirmed_at: 2000-01-23T04:56:07.000+00:00
+        status: status
+        requested_at: 2000-01-23T04:56:07.000+00:00
+      properties:
+        id:
+          format: uuid
+          type: string
+        trigger_type:
+          type: string
+        trigger_id:
+          format: uuid
+          nullable: true
+          type: string
+        artefact_id:
+          nullable: true
+          type: string
+        connector_id:
+          format: uuid
+          nullable: true
+          type: string
+        target_system:
+          type: string
+        status:
+          type: string
+        retry_count:
+          type: integer
+        failure_reason:
+          nullable: true
+          type: string
+        requested_at:
+          format: date-time
+          nullable: true
+          type: string
+        confirmed_at:
+          format: date-time
+          nullable: true
+          type: string
+        created_at:
+          format: date-time
+          type: string
+      required:
+      - created_at
+      - id
+      - status
+      - target_system
+      - trigger_type
+    DeletionReceiptsResponse:
+      example:
+        next_cursor: next_cursor
+        items:
+        - trigger_type: trigger_type
+          trigger_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          retry_count: 0
+          connector_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          created_at: 2000-01-23T04:56:07.000+00:00
+          target_system: target_system
+          id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          failure_reason: failure_reason
+          artefact_id: artefact_id
+          confirmed_at: 2000-01-23T04:56:07.000+00:00
+          status: status
+          requested_at: 2000-01-23T04:56:07.000+00:00
+        - trigger_type: trigger_type
+          trigger_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          retry_count: 0
+          connector_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          created_at: 2000-01-23T04:56:07.000+00:00
+          target_system: target_system
+          id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          failure_reason: failure_reason
+          artefact_id: artefact_id
+          confirmed_at: 2000-01-23T04:56:07.000+00:00
+          status: status
+          requested_at: 2000-01-23T04:56:07.000+00:00
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/DeletionReceiptRow'
+          type: array
+        next_cursor:
+          nullable: true
+          type: string
+      required:
+      - items
+      - next_cursor
+    AuditLogItem:
+      description: |
+        ip_address is deliberately excluded from this envelope — it is PII and not emitted to the /v1/audit surface. Correlate via actor_email if per-person attribution is needed.
+      example:
+        event_type: banner_published
+        entity_type: banner
+        payload: ""
+        created_at: 2000-01-23T04:56:07.000+00:00
+        actor_email: actor_email
+        id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        actor_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        entity_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+      properties:
+        id:
+          format: uuid
+          type: string
+        actor_id:
+          format: uuid
+          nullable: true
+          type: string
+        actor_email:
+          format: email
+          nullable: true
+          type: string
+        event_type:
+          example: banner_published
+          type: string
+        entity_type:
+          example: banner
+          nullable: true
+          type: string
+        entity_id:
+          format: uuid
+          nullable: true
+          type: string
+        payload: {}
+        created_at:
+          format: date-time
+          type: string
+      required:
+      - created_at
+      - event_type
+      - id
+    AuditLogListResponse:
+      example:
+        next_cursor: next_cursor
+        items:
+        - event_type: banner_published
+          entity_type: banner
+          payload: ""
+          created_at: 2000-01-23T04:56:07.000+00:00
+          actor_email: actor_email
+          id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          actor_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          entity_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        - event_type: banner_published
+          entity_type: banner
+          payload: ""
+          created_at: 2000-01-23T04:56:07.000+00:00
+          actor_email: actor_email
+          id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          actor_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          entity_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/AuditLogItem'
+          type: array
+        next_cursor:
+          nullable: true
+          type: string
+      required:
+      - items
+      - next_cursor
+    SecurityScanItem:
+      example:
+        severity: critical
+        remediation: remediation
+        signal_key: missing_csp
+        scanned_at: 2000-01-23T04:56:07.000+00:00
+        scan_type: header_audit
+        created_at: 2000-01-23T04:56:07.000+00:00
+        details: ""
+        id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        property_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+      properties:
+        id:
+          format: uuid
+          type: string
+        property_id:
+          format: uuid
+          type: string
+        scan_type:
+          example: header_audit
+          type: string
+        severity:
+          enum:
+          - critical
+          - high
+          - medium
+          - low
+          - info
+          type: string
+        signal_key:
+          example: missing_csp
+          type: string
+        details: {}
+        remediation:
+          nullable: true
+          type: string
+        scanned_at:
+          format: date-time
+          type: string
+        created_at:
+          format: date-time
+          type: string
+      required:
+      - created_at
+      - id
+      - property_id
+      - scan_type
+      - scanned_at
+      - severity
+      - signal_key
+    SecurityScanListResponse:
+      example:
+        next_cursor: next_cursor
+        items:
+        - severity: critical
+          remediation: remediation
+          signal_key: missing_csp
+          scanned_at: 2000-01-23T04:56:07.000+00:00
+          scan_type: header_audit
+          created_at: 2000-01-23T04:56:07.000+00:00
+          details: ""
+          id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          property_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        - severity: critical
+          remediation: remediation
+          signal_key: missing_csp
+          scanned_at: 2000-01-23T04:56:07.000+00:00
+          scan_type: header_audit
+          created_at: 2000-01-23T04:56:07.000+00:00
+          details: ""
+          id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          property_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/SecurityScanItem'
+          type: array
+        next_cursor:
+          nullable: true
+          type: string
+      required:
+      - items
+      - next_cursor
+    DepaScoreResponse:
+      example:
+        freshness_score: 2.981066958341591
+        expiry_score: 0.7329064902514726
+        revocation_score: 2.8186883283166644
+        max_score: 20
+        coverage_score: 3.0137280915352016
+        total_score: 1.601656380922023
+        computed_at: 2000-01-23T04:56:07.000+00:00
+      properties:
+        total_score:
+          description: Sum of the four dimension scores. Null until nightly cron has
+            run for this org.
+          maximum: 20
+          minimum: 0
+          nullable: true
+          type: number
+        coverage_score:
+          maximum: 5
+          minimum: 0
+          nullable: true
+          type: number
+        expiry_score:
+          maximum: 5
+          minimum: 0
+          nullable: true
+          type: number
+        freshness_score:
+          maximum: 5
+          minimum: 0
+          nullable: true
+          type: number
+        revocation_score:
+          maximum: 5
+          minimum: 0
+          nullable: true
+          type: number
+        computed_at:
+          description: When the metrics were last refreshed. Dashboard warns if >25h
+            old.
+          format: date-time
+          nullable: true
+          type: string
+        max_score:
+          description: Fixed upper bound (4 dimensions × 5 points). Divide total_score
+            by this for a 0..1 ratio.
+          example: 20
+          type: integer
+      required:
+      - max_score
+    RightsRequestCreateRequest:
+      example:
+        requestor_email: requestor_email
+        identity_verified_by: identity_verified_by
+        requestor_name: requestor_name
+        captured_via: api
+        type: erasure
+        request_details: request_details
+      properties:
+        type:
+          description: DPDP §11 rights-request type.
+          enum:
+          - erasure
+          - access
+          - correction
+          - nomination
+          type: string
+        requestor_name:
+          description: Full name of the data principal (trimmed server-side).
+          type: string
+        requestor_email:
+          description: Email address of the data principal (lower-cased server-side).
+          format: email
+          type: string
+        request_details:
+          description: Optional free-text details captured from the requestor.
+          nullable: true
+          type: string
+        identity_verified_by:
+          description: |
+            Free-text attestation from the API caller describing how the data principal's identity was verified. Examples: "internal_kyc_check", "branch_officer_id_42", "existing_session_uid_abc123". Stored on the rights_requests row as identity_method and echoed in the created_via_api audit event.
+          type: string
+        captured_via:
+          default: api
+          description: |
+            Channel through which the request was captured. Defaults to api. Operator-side channels (branch, kiosk, call_center) are allowed so the same API key can be used for in-person capture without losing the audit trail of where the request came from.
+          enum:
+          - api
+          - kiosk
+          - branch
+          - call_center
+          - mobile_app
+          - email
+          - other
+          type: string
+      required:
+      - identity_verified_by
+      - requestor_email
+      - requestor_name
+      - type
+    RightsRequestCreatedResponse:
+      example:
+        request_type: erasure
+        identity_verified: true
+        identity_verified_by: identity_verified_by
+        captured_via: api
+        sla_deadline: 2000-01-23T04:56:07.000+00:00
+        created_at: 2000-01-23T04:56:07.000+00:00
+        id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        status: new
+      properties:
+        id:
+          format: uuid
+          type: string
+        status:
+          enum:
+          - new
+          - in_progress
+          - completed
+          - rejected
+          type: string
+        request_type:
+          enum:
+          - erasure
+          - access
+          - correction
+          - nomination
+          type: string
+        captured_via:
+          enum:
+          - api
+          - kiosk
+          - branch
+          - call_center
+          - mobile_app
+          - email
+          - other
+          type: string
+        identity_verified:
+          description: Always true on a successful response (API caller attests).
+          type: boolean
+        identity_verified_by:
+          type: string
+        sla_deadline:
+          description: 30 days from creation per DPDP §11 default. Customer may override.
+          format: date-time
+          type: string
+        created_at:
+          format: date-time
+          type: string
+      required:
+      - captured_via
+      - created_at
+      - id
+      - identity_verified
+      - identity_verified_by
+      - request_type
+      - sla_deadline
+      - status
+    RightsRequestItem:
+      example:
+        response_sent_at: 2000-01-23T04:56:07.000+00:00
+        identity_verified_at: 2000-01-23T04:56:07.000+00:00
+        request_type: erasure
+        sla_deadline: 2000-01-23T04:56:07.000+00:00
+        created_at: 2000-01-23T04:56:07.000+00:00
+        identity_method: identity_method
+        requestor_email: requestor_email
+        updated_at: 2000-01-23T04:56:07.000+00:00
+        identity_verified: true
+        requestor_name: requestor_name
+        captured_via: portal
+        id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        created_by_api_key_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        status: new
+      properties:
+        id:
+          format: uuid
+          type: string
+        request_type:
+          enum:
+          - erasure
+          - access
+          - correction
+          - nomination
+          type: string
+        requestor_name:
+          type: string
+        requestor_email:
+          format: email
+          type: string
+        status:
+          enum:
+          - new
+          - in_progress
+          - completed
+          - rejected
+          type: string
+        captured_via:
+          enum:
+          - portal
+          - api
+          - kiosk
+          - branch
+          - call_center
+          - mobile_app
+          - email
+          - other
+          type: string
+        identity_verified:
+          type: boolean
+        identity_verified_at:
+          format: date-time
+          nullable: true
+          type: string
+        identity_method:
+          nullable: true
+          type: string
+        sla_deadline:
+          format: date-time
+          type: string
+        response_sent_at:
+          format: date-time
+          nullable: true
+          type: string
+        created_by_api_key_id:
+          description: |
+            API key that created this request (non-null when captured_via=api). Null for portal-initiated requests.
+          format: uuid
+          nullable: true
+          type: string
+        created_at:
+          format: date-time
+          type: string
+        updated_at:
+          format: date-time
+          type: string
+      required:
+      - captured_via
+      - created_at
+      - id
+      - identity_verified
+      - request_type
+      - requestor_email
+      - requestor_name
+      - sla_deadline
+      - status
+      - updated_at
+    RightsRequestListResponse:
+      example:
+        next_cursor: next_cursor
+        items:
+        - response_sent_at: 2000-01-23T04:56:07.000+00:00
+          identity_verified_at: 2000-01-23T04:56:07.000+00:00
+          request_type: erasure
+          sla_deadline: 2000-01-23T04:56:07.000+00:00
+          created_at: 2000-01-23T04:56:07.000+00:00
+          identity_method: identity_method
+          requestor_email: requestor_email
+          updated_at: 2000-01-23T04:56:07.000+00:00
+          identity_verified: true
+          requestor_name: requestor_name
+          captured_via: portal
+          id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          created_by_api_key_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          status: new
+        - response_sent_at: 2000-01-23T04:56:07.000+00:00
+          identity_verified_at: 2000-01-23T04:56:07.000+00:00
+          request_type: erasure
+          sla_deadline: 2000-01-23T04:56:07.000+00:00
+          created_at: 2000-01-23T04:56:07.000+00:00
+          identity_method: identity_method
+          requestor_email: requestor_email
+          updated_at: 2000-01-23T04:56:07.000+00:00
+          identity_verified: true
+          requestor_name: requestor_name
+          captured_via: portal
+          id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          created_by_api_key_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          status: new
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/RightsRequestItem'
+          type: array
+        next_cursor:
+          description: Opaque keyset cursor; echo in the next request's `cursor` query
+            param.
+          nullable: true
+          type: string
+      required:
+      - items
+      - next_cursor
+    KeySelfResponse:
+      example:
+        account_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        expires_at: 2000-01-23T04:56:07.000+00:00
+        revoked_at: 2000-01-23T04:56:07.000+00:00
+        key_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        org_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        key_prefix: cs_live_ABC
+        name: My production key
+        rate_tier: starter
+        created_at: 2000-01-23T04:56:07.000+00:00
+        scopes:
+        - read:consent
+        - write:consent
+        - read:artefacts
+        last_rotated_at: 2000-01-23T04:56:07.000+00:00
+      properties:
+        key_id:
+          format: uuid
+          type: string
+        account_id:
+          format: uuid
+          type: string
+        org_id:
+          description: null for account-scoped keys.
+          format: uuid
+          nullable: true
+          type: string
+        name:
+          example: My production key
+          type: string
+        key_prefix:
+          description: "First 16 characters of the key, shown in the dashboard."
+          example: cs_live_ABC
+          type: string
+        scopes:
+          example:
+          - read:consent
+          - write:consent
+          - read:artefacts
+          items:
+            type: string
+          type: array
+        rate_tier:
+          enum:
+          - starter
+          - growth
+          - pro
+          - enterprise
+          - sandbox
+          example: starter
+          type: string
+        created_at:
+          format: date-time
+          type: string
+        last_rotated_at:
+          format: date-time
+          nullable: true
+          type: string
+        expires_at:
+          format: date-time
+          nullable: true
+          type: string
+        revoked_at:
+          description: Always null on a successful response — revoked keys are rejected
+            at the Bearer layer (410 Gone) before this endpoint runs.
+          format: date-time
+          nullable: true
+          type: string
+      required:
+      - account_id
+      - created_at
+      - key_id
+      - key_prefix
+      - name
+      - rate_tier
+      - scopes
+    UsageDayRow:
+      example:
+        p95_ms: 47.2
+        p50_ms: 18.4
+        day: 2026-04-21
+        request_count: 1423
+      properties:
+        day:
+          example: 2026-04-21
+          format: date
+          type: string
+        request_count:
+          example: 1423
+          minimum: 0
+          type: integer
+        p50_ms:
+          example: 18.4
+          minimum: 0
+          type: number
+        p95_ms:
+          example: 47.2
+          minimum: 0
+          type: number
+      required:
+      - day
+      - p50_ms
+      - p95_ms
+      - request_count
+    PurposeItem:
+      example:
+        framework: dpdp
+        is_active: true
+        default_expiry_days: 365
+        updated_at: 2000-01-23T04:56:07.000+00:00
+        is_required: true
+        auto_delete_on_expiry: true
+        description: description
+        created_at: 2000-01-23T04:56:07.000+00:00
+        purpose_code: marketing
+        id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        display_name: Marketing communications
+        data_scope:
+        - email_address
+        - phone_number
+      properties:
+        id:
+          format: uuid
+          type: string
+        purpose_code:
+          example: marketing
+          type: string
+        display_name:
+          example: Marketing communications
+          type: string
+        description:
+          nullable: true
+          type: string
+        data_scope:
+          example:
+          - email_address
+          - phone_number
+          items:
+            type: string
+          type: array
+        default_expiry_days:
+          example: 365
+          type: integer
+        auto_delete_on_expiry:
+          type: boolean
+        is_required:
+          description: Whether this purpose is mandatory (required for the service
+            to function; no opt-out under DPDP).
+          type: boolean
+        framework:
+          example: dpdp
+          type: string
+        is_active:
+          type: boolean
+        created_at:
+          format: date-time
+          type: string
+        updated_at:
+          format: date-time
+          type: string
+      required:
+      - created_at
+      - data_scope
+      - default_expiry_days
+      - display_name
+      - framework
+      - id
+      - is_active
+      - purpose_code
+      - updated_at
+    PurposeListResponse:
+      example:
+        items:
+        - framework: dpdp
+          is_active: true
+          default_expiry_days: 365
+          updated_at: 2000-01-23T04:56:07.000+00:00
+          is_required: true
+          auto_delete_on_expiry: true
+          description: description
+          created_at: 2000-01-23T04:56:07.000+00:00
+          purpose_code: marketing
+          id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          display_name: Marketing communications
+          data_scope:
+          - email_address
+          - phone_number
+        - framework: dpdp
+          is_active: true
+          default_expiry_days: 365
+          updated_at: 2000-01-23T04:56:07.000+00:00
+          is_required: true
+          auto_delete_on_expiry: true
+          description: description
+          created_at: 2000-01-23T04:56:07.000+00:00
+          purpose_code: marketing
+          id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          display_name: Marketing communications
+          data_scope:
+          - email_address
+          - phone_number
+      properties:
+        items:
+          description: Ordered alphabetically by purpose_code.
+          items:
+            $ref: '#/components/schemas/PurposeItem'
+          type: array
+      required:
+      - items
+    PropertyItem:
+      example:
+        snippet_last_seen_at: 2000-01-23T04:56:07.000+00:00
+        updated_at: 2000-01-23T04:56:07.000+00:00
+        name: ACME production
+        snippet_verified_at: 2000-01-23T04:56:07.000+00:00
+        created_at: 2000-01-23T04:56:07.000+00:00
+        id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        url: https://acme.example.com
+        allowed_origins:
+        - https://acme.example.com
+        - https://www.acme.example.com
+      properties:
+        id:
+          format: uuid
+          type: string
+        name:
+          example: ACME production
+          type: string
+        url:
+          example: https://acme.example.com
+          type: string
+        allowed_origins:
+          example:
+          - https://acme.example.com
+          - https://www.acme.example.com
+          items:
+            type: string
+          type: array
+        snippet_verified_at:
+          format: date-time
+          nullable: true
+          type: string
+        snippet_last_seen_at:
+          format: date-time
+          nullable: true
+          type: string
+        created_at:
+          format: date-time
+          type: string
+        updated_at:
+          format: date-time
+          type: string
+      required:
+      - allowed_origins
+      - created_at
+      - id
+      - name
+      - updated_at
+      - url
+    PropertyListResponse:
+      example:
+        items:
+        - snippet_last_seen_at: 2000-01-23T04:56:07.000+00:00
+          updated_at: 2000-01-23T04:56:07.000+00:00
+          name: ACME production
+          snippet_verified_at: 2000-01-23T04:56:07.000+00:00
+          created_at: 2000-01-23T04:56:07.000+00:00
+          id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          url: https://acme.example.com
+          allowed_origins:
+          - https://acme.example.com
+          - https://www.acme.example.com
+        - snippet_last_seen_at: 2000-01-23T04:56:07.000+00:00
+          updated_at: 2000-01-23T04:56:07.000+00:00
+          name: ACME production
+          snippet_verified_at: 2000-01-23T04:56:07.000+00:00
+          created_at: 2000-01-23T04:56:07.000+00:00
+          id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          url: https://acme.example.com
+          allowed_origins:
+          - https://acme.example.com
+          - https://www.acme.example.com
+      properties:
+        items:
+          description: |
+            Ordered by created_at asc. The HMAC `event_signing_secret` is deliberately omitted — it's a server-only key used by the Cloudflare Worker to verify inbound events and must never leak to API consumers.
+          items:
+            $ref: '#/components/schemas/PropertyItem'
+          type: array
+      required:
+      - items
+    PlanItem:
+      example:
+        max_organisations: 1
+        api_burst: 20
+        plan_code: starter
+        display_name: Starter
+        api_rate_limit_per_hour: 100
+        trial_days: 30
+        max_web_properties_per_org: 2
+        base_price_inr: 999
+      properties:
+        plan_code:
+          example: starter
+          type: string
+        display_name:
+          example: Starter
+          type: string
+        max_organisations:
+          example: 1
+          type: integer
+        max_web_properties_per_org:
+          example: 2
+          type: integer
+        base_price_inr:
+          description: Monthly price in INR. `null` for enterprise tiers that are
+            negotiated.
+          example: 999
+          nullable: true
+          type: integer
+        trial_days:
+          example: 30
+          type: integer
+        api_rate_limit_per_hour:
+          example: 100
+          type: integer
+        api_burst:
+          example: 20
+          type: integer
+      required:
+      - api_burst
+      - api_rate_limit_per_hour
+      - display_name
+      - max_organisations
+      - max_web_properties_per_org
+      - plan_code
+      - trial_days
+    PlanListResponse:
+      example:
+        items:
+        - max_organisations: 1
+          api_burst: 20
+          plan_code: starter
+          display_name: Starter
+          api_rate_limit_per_hour: 100
+          trial_days: 30
+          max_web_properties_per_org: 2
+          base_price_inr: 999
+        - max_organisations: 1
+          api_burst: 20
+          plan_code: starter
+          display_name: Starter
+          api_rate_limit_per_hour: 100
+          trial_days: 30
+          max_web_properties_per_org: 2
+          base_price_inr: 999
+      properties:
+        items:
+          description: |
+            Ordered cheapest first; plans with `base_price_inr = null` (enterprise "talk to us") sort last. Only active plans are returned.
+          items:
+            $ref: '#/components/schemas/PlanItem'
+          type: array
+      required:
+      - items
+    UsageResponse:
+      example:
+        key_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        series:
+        - p95_ms: 47.2
+          p50_ms: 18.4
+          day: 2026-04-21
+          request_count: 1423
+        - p95_ms: 47.2
+          p50_ms: 18.4
+          day: 2026-04-21
+          request_count: 1423
+        days: 7
+      properties:
+        key_id:
+          format: uuid
+          type: string
+        days:
+          example: 7
+          maximum: 30
+          minimum: 1
+          type: integer
+        series:
+          description: One row per day. Most recent first. Days with no activity have
+            counts of 0.
+          items:
+            $ref: '#/components/schemas/UsageDayRow'
+          type: array
+      required:
+      - days
+      - key_id
+      - series
+  securitySchemes:
+    bearerAuth:
+      bearerFormat: cs_live_<token>
+      description: |
+        Obtain a `cs_live_*` API key from Settings → API keys in the dashboard. Include it as `Authorization: Bearer cs_live_<token>` on every request.
+      scheme: bearer
+      type: http
+

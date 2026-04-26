@@ -1,0 +1,19 @@
+{
+  "packageName": "ConsentShield",
+  "composerPackageName": "consentshield/consentshield",
+  "composerVendorName": "consentshield",
+  "composerProjectName": "consentshield",
+  "artifactVersion": "1.0.0",
+  "invokerPackage": "ConsentShield\\Client",
+  "apiPackage": "Api",
+  "modelPackage": "Model",
+  "gitUserId": "SAnegondhi",
+  "gitRepoId": "consentshield-php",
+  "developerOrganization": "ConsentShield",
+  "developerOrganizationUrl": "https://consentshield.in",
+  "licenseName": "Apache-2.0",
+  "licenseUrl": "https://www.apache.org/licenses/LICENSE-2.0",
+  "hideGenerationTimestamp": true,
+  "disallowAdditionalPropertiesIfNotPresent": true,
+  "srcBasePath": "lib"
+}
