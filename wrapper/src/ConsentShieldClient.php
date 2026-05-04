@@ -46,7 +46,16 @@ final class ConsentShieldClient
      *   timeoutSeconds?: float,
      *   maxRetries?: int,
      *   failOpen?: bool,
-     * } $options
+     *   handler?: callable,
+     * } $options $options['handler'] is an optional Guzzle handler callable.
+     *                                  When set, replaces the default cURL handler
+     *                                  (the RetryMiddleware compliance contract is
+     *                                  pushed on top of whichever handler is used,
+     *                                  so retry / fail-CLOSED semantics are preserved
+     *                                  regardless of transport). Used by the
+     *                                  WordPress plugin to delegate outbound HTTP
+     *                                  through wp_remote_request when sites depend
+     *                                  on WP_HTTP_PROXY / WP HTTP filters.
      */
     public static function create(string $apiKey, array $options = []): self
     {
@@ -71,7 +80,14 @@ final class ConsentShieldClient
         $envFailOpen = strtolower((string)getenv('CONSENT_VERIFY_FAIL_OPEN')) === 'true';
         $failOpen = $explicitFailOpen ? (bool)$options['failOpen'] : $envFailOpen;
 
-        $stack = HandlerStack::create();
+        $customHandler = $options['handler'] ?? null;
+        if ($customHandler !== null && !is_callable($customHandler)) {
+            throw new \InvalidArgumentException('handler must be a callable Guzzle handler');
+        }
+
+        $stack = $customHandler !== null
+            ? HandlerStack::create($customHandler)
+            : HandlerStack::create();
         $stack->push(RetryMiddleware::create($maxRetries));
 
         $http = new GuzzleClient([
