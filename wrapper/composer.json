@@ -1,10 +1,10 @@
 {
-    "name": "consentshield/sdk",
+    "name": "consentshield/php",
     "type": "library",
     "version": "1.0.0",
     "description": "Compliance-contract wrapper around the ConsentShield generated PHP client, adding retry-aware Guzzle middleware, fail-CLOSED defaults, and a typed exception hierarchy. Laravel and Symfony examples included.",
     "keywords": ["consentshield", "dpdp", "consent", "compliance", "sdk"],
-    "homepage": "https://github.com/SAnegondhi/consentshield-php",
+    "homepage": "https://github.com/consentshield-org/php",
     "license": "Apache-2.0",
     "authors": [
         {

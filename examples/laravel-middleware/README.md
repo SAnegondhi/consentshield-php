@@ -17,7 +17,7 @@ Then in `bootstrap/app.php`:
 ```
 
 ```bash
-composer require consentshield/sdk:^1.0
+composer require consentshield/php:^1.0
 export CONSENTSHIELD_API_KEY=cs_live_...
 php artisan serve
 ```

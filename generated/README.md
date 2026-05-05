@@ -20,11 +20,11 @@ To install the bindings via [Composer](https://getcomposer.org/), add the follow
   "repositories": [
     {
       "type": "vcs",
-      "url": "https://github.com/SAnegondhi/consentshield-php.git"
+      "url": "https://github.com/consentshield-org/php.git"
     }
   ],
   "require": {
-    "SAnegondhi/consentshield-php": "*@dev"
+    "consentshield-org/php": "*@dev"
   }
 }
 ```

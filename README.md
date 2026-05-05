@@ -2,14 +2,14 @@
 
 Official PHP 8.1+ client + Laravel/Symfony integration for the [ConsentShield Compliance API](https://api.consentshield.in/v1).
 
-- **Packagist**: `consentshield/sdk` 1.0.0 (compliance-contract wrapper)
+- **Packagist**: `consentshield/php` 1.0.0 (compliance-contract wrapper)
 - **Packagist**: `consentshield/consentshield` 1.0.0 (raw client; non-Guzzle callers)
-- **Source**: <https://github.com/SAnegondhi/consentshield-php>
+- **Source**: <https://github.com/consentshield-org/php>
 
 ## Install
 
 ```bash
-composer require consentshield/sdk:^1.0
+composer require consentshield/php:^1.0
 ```
 
 ```php

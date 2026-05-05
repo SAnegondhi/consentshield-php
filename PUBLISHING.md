@@ -4,10 +4,10 @@ Operator runbook. Packagist auto-ingests new tags from the GitHub repo within ~5
 
 ## One-time onboarding
 
-1. **Create a Packagist account** at <https://packagist.org/login/> using the same GitHub identity that owns `github.com/SAnegondhi/consentshield-php`.
+1. **Create a Packagist account** at <https://packagist.org/login/> using the same GitHub identity that owns `github.com/consentshield-org/php`.
 2. **Submit the package** at <https://packagist.org/packages/submit>:
-   - Repository URL: `https://github.com/SAnegondhi/consentshield-php`.
-   - Packagist parses `composer.json` and registers the namespace `consentshield/sdk`. (The generated raw client `consentshield/consentshield` is registered separately the same way.)
+   - Repository URL: `https://github.com/consentshield-org/php`.
+   - Packagist parses `composer.json` and registers the namespace `consentshield/php`. (The generated raw client `consentshield/consentshield` is registered separately the same way.)
 3. **Configure the GitHub webhook** to auto-update Packagist on push:
    - Packagist UI → "Configure" → "GitHub Service Hook" → follow instructions to add a webhook on the repo. After this, every push and tag triggers Packagist to re-parse the package within 60 s.
 4. **Ensure stable email** is set on the Packagist account — security advisories land here.
@@ -15,7 +15,7 @@ Operator runbook. Packagist auto-ingests new tags from the GitHub repo within ~5
 ## Pre-flight (every release)
 
 ```bash
-cd packages/php-client/wrapper
+cd consentshield-packages/php/wrapper
 composer install
 vendor/bin/phpunit
 ```
@@ -31,14 +31,14 @@ git tag -a v1.0.0 -m "ConsentShield PHP SDK 1.0.0"
 git push origin v1.0.0
 ```
 
-Within ~5 minutes the new version is searchable on Packagist and installable via `composer require consentshield/sdk:^1.0`.
+Within ~5 minutes the new version is searchable on Packagist and installable via `composer require consentshield/php:^1.0`.
 
 ## Smoke install
 
 ```bash
 mkdir /tmp/cs-smoke && cd /tmp/cs-smoke
 composer init -n --name=scratch/smoke
-composer require consentshield/sdk:^1.0
+composer require consentshield/php:^1.0
 php -r "require 'vendor/autoload.php'; \$c = ConsentShield\Sdk\ConsentShieldClient::create(getenv('CS')); var_dump(\$c->utility()->ping());"
 ```
 
